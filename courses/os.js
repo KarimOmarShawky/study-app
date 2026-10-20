@@ -12,7 +12,7 @@ window.COURSES.os = {
       "title": "Dr. Ahmed F. Elnokrashy — Full OS Course",
       "type": "playlist",
       "url": "https://youtube.com/playlist?list=PLskaQRgiRMYZbmjdZlauOBAoXYi-r78Fe&si=JMnDs5Me9tlqOBki",
-      "notes": "شرح للمنهج من نفس الكتاب المقرر (Silberschatz) مع اختلافات بسيطة",
+      "notes": "Lectures following the set textbook (Silberschatz) with small differences",
       "chapters": [
         1,
         2,
@@ -35,12 +35,12 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مقدمة شاملة لمفهوم نظام التشغيل وأهدافه"
+              "label": "Full introduction: what an operating system is and what it aims for"
             },
             {
               "t": 780,
               "time": "13:00",
-              "label": "مكونات الحاسوب الأربعة وعلاقة الـ Kernel بالهاردوير"
+              "label": "The four computer components and how the kernel relates to the hardware"
             }
           ],
           "track": "lectures",
@@ -53,7 +53,7 @@ window.COURSES.os = {
       "title": "SoftwareTube — Operating Systems Playlist",
       "type": "playlist",
       "url": "https://youtube.com/playlist?list=PLTr1xN4uMK5seRz6IO7Am9Zp2UKdnzO_n&si=ySpb4Gp-kNSsw4le",
-      "notes": "شرح مبسط وعملي لمفاهيم الـ OS والمسائل",
+      "notes": "Simple, practical explanations of OS concepts and problems",
       "chapters": [
         1,
         2,
@@ -76,7 +76,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مقدمة عن نظم التشغيل وعلاقتها بالهاردوير"
+              "label": "Introduction to operating systems and their relation to the hardware"
             },
             {
               "t": 320,
@@ -119,7 +119,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مراجعة سريعة والفرق بين Organization و Architecture"
+              "label": "Quick revision: computer organization vs. computer architecture"
             },
             {
               "t": 246,
@@ -446,12 +446,12 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "حل أسئلة امتحانات MCQ على Chapter 1 & Chapter 2"
+              "label": "Solving MCQ exam questions on Chapter 1 & Chapter 2"
             },
             {
               "t": 540,
               "time": "09:00",
-              "label": "أسئلة Interrupts, DMA, Dual-Mode, System Calls & Microkernel"
+              "label": "Questions on interrupts, DMA, dual-mode, system calls & microkernel"
             }
           ],
           "track": "lectures",
@@ -1116,7 +1116,7 @@ window.COURSES.os = {
         },
         {
           "id": "PSTfm0ZQv-U",
-          "title": "Second-Chance (Clock) & Enhanced Second-Chance Page Replacement (شرح بالعربي)",
+          "title": "Second-Chance (Clock) & Enhanced Second-Chance Page Replacement",
           "channel": "Arabic OS Tutorials · Mishal Alrefai",
           "playlistId": "PLTr1xN4uMK5seRz6IO7Am9Zp2UKdnzO_n",
           "duration": "10:37",
@@ -1301,7 +1301,7 @@ window.COURSES.os = {
       "title": "Old Lectures — FCAI Recorded Lectures",
       "type": "playlist",
       "url": "https://youtube.com/playlist?list=PLLhe0ZInsJiVdbAaoM2rxW2W1rA3iQPf1&si=ln69mOwBq_xmmMNE",
-      "notes": "محاضرات الكلية المسجلة السابقة",
+      "notes": "Recorded lectures from previous years",
       "chapters": [
         1,
         2,
@@ -1324,12 +1324,12 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مقدمة الكورس ونظام الامتحانات والكتاب المقرر (Silberschatz)"
+              "label": "Course introduction, the exam system and the set textbook (Silberschatz)"
             },
             {
               "t": 360,
               "time": "06:00",
-              "label": "خريطة شباتر المنهج (Chapters 1, 2, 3, 5, 6, 8, 9)"
+              "label": "Map of the syllabus chapters (Chapters 1, 2, 3, 5, 6, 8, 9)"
             },
             {
               "t": 1200,
@@ -1498,7 +1498,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مقدمة Chapter 2: Operating-System Structures"
+              "label": "Introduction to Chapter 2: Operating-System Structures"
             },
             {
               "t": 360,
@@ -1561,7 +1561,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مراجعة System Calls والـ Standard C Library"
+              "label": "Review of system calls and the standard C library"
             },
             {
               "t": 92,
@@ -1606,7 +1606,7 @@ window.COURSES.os = {
             {
               "t": 2820,
               "time": "47:00",
-              "label": "مقدمة Chapter 3: Process Concept, Memory Layout & Process States"
+              "label": "Introduction to Chapter 3: Process Concept, Memory Layout & Process States"
             }
           ],
           "track": "lectures",
@@ -1624,7 +1624,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مراجعة Process Memory Layout والـ 5 Process States"
+              "label": "Review of process memory layout and the five process states"
             },
             {
               "t": 205,
@@ -1679,10 +1679,10 @@ window.COURSES.os = {
       ]
     },
     {
-      "title": "د. محمود - الحاسبات وتقنية المعلومات",
+      "title": "Dr. Mahmoud · Computers & IT",
       "type": "playlist",
       "url": "https://youtube.com/playlist?list=PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X&si=gLkYZjHjjPLt3ydf",
-      "notes": "شرح كامل بالعربي لشباتر المنهج",
+      "notes": "Complete walkthrough of the syllabus chapters",
       "chapters": [
         1,
         2,
@@ -1696,8 +1696,8 @@ window.COURSES.os = {
       "videos": [
         {
           "id": "he7TExQGI0Y",
-          "title": "Chapter 1 P1: Introduction to Operating Systems (شرح د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 1 P1: Introduction to Operating Systems",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "46:56",
           "lang": "ar",
@@ -1705,7 +1705,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "تعريف نظام التشغيل ومكوناته الأربعة"
+              "label": "What an operating system is, and its four components"
             },
             {
               "t": 960,
@@ -1724,8 +1724,8 @@ window.COURSES.os = {
         },
         {
           "id": "x4pp24Px0Rw",
-          "title": "Chapter 1 P3 & P4: OS Operations, Dual-Mode & Management Services (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 1 P3 & P4: OS Operations, Dual-Mode & Management Services",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "56:20",
           "lang": "ar",
@@ -1752,8 +1752,8 @@ window.COURSES.os = {
         },
         {
           "id": "Msoe2Nb9M9Y",
-          "title": "Chapter 2 P1 & P2: OS Services & System Calls (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 2 P1 & P2: OS Services & System Calls",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "44:53",
           "lang": "ar",
@@ -1775,8 +1775,8 @@ window.COURSES.os = {
         },
         {
           "id": "DuL-9Z1auvw",
-          "title": "Chapter 2 P4: Structuring Operating Systems, Mobile OS & Boot (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 2 P4: Structuring Operating Systems, Mobile OS & Boot",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "158:12",
           "lang": "ar",
@@ -1803,8 +1803,8 @@ window.COURSES.os = {
         },
         {
           "id": "SYzrDpChdMM",
-          "title": "Chapter 3 P1: Process Concept, States, PCB, Schedulers & Operations (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 3 P1: Process Concept, States, PCB, Schedulers & Operations",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "89:59",
           "lang": "ar",
@@ -1831,8 +1831,8 @@ window.COURSES.os = {
         },
         {
           "id": "fV8n8iaH2i8",
-          "title": "Chapter 3 P3: Communication in Client-Server Systems (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 3 P3: Communication in Client-Server Systems",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "46:20",
           "lang": "ar",
@@ -1854,8 +1854,8 @@ window.COURSES.os = {
         },
         {
           "id": "ufzqBPQ7w74",
-          "title": "Chapter 5 P1: Process Synchronization & Critical Section Problem (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 5 P1: Process Synchronization & Critical Section Problem",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "47:39",
           "lang": "ar",
@@ -1877,8 +1877,8 @@ window.COURSES.os = {
         },
         {
           "id": "358AosliiWo",
-          "title": "Chapter 5 P2: Semaphores, Classical Synchronization Problems & Deadlock (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 5 P2: Semaphores, Classical Synchronization Problems & Deadlock",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "86:53",
           "lang": "ar",
@@ -1900,8 +1900,8 @@ window.COURSES.os = {
         },
         {
           "id": "VysVPhFh_As",
-          "title": "Chapter 6 P1: CPU Scheduling Concepts, FCFS, SJF & Priority (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 6 P1: CPU Scheduling Concepts, FCFS, SJF & Priority",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "32:04",
           "lang": "ar",
@@ -1923,8 +1923,8 @@ window.COURSES.os = {
         },
         {
           "id": "BCQcgh6v7CE",
-          "title": "Chapter 6 P2: Round-Robin, Multilevel Queues & SMP Scheduling (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 6 P2: Round-Robin, Multilevel Queues & SMP Scheduling",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "55:30",
           "lang": "ar",
@@ -1946,8 +1946,8 @@ window.COURSES.os = {
         },
         {
           "id": "4s7lkIZ7Flg",
-          "title": "Chapter 8 P1: Main Memory Background, Address Binding & Swapping (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 8 P1: Main Memory Background, Address Binding & Swapping",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "52:03",
           "lang": "ar",
@@ -1969,8 +1969,8 @@ window.COURSES.os = {
         },
         {
           "id": "2sWag25NqX0",
-          "title": "Chapter 8 P2: Segmentation, Paging, TLB & Page Table Structures (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 8 P2: Segmentation, Paging, TLB & Page Table Structures",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "114:05",
           "lang": "ar",
@@ -1997,8 +1997,8 @@ window.COURSES.os = {
         },
         {
           "id": "f5TbUsluR9Q",
-          "title": "Chapter 9 P1 & P2: Virtual Memory, Demand Paging & Copy-on-Write (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 9 P1 & P2: Virtual Memory, Demand Paging & Copy-on-Write",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "55:45",
           "lang": "ar",
@@ -2020,8 +2020,8 @@ window.COURSES.os = {
         },
         {
           "id": "wJup0NTHB4I",
-          "title": "Chapter 9 P3: Page Replacement, Clock Algorithm, Frame Allocation & Thrashing (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 9 P3: Page Replacement, Clock Algorithm, Frame Allocation & Thrashing",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "101:23",
           "lang": "ar",
@@ -2052,7 +2052,7 @@ window.COURSES.os = {
       "title": "Dr. Ghassan Shobaki — Operating Systems",
       "type": "playlist",
       "url": "https://youtube.com/playlist?list=PL6KMWPQP_DM-7tMNjUa7X2zGrc8jipPeI",
-      "notes": "شرح أكاديمي عميق جدًا للـ Kernel والـ Synchronization والـ Memory",
+      "notes": "Deep academic coverage of the kernel, synchronisation and memory",
       "chapters": [
         1,
         2,
@@ -2472,7 +2472,7 @@ window.COURSES.os = {
       "type": "playlist",
       "url": "https://youtube.com/playlist?list=PLMCoJU1AQ0p2eE7VbWgE40aVq8v3LiOJ6&si=Rq24p_ejBg-8W5Q0",
       "feedbackUrl": "https://forms.gle/32811wPnsSmYeStc7",
-      "notes": "مراجعات سريعة وفلاشات للامتحانات (مع لينك فورم الفيدباك)",
+      "notes": "Quick exam revisions and flashcards (with a feedback form link)",
       "chapters": [
         1,
         2,
@@ -2704,7 +2704,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "حل أسئلة الامتحانات السابقة على Chapter 3 (Processes & IPC)"
+              "label": "Solving past-exam questions on Chapter 3 (Processes & IPC)"
             }
           ],
           "track": "lectures",
@@ -3046,19 +3046,19 @@ window.COURSES.os = {
       "title": "Kerolos Nakhnokh (OS Notes)",
       "type": "doc",
       "url": "https://docs.google.com/document/d/1u1owlXiNK5iH33j0S4MSoBOmEm_Guaujn7sUgo-ZEi8/edit?usp=sharing",
-      "notes": "ملخص شامل للمنهج وقوانين المسائل"
+      "notes": "Complete summary of the syllabus and the problem-solving formulas"
     },
     {
       "title": "OS Questions Bank (Anki Deck)",
       "type": "anki",
       "url": "https://drive.google.com/file/d/1zOfBtW_ArwqDHiaroc7mMFfiEpomYph8/view?usp=drivesdk",
-      "notes": "يحتاج برنامج Anki أو موقع AnkiWeb لتشغيل البطاقات"
+      "notes": "Needs Anki or AnkiWeb to open the card decks"
     },
     {
-      "title": "Terminal In Action — أساسيات التيرمنال عملي",
+      "title": "Terminal In Action — Linux terminal basics, hands-on",
       "type": "video",
       "url": "https://youtu.be/-S3CEzV-mbM?si=W8sbMDyVEthtcUTf",
-      "notes": "شرح عملي في أساسيات استخدام الـ Linux Terminal (Lab 5)",
+      "notes": "Hands-on basics of the Linux terminal (Lab 5)",
       "videoId": "-S3CEzV-mbM"
     },
     {
@@ -3066,14 +3066,14 @@ window.COURSES.os = {
       "type": "tool",
       "url": "https://developers.redhat.com/products/rhel/download#rhelforsap896",
       "guideVideoUrl": "https://youtu.be/ITCyY2SjPyw?feature=shared",
-      "notes": "انزل لآخر الصفحة خالص هتلاقي الإصدارات المختلفة وحمّل نسخة 9.6 (مع فيديو خطوات التحميل)",
+      "notes": "Scroll to the very bottom for the different releases and download 9.6 (with a download walkthrough video)",
       "guideVideoId": "ITCyY2SjPyw"
     },
     {
       "title": "FCAI ThirdYear_FirstSemester GitHub Repo",
       "type": "repo",
       "url": "https://github.com/FCAI-CairoUniversity/ThirdYear_FirstSemester",
-      "notes": "الريبو الرسمي لمواد سنة تالتة ترم أول"
+      "notes": "The official repo for third-year, first-semester courses"
     }
   ],
   "tracks": {
@@ -3824,12 +3824,12 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "مقدمة الكورس ونظام الامتحانات والكتاب المقرر (Silberschatz)"
+                  "label": "Course introduction, the exam system and the set textbook (Silberschatz)"
                 },
                 {
                   "t": 360,
                   "time": "06:00",
-                  "label": "خريطة شباتر المنهج (Chapters 1, 2, 3, 5, 6, 8, 9)"
+                  "label": "Map of the syllabus chapters (Chapters 1, 2, 3, 5, 6, 8, 9)"
                 },
                 {
                   "t": 1200,
@@ -3879,7 +3879,7 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "مقدمة عن نظم التشغيل وعلاقتها بالهاردوير"
+                  "label": "Introduction to operating systems and their relation to the hardware"
                 },
                 {
                   "t": 320,
@@ -3919,7 +3919,7 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "مراجعة سريعة والفرق بين Organization و Architecture"
+                  "label": "Quick revision: computer organization vs. computer architecture"
                 },
                 {
                   "t": 246,
@@ -4080,8 +4080,8 @@ window.COURSES.os = {
             },
             {
               "id": "he7TExQGI0Y",
-              "title": "Chapter 1 P1: Introduction to Operating Systems (شرح د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 1 P1: Introduction to Operating Systems",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "46:56",
               "lang": "ar",
@@ -4089,7 +4089,7 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "تعريف نظام التشغيل ومكوناته الأربعة"
+                  "label": "What an operating system is, and its four components"
                 },
                 {
                   "t": 960,
@@ -4139,12 +4139,12 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "مقدمة شاملة لمفهوم نظام التشغيل وأهدافه"
+                  "label": "Full introduction: what an operating system is and what it aims for"
                 },
                 {
                   "t": 780,
                   "time": "13:00",
-                  "label": "مكونات الحاسوب الأربعة وعلاقة الـ Kernel بالهاردوير"
+                  "label": "The four computer components and how the kernel relates to the hardware"
                 }
               ]
             }
@@ -5054,8 +5054,8 @@ window.COURSES.os = {
             },
             {
               "id": "x4pp24Px0Rw",
-              "title": "Chapter 1 P3 & P4: OS Operations, Dual-Mode & Management Services (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 1 P3 & P4: OS Operations, Dual-Mode & Management Services",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "56:20",
               "lang": "ar",
@@ -5797,7 +5797,7 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "مقدمة Chapter 2: Operating-System Structures"
+                  "label": "Introduction to Chapter 2: Operating-System Structures"
                 },
                 {
                   "t": 360,
@@ -5948,8 +5948,8 @@ window.COURSES.os = {
             },
             {
               "id": "Msoe2Nb9M9Y",
-              "title": "Chapter 2 P1 & P2: OS Services & System Calls (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 2 P1 & P2: OS Services & System Calls",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "44:53",
               "lang": "ar",
@@ -6706,7 +6706,7 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "مراجعة System Calls والـ Standard C Library"
+                  "label": "Review of system calls and the standard C library"
                 },
                 {
                   "t": 92,
@@ -6751,7 +6751,7 @@ window.COURSES.os = {
                 {
                   "t": 2820,
                   "time": "47:00",
-                  "label": "مقدمة Chapter 3: Process Concept, Memory Layout & Process States"
+                  "label": "Introduction to Chapter 3: Process Concept, Memory Layout & Process States"
                 }
               ]
             },
@@ -6836,19 +6836,19 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "حل أسئلة امتحانات MCQ على Chapter 1 & Chapter 2"
+                  "label": "Solving MCQ exam questions on Chapter 1 & Chapter 2"
                 },
                 {
                   "t": 540,
                   "time": "09:00",
-                  "label": "أسئلة Interrupts, DMA, Dual-Mode, System Calls & Microkernel"
+                  "label": "Questions on interrupts, DMA, dual-mode, system calls & microkernel"
                 }
               ]
             },
             {
               "id": "DuL-9Z1auvw",
-              "title": "Chapter 2 P4: Structuring Operating Systems, Mobile OS & Boot (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 2 P4: Structuring Operating Systems, Mobile OS & Boot",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "158:12",
               "lang": "ar",
@@ -7463,7 +7463,7 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "مراجعة Process Memory Layout والـ 5 Process States"
+                  "label": "Review of process memory layout and the five process states"
                 },
                 {
                   "t": 205,
@@ -7594,8 +7594,8 @@ window.COURSES.os = {
             },
             {
               "id": "SYzrDpChdMM",
-              "title": "Chapter 3 P1: Process Concept, States, PCB, Schedulers & Operations (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 3 P1: Process Concept, States, PCB, Schedulers & Operations",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "89:59",
               "lang": "ar",
@@ -8191,14 +8191,14 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "حل أسئلة الامتحانات السابقة على Chapter 3 (Processes & IPC)"
+                  "label": "Solving past-exam questions on Chapter 3 (Processes & IPC)"
                 }
               ]
             },
             {
               "id": "fV8n8iaH2i8",
-              "title": "Chapter 3 P3: Communication in Client-Server Systems (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 3 P3: Communication in Client-Server Systems",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "46:20",
               "lang": "ar",
@@ -8617,8 +8617,8 @@ window.COURSES.os = {
             },
             {
               "id": "ufzqBPQ7w74",
-              "title": "Chapter 5 P1: Process Synchronization & Critical Section Problem (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 5 P1: Process Synchronization & Critical Section Problem",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "47:39",
               "lang": "ar",
@@ -8981,8 +8981,8 @@ window.COURSES.os = {
             },
             {
               "id": "358AosliiWo",
-              "title": "Chapter 5 P2: Semaphores, Classical Synchronization Problems & Deadlock (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 5 P2: Semaphores, Classical Synchronization Problems & Deadlock",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "86:53",
               "lang": "ar",
@@ -9379,8 +9379,8 @@ window.COURSES.os = {
             },
             {
               "id": "VysVPhFh_As",
-              "title": "Chapter 6 P1: CPU Scheduling Concepts, FCFS, SJF & Priority (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 6 P1: CPU Scheduling Concepts, FCFS, SJF & Priority",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "32:04",
               "lang": "ar",
@@ -9755,8 +9755,8 @@ window.COURSES.os = {
             },
             {
               "id": "BCQcgh6v7CE",
-              "title": "Chapter 6 P2: Round-Robin, Multilevel Queues & SMP Scheduling (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 6 P2: Round-Robin, Multilevel Queues & SMP Scheduling",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "55:30",
               "lang": "ar",
@@ -10203,8 +10203,8 @@ window.COURSES.os = {
             },
             {
               "id": "4s7lkIZ7Flg",
-              "title": "Chapter 8 P1: Main Memory Background, Address Binding & Swapping (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 8 P1: Main Memory Background, Address Binding & Swapping",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "52:03",
               "lang": "ar",
@@ -10643,8 +10643,8 @@ window.COURSES.os = {
             },
             {
               "id": "2sWag25NqX0",
-              "title": "Chapter 8 P2: Segmentation, Paging, TLB & Page Table Structures (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 8 P2: Segmentation, Paging, TLB & Page Table Structures",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "114:05",
               "lang": "ar",
@@ -10988,8 +10988,8 @@ window.COURSES.os = {
             },
             {
               "id": "f5TbUsluR9Q",
-              "title": "Chapter 9 P1 & P2: Virtual Memory, Demand Paging & Copy-on-Write (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 9 P1 & P2: Virtual Memory, Demand Paging & Copy-on-Write",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "55:45",
               "lang": "ar",
@@ -11232,7 +11232,7 @@ window.COURSES.os = {
           "videos": [
             {
               "id": "PSTfm0ZQv-U",
-              "title": "Second-Chance (Clock) & Enhanced Second-Chance Page Replacement (شرح بالعربي)",
+              "title": "Second-Chance (Clock) & Enhanced Second-Chance Page Replacement",
               "channel": "Arabic OS Tutorials · Mishal Alrefai",
               "playlistId": "PLTr1xN4uMK5seRz6IO7Am9Zp2UKdnzO_n",
               "duration": "10:37",
@@ -11282,8 +11282,8 @@ window.COURSES.os = {
             },
             {
               "id": "wJup0NTHB4I",
-              "title": "Chapter 9 P3: Page Replacement, Clock Algorithm, Frame Allocation & Thrashing (د. محمود)",
-              "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+              "title": "Chapter 9 P3: Page Replacement, Clock Algorithm, Frame Allocation & Thrashing",
+              "channel": "Dr. Mahmoud · Computers & IT",
               "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
               "duration": "101:23",
               "lang": "ar",
@@ -12443,7 +12443,7 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "مقدمة رحلة تشغيل اللينكس من لحظة الضغط على زرار الباور"
+                  "label": "How Linux boots, from the moment you press the power button"
                 },
                 {
                   "t": 900,
@@ -13180,7 +13180,7 @@ window.COURSES.os = {
           "videos": [
             {
               "id": "-S3CEzV-mbM",
-              "title": "Terminal In Action — شرح عملي كامل في أساسيات استخدام الـ Linux Terminal (Lab 5 & Quiz 1 Lab)",
+              "title": "Terminal In Action — full hands-on Linux terminal basics (Lab 5 & Quiz 1 Lab)",
               "channel": "Ahmed Ashraf",
               "playlistId": "LABS_TRACK",
               "duration": "88:07",
@@ -13189,47 +13189,47 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "مقدمة: كسر الخوف من التيرمنال والفرق بين Terminal Emulator و Shell و Prompt"
+                  "label": "Introduction: getting past terminal fear; terminal emulator vs. shell vs. prompt"
                 },
                 {
                   "t": 150,
                   "time": "02:30",
-                  "label": "تشغيل الأوامر (echo, printf, which) والفرق بين Built-in و External Commands ومتغير $PATH"
+                  "label": "Running commands (echo, printf, which): built-in vs. external commands and the $PATH variable"
                 },
                 {
                   "t": 315,
                   "time": "05:15",
-                  "label": "تركيب الأمر في لينكس: Command + Options/Flags (-a, --all) + Arguments"
+                  "label": "Anatomy of a Linux command: command + options/flags (-a, --all) + arguments"
                 },
                 {
                   "t": 780,
                   "time": "13:00",
-                  "label": "التنقل في الفولدرات: pwd, cd, cd .., cd ~, cd - والـ Absolute vs. Relative Paths"
+                  "label": "Moving between folders: pwd, cd, cd .., cd ~, cd - and absolute vs. relative paths"
                 },
                 {
                   "t": 1500,
                   "time": "25:00",
-                  "label": "استعراض الملفات: ls, ls -l, ls -a, ls -la وفهم الـ Hidden Files"
+                  "label": "Listing files: ls, ls -l, ls -a, ls -la and understanding hidden files"
                 },
                 {
                   "t": 2280,
                   "time": "38:00",
-                  "label": "إنشاء ونسخ ونقل ومسح الملفات والفولدرات: touch, mkdir, mkdir -p, cp, cp -r, mv, rm, rm -r, rmdir"
+                  "label": "Creating, copying, moving and deleting files and folders: touch, mkdir, mkdir -p, cp, cp -r, mv, rm, rm -r, rmdir"
                 },
                 {
                   "t": 3300,
                   "time": "55:00",
-                  "label": "قراءة الملفات والبحث في الـ Manual: cat, more, less, head, tail, man & --help"
+                  "label": "Reading files and searching the manual: cat, more, less, head, tail, man & --help"
                 },
                 {
                   "t": 4200,
                   "time": "70:00",
-                  "label": "إعادة التوجيه والـ Pipelines: Output Redirection (> vs. >>), Pipe (|), grep & wc"
+                  "label": "Redirection and pipelines: output redirection (> vs. >>), pipe (|), grep & wc"
                 },
                 {
                   "t": 5126,
                   "time": "85:26",
-                  "label": "تطبيق عملي للتدريب: pwn.college (Linux Luminarium) و OverTheWire Bandit"
+                  "label": "Hands-on practice: pwn.college (Linux Luminarium) and OverTheWire Bandit"
                 }
               ]
             }
@@ -14169,7 +14169,7 @@ window.COURSES.os = {
             },
             {
               "id": "G6MNe0GNx1I",
-              "title": "Lab 10 Part 2: First-In, First-Out (FIFO) Page Replacement Step-by-Step (شرح بالعربي)",
+              "title": "Lab 10 Part 2: First-In, First-Out (FIFO) Page Replacement Step-by-Step",
               "channel": "Arabic OS Tutorials · Mishal Alrefai",
               "playlistId": "LABS_TRACK",
               "duration": "10:40",
@@ -14178,13 +14178,13 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "طريقة حل مسائل FIFO Page Replacement في الامتحان وحساب عدد الـ Page Faults"
+                  "label": "How to solve FIFO page-replacement exam problems and count page faults"
                 }
               ]
             },
             {
               "id": "_Pl6g3Gok-M",
-              "title": "Lab 10 Part 3: Optimal (OPT) Page Replacement Step-by-Step (شرح بالعربي)",
+              "title": "Lab 10 Part 3: Optimal (OPT) Page Replacement Step-by-Step",
               "channel": "Arabic OS Tutorials · Mishal Alrefai",
               "playlistId": "LABS_TRACK",
               "duration": "09:25",
@@ -14193,13 +14193,13 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "طريقة حل مسائل Optimal Page Replacement باختيار الصفحة الأبعد استخدامًا في المستقبل"
+                  "label": "How to solve Optimal page replacement: evict the page used furthest in the future"
                 }
               ]
             },
             {
               "id": "Guy0raICb5o",
-              "title": "Lab 10 Part 4: Least Recently Used (LRU) Page Replacement Step-by-Step (شرح بالعربي)",
+              "title": "Lab 10 Part 4: Least Recently Used (LRU) Page Replacement Step-by-Step",
               "channel": "Arabic OS Tutorials · Mishal Alrefai",
               "playlistId": "LABS_TRACK",
               "duration": "06:14",
@@ -14208,13 +14208,13 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "طريقة حل مسائل LRU Page Replacement باختيار الصفحة الأقدم استخدامًا في الماضي"
+                  "label": "How to solve LRU page replacement: evict the page used least recently"
                 }
               ]
             },
             {
               "id": "PSTfm0ZQv-U",
-              "title": "Lab 10 Part 5: Second-Chance (Clock) Page Replacement Step-by-Step (شرح بالعربي)",
+              "title": "Lab 10 Part 5: Second-Chance (Clock) Page Replacement Step-by-Step",
               "channel": "Arabic OS Tutorials · Mishal Alrefai",
               "playlistId": "LABS_TRACK",
               "duration": "10:37",
@@ -14223,7 +14223,7 @@ window.COURSES.os = {
                 {
                   "t": 0,
                   "time": "00:00",
-                  "label": "طريقة حل مسائل Second-Chance (Clock) باستخدام الـ Reference Bit"
+                  "label": "How to solve second-chance (clock) problems using the reference bit"
                 }
               ]
             }
@@ -14973,12 +14973,12 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مقدمة الكورس ونظام الامتحانات والكتاب المقرر (Silberschatz)"
+              "label": "Course introduction, the exam system and the set textbook (Silberschatz)"
             },
             {
               "t": 360,
               "time": "06:00",
-              "label": "خريطة شباتر المنهج (Chapters 1, 2, 3, 5, 6, 8, 9)"
+              "label": "Map of the syllabus chapters (Chapters 1, 2, 3, 5, 6, 8, 9)"
             },
             {
               "t": 1200,
@@ -15028,7 +15028,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مقدمة عن نظم التشغيل وعلاقتها بالهاردوير"
+              "label": "Introduction to operating systems and their relation to the hardware"
             },
             {
               "t": 320,
@@ -15068,7 +15068,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مراجعة سريعة والفرق بين Organization و Architecture"
+              "label": "Quick revision: computer organization vs. computer architecture"
             },
             {
               "t": 246,
@@ -15229,8 +15229,8 @@ window.COURSES.os = {
         },
         {
           "id": "he7TExQGI0Y",
-          "title": "Chapter 1 P1: Introduction to Operating Systems (شرح د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 1 P1: Introduction to Operating Systems",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "46:56",
           "lang": "ar",
@@ -15238,7 +15238,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "تعريف نظام التشغيل ومكوناته الأربعة"
+              "label": "What an operating system is, and its four components"
             },
             {
               "t": 960,
@@ -15288,12 +15288,12 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مقدمة شاملة لمفهوم نظام التشغيل وأهدافه"
+              "label": "Full introduction: what an operating system is and what it aims for"
             },
             {
               "t": 780,
               "time": "13:00",
-              "label": "مكونات الحاسوب الأربعة وعلاقة الـ Kernel بالهاردوير"
+              "label": "The four computer components and how the kernel relates to the hardware"
             }
           ]
         }
@@ -16203,8 +16203,8 @@ window.COURSES.os = {
         },
         {
           "id": "x4pp24Px0Rw",
-          "title": "Chapter 1 P3 & P4: OS Operations, Dual-Mode & Management Services (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 1 P3 & P4: OS Operations, Dual-Mode & Management Services",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "56:20",
           "lang": "ar",
@@ -16946,7 +16946,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مقدمة Chapter 2: Operating-System Structures"
+              "label": "Introduction to Chapter 2: Operating-System Structures"
             },
             {
               "t": 360,
@@ -17097,8 +17097,8 @@ window.COURSES.os = {
         },
         {
           "id": "Msoe2Nb9M9Y",
-          "title": "Chapter 2 P1 & P2: OS Services & System Calls (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 2 P1 & P2: OS Services & System Calls",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "44:53",
           "lang": "ar",
@@ -17855,7 +17855,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مراجعة System Calls والـ Standard C Library"
+              "label": "Review of system calls and the standard C library"
             },
             {
               "t": 92,
@@ -17900,7 +17900,7 @@ window.COURSES.os = {
             {
               "t": 2820,
               "time": "47:00",
-              "label": "مقدمة Chapter 3: Process Concept, Memory Layout & Process States"
+              "label": "Introduction to Chapter 3: Process Concept, Memory Layout & Process States"
             }
           ]
         },
@@ -17985,19 +17985,19 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "حل أسئلة امتحانات MCQ على Chapter 1 & Chapter 2"
+              "label": "Solving MCQ exam questions on Chapter 1 & Chapter 2"
             },
             {
               "t": 540,
               "time": "09:00",
-              "label": "أسئلة Interrupts, DMA, Dual-Mode, System Calls & Microkernel"
+              "label": "Questions on interrupts, DMA, dual-mode, system calls & microkernel"
             }
           ]
         },
         {
           "id": "DuL-9Z1auvw",
-          "title": "Chapter 2 P4: Structuring Operating Systems, Mobile OS & Boot (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 2 P4: Structuring Operating Systems, Mobile OS & Boot",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "158:12",
           "lang": "ar",
@@ -18612,7 +18612,7 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "مراجعة Process Memory Layout والـ 5 Process States"
+              "label": "Review of process memory layout and the five process states"
             },
             {
               "t": 205,
@@ -18743,8 +18743,8 @@ window.COURSES.os = {
         },
         {
           "id": "SYzrDpChdMM",
-          "title": "Chapter 3 P1: Process Concept, States, PCB, Schedulers & Operations (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 3 P1: Process Concept, States, PCB, Schedulers & Operations",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "89:59",
           "lang": "ar",
@@ -19340,14 +19340,14 @@ window.COURSES.os = {
             {
               "t": 0,
               "time": "00:00",
-              "label": "حل أسئلة الامتحانات السابقة على Chapter 3 (Processes & IPC)"
+              "label": "Solving past-exam questions on Chapter 3 (Processes & IPC)"
             }
           ]
         },
         {
           "id": "fV8n8iaH2i8",
-          "title": "Chapter 3 P3: Communication in Client-Server Systems (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 3 P3: Communication in Client-Server Systems",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "46:20",
           "lang": "ar",
@@ -19766,8 +19766,8 @@ window.COURSES.os = {
         },
         {
           "id": "ufzqBPQ7w74",
-          "title": "Chapter 5 P1: Process Synchronization & Critical Section Problem (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 5 P1: Process Synchronization & Critical Section Problem",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "47:39",
           "lang": "ar",
@@ -20130,8 +20130,8 @@ window.COURSES.os = {
         },
         {
           "id": "358AosliiWo",
-          "title": "Chapter 5 P2: Semaphores, Classical Synchronization Problems & Deadlock (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 5 P2: Semaphores, Classical Synchronization Problems & Deadlock",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "86:53",
           "lang": "ar",
@@ -20528,8 +20528,8 @@ window.COURSES.os = {
         },
         {
           "id": "VysVPhFh_As",
-          "title": "Chapter 6 P1: CPU Scheduling Concepts, FCFS, SJF & Priority (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 6 P1: CPU Scheduling Concepts, FCFS, SJF & Priority",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "32:04",
           "lang": "ar",
@@ -20904,8 +20904,8 @@ window.COURSES.os = {
         },
         {
           "id": "BCQcgh6v7CE",
-          "title": "Chapter 6 P2: Round-Robin, Multilevel Queues & SMP Scheduling (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 6 P2: Round-Robin, Multilevel Queues & SMP Scheduling",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "55:30",
           "lang": "ar",
@@ -21352,8 +21352,8 @@ window.COURSES.os = {
         },
         {
           "id": "4s7lkIZ7Flg",
-          "title": "Chapter 8 P1: Main Memory Background, Address Binding & Swapping (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 8 P1: Main Memory Background, Address Binding & Swapping",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "52:03",
           "lang": "ar",
@@ -21792,8 +21792,8 @@ window.COURSES.os = {
         },
         {
           "id": "2sWag25NqX0",
-          "title": "Chapter 8 P2: Segmentation, Paging, TLB & Page Table Structures (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 8 P2: Segmentation, Paging, TLB & Page Table Structures",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "114:05",
           "lang": "ar",
@@ -22137,8 +22137,8 @@ window.COURSES.os = {
         },
         {
           "id": "f5TbUsluR9Q",
-          "title": "Chapter 9 P1 & P2: Virtual Memory, Demand Paging & Copy-on-Write (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 9 P1 & P2: Virtual Memory, Demand Paging & Copy-on-Write",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "55:45",
           "lang": "ar",
@@ -22381,7 +22381,7 @@ window.COURSES.os = {
       "videos": [
         {
           "id": "PSTfm0ZQv-U",
-          "title": "Second-Chance (Clock) & Enhanced Second-Chance Page Replacement (شرح بالعربي)",
+          "title": "Second-Chance (Clock) & Enhanced Second-Chance Page Replacement",
           "channel": "Arabic OS Tutorials · Mishal Alrefai",
           "playlistId": "PLTr1xN4uMK5seRz6IO7Am9Zp2UKdnzO_n",
           "duration": "10:37",
@@ -22431,8 +22431,8 @@ window.COURSES.os = {
         },
         {
           "id": "wJup0NTHB4I",
-          "title": "Chapter 9 P3: Page Replacement, Clock Algorithm, Frame Allocation & Thrashing (د. محمود)",
-          "channel": "د. محمود - الحاسبات وتقنية المعلومات",
+          "title": "Chapter 9 P3: Page Replacement, Clock Algorithm, Frame Allocation & Thrashing",
+          "channel": "Dr. Mahmoud · Computers & IT",
           "playlistId": "PL0HDIDr4prB_FwprJ6s-SU4ksCGetPd2X",
           "duration": "101:23",
           "lang": "ar",
