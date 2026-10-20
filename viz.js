@@ -368,9 +368,9 @@ for j ← p + 1 to q
 exchange A[p] ↔ A[i]      // place pivot at i
 return i`,
     'algo.csort': `COUNTING-SORT(A, B, k)
-for i ← 1 to k do C[i] ← 0
+for i ← 0 to k do C[i] ← 0
 for j ← 1 to n do C[A[j]] ← C[A[j]] + 1   // Occurrence
-for i ← 2 to k do C[i] ← C[i] + C[i-1]    // Accumulation
+for i ← 1 to k do C[i] ← C[i] + C[i-1]    // Accumulation
 for j ← n downto 1
    B[C[A[j]]] ← A[j]                      // Stable placement
    C[A[j]] ← C[A[j]] - 1                  // Final C`,
@@ -1229,9 +1229,9 @@ while Q ≠ ∅
 
   function csortSim(spec, R) {
     const raw = (spec.arr || spec.init || [8, 5, 7, 3, 6, 1, 2]).slice(0, 9);
-    const n = raw.length, k = Math.max(...raw, 4);
+    const n = raw.length, k = Math.max(...raw, 4) + 1;
     const C_occ = Array(k).fill(0);
-    raw.forEach(v => { if (v >= 1 && v <= k) C_occ[v - 1]++; });
+    raw.forEach(v => { if (v >= 0 && v < k) C_occ[v]++; });
     const C_acc = C_occ.slice();
     for (let i = 1; i < k; i++) C_acc[i] += C_acc[i - 1];
     const C_work = C_acc.slice();
@@ -1247,7 +1247,7 @@ while Q ≠ ∅
       items.push(lbl('lc', X - 22, 86, rowLabel || 'C:', 'muted'));
       for (let i = 0; i < k; i++) {
         items.push(mk('cell', 'c' + i, X + i * W, 68, { w: 48, h: 34, c: (hlC && hlC[i]) || '' }));
-        items.push(lbl('ci' + i, X + i * W + 24, 112, String(i + 1), 'muted'));
+        items.push(lbl('ci' + i, X + i * W + 24, 112, String(i), 'muted'));
         items.push(mk('val', 'cv' + i + '-' + C_arr[i], X + i * W, 68, { w: 48, h: 34, t: String(C_arr[i]) }));
       }
       items.push(lbl('lb', X - 22, 152, 'B:', 'muted'));
@@ -1257,19 +1257,29 @@ while Q ≠ ∅
       }
       return R.push({ items, edges, cap }, vars || []);
     };
-    R.at('algo.csort', 'for i ← 1 to k do C[i] ← 0');
-    draw(C(`Counting Sort on A = [${raw.join(', ')}] (n = ${n}, max key k = ${k}). Initialize C[1..${k}] = 0.`, `بداية Counting Sort على A = [${raw.join(', ')}]. نصفر مصفوفة العد C[1..${k}].`), Array(k).fill(0), 'C=0', {}, {}, {}, [['n', n], ['k', k]]);
-    R.at('algo.csort', 'for j ← 1 to n do C[A[j]] ← C[A[j]] + 1');
+    R.at('algo.csort', 'for i ← 0 to k do C[i] ← 0');
+    draw(C(`Counting Sort on A = [${raw.join(', ')}] (n = ${n}, max key k = ${k - 1}). Initialize C[0..${k - 1}] = 0.`, `بداية Counting Sort على A = [${raw.join(', ')}]. نصفر مصفوفة العد C[0..${k - 1}].`), Array(k).fill(0), 'C=0', {}, {}, {}, [['n', n], ['k', k - 1]]);
+    const partial = Array(k).fill(0);
+    for (let j = 0; j < n; j++) {
+      partial[raw[j]]++;
+      R.at('algo.csort', 'for j ← 1 to n do C[A[j]] ← C[A[j]] + 1');
+      draw(C(`Count A[${j + 1}] = ${raw[j]}: C[${raw[j]}] becomes ${partial[raw[j]]}.`, `نعد A[${j + 1}] = ${raw[j]}: C[${raw[j]}] = ${partial[raw[j]]}.`), partial.slice(), 'Occ', { [j]: 'hl' }, { [raw[j]]: 'new' }, {}, [['j', j + 1], ['key', raw[j]], ['count', partial[raw[j]]]]);
+    }
     draw(C(`Loop 2 (Occurrence): Count frequency of each key in A → C = [${C_occ.join(', ')}].`, `الخطوة 2 (Occurrence): نعد تكرار كل رقم في A → C = [${C_occ.join(', ')}].`), C_occ, 'Occ', {}, {}, {}, [['Occurrence C', C_occ.join(' ')]]);
-    R.at('algo.csort', 'for i ← 2 to k do C[i] ← C[i] + C[i-1]');
-    R.quiz(C(`In Loop 3 (Accumulation), what is C'[4] (number of elements ≤ 4)?`, `في خطوة الـ Accumulation، قيمة C'[4] (عدد العناصر ≤ 4) هتبقى كام؟`), C_acc[Math.min(3, k - 1)], [C_occ[Math.min(3, k - 1)], C_acc[Math.min(3, k - 1)] + 1, n]);
+    const prefix = C_occ.slice();
+    for (let key = 1; key < k; key++) {
+      const old = prefix[key]; prefix[key] += prefix[key - 1];
+      R.at('algo.csort', 'for i ← 1 to k do C[i] ← C[i] + C[i-1]');
+      draw(C(`Prefix C[${key}] = ${old} + C[${key - 1}] (${prefix[key - 1]}) = ${prefix[key]}. Keys 0..${key} now have cumulative counts.`, `المجموع التراكمي C[${key}] = ${prefix[key]}.`), prefix.slice(), "C'", {}, { [key]: 'hl' }, {}, [['key', key], ['C[key]', prefix[key]], ['previous prefix', prefix[key - 1]]]);
+    }
+    R.quiz(C(`In Loop 3 (Accumulation), what is C'[4] (number of elements ≤ 4)?`, `في خطوة الـ Accumulation، قيمة C'[4] (عدد العناصر ≤ 4) هتبقى كام؟`), C_acc[4], [C_occ[4], C_acc[4] + 1, n]);
     draw(C(`Loop 3 (Accumulation C'): Prefix sums C'[i] = C'[i] + C'[i-1] → C' = [${C_acc.join(', ')}]. Each C'[v] holds the final 1-based position of v in B!`, `الخطوة 3 (Accumulation C'): المجموع التراكمي C' = [${C_acc.join(', ')}].`), C_acc, "C'", {}, {}, {}, [['Occurrence', C_occ.join(' ')], ['Accumulation', C_acc.join(' ')]]);
     for (let j = n - 1; j >= 0; j--) {
-      const v = raw[j], pos = C_work[v - 1] - 1;
+      const v = raw[j], pos = C_work[v] - 1;
       B[pos] = v;
-      C_work[v - 1]--;
+      C_work[v]--;
       R.at('algo.csort', 'for j ← n downto 1', 'B[C[A[j]]] ← A[j]', 'C[A[j]] ← C[A[j]] - 1');
-      draw(C(`j = ${j + 1}: Place A[${j + 1}] = ${v} into B[C[${v}]] = B[${pos + 1}], then decrement C[${v}] to ${C_work[v - 1]}.`, `j = ${j + 1}: نحط A[${j + 1}] = ${v} في B[${pos + 1}]، وننقص C[${v}] لـ ${C_work[v - 1]}.`), C_work.slice(), 'C', { [j]: 'hl' }, { [v - 1]: 'hl' }, { [pos]: 'new' }, [['j', j + 1], ['A[j]', v], ['placed at B', pos + 1], ['Final C', C_work.join(' ')]]);
+      draw(C(`j = ${j + 1}: Place A[${j + 1}] = ${v} into B[C[${v}]] = B[${pos + 1}], then decrement C[${v}] to ${C_work[v]}.`, `j = ${j + 1}: نحط A[${j + 1}] = ${v} في B[${pos + 1}]، وننقص C[${v}] لـ ${C_work[v]}.`), C_work.slice(), 'C', { [j]: 'hl' }, { [v]: 'hl' }, { [pos]: 'new' }, [['j', j + 1], ['A[j]', v], ['placed at B', pos + 1], ['Final C', C_work.join(' ')]]);
     }
     const allOk = {}; for (let i = 0; i < n; i++) allOk[i] = 'ok';
     R.at(null);
@@ -1321,7 +1331,7 @@ while Q ≠ ∅
 
   function dijkstraSim(spec, R) {
     const is19 = spec.preset === 'lec19';
-    const nodes = is19
+    let nodes = is19
       ? [
           { id: 'A', x: 30, y: 95 }, { id: 'B', x: 140, y: 20 }, { id: 'C', x: 200, y: 95 },
           { id: 'D', x: 140, y: 175 }, { id: 'G', x: 310, y: 20 }, { id: 'E', x: 400, y: 95 }, { id: 'F', x: 310, y: 175 }
@@ -1330,11 +1340,24 @@ while Q ≠ ∅
           { id: 'A', x: 40, y: 90 }, { id: 'B', x: 180, y: 24 }, { id: 'C', x: 180, y: 156 },
           { id: 'D', x: 340, y: 24 }, { id: 'E', x: 340, y: 156 }
         ];
-    const adj = is19
+    let adj = is19
       ? { A: [['B', 5], ['C', 3]], B: [['G', 1], ['C', 2], ['E', 3]], C: [['D', 7], ['E', 7]], D: [['A', 2], ['F', 6]], E: [['D', 2], ['F', 1]], F: [], G: [['E', 1]] }
       : { A: [['B', 10], ['C', 3]], B: [['C', 1], ['D', 2]], C: [['B', 4], ['D', 8], ['E', 2]], D: [['E', 7]], E: [['D', 9]] };
-    const d = {}, par = {}, S = new Set();
-    nodes.forEach(n => { d[n.id] = n.id === 'A' ? 0 : Infinity; par[n.id] = '–'; });
+    if (spec.nodes) {
+      if (!Array.isArray(spec.nodes) || spec.nodes.length < 2 || spec.nodes.length > 8 || spec.nodes.some(n => typeof n !== 'string') || new Set(spec.nodes).size !== spec.nodes.length)
+        throw new Error('Dijkstra needs 2 to 8 unique vertex names.');
+      nodes = spec.nodes.map((id, i) => ({ id, x: 220 + 175 * Math.cos(2 * Math.PI * i / spec.nodes.length - Math.PI / 2), y: 190 + 145 * Math.sin(2 * Math.PI * i / spec.nodes.length - Math.PI / 2) }));
+      adj = Object.fromEntries(nodes.map(n => [n.id, []]));
+      (spec.edges || []).forEach(([u, v, w]) => {
+        if (!Object.hasOwn(adj, u) || !Object.hasOwn(adj, v) || !Number.isFinite(w) || w < 0 || u === v)
+          throw new Error('Use edges between different existing vertices, with finite nonnegative weights.');
+        adj[u].push([v, w]);
+      });
+    }
+    const source = spec.source || 'A';
+    if (!nodes.some(n => n.id === source)) throw new Error('The source must be a vertex in the graph.');
+    const d = Object.create(null), par = Object.create(null), S = new Set();
+    nodes.forEach(n => { d[n.id] = n.id === source ? 0 : Infinity; par[n.id] = '–'; });
     const draw = (cap, curU, activeEdge, vars) => {
       const items = [], edges = [];
       nodes.forEach(n => {
@@ -1346,13 +1369,21 @@ while Q ≠ ∅
       Object.entries(adj).forEach(([u, list]) => list.forEach(([v, w]) => {
         const isAct = activeEdge && activeEdge[0] === u && activeEdge[1] === v;
         const isTree = par[v] === u;
-        edges.push({ id: 'e' + u + v, a: 'n' + u, b: 'n' + v, c: isAct ? 'hl' : isTree ? 'ok' : '' });
+        const U = nodes.find(n => n.id === u), V = nodes.find(n => n.id === v);
+        const reverse = (adj[v] || []).some(([to]) => to === u);
+        const dx = V.x - U.x, dy = V.y - U.y, len = Math.hypot(dx, dy) || 1;
+        const offset = reverse ? 24 : 0;
+        const cx = (U.x + V.x) / 2 + 20 - dy / len * offset;
+        const cy = (U.y + V.y) / 2 + 20 + dx / len * offset;
+        edges.push({ id: 'e' + u + ':' + v, a: 'n' + u, b: 'n' + v, cx: reverse ? cx : null, cy: reverse ? cy : null, c: isAct ? 'hl' : isTree ? 'ok' : '' });
+        items.push(lbl('w' + u + ':' + v, cx - dy / len * 10, cy + dx / len * 10, String(w), isAct ? 'ok' : 'muted'));
+
       }));
       return R.push({ items, edges, cap }, vars || []);
     };
     const fmtVars = () => [['S (settled)', [...S].join(', ') || '∅']].concat(nodes.map(n => [`d[${n.id}] (p)`, `${d[n.id] === Infinity ? '∞' : d[n.id]} (${par[n.id]})`]));
     R.at('algo.dijkstra', 'd[s] ← 0; for v ≠ s do d[v] ← ∞');
-    draw(C(`Initialize Dijkstra from source A: d[A] = 0, all other d[v] = ∞, settled set S = ∅.`, `بداية Dijkstra من النقطة A: المسافة d[A] = 0 والباقي ∞.`), null, null, fmtVars());
+    draw(C(`Initialize Dijkstra from source ${source}: d[${source}] = 0, all other d[v] = ∞, settled set S = ∅.`, `بداية Dijkstra من النقطة ${source}: المسافة d[${source}] = 0 والباقي ∞.`), null, null, fmtVars());
     while (S.size < nodes.length) {
       let u = null;
       nodes.forEach(n => { if (!S.has(n.id) && (u === null || d[n.id] < d[u])) u = n.id; });
@@ -1378,14 +1409,22 @@ while Q ≠ ∅
       }
     }
     R.at(null);
-    draw(C(`Dijkstra complete! Final shortest distances from A: ${nodes.map(n => `${n.id}=${d[n.id]}`).join(', ')}.`, `خلصنا Dijkstra! أقصر المسافات من A: ${nodes.map(n => `${n.id}=${d[n.id]}`).join(', ')}.`), null, null, fmtVars());
+    draw(C(`Dijkstra complete! Final shortest distances from ${source}: ${nodes.map(n => `${n.id}=${d[n.id]}`).join(', ')}.`, `خلصنا Dijkstra! أقصر المسافات من A: ${nodes.map(n => `${n.id}=${d[n.id]}`).join(', ')}.`), null, null, fmtVars());
   }
 
   const SIMS = { stack: stackSim, queue: queueSim, cqueue: cqueueSim, array: arraySim, list: listSim, dlist: listSim, lstack: listSim, lqueue: listSim, bst: bstSim, hash: hashSim, isort: isortSim, qsort: qsortSim, csort: csortSim, bsearch: bsearchSim, dijkstra: dijkstraSim };
   function run(spec) {
     vid = 0;
     const R = Rec();
-    try { (SIMS[spec.type] || (() => {}))(spec, R); } catch (err) { console.error(err); }
+    const type = spec.type || spec.kind;
+    if (!SIMS[type]) throw new Error('Unknown visualization type: ' + type);
+    spec = Object.assign({}, spec, { type });
+    if (['isort', 'qsort', 'csort', 'bsearch'].includes(type)) {
+      const arr = spec.arr || spec.init;
+      if (arr && (!arr.length || arr.length > (type === 'csort' ? 9 : 10) || arr.some(v => !Number.isSafeInteger(v) || Math.abs(v) > 999))) throw new Error('Use 1 to ' + (type === 'csort' ? 9 : 10) + ' integers between −999 and 999.');
+      if (type === 'csort' && arr && arr.some(v => v < 0 || v > 30)) throw new Error('Counting Sort keys must be between 0 and 30.');
+    }
+    SIMS[type](spec, R);
     return R.frames;
   }
 
@@ -1403,22 +1442,28 @@ while Q ≠ ∅
     hash: ['size 7, keys 18 72 65 34 13', 'Commands: size M (2 to 13), keys A B C … (up to 12). Pick the method in the menu. Double hashing uses h2 = 1 + k mod P; set P with h2 P.'],
     isort: ['start 8 2 4 9 3 6', 'Type space-separated numbers after "start" (2 to 10 numbers).'],
     qsort: ['start 6 10 13 5 8 3 2 11', 'Type space-separated numbers after "start" (2 to 10 numbers).'],
-    csort: ['start 8 5 7 3 6 1 2', 'Type integers in 1..9 after "start" (2 to 9 numbers).'],
+    csort: ['start 8 5 7 3 6 1 2', 'Type integers in 0..9 after "start" (2 to 9 numbers).'],
     bsearch: ['start 3 5 7 8 9 12 15, search 9', 'Commands: start A B C … (sorted), search X.']
   };
   const LIMIT = { stack: 8, queue: 8, cqueue: 8, array: 10, list: 7, dlist: 6, lstack: 7, lqueue: 7, bst: 15, hash: 13 };
   function parse(type, text, method) {
     if (['isort', 'qsort', 'csort', 'bsearch'].includes(type)) {
-      const nums = (text.match(/-?\d+/g) || []).map(Number);
+      const source = text.trim().replace(/^start\s+/i, '');
+      const search = /(?:[,;]\s*|\s+)search\s+(-?\d+)\s*$/i.exec(source);
+      const body = search ? source.slice(0, search.index) : source;
+      const tokens = body.split(/[\s,;]+/).filter(Boolean);
+      if (tokens.some(t => !/^-?\d+$/.test(t))) throw new Error('Use whole numbers only, separated by spaces or commas.');
+      const nums = tokens.map(Number);
+      if (nums.some(n => !Number.isSafeInteger(n) || Math.abs(n) > 999)) throw new Error('Use integers between −999 and 999.');
       if (type === 'bsearch') {
-        const mSearch = /search\s+(-?\d+)/i.exec(text);
-        const target = mSearch ? Number(mSearch[1]) : nums[nums.length - 1] || 9;
-        const arr = mSearch ? (text.replace(/search\s+-?\d+/i, '').match(/-?\d+/g) || []).map(Number) : nums.slice(0, -1);
-        if (arr.length < 2 || arr.length > 10) throw new Error('Provide 2 to 10 numbers for the array.');
-        return { type, arr, target };
+        if (!search) throw new Error('Add a target using “search X”, for example “start 2 4 6, search 4”.');
+        if (nums.length < 2 || nums.length > 10) throw new Error('Provide 2 to 10 numbers for the array.');
+        const target = Number(search[1]);
+        if (!Number.isSafeInteger(target) || Math.abs(target) > 999) throw new Error('Use a target between −999 and 999.');
+        return { type, arr: nums, target };
       }
-      if (nums.length < 2 || nums.length > 10) throw new Error('Provide 2 to 10 numbers.');
-      if (type === 'csort' && nums.some(x => x < 1 || x > 9)) throw new Error('For Counting Sort, use integers between 1 and 9.');
+      if (nums.length < 2 || nums.length > (type === 'csort' ? 9 : 10)) throw new Error(type === 'csort' ? 'Provide 2 to 9 numbers.' : 'Provide 2 to 10 numbers.');
+      if (type === 'csort' && nums.some(x => x < 0 || x > 9)) throw new Error('For Counting Sort, use integers between 0 and 9.');
       return { type, arr: nums };
     }
     const spec = { type, ops: [] }, isNum = s => /^-?\d+$/.test(s);
@@ -1515,7 +1560,7 @@ while Q ≠ ∅
     const A = map.get(e.a), B = map.get(e.b);
     if (!A || !B) return null;
     const p = anchor(A, e.as, B), q = anchor(B, e.bs, A);
-    const d = e.bend ? `M${p[0]},${p[1]} Q${(p[0] + q[0]) / 2},${(p[1] + q[1]) / 2 + e.bend} ${q[0]},${q[1]}` : `M${p[0]},${p[1]} L${q[0]},${q[1]}`;
+    const d = e.cx != null ? `M${p[0]},${p[1]} Q${e.cx},${e.cy} ${q[0]},${q[1]}` : e.bend ? `M${p[0]},${p[1]} Q${(p[0] + q[0]) / 2},${(p[1] + q[1]) / 2 + e.bend} ${q[0]},${q[1]}` : `M${p[0]},${p[1]} L${q[0]},${q[1]}`;
     return html`<path d=${d} className=${'vz-edge' + (e.c ? ' ' + e.c : '')} style=${{ opacity: Math.min(e.o, A.o, B.o) }} markerEnd=${e.c === 'tree' ? null : `url(#${mid})`} />`;
   }
 
@@ -1532,21 +1577,54 @@ while Q ≠ ∅
       if (el) box.scrollTo({ top: Math.max(0, el.offsetTop - box.clientHeight / 2 + el.offsetHeight), behavior: calm() ? 'auto' : 'smooth' });
     }, [fn, litKey]);
     if (!fn) return html`<div className="vz-code vz-none"><span className="vz-ph">Code</span><p>Step forward to see the lecture's code run line by line.</p></div>`;
-    return html`<div className=${'vz-code' + (code && code.fn ? '' : ' idle')}><span className="vz-ph">Code</span><pre ref=${ref} data-hl="">${lines.map((l, i) => html`<span key=${i} className=${lit.has(i) ? 'on' : ''}>${l || ' '}${'\n'}</span>`)}</pre></div>`;
+    return html`<div className=${'vz-code' + (code && code.fn ? '' : ' idle')}><span className="vz-ph">Code</span><pre ref=${ref} data-hl="">${lines.map((l, i) => html`<span key=${i} className=${lit.has(i) ? 'on' : ''}><small className="vz-lnum" aria-hidden="true">${i + 1}</small>${l || ' '}${'\n'}</span>`)}</pre></div>`;
   }
   function VarsPanel({ vars, prev }) {
     const old = new Map((prev || []).map(v => [v[0], String(v[1])]));
-    return html`<div className="vz-vars"><span className="vz-ph">Variables</span>
-      ${vars && vars.length ? html`<table><tbody>${vars.map(([k, v]) => html`<tr key=${k} className=${prev && old.get(k) !== String(v) ? 'chg' : ''}><th>${k}</th><td>${String(v)}</td></tr>`)}</tbody></table>` : html`<p>No variables yet.</p>`}
+    return html`<div className="vz-vars"><span className="vz-ph">Variable changes · previous → current</span>
+      ${vars && vars.length ? html`<table><tbody>${vars.map(([k, v]) => html`<tr key=${k} className=${prev && old.get(k) !== String(v) ? 'chg' : ''}><th scope="row">${k}</th><td>${prev && old.has(k) && old.get(k) !== String(v) ? html`<span className="vz-old">${old.get(k)} → </span>` : null}${String(v)}</td></tr>`)}</tbody></table>` : html`<p>No variables yet.</p>`}
     </div>`;
   }
+
+  const TRACE_GUIDES = {
+    isort: [
+      ['Read the diagram', 'A[1..j−1] is the sorted prefix. The key is held outside the array while larger elements shift one position to the right. A temporarily duplicated value represents a shift, not a lost key.'],
+      ['Correctness invariant', 'Before each outer pass, the prefix contains exactly the original prefix elements in sorted order. Insert the key into the hole to extend that prefix by one.'],
+      ['Cost & exam trap', 'Best Θ(n), average/worst Θ(n²), auxiliary space Θ(1). Equal elements do not shift: testing > rather than ≥ makes this version stable.']
+    ],
+    qsort: [
+      ['Scope & pivot rule', 'This trace runs ONE partition, not the entire recursive QuickSort. It uses the FIRST element A[p] as the pivot, matching the displayed lecture pseudocode.'],
+      ['Partition invariant', 'Before scanning j: A[p+1..i] ≤ pivot, A[i+1..j−1] > pivot, A[j..q] is unexamined, and A[p] still holds the pivot. The final swap fixes the pivot at i.'],
+      ['Cost & exam trap', 'Partition is Θ(n) with constant auxiliary space and is not stable. Full QuickSort is expected Θ(n log n) with randomized pivots, worst Θ(n²); this first-pivot example itself is deterministic. Neither partition is necessarily sorted.']
+    ],
+    csort: [
+      ['Three different arrays', 'A is the input; C first stores frequencies, then cumulative counts, then remaining placement positions. B is the output. Keys begin at 0, but A and B positions begin at 1.'],
+      ['Why the count decreases', 'C[v] gives the next free output position for v. Write B[C[v]] = v, then decrement C[v]. Scanning A right to left keeps equal keys in their original relative order.'],
+      ['Cost & exam trap', 'Time Θ(n+k), auxiliary space Θ(n+k), where k is the maximum key. No element-to-element comparisons are needed. The final C row is NOT the original frequency row.']
+    ],
+    bsearch: [
+      ['Precondition', 'Binary search requires ascending sorted input. This workbench sorts the supplied values first and displays that sorted array. Indices refer to that array, not the original order.'],
+      ['Search invariant', 'If the target exists, a matching position remains inside the inclusive interval [lo..hi]. Compute mid = floor((lo+hi)/2); retain mid−1 on the left or mid+1 on the right.'],
+      ['Cost & exam trap', 'Worst Θ(log n), best Θ(1), iterative auxiliary space Θ(1). Stop when lo > hi. With duplicates, this version finds a match, not necessarily the first match.']
+    ],
+    dijkstra: [
+      ['Read the graph', 'Arrows show directed edges and their weights. Labels above vertices show distance (predecessor). ∞ means not reached yet; the settled set S contains vertices whose distances are final.'],
+      ['Greedy invariant', 'Extract the unsettled vertex u with minimum tentative distance. For every unsettled neighbor v, compare d[v] with d[u]+w(u,v); update its distance and predecessor only on a strict improvement.'],
+      ['Precondition & cost', 'All edge weights must be nonnegative. This implementation scans vertices for extract-min: O(V²+E) time and O(V+E) graph/state storage. Unreachable vertices remain ∞; a binary-heap implementation would instead take O((V+E) log V).']
+    ]
+  };
 
   let ids = 0;
   const icon = d => html`<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d=${d} /></svg>`;
   function Player({ spec, ar, onAnswer, custom, children }) {
-    const frames = useMemo(() => run(spec), [spec]);
+    const result = useMemo(() => { try { return { frames: run(spec) }; } catch (e) { return { frames: [], error: e.message }; } }, [spec]);
+    const frames = result.frames;
     const [i, setI] = useState(0);
     const [playing, setPlaying] = useState(false);
+    const [speed, setSpeed] = useState(1);
+    const [zoom, setZoom] = useState(1);
+    const [history, setHistory] = useState(false);
+    const [guide, setGuide] = useState(true);
     const [predict, setPredict] = useState(true);
     const [asking, setAsking] = useState(null);       // index of the frame whose question is open
     const [answers, setAnswers] = useState({});       // frame index → chosen option (-1 = skipped)
@@ -1568,11 +1646,11 @@ while Q ≠ ∅
       if (!to) return;
       cancelAnimationFrame(raf.current);
       if (calm() || from === to) { setShown(blend(null, to, 1)); return; }
-      const t0 = performance.now(), dur = 520;
+      const t0 = performance.now(), dur = Math.min(520, 600 / speed);
       const tick = now => { const t = Math.min(1, (now - t0) / dur); setShown(blend(from, to, ease(t))); if (t < 1) raf.current = requestAnimationFrame(tick); };
       raf.current = requestAnimationFrame(tick);
       return () => cancelAnimationFrame(raf.current);
-    }, [i, frames]);
+    }, [i, frames, speed]);
     // moving forward onto a frame with an unanswered question opens the question instead
     const forward = () => {
       const n = i + 1;
@@ -1583,12 +1661,12 @@ while Q ≠ ∅
     useEffect(() => {
       if (!playing || asking != null) return;
       if (i >= frames.length - 1) { setPlaying(false); return; }
-      const t = setTimeout(forward, 1700);
+      const t = setTimeout(forward, 1700 / speed);
       return () => clearTimeout(t);
-    }, [playing, i, frames.length, asking, predict, answers]);
-    if (!frames.length || !shown) return html`<p className="vz-err">This diagram couldn't be built.</p>`;
+    }, [playing, i, frames.length, asking, predict, answers, speed]);
+    if (!frames.length || !shown) return html`<p className="vz-errmsg" role="alert">${result.error || "This diagram has no steps to display."}</p>`;
     const f = frames[i], map = new Map(shown.items.map(it => [it.id, it]));
-    const go = n => { setPlaying(false); setAsking(null); setI(n); };
+    const go = n => { setPlaying(false); setAsking(null); setI(Math.max(0, Math.min(frames.length - 1, n))); };
     const choose = j => {
       const n = asking; if (n == null) return;
       setAnswers(a => Object.assign({}, a, { [n]: j })); setAsking(null); setI(n);
@@ -1607,12 +1685,23 @@ while Q ≠ ∅
       if (e.target.matches && e.target.matches('input, textarea, select')) return;
       if (e.key === 'ArrowRight') { e.preventDefault(); e.stopPropagation(); setPlaying(false); if (!q) forward(); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); e.stopPropagation(); go(Math.max(0, i - 1)); }
+      else if (e.key === 'Home') { e.preventDefault(); e.stopPropagation(); go(0); }
+      else if (e.key === 'End') { e.preventDefault(); e.stopPropagation(); go(frames.length - 1); }
+      else if (e.key === ' ' && e.target === e.currentTarget && !q) { e.preventDefault(); setPlaying(p => !p); }
       else if (q && /^[1-4]$/.test(e.key) && +e.key <= q.o.length) { e.preventDefault(); e.stopPropagation(); choose(+e.key - 1); }
     };
-    return html`<figure className=${'vz' + (f.crash ? ' crash' : '')} onKeyDown=${onKey}>
+    return html`<figure className=${'vz' + (f.crash ? ' crash' : '')} onKeyDown=${onKey} tabIndex="0" aria-label=${spec.title || 'Interactive execution trace'}>
       ${(spec.title || custom) && html`<div className="vz-title">${spec.bug ? html`<span className="vz-tag">What goes wrong</span>` : custom ? html`<span className="vz-tag mine">Your own</span>` : null}${custom ? html`<code>${spec.title}</code>` : html`<b>${spec.title}</b>`}</div>`}
+      <div className="vz-toolbar">
+        <span className="vz-ph">Execution workbench</span>
+        <label>Speed <select value=${speed} onChange=${e => setSpeed(+e.target.value)}>${[0.5, 1, 1.5, 2, 3].map(v => html`<option key=${v} value=${v}>${v}×</option>`)}</select></label>
+        <label>Zoom <select value=${zoom} onChange=${e => setZoom(+e.target.value)}>${[1, 1.25, 1.5, 2].map(v => html`<option key=${v} value=${v}>${Math.round(v * 100)}%</option>`)}</select></label>
+        <button className="vz-link" onClick=${() => setGuide(v => !v)} aria-expanded=${guide}>${guide ? 'Hide' : 'Show'} study guide</button>
+      </div>
+      ${guide && TRACE_GUIDES[spec.type] && html`<div className="vz-guide">${TRACE_GUIDES[spec.type].map(([label, text]) => html`<div key=${label}><b>${label}</b><p>${text}</p></div>`)}</div>`}
+      <div className="vz-legend" aria-label="Diagram legend"><span><i className="active"></i>Active / pivot</span><span><i className="done"></i>Confirmed / placed</span><span><i className="new"></i>New / updated</span><span><i className="warn"></i>Other region / warning</span><span><i className="bad"></i>Rejected / error</span><span>100% fits the view · zoom to inspect; scroll sideways when zoomed.</span></div>
       <div className="vz-stage">
-        <svg viewBox=${box.join(' ')} style=${{ maxWidth: Math.round(box[2] * 1.05) + 'px', minWidth: Math.round(Math.min(box[2], 520)) + 'px' }} role="img" aria-label=${f.cap[0]}>
+        <svg viewBox=${box.join(' ')} style=${{ width: Math.round(box[2] * zoom) + 'px', maxWidth: zoom === 1 ? '100%' : 'none', minWidth: zoom === 1 ? '0' : Math.round(Math.min(box[2], 520) * zoom) + 'px' }} role="img" aria-label=${f.cap[0]}>
           <defs><marker id=${mid} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" className="vz-head" /></marker></defs>
           ${shown.edges.map(e => html`<${Edge} key=${e.id} e=${e} map=${map} mid=${mid} />`)}
           ${shown.items.map(it => html`<${Item} key=${it.id} it=${it} />`)}
@@ -1626,7 +1715,7 @@ while Q ≠ ∅
           <div className="vz-opts">${q.o.map((o, j) => html`<button key=${j} onClick=${() => choose(j)}><kbd>${j + 1}</kbd><span>${o}</span></button>`)}</div>
           <button className="vz-link" onClick=${() => choose(-1)}>Skip and show me</button>
         </div>`
-      : html`<figcaption className="vz-cap" aria-live="polite">
+      : html`<figcaption className="vz-cap" aria-live=${playing ? 'off' : 'polite'}>
           <span className="vz-step">Step ${i + 1} of ${frames.length}${total && predict && asked.length ? ' · predictions ' + right + ' / ' + asked.length + ' right' : ''}</span>
           ${res ? html`<span className=${'vz-res ' + (res.ok ? 'ok' : 'no')}>${res.ok ? '✓ You predicted it.' : '✗ Not quite. The answer is: ' + res.ans}</span>` : null}
           <span className="vz-text">${f.cap[0]}</span>
@@ -1638,10 +1727,14 @@ while Q ≠ ∅
         <button onClick=${() => go(Math.max(0, i - 1))} disabled=${i === 0} aria-label="Previous step" title="Previous step (←)">${icon('M15 5l-7 7 7 7')}</button>
         <button className="vz-play" onClick=${() => { if (end) { go(0); setPlaying(true); } else setPlaying(p => !p); }} disabled=${!!q} aria-label=${playing ? 'Pause' : 'Play'}>${icon(playing ? 'M8 5v14M16 5v14' : 'M7 5l12 7-12 7z')}<span>${playing ? 'Pause' : end ? 'Replay' : 'Play'}</span></button>
         <button onClick=${() => { setPlaying(false); forward(); }} disabled=${end || !!q} aria-label="Next step" title="Next step (→)">${icon('M9 5l7 7-7 7')}</button>
-        <span className="vz-prog" aria-hidden="true"><i style=${{ width: (frames.length > 1 ? i / (frames.length - 1) * 100 : 100) + '%' }}></i></span>
+        <input className="vz-scrub" type="range" min="0" max=${frames.length - 1} value=${i} aria-label="Execution step" aria-valuetext=${`Step ${i + 1} of ${frames.length}`} onInput=${e => go(+e.target.value)} />
+        <span className="vz-step">${i + 1} / ${frames.length}</span>
+        <button onClick=${() => go(frames.length - 1)} disabled=${end || !!q} aria-label="Last step" title="Last step (End)">${icon('M18 5v14M5 5l9 7-9 7z')}</button>
         ${total ? html`<label className="vz-tog" title="Stop at key steps and ask what happens next"><input type="checkbox" checked=${predict} onChange=${e => { setPredict(e.target.checked); setAsking(null); }} /><span>Predict</span></label>` : null}
         ${children}
       </div>
+      <div className="vz-footer"><span>← / → Step · Home / End Jump · Space Play when the workbench is focused</span><button className="vz-link" onClick=${() => setHistory(v => !v)} aria-expanded=${history}>${history ? 'Hide' : 'Show'} execution history</button></div>
+      ${history && html`<div className="vz-history"><table><caption>Execution history · select a step to inspect it (jumping skips prediction checkpoints)</caption><thead><tr><th>Step</th><th>Explanation</th><th>State</th></tr></thead><tbody>${frames.slice(0, i + 1).map((frame, idx) => html`<tr key=${idx} className=${idx === i ? 'current' : ''}><td><button className="vz-link" onClick=${() => go(idx)} aria-label=${'Go to step ' + (idx + 1)}>${idx + 1}</button></td><td>${frame.cap[0]}</td><td>${frame.vars.map(([key, val]) => `${key} = ${val}`).join('; ') || '—'}</td></tr>`)}</tbody></table></div>`}
     </figure>`;
   }
 
@@ -1657,7 +1750,7 @@ while Q ≠ ∅
     const runOwn = () => { try { const t = text.trim(); setOwn(Object.assign(parse(spec.type, t, method), { title: t.length > 80 ? t.slice(0, 80) + '…' : t })); setErr(''); } catch (e) { setErr(e.message); } };
     const tryBtn = canTry ? html`<button className=${'vz-try' + (open ? ' on' : '')} onClick=${() => setOpen(o => !o)} aria-expanded=${String(open)}>${icon('M4 20h4l10-10-4-4L4 16zM13 7l4 4')}<span>Try your own</span></button>` : null;
     return html`<div className="vzwrap">
-      <${Player} spec=${own || spec} ar=${ar} onAnswer=${onAnswer} custom=${!!own}>${tryBtn}<//>
+      <${Player} key=${JSON.stringify(own || spec)} spec=${own || spec} ar=${ar} onAnswer=${onAnswer} custom=${!!own}>${tryBtn}<//>
       ${open && html`<div className="vz-own">
         <label htmlFor=${inId}>Type operations, separated by commas, then press Run</label>
         <div className="vz-row">
@@ -1673,8 +1766,8 @@ while Q ≠ ∅
   }
   // a section can carry one spec or a list (for example the lecture example, then "what goes wrong")
   function Viz({ spec, ar, onAnswer }) {
-    const list = Array.isArray(spec) ? spec : [spec];
-    return html`${list.map((s, j) => html`<${One} key=${j} spec=${s} ar=${ar} onAnswer=${onAnswer} />`)}`;
+    const list = useMemo(() => (Array.isArray(spec) ? spec : [spec]).map(s => Object.assign({}, s, { type: s.type || s.kind })), [spec]);
+    return html`${list.map((s, j) => html`<${One} key=${j + JSON.stringify(s)} spec=${s} ar=${ar} onAnswer=${onAnswer} />`)}`;
   }
 
   window.VIZ = { Viz, SIMS, run, parse, toText, CODE };

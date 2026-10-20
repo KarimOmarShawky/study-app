@@ -617,7 +617,7 @@ function start() {
     // no separate Videos tab: the player and its timestamps sit inside the Path tab, under the lecture
     const modes = [
       ['path', 'Path', null],
-      ...(baseK === 'algo' ? [['studio', '✨ Visualizer', 13]] : baseK === 'os' ? [['studio', 'Visualizer', 7]] : []),
+      ...(baseK === 'algo' ? [['studio', 'Visualizer', 12]] : baseK === 'os' ? [['studio', 'Visualizer', 5]] : []),
       ['read', 'Notes', c.lectures.length],
       ['cards', 'Cards', c.cards],
       ['ask', 'Q&A', c.qa],
@@ -627,14 +627,14 @@ function start() {
     ];
     return html`<div className="page">
       <${Topbar} bar=${bar} cur=${baseK}><div className="readbar" hidden=${mode !== 'read' || status !== 'ready' || lecN === 'rev'}><i ref=${barRef}></i></div></${Topbar}>
-      <section className=${'band' + (mode === 'path' ? ' tall' : '')}>
+      <section className=${'band' + (mode === 'path' ? ' tall' : mode === 'studio' ? ' concept-band' : '')}>
         <div className="band-in">
           <div className="band-top">
             <div className="band-id">
-              <p className="band-k">${LEVEL.name} · ${LEVEL.sem} · ${baseM.code} · ${(ORDER.find(o => o[0] === baseK) || [])[1] ? 'Elective' : 'Core course'}${hasTracks ? ' · ' + (activeTrack === 'labs' ? 'Labs Track' : 'Lectures Track') : ''}</p>
+              <p className="band-k">${mode === 'studio' ? 'Interactive concept laboratory' : LEVEL.name + ' · ' + LEVEL.sem + ' · ' + baseM.code + ' · ' + ((ORDER.find(o => o[0] === baseK) || [])[1] ? 'Elective' : 'Core course') + (hasTracks ? ' · ' + (activeTrack === 'labs' ? 'Labs Track' : 'Lectures Track') : '')}</p>
               <h1>${baseM.name}</h1>
-              <p className="band-by">${baseM.by}</p>
-              ${hasTracks && html`<div className="track-switch" role="tablist" aria-label="Course track">
+              ${mode !== 'studio' && html`<p className="band-by">${baseM.by}</p>`}
+              ${hasTracks && mode !== 'studio' && html`<div className="track-switch" role="tablist" aria-label="Course track">
                 ${[['lectures', 'Lectures', baseM.tracks.lectures.lectures.length], ['labs', 'Labs', baseM.tracks.labs.lectures.length]].map(([tid, tlabel, tcount]) =>
                   html`<button key=${tid} role="tab" className="track-btn" aria-selected=${String(activeTrack === tid)} aria-pressed=${String(activeTrack === tid)}
                     onClick=${() => switchTrack(tid)}>
@@ -642,11 +642,11 @@ function start() {
                   </button>`)}
               </div>`}
             </div>
-            <div className="band-stats">
+            ${mode !== 'studio' && html`<div className="band-stats">
               <div><b>${read.length}<em>/${c.lectures.length}</em></b><span>${uPlur(k)} read</span></div>
               <div><b>${known.length}<em>/${c.cards}</em></b><span>cards known</span></div>
               <div><b>${best == null ? '–' : best + '%'}</b><span>best quiz</span></div>
-            </div>
+            </div>`}
           </div>
           <nav className="ctabs" role="tablist" aria-label="Course sections">
             ${modes.map(([id, label, n]) => html`<button key=${id} role="tab" className="ctab" aria-selected=${String(mode === id)}
@@ -952,145 +952,19 @@ function start() {
     </section>`;
   }
 
-  function StudioView({ k, go }) {
-    const baseK = baseOf(k);
-    const [traceIdx, setTraceIdx] = useState(0);
-    const algoTraces = useMemo(() => [
-      {
-        label: 'Insertion Sort · Shifting & Loop Invariant',
-        sub: 'Lecture 1 · CLRS §2.1 · Step-by-step j-scan, key insertion, and total shifts',
-        lec: 1,
-        spec: { kind: 'isort', title: 'Insertion Sort Trace on [5, 2, 4, 6, 1, 3]', arr: [5, 2, 4, 6, 1, 3] }
-      },
-      {
-        label: 'QuickSort · Lomuto Partition & Pointer Boundaries',
-        sub: 'Lecture 5 · CLRS §7.1 · Exact i, j, pivot x=A[r] swaps and 4-region invariant',
-        lec: 5,
-        spec: { kind: 'qsort', title: 'Lomuto PARTITION Trace on [2, 8, 7, 1, 3, 5, 6, 4]', arr: [2, 8, 7, 1, 3, 5, 6, 4] }
-      },
-      {
-        label: 'Counting Sort · Histogram, Prefix Sums & Stable Placement',
-        sub: 'Lecture 6 · CLRS §8.2 · Why right-to-left j = n downto 1 preserves stability',
-        lec: 6,
-        spec: { kind: 'csort', title: 'Stable Counting Sort Trace on [2, 5, 3, 0, 2, 3, 0, 3]', arr: [2, 5, 3, 0, 2, 3, 0, 3] }
-      },
-      {
-        label: 'Binary Search · Search-Space Halving [lo..hi]',
-        sub: 'Lecture 4 · CLRS §2.3 · Exact mid calculation and O(log n) elimination',
-        lec: 4,
-        spec: { kind: 'bsearch', title: 'Binary Search Trace on [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]', arr: [2, 5, 8, 12, 16, 23, 38, 56, 72, 91], target: 23 }
-      },
-      {
-        label: 'Dijkstra Shortest Paths · Greedy EXTRACT-MIN & Edge Relaxation',
-        sub: 'Lectures 18 & 19 · CLRS §24.3 · Full 5-vertex directed graph trace with d[v] and π[v] updates',
-        lec: 19,
-        spec: {
-          kind: 'dijkstra',
-          title: 'Dijkstra Trace on CLRS 5-Vertex Directed Graph (Source s)',
-          nodes: ['s', 't', 'x', 'y', 'z'],
-          source: 's',
-          edges: [['s','t',10],['s','y',5],['t','x',1],['t','y',2],['y','t',3],['y','x',9],['y','z',2],['x','z',4],['z','x',6],['z','s',7]]
-        }
-      }
-    ], []);
-
-    const lectureJumpCards = useMemo(() => [
-      { lec: 1, title: 'Insertion Sort, Merge Sort & Complexity Cases', badge: 'Sorting + Trace', desc: 'Step-by-step Insertion Sort shifting, Merge Sort combine trace & Θ(n²) vs Θ(n lg n)' },
-      { lec: 3, title: 'Solving Recurrences & Master Theorem', badge: 'Recurrence Explorer', desc: 'Interactive tree expansion by depth i, leaf count n^(log_b a), and Master Theorem Cases 1–3' },
-      { lec: 4, title: 'Divide & Conquer: Binary Search, Fast Power & Strassen', badge: 'Halving Trace', desc: 'Exact [lo..hi] search-space halving, repeated squaring, and 7-product matrix multiply' },
-      { lec: 5, title: 'QuickSort & Lomuto/Hoare Partitioning', badge: 'Partition Studio', desc: '4-region Lomuto invariant, worst-case vs randomized pivot, and call-tree depth' },
-      { lec: 6, title: 'Decision Trees, Counting & Radix Sort', badge: 'Linear-Time Sort', desc: 'n! decision tree leaves lower bound and stable right-to-left Counting Sort' },
-      { lec: 8, title: 'Hashing, Probe Sequences & Amortized Table Doubling', badge: 'Hash & Amortized Lab', desc: 'Linear/Quadratic/Double hashing collision probes + Aggregate, Accounting ($3) & Potential Φ=2·num−size' },
-      { lec: 9, title: 'Red-Black Trees, Rotations & Fixup Cases', badge: 'RBT + OS-Tree Lab', desc: '5 RBT invariants, Uncle red/black cases, rotations, black-height bh(x), and OS-SELECT(x, i)' },
-      { lec: 12, title: 'Augmenting Data Structures: Order-Statistic & Interval Trees', badge: 'OS-SELECT & Rank', desc: 'Subtree size[x] maintenance, local rank r = size[left[x]] + 1, and O(lg n) rank queries' },
-      { lec: 14, title: 'Dynamic Programming: Coin-Row, LCS & 0/1 Knapsack', badge: 'DP Table & Backtrace', desc: 'Bottom-up table construction, subproblem dependency highlighting, and optimal solution reconstruction' },
-      { lec: 17, title: 'Greedy Design: Kruskal MST & Huffman Prefix Codes', badge: 'Huffman & Kruskal', desc: 'Min-heap frequency merging, optimal prefix-free codes, and Union-Find cycle detection' },
-      { lec: 19, title: 'Dijkstra Relaxation Table & Shortest-Path Workout', badge: 'Exam Relaxation Table', desc: 'Dr. Basheer exam-format step-by-step Dijkstra relaxation table and predecessor path tree' },
-      { lec: 20, title: 'NP-Completeness & 3-CNF SAT ≤p CLIQUE Reduction', badge: 'NP Reduction Lab', desc: 'Interactive clause-triple gadget graph showing how a satisfying assignment forms a k-clique' }
-    ], []);
-
-    if (baseK === 'os') {
-      return html`<div className="paper" style=${{ padding: '24px' }}>
-        <p className="eyebrow" style=${{ color: 'var(--c)' }}>Interactive Operating Systems Laboratory</p>
-        <h2 style=${{ margin: '4px 0 8px' }}>OS Visual Simulators & Step-by-Step Traces</h2>
-        <p className="muted" style=${{ marginBottom: '18px' }}>Explore CPU scheduling Gantt charts, virtual memory page replacement frames, deadlock resource-allocation graphs, memory placement, and disk arm head movement.</p>
-        <${FigBlock} name="os-cpu-sim" />
-        <${FigBlock} name="os-page-sim" />
-        <${FigBlock} name="os-rag" />
-        <${FigBlock} name="os-mem-fit" />
-        <${FigBlock} name="os-disk-arm" />
-      </div>`;
-    }
-
-    const curTrace = algoTraces[traceIdx] || algoTraces[0];
-
-    return html`<div className="algo-studio-page">
-      <div className="paper" style=${{ padding: '24px', marginBottom: '20px' }}>
-        <div className="row" style=${{ justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '12px' }}>
-          <div>
-            <p className="eyebrow" style=${{ color: 'var(--c)' }}>CS311 · Interactive Algorithm Visualizer & Execution Trace Studio</p>
-            <h2 style=${{ margin: '4px 0 6px', fontSize: '1.45rem' }}>Deep Visual Laboratory: Invariants, Cost Proofs & Exam Tables</h2>
-            <p className="muted" style=${{ margin: 0, maxWidth: '78ch' }}>
-              Unlike superficial animations that only move bars around, every visualizer below exposes the exact <b>mathematical loop invariant</b>, <b>pointer boundaries</b>, <b>recurrence/amortized accounting equations</b>, <b>subproblem dependency cells</b>, and <b>exam-style trace tables</b> required in CS311 midterms and finals.
-            </p>
-          </div>
-          <div className="row" style=${{ gap: '8px' }}>
-            <button className="btn" onClick=${() => go({ mode: 'read', lec: curTrace.lec, anchor: null })}>Open Lecture ${curTrace.lec} Notes →</button>
-            <button className="btn solid" onClick=${() => go({ mode: 'papers' })}>Solved Past Papers →</button>
-          </div>
-        </div>
-
-        <${FigBlock} name="algo-studio" />
-      </div>
-
-      <div className="paper" style=${{ padding: '24px', marginBottom: '20px' }}>
-        <p className="eyebrow" style=${{ color: 'var(--c)' }}>Part II · Line-by-Line CLRS Pseudocode & Variable-Diff Debugger</p>
-        <h3 style=${{ margin: '4px 0 6px', fontSize: '1.22rem' }}>Step-by-Step Code Execution, "Predict Then See" & Custom Input Runner</h3>
-        <p className="muted" style=${{ margin: '0 0 14px' }}>
-          Pick an algorithm below to step forward and backward through its exact CLRS pseudocode, inspect how local variables change on each line (<code>prev → cur</code>), test yourself with embedded prediction checkpoints, or click <b>Try your own</b> inside the trace bar to run your own array or target value.
-        </p>
-
-        <div className="row" style=${{ gap: '8px', marginBottom: '16px' }} role="tablist" aria-label="Pseudocode trace engines">
-          ${algoTraces.map((t, idx) => html`<button
-            key=${idx}
-            role="tab"
-            aria-selected=${String(traceIdx === idx)}
-            className=${'btn' + (traceIdx === idx ? ' solid' : '')}
-            onClick=${() => setTraceIdx(idx)}
-          >${idx + 1}. ${t.label.split('·')[0].trim()}</button>`)}
-        </div>
-
-        <div style=${{ padding: '12px 16px', borderRadius: '12px', background: 'var(--paper-2)', border: '1px solid var(--line)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-          <div>
-            <b style=${{ fontSize: '.96rem' }}>${curTrace.label}</b>
-            <div className="muted small">${curTrace.sub}</div>
-          </div>
-          <button className="btn small" onClick=${() => go({ mode: 'read', lec: curTrace.lec, anchor: null })}>Jump to Lecture ${curTrace.lec} →</button>
-        </div>
-
-        <${VizBlock} key=${'studio-trace-' + traceIdx} spec=${curTrace.spec} k=${k} />
-      </div>
-
-      <div className="paper" style=${{ padding: '24px' }}>
-        <p className="eyebrow" style=${{ color: 'var(--c)' }}>Part III · Course-Wide Visual Index</p>
-        <h3 style=${{ margin: '4px 0 6px', fontSize: '1.22rem' }}>Where Each Visualizer Lives in the Lectures</h3>
-        <p className="muted" style=${{ margin: '0 0 16px' }}>Every interactive visualizer is also embedded directly inside the lecture notes and solved exam papers where that topic is taught. Click any card to open that lecture.</p>
-        <div style=${{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '12px' }}>
-          ${lectureJumpCards.map(card => html`<button
-            key=${card.lec}
-            onClick=${() => go({ mode: 'read', lec: card.lec, anchor: null })}
-            style=${{ textAlign: 'left', padding: '14px 16px', borderRadius: '14px', border: '1px solid var(--line)', background: 'var(--paper-2)', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '6px' }}
-          >
-            <div className="row" style=${{ justifyContent: 'space-between', width: '100%' }}>
-              <span className="srcbadge prof">Lecture ${card.lec}</span>
-              <span className="srcbadge book">${card.badge}</span>
-            </div>
-            <b style=${{ fontSize: '.98rem', color: 'var(--ink)' }}>${card.title}</b>
-            <span className="muted small" style=${{ lineHeight: 1.45 }}>${card.desc}</span>
-          </button>`)}
-        </div>
-      </div>
-    </div>`;
+  // Topic laboratory is intentionally independent of the selected session and assessment data.
+  function StudioView({ k }) {
+    const [ready, setReady] = useState(() => !!window.TOPICS && !!window.STUDY_SIM);
+    const [failed, setFailed] = useState(false);
+    useEffect(() => {
+      let live = true;
+      Promise.all([loadScript(dataUrl('figs')), loadScript(dataUrl('topics'))])
+        .then(() => { if (live) setReady(true); }, () => { if (live) setFailed(true); });
+      return () => { live = false; };
+    }, []);
+    if (failed) return html`<p className="vz-errmsg" role="alert">The topic laboratory could not load. Refresh to try again.</p>`;
+    if (!ready) return html`<div className="vz vz-wait" role="status" aria-label="Loading topic laboratory"></div>`;
+    return html`<${window.TOPICS.Studio} subject=${baseOf(k) === 'os' ? 'os' : 'algo'} />`;
   }
 
   function CourseBody({ k, mode, nav, go, lecN, known, setKnown, miss, setMiss, fixed, setFixed, best, setBest, read, setRead, barRef, onSection }) {
@@ -1147,12 +1021,18 @@ function start() {
   }
   // a lecture's own picture as an animation or a small hands-on version (figs.js, copied to data/, fetched when first needed)
   function FigBlock({ name, ar }) {
-    const [ready, setReady] = useState(() => !!window.FIGS);
+    const needsTopics = /^(algo-|os-cpu-sim$|os-page-sim$)/.test(name);
+    const [ready, setReady] = useState(() => !!window.FIGS && (!needsTopics || !!window.TOPICS));
     const [failed, setFailed] = useState(false);
-    useEffect(() => { if (!ready) loadScript(dataUrl('figs')).then(() => setReady(true), () => setFailed(true)); }, []);
+    useEffect(() => {
+      let live = true;
+      const files = needsTopics ? ['figs', 'topics'] : ['figs'];
+      Promise.all(files.map(f => loadScript(dataUrl(f)))).then(() => { if (live) setReady(true); }, () => { if (live) setFailed(true); });
+      return () => { live = false; };
+    }, [name]);
     if (failed) return html`<p className="muted small">The visual didn't load. Check your connection and refresh.</p>`;
-    if (!ready) return html`<div className="vz vz-wait" style=${{ height: '200px' }} aria-hidden="true"></div>`;
-    const F = window.FIGS[name]; return F ? html`<${F} ar=${ar} />` : null;
+    if (!ready || !window.FIGS || (needsTopics && !window.TOPICS)) return html`<div className="vz vz-wait" style=${{ height: '200px' }} aria-hidden="true"></div>`;
+    const F = window.FIGS[name]; return F ? html`<${F} ar=${ar} />` : html`<p className="vz-errmsg" role="alert">The visual “${name}” is not available.</p>`;
   }
   // past papers: a trace question can be worked through as a diagram, before or after revealing the model answer
   function WatchSolved({ spec, ar, k }) {
