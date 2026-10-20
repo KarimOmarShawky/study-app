@@ -54,7 +54,7 @@ function start() {
   Object.keys(C).forEach(hydrateCourseData);
   // each level lists its courses as [id, elective]; ORDER is the level on screen, set by App on every render
   const LEVELS = [
-    { id: 'l3', name: 'Level 3', sem: 'Semester 1', order: [['os', 0], ['algo', 0], ['swe', 0], ['files', 0], ['sad', 0], ['dbms', 0]] },
+    { id: 'l3', name: 'Level 3', sem: 'Semester 1', order: [['algo', 0], ['os', 0], ['swe', 0], ['files', 0], ['sad', 0], ['dbms', 0]] },
     { id: 'l2', name: 'Level 2', sem: 'Semester 1', order: [['dm', 0], ['or', 0], ['ds', 0], ['web', 0], ['micro', 0], ['sa', 0]] }
   ].map(v => Object.assign(v, { order: v.order.filter(([k]) => M[k]) })).filter(v => v.order.length);
   const levelOf = k => LEVELS.find(v => v.order.some(o => o[0] === k));
@@ -144,7 +144,7 @@ function start() {
   const originOf = q => isBook(q) ? 'book' : q.xtra || !q.src ? 'extra' : /^(exam|midterm)\b/i.test(q.src) ? 'exam' : /sheet|revision/i.test(q.src) ? 'sheet' : /^lecture\b/i.test(q.src) ? 'lecture' : /summary/i.test(q.src) ? 'summary' : 'extra';
   const isProf = q => ['exam', 'sheet', 'lecture'].includes(originOf(q));
   const ORIGIN = { exam: ['Past exam', 'prof'], sheet: ["Professor's sheet", 'prof'], lecture: ['Lecture example', 'prof'], summary: ['Student summary', 'summary'], extra: ['Extra question', 'extra'], book: ['Textbook', 'book'] };
-  const Source = ({ q }) => { const o = originOf(q), [label, cls] = ORIGIN[o]; return html`<span className=${'srcbadge ' + cls} title=${o === 'extra' ? 'Written for Study Deck from this lecture, not from the professor' : o === 'book' ? 'Operating System Concepts, 9th ed. — ' + q.src.replace(/^Book · /, '') : q.src}>${o === 'extra' ? label : (o === 'exam' || o === 'sheet' || o === 'book' ? q.src : label)}</span>`; };
+  const Source = ({ q }) => { const o = originOf(q), [label, cls] = ORIGIN[o]; return html`<span className=${'srcbadge ' + cls} title=${o === 'extra' ? 'Written for Study Deck from this lecture, not from the professor' : o === 'book' ? (q.src.includes('CLRS') || q.src.includes('Neapolitan') ? q.src : 'Operating System Concepts, 9th ed. — ' + q.src.replace(/^Book · /, '')) : q.src}>${o === 'extra' ? label : (o === 'exam' || o === 'sheet' || o === 'book' ? q.src : label)}</span>`; };
   const quizOf = k => memo['q' + k] || (memo['q' + k] = C[k].lectures.flatMap(l => l.quiz.map((x, i) => Object.assign({ id: l.n + '-' + i, lec: l.n }, x))
     .concat((l.extra || []).map((x, i) => Object.assign({ id: 'x' + l.n + '-' + i, lec: l.n, xtra: true }, x)))));
   const quizById = k => memo['m' + k] || (memo['m' + k] = new Map(quizOf(k).map(q => [q.id, q])));
@@ -321,6 +321,7 @@ function start() {
   // Memory: course data stays loaded while you use a level. When you switch level, the other level's courses (and their Arabic
   // and derived lists) are let go; going back re-reads them from the browser cache. So memory holds one level at most, not all 12.
   function releaseExcept(keep) {
+    if (window.__INLINE_BUNDLE__) return;
     for (const k of Object.keys(C)) if (!keep.has(baseOf(k))) { delete C[k]; delete pending[k]; ['c', 'q', 'm'].forEach(p => delete memo[p + k]); }
     if (window.AR) for (const k of Object.keys(window.AR)) if (!keep.has(baseOf(k))) { delete window.AR[k]; delete scriptOnce[dataUrl('ar-' + k)]; }
   }
@@ -378,6 +379,7 @@ function start() {
   }
 
   const TAB_ICONS = {
+    studio: 'M3 5h18v14H3zM7 15l3-4 3 3 4-5',
     read: 'M5 4h11l3 3v13H5zM8 9h8M8 13h8M8 17h5',
     cards: 'M4 7h13v12H4zM7 4h13v12',
     ask: 'M4 5h16v11H9l-5 4zM9 9h6M9 12h4',
@@ -385,7 +387,7 @@ function start() {
     papers: 'M6 3h12v18H6zM9 7h6M9 11h6M9 15h3',
     progress: 'M4 20h16M7 20v-6M12 20V7M17 20v-9'
   };
-  const SHORT_TAB = { read: 'Notes', cards: 'Cards', ask: 'Q&A', quiz: 'Quiz', papers: 'Papers', progress: 'Progress' };
+  const SHORT_TAB = { studio: 'Visualizer', read: 'Notes', cards: 'Cards', ask: 'Q&A', quiz: 'Quiz', papers: 'Papers', progress: 'Progress' };
 
   /* ════════════ APP ════════════ */
   function App() {
@@ -515,7 +517,7 @@ function start() {
     const contPct = !cont ? 0 : posf != null ? Math.round(posf * 100)
       : Math.round(progressOf(cont.course).read / Math.max(1, M[cont.course].lectures.length) * 100);
     const contWhat = !cont ? '' : cont.mode === 'read' && typeof cont.lec === 'number' ? 'of this lecture read' : 'of the course read';
-    const modeName = { path: 'Path', read: 'Notes', cards: 'Cards', ask: 'Q&A', quiz: 'Quiz', papers: 'Past papers', progress: 'Progress', miss: 'Progress' };
+    const modeName = { path: 'Path', studio: 'Visualizer', read: 'Notes', cards: 'Cards', ask: 'Q&A', quiz: 'Quiz', papers: 'Past papers', progress: 'Progress', miss: 'Progress' };
     const openCourse = (k, extra) => { go(Object.assign({ view: 'course', course: k, mode: 'path', lec: lastLec(k), anchor: null, quizPreset: null, cardFocus: null, cardLec: null }, extra || {})); window.scrollTo(0, 0); };
     const dayLetter = d => 'SMTWTFS'[new Date(d * 86400000).getUTCDay()];
     return html`<div className="page home-page">
@@ -615,6 +617,7 @@ function start() {
     // no separate Videos tab: the player and its timestamps sit inside the Path tab, under the lecture
     const modes = [
       ['path', 'Path', null],
+      ...(baseK === 'algo' ? [['studio', '✨ Visualizer', 13]] : baseK === 'os' ? [['studio', 'Visualizer', 7]] : []),
       ['read', 'Notes', c.lectures.length],
       ['cards', 'Cards', c.cards],
       ['ask', 'Q&A', c.qa],
@@ -865,7 +868,7 @@ function start() {
           <div>
             <p className="kicker" style=${{ color: 'var(--c)' }}>Check your understanding right after the video · ${uCap(k)} ${lec.n}</p>
             <h4 style=${{ margin: '2px 0 0', fontSize: '1.05rem' }}>Quick quiz on ${uCap(k)} ${lec.n} (${qRight}/${qAnswered || quickPool.length} correct)</h4>
-            ${quickPool.length && isBook(quickPool[0]) && html`<p className="muted" style=${{ margin: '4px 0 0', fontSize: '.82rem' }}>Five questions from Operating System Concepts (9th ed.); each one names the section and page it comes from.</p>`}
+            ${quickPool.length && isBook(quickPool[0]) && html`<p className="muted" style=${{ margin: '4px 0 0', fontSize: '.82rem' }}>Five questions from ${baseOf(k) === 'algo' ? 'CLRS (3rd ed.) & Neapolitan (Foundations of Algorithms)' : 'Operating System Concepts (9th ed.)'}; each one names the section and page it comes from.</p>`}
           </div>
           <div className="row">
             <button className="btn small" onClick=${() => setQPicks({})}>Try again</button>
@@ -917,10 +920,12 @@ function start() {
       const isRead = read.includes(l.n), cardsDone = cardIds.length > 0 && kn === cardIds.length, quizDone = att >= 5 && acc >= 70;
       const nextStep = [isRead, cardsDone, quizDone].indexOf(false);
       const examQs = l.quiz.filter(isExam).length;
+      const hasInteractive = l.notes.some(s => s.fig || s.viz);
       const steps = [
         ['Read the notes', l.notes.length + ' sections · ' + minutesFor(l) + ' min', isRead ? '✓ Read' : 'Start →', () => go({ mode: 'read', lec: l.n, anchor: null })],
         ['Flip the cards', kn + ' of ' + cardIds.length + ' known', cardsDone ? '✓ All known' : 'Open →', () => go({ mode: 'cards', cardLec: l.n, cardFocus: null })],
-        ['Take the quiz', qs.length + ' questions' + (acc != null ? ' · ' + acc + '% so far' : ''), quizDone ? '✓ Passed' : '70% to pass →', () => go({ mode: 'quiz', quizPreset: { lecs: [l.n], t: Date.now(), from: 'path' } })]
+        ['Take the quiz', qs.length + ' questions' + (acc != null ? ' · ' + acc + '% so far' : ''), quizDone ? '✓ Passed' : '70% to pass →', () => go({ mode: 'quiz', quizPreset: { lecs: [l.n], t: Date.now(), from: 'path' } })],
+        ...(baseOf(k) === 'algo' || baseOf(k) === 'os' ? [['Interactive Visualizer Studio', hasInteractive ? 'Step-by-step execution trace & invariant workbench' : 'Full course visual laboratory', 'Launch Studio →', () => go({ mode: 'studio' })]] : [])
       ];
       detail = html`<div className="stop">
         <div className="st-info"><p className="eyebrow">${uCap(k)} ${l.n} of ${c.lectures.length}${isRead ? ' · read' : ''}</p><h2>${cleanTitle(l.title)}</h2>
@@ -947,9 +952,151 @@ function start() {
     </section>`;
   }
 
+  function StudioView({ k, go }) {
+    const baseK = baseOf(k);
+    const [traceIdx, setTraceIdx] = useState(0);
+    const algoTraces = useMemo(() => [
+      {
+        label: 'Insertion Sort · Shifting & Loop Invariant',
+        sub: 'Lecture 1 · CLRS §2.1 · Step-by-step j-scan, key insertion, and total shifts',
+        lec: 1,
+        spec: { kind: 'isort', title: 'Insertion Sort Trace on [5, 2, 4, 6, 1, 3]', arr: [5, 2, 4, 6, 1, 3] }
+      },
+      {
+        label: 'QuickSort · Lomuto Partition & Pointer Boundaries',
+        sub: 'Lecture 5 · CLRS §7.1 · Exact i, j, pivot x=A[r] swaps and 4-region invariant',
+        lec: 5,
+        spec: { kind: 'qsort', title: 'Lomuto PARTITION Trace on [2, 8, 7, 1, 3, 5, 6, 4]', arr: [2, 8, 7, 1, 3, 5, 6, 4] }
+      },
+      {
+        label: 'Counting Sort · Histogram, Prefix Sums & Stable Placement',
+        sub: 'Lecture 6 · CLRS §8.2 · Why right-to-left j = n downto 1 preserves stability',
+        lec: 6,
+        spec: { kind: 'csort', title: 'Stable Counting Sort Trace on [2, 5, 3, 0, 2, 3, 0, 3]', arr: [2, 5, 3, 0, 2, 3, 0, 3] }
+      },
+      {
+        label: 'Binary Search · Search-Space Halving [lo..hi]',
+        sub: 'Lecture 4 · CLRS §2.3 · Exact mid calculation and O(log n) elimination',
+        lec: 4,
+        spec: { kind: 'bsearch', title: 'Binary Search Trace on [2, 5, 8, 12, 16, 23, 38, 56, 72, 91]', arr: [2, 5, 8, 12, 16, 23, 38, 56, 72, 91], target: 23 }
+      },
+      {
+        label: 'Dijkstra Shortest Paths · Greedy EXTRACT-MIN & Edge Relaxation',
+        sub: 'Lectures 18 & 19 · CLRS §24.3 · Full 5-vertex directed graph trace with d[v] and π[v] updates',
+        lec: 19,
+        spec: {
+          kind: 'dijkstra',
+          title: 'Dijkstra Trace on CLRS 5-Vertex Directed Graph (Source s)',
+          nodes: ['s', 't', 'x', 'y', 'z'],
+          source: 's',
+          edges: [['s','t',10],['s','y',5],['t','x',1],['t','y',2],['y','t',3],['y','x',9],['y','z',2],['x','z',4],['z','x',6],['z','s',7]]
+        }
+      }
+    ], []);
+
+    const lectureJumpCards = useMemo(() => [
+      { lec: 1, title: 'Insertion Sort, Merge Sort & Complexity Cases', badge: 'Sorting + Trace', desc: 'Step-by-step Insertion Sort shifting, Merge Sort combine trace & Θ(n²) vs Θ(n lg n)' },
+      { lec: 3, title: 'Solving Recurrences & Master Theorem', badge: 'Recurrence Explorer', desc: 'Interactive tree expansion by depth i, leaf count n^(log_b a), and Master Theorem Cases 1–3' },
+      { lec: 4, title: 'Divide & Conquer: Binary Search, Fast Power & Strassen', badge: 'Halving Trace', desc: 'Exact [lo..hi] search-space halving, repeated squaring, and 7-product matrix multiply' },
+      { lec: 5, title: 'QuickSort & Lomuto/Hoare Partitioning', badge: 'Partition Studio', desc: '4-region Lomuto invariant, worst-case vs randomized pivot, and call-tree depth' },
+      { lec: 6, title: 'Decision Trees, Counting & Radix Sort', badge: 'Linear-Time Sort', desc: 'n! decision tree leaves lower bound and stable right-to-left Counting Sort' },
+      { lec: 8, title: 'Hashing, Probe Sequences & Amortized Table Doubling', badge: 'Hash & Amortized Lab', desc: 'Linear/Quadratic/Double hashing collision probes + Aggregate, Accounting ($3) & Potential Φ=2·num−size' },
+      { lec: 9, title: 'Red-Black Trees, Rotations & Fixup Cases', badge: 'RBT + OS-Tree Lab', desc: '5 RBT invariants, Uncle red/black cases, rotations, black-height bh(x), and OS-SELECT(x, i)' },
+      { lec: 12, title: 'Augmenting Data Structures: Order-Statistic & Interval Trees', badge: 'OS-SELECT & Rank', desc: 'Subtree size[x] maintenance, local rank r = size[left[x]] + 1, and O(lg n) rank queries' },
+      { lec: 14, title: 'Dynamic Programming: Coin-Row, LCS & 0/1 Knapsack', badge: 'DP Table & Backtrace', desc: 'Bottom-up table construction, subproblem dependency highlighting, and optimal solution reconstruction' },
+      { lec: 17, title: 'Greedy Design: Kruskal MST & Huffman Prefix Codes', badge: 'Huffman & Kruskal', desc: 'Min-heap frequency merging, optimal prefix-free codes, and Union-Find cycle detection' },
+      { lec: 19, title: 'Dijkstra Relaxation Table & Shortest-Path Workout', badge: 'Exam Relaxation Table', desc: 'Dr. Basheer exam-format step-by-step Dijkstra relaxation table and predecessor path tree' },
+      { lec: 20, title: 'NP-Completeness & 3-CNF SAT ≤p CLIQUE Reduction', badge: 'NP Reduction Lab', desc: 'Interactive clause-triple gadget graph showing how a satisfying assignment forms a k-clique' }
+    ], []);
+
+    if (baseK === 'os') {
+      return html`<div className="paper" style=${{ padding: '24px' }}>
+        <p className="eyebrow" style=${{ color: 'var(--c)' }}>Interactive Operating Systems Laboratory</p>
+        <h2 style=${{ margin: '4px 0 8px' }}>OS Visual Simulators & Step-by-Step Traces</h2>
+        <p className="muted" style=${{ marginBottom: '18px' }}>Explore CPU scheduling Gantt charts, virtual memory page replacement frames, deadlock resource-allocation graphs, memory placement, and disk arm head movement.</p>
+        <${FigBlock} name="os-cpu-sim" />
+        <${FigBlock} name="os-page-sim" />
+        <${FigBlock} name="os-rag" />
+        <${FigBlock} name="os-mem-fit" />
+        <${FigBlock} name="os-disk-arm" />
+      </div>`;
+    }
+
+    const curTrace = algoTraces[traceIdx] || algoTraces[0];
+
+    return html`<div className="algo-studio-page">
+      <div className="paper" style=${{ padding: '24px', marginBottom: '20px' }}>
+        <div className="row" style=${{ justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '12px' }}>
+          <div>
+            <p className="eyebrow" style=${{ color: 'var(--c)' }}>CS311 · Interactive Algorithm Visualizer & Execution Trace Studio</p>
+            <h2 style=${{ margin: '4px 0 6px', fontSize: '1.45rem' }}>Deep Visual Laboratory: Invariants, Cost Proofs & Exam Tables</h2>
+            <p className="muted" style=${{ margin: 0, maxWidth: '78ch' }}>
+              Unlike superficial animations that only move bars around, every visualizer below exposes the exact <b>mathematical loop invariant</b>, <b>pointer boundaries</b>, <b>recurrence/amortized accounting equations</b>, <b>subproblem dependency cells</b>, and <b>exam-style trace tables</b> required in CS311 midterms and finals.
+            </p>
+          </div>
+          <div className="row" style=${{ gap: '8px' }}>
+            <button className="btn" onClick=${() => go({ mode: 'read', lec: curTrace.lec, anchor: null })}>Open Lecture ${curTrace.lec} Notes →</button>
+            <button className="btn solid" onClick=${() => go({ mode: 'papers' })}>Solved Past Papers →</button>
+          </div>
+        </div>
+
+        <${FigBlock} name="algo-studio" />
+      </div>
+
+      <div className="paper" style=${{ padding: '24px', marginBottom: '20px' }}>
+        <p className="eyebrow" style=${{ color: 'var(--c)' }}>Part II · Line-by-Line CLRS Pseudocode & Variable-Diff Debugger</p>
+        <h3 style=${{ margin: '4px 0 6px', fontSize: '1.22rem' }}>Step-by-Step Code Execution, "Predict Then See" & Custom Input Runner</h3>
+        <p className="muted" style=${{ margin: '0 0 14px' }}>
+          Pick an algorithm below to step forward and backward through its exact CLRS pseudocode, inspect how local variables change on each line (<code>prev → cur</code>), test yourself with embedded prediction checkpoints, or click <b>Try your own</b> inside the trace bar to run your own array or target value.
+        </p>
+
+        <div className="row" style=${{ gap: '8px', marginBottom: '16px' }} role="tablist" aria-label="Pseudocode trace engines">
+          ${algoTraces.map((t, idx) => html`<button
+            key=${idx}
+            role="tab"
+            aria-selected=${String(traceIdx === idx)}
+            className=${'btn' + (traceIdx === idx ? ' solid' : '')}
+            onClick=${() => setTraceIdx(idx)}
+          >${idx + 1}. ${t.label.split('·')[0].trim()}</button>`)}
+        </div>
+
+        <div style=${{ padding: '12px 16px', borderRadius: '12px', background: 'var(--paper-2)', border: '1px solid var(--line)', marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+          <div>
+            <b style=${{ fontSize: '.96rem' }}>${curTrace.label}</b>
+            <div className="muted small">${curTrace.sub}</div>
+          </div>
+          <button className="btn small" onClick=${() => go({ mode: 'read', lec: curTrace.lec, anchor: null })}>Jump to Lecture ${curTrace.lec} →</button>
+        </div>
+
+        <${VizBlock} key=${'studio-trace-' + traceIdx} spec=${curTrace.spec} k=${k} />
+      </div>
+
+      <div className="paper" style=${{ padding: '24px' }}>
+        <p className="eyebrow" style=${{ color: 'var(--c)' }}>Part III · Course-Wide Visual Index</p>
+        <h3 style=${{ margin: '4px 0 6px', fontSize: '1.22rem' }}>Where Each Visualizer Lives in the Lectures</h3>
+        <p className="muted" style=${{ margin: '0 0 16px' }}>Every interactive visualizer is also embedded directly inside the lecture notes and solved exam papers where that topic is taught. Click any card to open that lecture.</p>
+        <div style=${{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(270px, 1fr))', gap: '12px' }}>
+          ${lectureJumpCards.map(card => html`<button
+            key=${card.lec}
+            onClick=${() => go({ mode: 'read', lec: card.lec, anchor: null })}
+            style=${{ textAlign: 'left', padding: '14px 16px', borderRadius: '14px', border: '1px solid var(--line)', background: 'var(--paper-2)', cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: '6px' }}
+          >
+            <div className="row" style=${{ justifyContent: 'space-between', width: '100%' }}>
+              <span className="srcbadge prof">Lecture ${card.lec}</span>
+              <span className="srcbadge book">${card.badge}</span>
+            </div>
+            <b style=${{ fontSize: '.98rem', color: 'var(--ink)' }}>${card.title}</b>
+            <span className="muted small" style=${{ lineHeight: 1.45 }}>${card.desc}</span>
+          </button>`)}
+        </div>
+      </div>
+    </div>`;
+  }
+
   function CourseBody({ k, mode, nav, go, lecN, known, setKnown, miss, setMiss, fixed, setFixed, best, setBest, read, setRead, barRef, onSection }) {
     return html`
         ${mode === 'path' && html`<${PathView} key="path" k=${k} lecN=${lecN} nav=${nav} go=${go} read=${read} known=${known} />`}
+        ${mode === 'studio' && html`<${StudioView} key="studio" k=${k} go=${go} />`}
         ${mode === 'read' && lecN === 'rev' && html`<${RevisionSheet} key="rev" k=${k} go=${go} read=${read} onSection=${onSection} />`}
         ${mode === 'read' && lecN !== 'rev' && html`<${Read} key="read" k=${k} lecN=${lecN} anchor=${nav.anchor} nav=${nav} go=${go} read=${read} setRead=${setRead} barRef=${barRef} onSection=${onSection} />`}
         ${mode === 'cards' && html`<${Cards} key="cards" k=${k} focus=${nav.cardFocus} startLec=${nav.cardLec} auto=${nav.cardsAuto} go=${go} known=${known} setKnown=${setKnown} />`}

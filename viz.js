@@ -348,8 +348,50 @@ int index = h(k, i);
 while (table[index] != EMPTY)    // collision
 {  i++;  index = h(k, i);  }
 table[index] = k;`,
-    'hash.chain': `int index = k % n;               // division method
-append k to the end of list[index];`
+        'hash.chain': `int index = k % n;               // division method
+append k to the end of list[index];`,
+    'algo.isort': `INSERTION-SORT(A, n)
+for j ← 2 to n
+   key ← A[j]
+   i ← j - 1
+   while i > 0 and A[i] > key
+      A[i + 1] ← A[i]     // shift right
+      i ← i - 1
+   A[i + 1] ← key         // place key`,
+    'algo.qsort': `PARTITION(A, p, q)
+x ← A[p]                  // pivot = A[p]
+i ← p
+for j ← p + 1 to q
+   if A[j] ≤ x
+      i ← i + 1
+      exchange A[i] ↔ A[j]
+exchange A[p] ↔ A[i]      // place pivot at i
+return i`,
+    'algo.csort': `COUNTING-SORT(A, B, k)
+for i ← 1 to k do C[i] ← 0
+for j ← 1 to n do C[A[j]] ← C[A[j]] + 1   // Occurrence
+for i ← 2 to k do C[i] ← C[i] + C[i-1]    // Accumulation
+for j ← n downto 1
+   B[C[A[j]]] ← A[j]                      // Stable placement
+   C[A[j]] ← C[A[j]] - 1                  // Final C`,
+    'algo.bsearch': `BINARY-SEARCH(A, lo, hi, x)
+while lo ≤ hi
+   mid ← ⌊(lo + hi) / 2⌋
+   if x = A[mid] then return mid
+   if x < A[mid]
+      then hi ← mid - 1   // search left half
+      else lo ← mid + 1   // search right half
+return NOT-FOUND`,
+    'algo.dijkstra': `DIJKSTRA(G, w, s)
+d[s] ← 0; for v ≠ s do d[v] ← ∞
+S ← ∅; Q ← V
+while Q ≠ ∅
+   u ← EXTRACT-MIN(Q)
+   S ← S ∪ {u}
+   for each v ∈ Adj[u]
+      if d[v] > d[u] + w(u, v)
+         d[v] ← d[u] + w(u, v)   // Relax edge (u,v)
+         parent[v] ← u`
   };
   const codeLines = fn => (CODE[fn] || '').split('\n');
 
@@ -1027,7 +1069,8 @@ append k to the end of list[index];`
     R.at(null);
     draw(C(`Table of size ${m}, ${f[1]}: ${f[0]}.`, `جدول حجمه ${m} بالـ ${f[1]}: ${f[0]}.`));
     let uid = 0;
-    for (const s of spec.keys) {
+    const hashKeys = spec.keys || (spec.ops || []).map(o => Array.isArray(o) ? o[1] : String(o).split(' ').pop());
+    for (const s of hashKeys) {
       const k = +s, h1 = ((k % m) + m) % m;
       if (method === 'chain') {
         R.at(fn, 'int index = k % n');
@@ -1066,7 +1109,279 @@ append k to the end of list[index];`
     draw(C(`Final table: ${fin}`, `الجدول في الآخر: ${fin}`));
   }
 
-  const SIMS = { stack: stackSim, queue: queueSim, cqueue: cqueueSim, array: arraySim, list: listSim, dlist: listSim, lstack: listSim, lqueue: listSim, bst: bstSim, hash: hashSim };
+
+  /* ════════ Algorithms Course Step-by-Step Simulators (isort, qsort, csort, bsearch, dijkstra) ════════ */
+  function isortSim(spec, R) {
+    const raw = (spec.arr || spec.init || [8, 2, 4, 9, 3, 6]).slice(0, 10);
+    const n = raw.length;
+    const arr = raw.map(v => ({ id: newVal(), v: Number(v) }));
+    const X = 40, Y = 56, W = 58;
+    let shifts = 0, comps = 0;
+    const draw = (cap, hl, ptrs, vars, keyItem) => {
+      const items = [lbl('hdr', X + (n * W) / 2 - 14, 14, 'A[1..' + n + ']  (Insertion Sort)', 'muted')], edges = [];
+      for (let idx = 0; idx < n; idx++) {
+        items.push(mk('cell', 'c' + idx, X + idx * W, Y, { c: (hl && hl[idx]) || '' }));
+        items.push(lbl('ix' + idx, X + idx * W + 28, Y + 52, '[' + (idx + 1) + ']', 'muted'));
+        if (arr[idx]) items.push(mk('val', arr[idx].id, X + idx * W, Y, { t: String(arr[idx].v) }));
+      }
+      if (keyItem) {
+        items.push(mk('cell', 'keybox', X + keyItem.idx * W, Y - 46, { c: 'hl' }));
+        items.push(mk('val', keyItem.id, X + keyItem.idx * W, Y - 46, { t: String(keyItem.v) }));
+        items.push(lbl('keylbl', X + keyItem.idx * W - 26, Y - 27, 'key', 'on'));
+      }
+      (ptrs || []).forEach((p, pi) => {
+        const px = X + p.idx * W + 6, py = Y + 66 + pi * 26;
+        items.push(ptr('p-' + p.name, px, py, p.label, p.c || 'on'));
+      });
+      return R.push({ items, edges, cap }, vars || []);
+    };
+    R.at('algo.isort', 'INSERTION-SORT(A, n)');
+    draw(C(`Initial array A[1..${n}] = [${arr.map(x => x.v).join(', ')}]. A[1] = ${arr[0].v} is trivially sorted.`, `المصفوفة في البداية A[1..${n}] = [${arr.map(x => x.v).join(', ')}]. العنصر الأول A[1] = ${arr[0].v} مترتب لوحده.`), { 0: 'ok' }, [], [['n', n], ['comparisons', 0], ['shifts', 0]]);
+    for (let j = 1; j < n; j++) {
+      const keyObj = { id: arr[j].id, v: arr[j].v, idx: j };
+      let i = j - 1;
+      const hl0 = {}; for (let k = 0; k < j; k++) hl0[k] = 'ok'; hl0[j] = 'hl';
+      R.at('algo.isort', 'for j ← 2 to n', 'key ← A[j]', 'i ← j - 1');
+      if (j === 1 || j === 4) {
+        const dest = arr.slice(0, j).filter(x => x.v <= keyObj.v).length + 1;
+        R.quiz(C(`Pass j = ${j + 1}: key = ${keyObj.v}. Which 1-based index will key = ${keyObj.v} be inserted into?`, `في اللفة j = ${j + 1}: الـ key = ${keyObj.v}. هيتحط في أنهي مكان (1-based)؟`), dest, [1, j, j + 1, Math.max(1, dest - 1)].filter(x => x !== dest));
+      }
+      draw(C(`Pass j = ${j + 1}: Extract key = A[${j + 1}] = ${keyObj.v} and compare leftwards starting at i = ${i + 1}.`, `اللفة j = ${j + 1}: نسحب key = A[${j + 1}] = ${keyObj.v} ونقارن شمال بداية من i = ${i + 1}.`), hl0, [{ idx: j, label: 'j=' + (j + 1) }, { idx: i, label: 'i=' + (i + 1), c: '' }], [['j', j + 1], ['i', i + 1], ['key', keyObj.v], ['comparisons', comps], ['shifts', shifts]], keyObj);
+      while (i >= 0) {
+        comps++;
+        if (arr[i].v > keyObj.v) {
+          shifts++;
+          R.at('algo.isort', 'while i > 0 and A[i] > key', 'A[i + 1] ← A[i]', 'i ← i - 1');
+          arr[i + 1] = arr[i];
+          arr[i] = null;
+          keyObj.idx = i;
+          const hls = {}; for (let k = 0; k <= j; k++) if (k !== i) hls[k] = 'ok'; hls[i + 1] = 'new';
+          draw(C(`A[${i + 1}] = ${arr[i + 1].v} > key (${keyObj.v}) → shift ${arr[i + 1].v} right to A[${i + 2}], decrement i to ${i}.`, `A[${i + 1}] = ${arr[i + 1].v} أكبر من ${keyObj.v} → نزق ${arr[i + 1].v} يمين لـ A[${i + 2}]، وننقص i لـ ${i}.`), hls, [{ idx: j, label: 'j=' + (j + 1) }, { idx: Math.max(0, i), label: 'i=' + i, c: '' }], [['j', j + 1], ['i', i], ['key', keyObj.v], ['comparisons', comps], ['shifts', shifts]], keyObj);
+          i--;
+        } else {
+          R.at('algo.isort', 'while i > 0 and A[i] > key');
+          break;
+        }
+      }
+      arr[i + 1] = { id: keyObj.id, v: keyObj.v };
+      const hlf = {}; for (let k = 0; k <= j; k++) hlf[k] = 'ok'; hlf[i + 1] = 'new';
+      R.at('algo.isort', 'A[i + 1] ← key');
+      draw(C(`Insert key = ${keyObj.v} at A[${i + 2}]. Subarray A[1..${j + 1}] = [${arr.slice(0, j + 1).map(x => x.v).join(', ')}] is now sorted (Loop Invariant holds).`, `نحط key = ${keyObj.v} في A[${i + 2}]. الجزء A[1..${j + 1}] بقى مترتب.`), hlf, [{ idx: i + 1, label: 'placed @ ' + (i + 2) }], [['j', j + 1], ['i', i + 1], ['key', keyObj.v], ['comparisons', comps], ['shifts', shifts]], null);
+    }
+    const allOk = {}; for (let k = 0; k < n; k++) allOk[k] = 'ok';
+    R.at(null);
+    draw(C(`Insertion Sort complete! Sorted array: [${arr.map(x => x.v).join(', ')}] (${comps} comparisons, ${shifts} shifts).`, `خلصنا Insertion Sort! المصفوفة المترتبة: [${arr.map(x => x.v).join(', ')}].`), allOk, [], [['comparisons', comps], ['shifts', shifts]]);
+  }
+
+  function qsortSim(spec, R) {
+    const raw = (spec.arr || spec.init || [6, 10, 13, 5, 8, 3, 2, 11]).slice(0, 10);
+    const n = raw.length;
+    const arr = raw.map(v => ({ id: newVal(), v: Number(v) }));
+    const X = 36, Y = 44, W = 58;
+    const x = arr[0].v;
+    let i = 0, swaps = 0;
+    const draw = (cap, hl, ptrs, vars) => {
+      const items = [lbl('hdr', X + (n * W) / 2 - 14, 14, `PARTITION(A, 1, ${n}) — Pivot x = A[1] = ${x}`, 'muted')], edges = [];
+      for (let idx = 0; idx < n; idx++) {
+        items.push(mk('cell', 'c' + idx, X + idx * W, Y, { c: (hl && hl[idx]) || '' }));
+        items.push(lbl('ix' + idx, X + idx * W + 28, Y + 52, '[' + (idx + 1) + ']', 'muted'));
+        if (arr[idx]) items.push(mk('val', arr[idx].id, X + idx * W, Y, { t: String(arr[idx].v) }));
+      }
+      (ptrs || []).forEach((p, pi) => {
+        items.push(ptr('p-' + p.name, X + p.idx * W + 4, Y + 66 + pi * 26, p.label, p.c || 'on'));
+      });
+      return R.push({ items, edges, cap }, vars || []);
+    };
+    R.at('algo.qsort', 'x ← A[p]', 'i ← p');
+    draw(C(`Start PARTITION(A, 1, ${n}): Pivot x = A[1] = ${x}, i = 1. Invariant: A[2..i] ≤ ${x} and A[i+1..j-1] > ${x}.`, `بداية PARTITION: الـ pivot هو x = A[1] = ${x} والـ i = 1.`), { 0: 'hl' }, [{ name: 'i', idx: 0, label: 'i = 1' }], [['pivot x', x], ['i', 1], ['swaps', 0]]);
+    for (let j = 1; j < n; j++) {
+      const cur = arr[j].v;
+      const hl = { 0: 'hl' };
+      for (let k = 1; k <= i; k++) hl[k] = 'ok';
+      for (let k = i + 1; k < j; k++) hl[k] = 'warn';
+      hl[j] = cur <= x ? 'new' : 'bad';
+      R.at('algo.qsort', 'for j ← p + 1 to q', 'if A[j] ≤ x');
+      if (cur <= x) {
+        if (i + 1 !== j && swaps === 0) {
+          R.quiz(C(`j = ${j + 1}: A[${j + 1}] = ${cur} ≤ pivot (${x}). After i increments to ${i + 2}, which element swaps with ${cur}?`, `j = ${j + 1}: القيمة ${cur} ≤ ${x}. بعد ما i تزيد لـ ${i + 2}، هتتبدل مع مين؟`), arr[i + 1].v, [x, arr[j - 1].v, arr[n - 1].v].filter(v => v !== arr[i + 1].v));
+        }
+        i++;
+        swaps++;
+        const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+        const hlAfter = { 0: 'hl' };
+        for (let k = 1; k <= i; k++) hlAfter[k] = 'ok';
+        for (let k = i + 1; k <= j; k++) hlAfter[k] = 'warn';
+        R.at('algo.qsort', 'i ← i + 1', 'exchange A[i] ↔ A[j]');
+        draw(C(`j = ${j + 1}: A[${j + 1}] = ${cur} ≤ ${x} → increment i to ${i + 1} and exchange A[${i + 1}] ↔ A[${j + 1}].`, `j = ${j + 1}: القيمة ${cur} ≤ ${x} → نزود i لـ ${i + 1} ونبدل A[${i + 1}] مع A[${j + 1}].`), hlAfter, [{ name: 'i', idx: i, label: 'i = ' + (i + 1) }, { name: 'j', idx: j, label: 'j = ' + (j + 1), c: '' }], [['pivot x', x], ['i', i + 1], ['j', j + 1], ['A[j]', cur], ['swaps', swaps]]);
+      } else {
+        draw(C(`j = ${j + 1}: A[${j + 1}] = ${cur} > ${x} → no swap; ${cur} joins the > x region A[i+1..j].`, `j = ${j + 1}: القيمة ${cur} > ${x} → مفيش تبديل.`), hl, [{ name: 'i', idx: i, label: 'i = ' + (i + 1) }, { name: 'j', idx: j, label: 'j = ' + (j + 1), c: '' }], [['pivot x', x], ['i', i + 1], ['j', j + 1], ['A[j]', cur], ['swaps', swaps]]);
+      }
+    }
+    R.quiz(C(`Loop finished with i = ${i + 1}. Which index does the pivot ${x} get swapped into at line 7?`, `الـ loop خلصت والـ i = ${i + 1}. الـ pivot ${x} هيتنقل في أنهي index؟`), i + 1, [1, n, Math.max(1, i)].filter(v => v !== i + 1), true);
+    const tmp = arr[0]; arr[0] = arr[i]; arr[i] = tmp; swaps++;
+    const hlFin = {};
+    for (let k = 0; k < i; k++) hlFin[k] = 'ok';
+    hlFin[i] = 'new';
+    for (let k = i + 1; k < n; k++) hlFin[k] = 'warn';
+    R.at('algo.qsort', 'exchange A[p] ↔ A[i]', 'return i');
+    draw(C(`Final step: Exchange A[1] (${x}) ↔ A[${i + 1}] (${arr[0].v}). Pivot ${x} is now locked in its final sorted position i = ${i + 1}: [${arr.map(o => o.v).join(', ')}]!`, `الخطوة الأخيرة: نبدل A[1] مع A[${i + 1}]. الـ pivot ${x} استقر في مكانه النهائي i = ${i + 1}!`), hlFin, [{ name: 'piv', idx: i, label: 'pivot @ ' + (i + 1) }], [['pivot index', i + 1], ['left ≤ x', arr.slice(0, i).map(o => o.v).join(',') || '∅'], ['right > x', arr.slice(i + 1).map(o => o.v).join(',') || '∅']]);
+  }
+
+  function csortSim(spec, R) {
+    const raw = (spec.arr || spec.init || [8, 5, 7, 3, 6, 1, 2]).slice(0, 9);
+    const n = raw.length, k = Math.max(...raw, 4);
+    const C_occ = Array(k).fill(0);
+    raw.forEach(v => { if (v >= 1 && v <= k) C_occ[v - 1]++; });
+    const C_acc = C_occ.slice();
+    for (let i = 1; i < k; i++) C_acc[i] += C_acc[i - 1];
+    const C_work = C_acc.slice();
+    const B = Array(n).fill(null);
+    const X = 40, W = 54;
+    const draw = (cap, C_arr, rowLabel, hlA, hlC, hlB, vars) => {
+      const items = [], edges = [];
+      items.push(lbl('la', X - 22, 32, 'A:', 'muted'));
+      for (let i = 0; i < n; i++) {
+        items.push(mk('cell', 'a' + i, X + i * W, 14, { w: 48, h: 34, c: (hlA && hlA[i]) || '' }));
+        items.push(mk('val', 'av' + i, X + i * W, 14, { w: 48, h: 34, t: String(raw[i]) }));
+      }
+      items.push(lbl('lc', X - 22, 86, rowLabel || 'C:', 'muted'));
+      for (let i = 0; i < k; i++) {
+        items.push(mk('cell', 'c' + i, X + i * W, 68, { w: 48, h: 34, c: (hlC && hlC[i]) || '' }));
+        items.push(lbl('ci' + i, X + i * W + 24, 112, String(i + 1), 'muted'));
+        items.push(mk('val', 'cv' + i + '-' + C_arr[i], X + i * W, 68, { w: 48, h: 34, t: String(C_arr[i]) }));
+      }
+      items.push(lbl('lb', X - 22, 152, 'B:', 'muted'));
+      for (let i = 0; i < n; i++) {
+        items.push(mk('cell', 'b' + i, X + i * W, 134, { w: 48, h: 34, c: (hlB && hlB[i]) || '' }));
+        if (B[i] != null) items.push(mk('val', 'bv' + i + '-' + B[i], X + i * W, 134, { w: 48, h: 34, t: String(B[i]) }));
+      }
+      return R.push({ items, edges, cap }, vars || []);
+    };
+    R.at('algo.csort', 'for i ← 1 to k do C[i] ← 0');
+    draw(C(`Counting Sort on A = [${raw.join(', ')}] (n = ${n}, max key k = ${k}). Initialize C[1..${k}] = 0.`, `بداية Counting Sort على A = [${raw.join(', ')}]. نصفر مصفوفة العد C[1..${k}].`), Array(k).fill(0), 'C=0', {}, {}, {}, [['n', n], ['k', k]]);
+    R.at('algo.csort', 'for j ← 1 to n do C[A[j]] ← C[A[j]] + 1');
+    draw(C(`Loop 2 (Occurrence): Count frequency of each key in A → C = [${C_occ.join(', ')}].`, `الخطوة 2 (Occurrence): نعد تكرار كل رقم في A → C = [${C_occ.join(', ')}].`), C_occ, 'Occ', {}, {}, {}, [['Occurrence C', C_occ.join(' ')]]);
+    R.at('algo.csort', 'for i ← 2 to k do C[i] ← C[i] + C[i-1]');
+    R.quiz(C(`In Loop 3 (Accumulation), what is C'[4] (number of elements ≤ 4)?`, `في خطوة الـ Accumulation، قيمة C'[4] (عدد العناصر ≤ 4) هتبقى كام؟`), C_acc[Math.min(3, k - 1)], [C_occ[Math.min(3, k - 1)], C_acc[Math.min(3, k - 1)] + 1, n]);
+    draw(C(`Loop 3 (Accumulation C'): Prefix sums C'[i] = C'[i] + C'[i-1] → C' = [${C_acc.join(', ')}]. Each C'[v] holds the final 1-based position of v in B!`, `الخطوة 3 (Accumulation C'): المجموع التراكمي C' = [${C_acc.join(', ')}].`), C_acc, "C'", {}, {}, {}, [['Occurrence', C_occ.join(' ')], ['Accumulation', C_acc.join(' ')]]);
+    for (let j = n - 1; j >= 0; j--) {
+      const v = raw[j], pos = C_work[v - 1] - 1;
+      B[pos] = v;
+      C_work[v - 1]--;
+      R.at('algo.csort', 'for j ← n downto 1', 'B[C[A[j]]] ← A[j]', 'C[A[j]] ← C[A[j]] - 1');
+      draw(C(`j = ${j + 1}: Place A[${j + 1}] = ${v} into B[C[${v}]] = B[${pos + 1}], then decrement C[${v}] to ${C_work[v - 1]}.`, `j = ${j + 1}: نحط A[${j + 1}] = ${v} في B[${pos + 1}]، وننقص C[${v}] لـ ${C_work[v - 1]}.`), C_work.slice(), 'C', { [j]: 'hl' }, { [v - 1]: 'hl' }, { [pos]: 'new' }, [['j', j + 1], ['A[j]', v], ['placed at B', pos + 1], ['Final C', C_work.join(' ')]]);
+    }
+    const allOk = {}; for (let i = 0; i < n; i++) allOk[i] = 'ok';
+    R.at(null);
+    draw(C(`Counting Sort complete! Final C = [${C_work.join(', ')}], Sorted B = [${B.join(', ')}].`, `خلصنا Counting Sort! الـ Final C = [${C_work.join(', ')}]، والمصفوفة المترتبة B = [${B.join(', ')}].`), C_work, 'Fin', {}, {}, allOk, [['Occurrence', C_occ.join(' ')], ['Accumulation', C_acc.join(' ')], ['Final C', C_work.join(' ')], ['Sorted B', B.join(' ')]]);
+  }
+
+  function bsearchSim(spec, R) {
+    const raw = (spec.arr || spec.init || [3, 5, 7, 8, 9, 12, 15]).slice().sort((a, b) => a - b);
+    const n = raw.length, target = spec.target != null ? Number(spec.target) : 9;
+    const X = 40, Y = 44, W = 58;
+    let lo = 0, hi = n - 1, step = 0;
+    const draw = (cap, hl, ptrs, vars) => {
+      const items = [lbl('hdr', X + (n * W) / 2 - 14, 14, `BINARY-SEARCH for x = ${target} in A[1..${n}]`, 'muted')], edges = [];
+      for (let i = 0; i < n; i++) {
+        items.push(mk('cell', 'c' + i, X + i * W, Y, { c: (hl && hl[i]) || '' }));
+        items.push(lbl('ix' + i, X + i * W + 28, Y + 52, '[' + (i + 1) + ']', 'muted'));
+        items.push(mk('val', 'v' + i, X + i * W, Y, { t: String(raw[i]), c: i < lo || i > hi ? 'stale' : '' }));
+      }
+      (ptrs || []).forEach((p, pi) => items.push(ptr('p-' + p.name, X + p.idx * W + 4, Y + 66 + pi * 26, p.label, p.c || 'on')));
+      return R.push({ items, edges, cap }, vars || []);
+    };
+    R.at('algo.bsearch', 'BINARY-SEARCH(A, lo, hi, x)');
+    draw(C(`Binary Search for x = ${target} in sorted array [${raw.join(', ')}] (lo = 1, hi = ${n}).`, `بحث ثنائي عن x = ${target} في المصفوفة المترتبة (lo = 1, hi = ${n}).`), {}, [{ name: 'lo', idx: lo, label: 'lo=1' }, { name: 'hi', idx: hi, label: 'hi=' + n, c: '' }], [['x', target], ['lo', 1], ['hi', n]]);
+    while (lo <= hi) {
+      step++;
+      const mid = Math.floor((lo + hi) / 2);
+      const hl = {}; hl[mid] = 'hl';
+      R.at('algo.bsearch', 'mid ← ⌊(lo + hi) / 2⌋', 'if x = A[mid] then return mid');
+      if (step === 1) {
+        R.quiz(C(`lo = ${lo + 1}, hi = ${hi + 1}, mid = ${mid + 1} (A[mid] = ${raw[mid]}). Which half do we search next for x = ${target}?`, `A[mid] = ${raw[mid]} والـ x = ${target}. هندور في أنهي نص؟`), target === raw[mid] ? 'Found at mid' : target < raw[mid] ? `Left half (hi ← ${mid})` : `Right half (lo ← ${mid + 2})`, ['Found at mid', `Left half (hi ← ${mid})`, `Right half (lo ← ${mid + 2})`], true);
+      }
+      if (raw[mid] === target) {
+        hl[mid] = 'ok';
+        draw(C(`Step ${step}: mid = ⌊(${lo + 1}+${hi + 1})/2⌋ = ${mid + 1}. A[${mid + 1}] == ${target} → Found at index ${mid + 1} in ${step} comparisons!`, `خطوة ${step}: mid = ${mid + 1}. لقينا ${target} في المكان ${mid + 1}!`), hl, [{ name: 'mid', idx: mid, label: 'FOUND @ ' + (mid + 1) }], [['x', target], ['lo', lo + 1], ['hi', hi + 1], ['mid', mid + 1], ['comparisons', step]]);
+        return;
+      } else if (target < raw[mid]) {
+        R.at('algo.bsearch', 'if x < A[mid]', 'then hi ← mid - 1');
+        draw(C(`Step ${step}: mid = ${mid + 1} (A[${mid + 1}] = ${raw[mid]}). Since ${target} < ${raw[mid]}, discard right half and set hi ← ${mid}.`, `خطوة ${step}: بما إن ${target} < ${raw[mid]}، نستبعد النص اليمين ونخلي hi = ${mid}.`), hl, [{ name: 'lo', idx: lo, label: 'lo=' + (lo + 1) }, { name: 'mid', idx: mid, label: 'mid=' + (mid + 1), c: '' }], [['x', target], ['lo', lo + 1], ['hi', mid], ['mid', mid + 1], ['comparisons', step]]);
+        hi = mid - 1;
+      } else {
+        R.at('algo.bsearch', 'else lo ← mid + 1');
+        draw(C(`Step ${step}: mid = ${mid + 1} (A[${mid + 1}] = ${raw[mid]}). Since ${target} > ${raw[mid]}, discard left half and set lo ← ${mid + 2}.`, `خطوة ${step}: بما إن ${target} > ${raw[mid]}، نستبعد النص الشمال ونخلي lo = ${mid + 2}.`), hl, [{ name: 'mid', idx: mid, label: 'mid=' + (mid + 1), c: '' }, { name: 'hi', idx: hi, label: 'hi=' + (hi + 1) }], [['x', target], ['lo', mid + 2], ['hi', hi + 1], ['mid', mid + 1], ['comparisons', step]]);
+        lo = mid + 1;
+      }
+    }
+    R.at('algo.bsearch', 'return NOT-FOUND');
+    draw(C(`lo (${lo + 1}) > hi (${hi + 1}) → x = ${target} is NOT in the array.`, `الـ lo عدت الـ hi → العنصر ${target} مش موجود.`), {}, [], [['x', target], ['result', 'NOT FOUND']]);
+  }
+
+  function dijkstraSim(spec, R) {
+    const is19 = spec.preset === 'lec19';
+    const nodes = is19
+      ? [
+          { id: 'A', x: 30, y: 95 }, { id: 'B', x: 140, y: 20 }, { id: 'C', x: 200, y: 95 },
+          { id: 'D', x: 140, y: 175 }, { id: 'G', x: 310, y: 20 }, { id: 'E', x: 400, y: 95 }, { id: 'F', x: 310, y: 175 }
+        ]
+      : [
+          { id: 'A', x: 40, y: 90 }, { id: 'B', x: 180, y: 24 }, { id: 'C', x: 180, y: 156 },
+          { id: 'D', x: 340, y: 24 }, { id: 'E', x: 340, y: 156 }
+        ];
+    const adj = is19
+      ? { A: [['B', 5], ['C', 3]], B: [['G', 1], ['C', 2], ['E', 3]], C: [['D', 7], ['E', 7]], D: [['A', 2], ['F', 6]], E: [['D', 2], ['F', 1]], F: [], G: [['E', 1]] }
+      : { A: [['B', 10], ['C', 3]], B: [['C', 1], ['D', 2]], C: [['B', 4], ['D', 8], ['E', 2]], D: [['E', 7]], E: [['D', 9]] };
+    const d = {}, par = {}, S = new Set();
+    nodes.forEach(n => { d[n.id] = n.id === 'A' ? 0 : Infinity; par[n.id] = '–'; });
+    const draw = (cap, curU, activeEdge, vars) => {
+      const items = [], edges = [];
+      nodes.forEach(n => {
+        const c = n.id === curU ? 'hl' : S.has(n.id) ? 'ok' : d[n.id] < Infinity ? 'new' : '';
+        items.push(mk('circ', 'n' + n.id, n.x, n.y, { t: n.id, c }));
+        const dv = d[n.id] === Infinity ? '∞' : d[n.id];
+        items.push(lbl('d' + n.id, n.x + 20, n.y - 10, `${dv}${par[n.id] !== '–' ? '(' + par[n.id] + ')' : ''}`, S.has(n.id) ? 'ok' : 'muted'));
+      });
+      Object.entries(adj).forEach(([u, list]) => list.forEach(([v, w]) => {
+        const isAct = activeEdge && activeEdge[0] === u && activeEdge[1] === v;
+        const isTree = par[v] === u;
+        edges.push({ id: 'e' + u + v, a: 'n' + u, b: 'n' + v, c: isAct ? 'hl' : isTree ? 'ok' : '' });
+      }));
+      return R.push({ items, edges, cap }, vars || []);
+    };
+    const fmtVars = () => [['S (settled)', [...S].join(', ') || '∅']].concat(nodes.map(n => [`d[${n.id}] (p)`, `${d[n.id] === Infinity ? '∞' : d[n.id]} (${par[n.id]})`]));
+    R.at('algo.dijkstra', 'd[s] ← 0; for v ≠ s do d[v] ← ∞');
+    draw(C(`Initialize Dijkstra from source A: d[A] = 0, all other d[v] = ∞, settled set S = ∅.`, `بداية Dijkstra من النقطة A: المسافة d[A] = 0 والباقي ∞.`), null, null, fmtVars());
+    while (S.size < nodes.length) {
+      let u = null;
+      nodes.forEach(n => { if (!S.has(n.id) && (u === null || d[n.id] < d[u])) u = n.id; });
+      if (!u || d[u] === Infinity) break;
+      if (S.size === 1 || S.size === 3) {
+        const rem = nodes.filter(n => !S.has(n.id)).map(n => `${n.id}(${d[n.id] === Infinity ? '∞' : d[n.id]})`);
+        R.quiz(C(`Which vertex u ∉ S has the minimum distance d[u] and is extracted next?`, `أنهي نقطة بره S ليها أصغر مسافة d[u] وهنسحبها دلوقتي؟`), `${u}(${d[u]})`, rem.filter(x => x !== `${u}(${d[u]})`), true);
+      }
+      S.add(u);
+      R.at('algo.dijkstra', 'u ← EXTRACT-MIN(Q)', 'S ← S ∪ {u}');
+      draw(C(`EXTRACT-MIN(Q) → u = ${u} with shortest distance d[${u}] = ${d[u]}. Add ${u} to S = {${[...S].join(', ')}}.`, `نسحب أصغر نقطة u = ${u} بمسافة d[${u}] = ${d[u]} ونضيفها لـ S.`), u, null, fmtVars());
+      for (const [v, w] of (adj[u] || [])) {
+        if (S.has(v)) continue;
+        const cand = d[u] + w, old = d[v] === Infinity ? '∞' : d[v];
+        if (cand < d[v]) {
+          d[v] = cand; par[v] = u;
+          R.at('algo.dijkstra', 'if d[v] > d[u] + w(u, v)', 'd[v] ← d[u] + w(u, v)', 'parent[v] ← u');
+          draw(C(`Relax (${u} → ${v}, weight ${w}): d[${u}] + ${w} = ${cand} < ${old} → update d[${v}] = ${cand}, parent[${v}] = ${u}!`, `تحديث الضلع (${u} → ${v} بوزن ${w}): المسافة الجديدة ${cand} أصغر من ${old} → نحدث d[${v}] = ${cand} والـ parent = ${u}.`), u, [u, v], fmtVars());
+        } else {
+          R.at('algo.dijkstra', 'if d[v] > d[u] + w(u, v)');
+          draw(C(`Check (${u} → ${v}, weight ${w}): d[${u}] + ${w} = ${cand} ≥ d[${v}] (${old}) → no change.`, `فحص الضلع (${u} → ${v}): ${cand} ≥ ${old} → مفيش تغيير.`), u, [u, v], fmtVars());
+        }
+      }
+    }
+    R.at(null);
+    draw(C(`Dijkstra complete! Final shortest distances from A: ${nodes.map(n => `${n.id}=${d[n.id]}`).join(', ')}.`, `خلصنا Dijkstra! أقصر المسافات من A: ${nodes.map(n => `${n.id}=${d[n.id]}`).join(', ')}.`), null, null, fmtVars());
+  }
+
+  const SIMS = { stack: stackSim, queue: queueSim, cqueue: cqueueSim, array: arraySim, list: listSim, dlist: listSim, lstack: listSim, lqueue: listSim, bst: bstSim, hash: hashSim, isort: isortSim, qsort: qsortSim, csort: csortSim, bsearch: bsearchSim, dijkstra: dijkstraSim };
   function run(spec) {
     vid = 0;
     const R = Rec();
@@ -1085,10 +1400,27 @@ append k to the end of list[index];`
     lstack: ['push 50, push 70, pop', 'Commands: start A B … (top first), push X, pop.'],
     lqueue: ['enqueue 30, enqueue 50, dequeue', 'Commands: start A B … (front first), enqueue X, dequeue.'],
     bst: ['insert 50 30 70 20 40, search 40, delete 30, inorder', 'Commands: start A B C … (built without animation), insert A B C, search X, delete X, inorder, preorder, postorder.'],
-    hash: ['size 7, keys 18 72 65 34 13', 'Commands: size M (2 to 13), keys A B C … (up to 12). Pick the method in the menu. Double hashing uses h2 = 1 + k mod P; set P with h2 P.']
+    hash: ['size 7, keys 18 72 65 34 13', 'Commands: size M (2 to 13), keys A B C … (up to 12). Pick the method in the menu. Double hashing uses h2 = 1 + k mod P; set P with h2 P.'],
+    isort: ['start 8 2 4 9 3 6', 'Type space-separated numbers after "start" (2 to 10 numbers).'],
+    qsort: ['start 6 10 13 5 8 3 2 11', 'Type space-separated numbers after "start" (2 to 10 numbers).'],
+    csort: ['start 8 5 7 3 6 1 2', 'Type integers in 1..9 after "start" (2 to 9 numbers).'],
+    bsearch: ['start 3 5 7 8 9 12 15, search 9', 'Commands: start A B C … (sorted), search X.']
   };
   const LIMIT = { stack: 8, queue: 8, cqueue: 8, array: 10, list: 7, dlist: 6, lstack: 7, lqueue: 7, bst: 15, hash: 13 };
   function parse(type, text, method) {
+    if (['isort', 'qsort', 'csort', 'bsearch'].includes(type)) {
+      const nums = (text.match(/-?\d+/g) || []).map(Number);
+      if (type === 'bsearch') {
+        const mSearch = /search\s+(-?\d+)/i.exec(text);
+        const target = mSearch ? Number(mSearch[1]) : nums[nums.length - 1] || 9;
+        const arr = mSearch ? (text.replace(/search\s+-?\d+/i, '').match(/-?\d+/g) || []).map(Number) : nums.slice(0, -1);
+        if (arr.length < 2 || arr.length > 10) throw new Error('Provide 2 to 10 numbers for the array.');
+        return { type, arr, target };
+      }
+      if (nums.length < 2 || nums.length > 10) throw new Error('Provide 2 to 10 numbers.');
+      if (type === 'csort' && nums.some(x => x < 1 || x > 9)) throw new Error('For Counting Sort, use integers between 1 and 9.');
+      return { type, arr: nums };
+    }
     const spec = { type, ops: [] }, isNum = s => /^-?\d+$/.test(s);
     const listy = ['list', 'dlist', 'lstack', 'lqueue'].includes(type);
     for (const raw of text.split(/[,;\n]+/)) {
@@ -1120,6 +1452,9 @@ append k to the end of list[index];`
   }
   // the lecture example written back as commands: the starting text of the "try your own" box
   function toText(spec) {
+    if (['isort', 'qsort', 'csort'].includes(spec.type)) return 'start ' + (spec.arr || spec.init || []).join(' ');
+    if (spec.type === 'bsearch') return 'start ' + (spec.arr || []).join(' ') + ', search ' + (spec.target != null ? spec.target : 9);
+    if (spec.type === 'hash' && !spec.keys && spec.ops) return 'size ' + (spec.size || 10) + ', keys ' + spec.ops.map(o => Array.isArray(o) ? o[1] : o).join(' ');
     const p = [];
     if (spec.type === 'hash') { p.push('size ' + spec.size); if (spec.method === 'double' && spec.h2) p.push('h2 ' + spec.h2); p.push('keys ' + spec.keys.join(' ')); return p.join(', '); }
     if (spec.size) p.push('size ' + spec.size);
