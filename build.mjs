@@ -74,6 +74,23 @@ for (const [id, P] of Object.entries(PAPERS)) {
   if (P.qa) for (const l of c.lectures) if (P.qa[l.n]) l.qa = l.qa.concat(P.qa[l.n]);
 }
 
+// book/<id>.js: five questions per lecture taken from the course textbook, used by the video player's Quick quiz.
+// They stay separate from lecture.quiz so the quick quiz can show exactly these, with their book citations.
+for (const id of Object.keys(COURSES)) {
+  const f = `book/${id}.js`;
+  if (existsSync(f)) vm.runInContext(readFileSync(f, 'utf8'), ctx, { filename: f });
+}
+const BOOK = ctx.window.BOOK || {};
+for (const [id, bk] of Object.entries(BOOK)) {
+  const c = COURSES[id];
+  if (!c) continue;
+  // attach to every lecture array: the page swaps c.lectures for c.tracks.lectures.sessions when it hydrates,
+  // so both copies in the JSON need the questions. Lab sessions are left alone — their n values are 1..n too and
+  // would otherwise pick up the chapter questions by mistake.
+  const lectures = [...c.lectures, ...((c.tracks && c.tracks.lectures && c.tracks.lectures.sessions) || [])];
+  for (const l of new Set(lectures)) if (bk[l.n] && bk[l.n].length) l.bookQuiz = bk[l.n];
+}
+
 // summary/<id>.js: optional additions from student summaries
 for (const id of Object.keys(COURSES)) {
   const f = `summary/${id}.js`;

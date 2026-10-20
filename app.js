@@ -140,10 +140,11 @@ function start() {
   const memo = {};
   const cardsOf = k => memo['c' + k] || (memo['c' + k] = C[k].lectures.flatMap(l => l.cards.map((x, i) => ({ id: l.n + '-' + i, f: x[0], b: x[1], lec: l.n }))));
   // where a question came from: the professor (past exam, revision sheet, lecture example), a student summary, or written for this site
-  const originOf = q => q.xtra || !q.src ? 'extra' : /^(exam|midterm)\b/i.test(q.src) ? 'exam' : /sheet|revision/i.test(q.src) ? 'sheet' : /^lecture\b/i.test(q.src) ? 'lecture' : /summary/i.test(q.src) ? 'summary' : 'extra';
+  const isBook = q => !!q.src && /^book\b/i.test(q.src);
+  const originOf = q => isBook(q) ? 'book' : q.xtra || !q.src ? 'extra' : /^(exam|midterm)\b/i.test(q.src) ? 'exam' : /sheet|revision/i.test(q.src) ? 'sheet' : /^lecture\b/i.test(q.src) ? 'lecture' : /summary/i.test(q.src) ? 'summary' : 'extra';
   const isProf = q => ['exam', 'sheet', 'lecture'].includes(originOf(q));
-  const ORIGIN = { exam: ['Past exam', 'prof'], sheet: ["Professor's sheet", 'prof'], lecture: ['Lecture example', 'prof'], summary: ['Student summary', 'summary'], extra: ['Extra question', 'extra'] };
-  const Source = ({ q }) => { const o = originOf(q), [label, cls] = ORIGIN[o]; return html`<span className=${'srcbadge ' + cls} title=${o === 'extra' ? 'Written for Study Deck from this lecture, not from the professor' : q.src}>${o === 'extra' ? label : (o === 'exam' || o === 'sheet' ? q.src : label)}</span>`; };
+  const ORIGIN = { exam: ['Past exam', 'prof'], sheet: ["Professor's sheet", 'prof'], lecture: ['Lecture example', 'prof'], summary: ['Student summary', 'summary'], extra: ['Extra question', 'extra'], book: ['Textbook', 'book'] };
+  const Source = ({ q }) => { const o = originOf(q), [label, cls] = ORIGIN[o]; return html`<span className=${'srcbadge ' + cls} title=${o === 'extra' ? 'Written for Study Deck from this lecture, not from the professor' : o === 'book' ? 'Operating System Concepts, 9th ed. — ' + q.src.replace(/^Book · /, '') : q.src}>${o === 'extra' ? label : (o === 'exam' || o === 'sheet' || o === 'book' ? q.src : label)}</span>`; };
   const quizOf = k => memo['q' + k] || (memo['q' + k] = C[k].lectures.flatMap(l => l.quiz.map((x, i) => Object.assign({ id: l.n + '-' + i, lec: l.n }, x))
     .concat((l.extra || []).map((x, i) => Object.assign({ id: 'x' + l.n + '-' + i, lec: l.n, xtra: true }, x)))));
   const quizById = k => memo['m' + k] || (memo['m' + k] = new Map(quizOf(k).map(q => [q.id, q])));
@@ -736,6 +737,13 @@ function start() {
     const timestamps = curVid.timestamps || [];
     const activeTsIdx = timestamps.reduce((best, ts, i) => ts.t <= startSec ? i : best, 0);
     const qs = useMemo(() => quizOf(k).filter(q => q.lec === lec.n), [k, lec.n]);
+    // the quick quiz asks the five textbook questions written for this session (book/<course>.js); for a session
+    // with no book quiz yet it falls back to the first five of the lecture's own quiz
+    const quickPool = useMemo(() => {
+      const b = lec.bookQuiz || [];
+      if (b.length) return b.map((q, i) => Object.assign({ id: 'b' + lec.n + '-' + i, lec: lec.n }, q));
+      return qs.slice(0, 5);
+    }, [k, lec.n, qs]);
     const embedUrl = 'https://www.youtube.com/embed/' + curVid.id + '?rel=0&modestbranding=1&playsinline=1' + (startSec > 0 ? '&start=' + startSec : '') + (autoPlay ? '&autoplay=1' : '');
 
     const pickAns = (q, j) => {
@@ -744,7 +752,7 @@ function start() {
       recordAnswers(k, [[q.id, j === q.a]]);
     };
     const qAnswered = Object.keys(qPicks).length;
-    const qRight = qs.filter(q => qPicks[q.id] === q.a).length;
+    const qRight = quickPool.filter(q => qPicks[q.id] === q.a).length;
 
     return html`<section className="vstudio" aria-label=${'Inline Video Player for ' + uCap(k) + ' ' + lec.n}>
       <header className="vstudio-head">
@@ -844,7 +852,7 @@ function start() {
         </div>
         <div className="vpost-quiz">
           <button className="btn" onClick=${() => setQuickQuiz(q => !q)}>
-            ${quickQuiz ? 'Hide the quick quiz ▲' : '⚡ Quick quiz on this video (' + Math.min(5, qs.length) + ' question' + (Math.min(5, qs.length) === 1 ? '' : 's') + ')'}
+            ${quickQuiz ? 'Hide the quick quiz ▲' : '⚡ Quick quiz on this video (' + quickPool.length + ' question' + (quickPool.length === 1 ? '' : 's') + ')'}
           </button>
           <button className="btn quiz-vid" onClick=${() => { markWatched(vidKey); go({ mode: 'quiz', lec: lec.n, quizPreset: { lecs: [lec.n], t: Date.now(), from: 'video' } }); }}>
             🎯 Full quiz on ${uCap(k)} ${lec.n} (${qs.length} question${qs.length === 1 ? '' : 's'}) →
@@ -852,11 +860,12 @@ function start() {
         </div>
       </footer>
 
-      ${quickQuiz && qs.length > 0 && html`<div className="vquick-quiz">
+      ${quickQuiz && quickPool.length > 0 && html`<div className="vquick-quiz">
         <div className="vquick-head">
           <div>
             <p className="kicker" style=${{ color: 'var(--c)' }}>Check your understanding right after the video · ${uCap(k)} ${lec.n}</p>
-            <h4 style=${{ margin: '2px 0 0', fontSize: '1.05rem' }}>Quick quiz on ${uCap(k)} ${lec.n} (${qRight}/${qAnswered || Math.min(5, qs.length)} correct)</h4>
+            <h4 style=${{ margin: '2px 0 0', fontSize: '1.05rem' }}>Quick quiz on ${uCap(k)} ${lec.n} (${qRight}/${qAnswered || quickPool.length} correct)</h4>
+            ${quickPool.length && isBook(quickPool[0]) && html`<p className="muted" style=${{ margin: '4px 0 0', fontSize: '.82rem' }}>Five questions from Operating System Concepts (9th ed.); each one names the section and page it comes from.</p>`}
           </div>
           <div className="row">
             <button className="btn small" onClick=${() => setQPicks({})}>Try again</button>
@@ -864,15 +873,17 @@ function start() {
           </div>
         </div>
         <ol className="xq-list">
-          ${qs.slice(0, 5).map((q, qi) => {
+          ${quickPool.map((q, qi) => {
             const p = qPicks[q.id], done = p != null;
             return html`<li key=${q.id} className="xq-item">
-              <div className="xq-q"><span className="xq-n">${qi + 1}</span><H h=${q.q} /></div>
+              <div className="xq-q"><span className="xq-n">${qi + 1}</span><${H} h=${q.q} />
+                ${q.src && html`<span className="xq-src">Source: <${Source} q=${q} /></span>`}
+              </div>
               <ol className="opts">${q.o.map((o, j) => html`<li key=${j}>
                 <button className=${'opt' + (p === j ? ' picked' : '') + (done && j === q.a ? ' answer' : '')} disabled=${done} onClick=${() => pickAns(q, j)}>
-                  <span className="bubble">${LET[j]}</span><span className="otext"><H h=${o[0]} /></span><span>${done && j === q.a ? Icon.tick : done && j === p ? Icon.cross : null}</span>
+                  <span className="bubble">${LET[j]}</span><span className="otext"><${H} h=${o[0]} /></span><span>${done && j === q.a ? Icon.tick : done && j === p ? Icon.cross : null}</span>
                 </button>
-                ${done && html`<p className=${'why ' + (j === q.a ? 'right' : 'wrong')}><b>${j === q.a ? 'Right' : 'Wrong'}</b><H h=${o[1]} /></p>`}
+                ${done && html`<p className=${'why ' + (j === q.a ? 'right' : 'wrong')}><b>${j === q.a ? 'Right' : 'Wrong'}</b><${H} h=${o[1]} /></p>`}
               </li>`)}</ol>
             </li>`;
           })}
