@@ -476,7 +476,7 @@ function start() {
       <div className="tb-tools">
         <button className="tb-search" onClick=${openSearch} aria-label="Search">${Icon.search}<span>Search</span><kbd>/</kbd></button>
         <button className="langbtn" onClick=${bar.openSync} title="Export or import your study progress across devices"><span>Sync</span></button>
-        <${LangButton} lang=${lang} setLang=${setLang} k=${cur} />
+        ${(cur ? M[baseOf(cur)] && M[baseOf(cur)].ar : ORDER.some(([k]) => M[k] && M[k].ar)) && html`<${LangButton} lang=${lang} setLang=${setLang} k=${cur} />`}
         <${LampButton} theme=${theme} compact=${true} />
       </div>
       ${children}
@@ -514,7 +514,7 @@ function start() {
     const contPct = !cont ? 0 : posf != null ? Math.round(posf * 100)
       : Math.round(progressOf(cont.course).read / Math.max(1, M[cont.course].lectures.length) * 100);
     const contWhat = !cont ? '' : cont.mode === 'read' && typeof cont.lec === 'number' ? 'of this lecture read' : 'of the course read';
-    const modeName = { path: 'Path', videos: 'Video Roadmap', read: 'Notes', cards: 'Cards', ask: 'Q&A', quiz: 'Quiz', papers: 'Past papers', progress: 'Progress', miss: 'Progress' };
+    const modeName = { path: 'Path', read: 'Notes', cards: 'Cards', ask: 'Q&A', quiz: 'Quiz', papers: 'Past papers', progress: 'Progress', miss: 'Progress' };
     const openCourse = (k, extra) => { go(Object.assign({ view: 'course', course: k, mode: 'path', lec: lastLec(k), anchor: null, quizPreset: null, cardFocus: null, cardLec: null }, extra || {})); window.scrollTo(0, 0); };
     const dayLetter = d => 'SMTWTFS'[new Date(d * 86400000).getUTCDay()];
     return html`<div className="page home-page">
@@ -571,10 +571,10 @@ function start() {
           <button className="tile t-papers" onClick=${() => openCourse(paperCourse, { mode: 'papers' })}>
             <span className="tl">Solved past papers</span><b className="big">${papers}</b><span className="tsub">Every answer explained · open ${M[paperCourse].short} →</span>
           </button>
-          <button className=${'tile t-ar' + (lang === 'ar' ? ' on' : '')} aria-pressed=${String(lang === 'ar')} onClick=${() => setLang(lang === 'ar' ? 'en' : 'ar')}>
+          ${ORDER.some(([k]) => M[k] && M[k].ar) && html`<button className=${'tile t-ar' + (lang === 'ar' ? ' on' : '')} aria-pressed=${String(lang === 'ar')} onClick=${() => setLang(lang === 'ar' ? 'en' : 'ar')}>
             <span className="tl">Explanations</span><b className="big" lang="ar">بالعربي</b>
             <span className="tsub">${lang === 'ar' ? 'On: Egyptian Arabic under each answer' : 'Off: tap to show Egyptian Arabic'}</span>
-          </button>
+          </button>`}
         </div>
         <p className="foot">Built from the course slides, revision sheets and past papers on the MA Platform. Where an official answer key disagrees with the lectures, both are shown. Progress is saved in this browser only.</p>
       </main>
@@ -598,7 +598,7 @@ function start() {
     const [best, setBest] = usePersist('best:' + k, null);
     const [read, setRead] = usePersist('read:' + k, []);
     const barRef = useRef(null);
-    const mode = nav.mode === 'miss' ? 'progress' : (nav.mode || 'path');
+    const mode = nav.mode === 'miss' ? 'progress' : nav.mode === 'videos' ? 'path' : (nav.mode || 'path');
     // with no session chosen, the path points at the first session you haven't read
     const lecN = nav.lec === 'rev' ? 'rev' : c.lectures.some(l => l.n === nav.lec) ? nav.lec : ((c.lectures.find(l => !read.includes(l.n)) || c.lectures[0]).n);
 
@@ -611,9 +611,9 @@ function start() {
       go({ track: nextTrack, lec: lastLec(nextK), anchor: null, quizPreset: null, cardFocus: null, cardLec: null });
     };
 
+    // no separate Videos tab: the player and its timestamps sit inside the Path tab, under the lecture
     const modes = [
       ['path', 'Path', null],
-      ...(c.videos ? [['videos', 'Videos · رود ماب', c.videos]] : []),
       ['read', 'Notes', c.lectures.length],
       ['cards', 'Cards', c.cards],
       ['ask', 'Q&A', c.qa],
@@ -749,15 +749,14 @@ function start() {
     return html`<section className="vstudio" aria-label=${'Inline Video Player for ' + uCap(k) + ' ' + lec.n}>
       <header className="vstudio-head">
         <div className="vstudio-title">
-          <p className="eyebrow" style=${{ color: 'var(--c)' }}>مشغل الفيديو المدمج والـ Timestamps · ${uCap(k)} ${lec.n} Video Roadmap</p>
+          <p className="eyebrow" style=${{ color: 'var(--c)' }}>Video player & timestamps · ${uCap(k)} ${lec.n}</p>
           <h3>
             <span className="vstudio-badge">▶ ${safeIdx + 1} / ${videos.length}</span>
             <span>${cleanTitle(lec.title)}</span>
           </h3>
         </div>
         <div className="row">
-          <button className="btn ghost small" onClick=${() => go({ mode: 'videos', lec: lec.n })}>🗺️ كل الفيديوهات والرود ماب (${c.lectures.reduce((a, x) => a + (x.videos ? x.videos.length : 0), 0)})</button>
-          <a className="btn ghost small" href=${'https://www.youtube.com/watch?v=' + curVid.id + (startSec ? '&t=' + startSec + 's' : '')} target="_blank" rel="noopener noreferrer" style=${{ textDecoration: 'none' }}>يوتيوب ↗</a>
+          <a className="btn ghost small" href=${'https://www.youtube.com/watch?v=' + curVid.id + (startSec ? '&t=' + startSec + 's' : '')} target="_blank" rel="noopener noreferrer" style=${{ textDecoration: 'none' }}>Watch on YouTube ↗</a>
         </div>
       </header>
 
@@ -776,8 +775,8 @@ function start() {
             <span className="vr-arrow" aria-hidden="true">→</span>
           </React.Fragment>`;
         })}
-        <button className="vr-quiz-pill" onClick=${() => go({ mode: 'quiz', lec: lec.n, quizPreset: { lecs: [lec.n], t: Date.now(), from: 'video' } })} title="ابدأ كويز كامل على محتوى المحاضرة">
-          🎯 كويز ${uCap(k)} ${lec.n} (${qs.length} سؤال)
+        <button className="vr-quiz-pill" onClick=${() => go({ mode: 'quiz', lec: lec.n, quizPreset: { lecs: [lec.n], t: Date.now(), from: 'video' } })} title=${'Start a full quiz on ' + uCap(k) + ' ' + lec.n}>
+          🎯 ${uCap(k)} ${lec.n} quiz (${qs.length} question${qs.length === 1 ? '' : 's'})
         </button>
       </div>
 
@@ -803,7 +802,7 @@ function start() {
                 </div>
               </div>
               <button className=${'btn' + (isWatched ? ' solid' : '')} onClick=${() => toggleWatched(vidKey)}>
-                ${isWatched ? '✓ تم المشاهدة' : 'تحديد كمشاهد'}
+                ${isWatched ? '✓ Watched' : 'Mark as watched'}
               </button>
             </div>
           </div>
@@ -811,8 +810,8 @@ function start() {
 
         <div className="vts-col">
           <div className="vts-head">
-            <span>⏱ تقسيم المحاضرة (Timestamps) — اضغط للانتقال فوراً</span>
-            <span>${timestamps.length} فقرات</span>
+            <span>⏱ Lecture timestamps — click to jump</span>
+            <span>${timestamps.length} section${timestamps.length === 1 ? '' : 's'}</span>
           </div>
           <ol className="vts-list">
             ${timestamps.map((ts, ti) => html`<li key=${ti}>
@@ -823,9 +822,9 @@ function start() {
             </li>`)}
           </ol>
           ${timestamps.length > 1 && html`<div className="row" style=${{ padding: '8px 12px', borderTop: '1px solid var(--line)', background: 'var(--paper)' }}>
-            <button className="btn ghost small" disabled=${activeTsIdx <= 0} onClick=${() => { const prev = timestamps[Math.max(0, activeTsIdx - 1)]; setStartSec(prev.t); setAutoPlay(true); }}>← الفقرة السابقة</button>
+            <button className="btn ghost small" disabled=${activeTsIdx <= 0} onClick=${() => { const prev = timestamps[Math.max(0, activeTsIdx - 1)]; setStartSec(prev.t); setAutoPlay(true); }}>← Previous section</button>
             <span className="grow"></span>
-            <button className="btn ghost small" disabled=${activeTsIdx >= timestamps.length - 1} onClick=${() => { const nxt = timestamps[Math.min(timestamps.length - 1, activeTsIdx + 1)]; setStartSec(nxt.t); setAutoPlay(true); }}>الفقرة التالية →</button>
+            <button className="btn ghost small" disabled=${activeTsIdx >= timestamps.length - 1} onClick=${() => { const nxt = timestamps[Math.min(timestamps.length - 1, activeTsIdx + 1)]; setStartSec(nxt.t); setAutoPlay(true); }}>Next section →</button>
           </div>`}
         </div>
       </div>
@@ -833,22 +832,22 @@ function start() {
       <footer className="vpost-bar">
         <div className="vpost-nav">
           <button className="btn" disabled=${safeIdx === 0 && !prevLec} onClick=${goPrevVideo}>
-            ← ${safeIdx > 0 ? 'الفيديو السابق (' + safeIdx + '/' + videos.length + ')' : prevLec ? uPref(k, prevLec.n) : 'السابق'}
+            ← ${safeIdx > 0 ? 'Previous video (' + safeIdx + '/' + videos.length + ')' : prevLec ? uPref(k, prevLec.n) : 'Previous'}
           </button>
           <button className="btn next-vid" disabled=${safeIdx >= videos.length - 1 && !nextLec} onClick=${goNextVideo}>
             ${safeIdx < videos.length - 1
-              ? 'الفيديو التالي (' + (safeIdx + 2) + '/' + videos.length + '): ' + videos[safeIdx + 1].channel.split('·')[0].trim() + ' →'
+              ? 'Next video (' + (safeIdx + 2) + '/' + videos.length + '): ' + videos[safeIdx + 1].channel.split('·')[0].trim() + ' →'
               : nextLec
-                ? 'المحاضرة التالية: ' + uPref(k, nextLec.n) + ' →'
-                : '✓ آخر فيديو في المسار'}
+                ? 'Next lecture: ' + uPref(k, nextLec.n) + ' →'
+                : '✓ Last video in this course'}
           </button>
         </div>
         <div className="vpost-quiz">
           <button className="btn" onClick=${() => setQuickQuiz(q => !q)}>
-            ${quickQuiz ? 'إخفاء الكويز السريع ▲' : '⚡ كويز سريع تحت الفيديو (' + Math.min(5, qs.length) + ' أسئلة)'}
+            ${quickQuiz ? 'Hide the quick quiz ▲' : '⚡ Quick quiz on this video (' + Math.min(5, qs.length) + ' question' + (Math.min(5, qs.length) === 1 ? '' : 's') + ')'}
           </button>
           <button className="btn quiz-vid" onClick=${() => { markWatched(vidKey); go({ mode: 'quiz', lec: lec.n, quizPreset: { lecs: [lec.n], t: Date.now(), from: 'video' } }); }}>
-            🎯 كويز كامل على محتوى ${uCap(k)} ${lec.n} (${qs.length} سؤال) →
+            🎯 Full quiz on ${uCap(k)} ${lec.n} (${qs.length} question${qs.length === 1 ? '' : 's'}) →
           </button>
         </div>
       </footer>
@@ -856,12 +855,12 @@ function start() {
       ${quickQuiz && qs.length > 0 && html`<div className="vquick-quiz">
         <div className="vquick-head">
           <div>
-            <p className="kicker" style=${{ color: 'var(--c)' }}>اختبر فهمك فوراً بعد الفيديو · ${uCap(k)} ${lec.n}</p>
-            <h4 style=${{ margin: '2px 0 0', fontSize: '1.05rem' }}>كويز سريع على محتوى ${uCap(k)} ${lec.n} (${qRight}/${qAnswered || Math.min(5, qs.length)} صحيحة)</h4>
+            <p className="kicker" style=${{ color: 'var(--c)' }}>Check your understanding right after the video · ${uCap(k)} ${lec.n}</p>
+            <h4 style=${{ margin: '2px 0 0', fontSize: '1.05rem' }}>Quick quiz on ${uCap(k)} ${lec.n} (${qRight}/${qAnswered || Math.min(5, qs.length)} correct)</h4>
           </div>
           <div className="row">
-            <button className="btn small" onClick=${() => setQPicks({})}>إعادة المحاولة</button>
-            <button className="btn solid small" onClick=${() => go({ mode: 'quiz', lec: lec.n, quizPreset: { lecs: [lec.n], t: Date.now(), from: 'video' } })}>فتح كل الـ ${qs.length} سؤال في وضع الامتحان →</button>
+            <button className="btn small" onClick=${() => setQPicks({})}>Try again</button>
+            <button className="btn solid small" onClick=${() => go({ mode: 'quiz', lec: lec.n, quizPreset: { lecs: [lec.n], t: Date.now(), from: 'video' } })}>Open all ${qs.length} questions in exam mode →</button>
           </div>
         </div>
         <ol className="xq-list">
@@ -882,130 +881,8 @@ function start() {
     </section>`;
   }
 
-  function VideoRoadmapView({ k, lecN, nav, go }) {
-    const c = C[k];
-    const [watched, setWatched] = usePersist('watched:' + k, []);
-    const [plFilter, setPlFilter] = useState('all');
-    const [activeLecN, setActiveLecN] = useState(() => c.lectures.some(l => l.n === lecN) ? lecN : c.lectures[0].n);
-    const [selectedVidId, setSelectedVidId] = useState(nav.vidId || null);
-    const [selectedTs, setSelectedTs] = useState(nav.vidTs || 0);
-
-    useEffect(() => {
-      if (c.lectures.some(l => l.n === lecN)) setActiveLecN(lecN);
-      if (nav.vidId) setSelectedVidId(nav.vidId);
-      if (nav.vidTs != null) setSelectedTs(nav.vidTs);
-    }, [lecN, nav.vidId, nav.vidTs]);
-
-    const playlists = useMemo(() => {
-      const map = new Map();
-      c.lectures.forEach(l => {
-        (l.videos || []).forEach(v => {
-          const ch = v.channel.split('·')[0].trim();
-          if (!map.has(ch)) map.set(ch, { id: ch, title: v.channel, playlistId: v.playlistId, count: 0 });
-          map.get(ch).count += 1;
-        });
-      });
-      return [...map.values()];
-    }, [k]);
-
-    const totalVideos = c.lectures.reduce((a, l) => a + (l.videos ? l.videos.length : 0), 0);
-    const watchedCount = c.lectures.reduce((a, l) => a + (l.videos || []).filter(v => watched.includes(l.n + ':' + v.id) || watched.includes(v.id)).length, 0);
-    const activeLec = c.lectures.find(l => l.n === activeLecN) || c.lectures[0];
-
-    const pickRoadmapVideo = (lNum, vId, ts = 0) => {
-      setActiveLecN(lNum);
-      setSelectedVidId(vId);
-      setSelectedTs(ts);
-      go({ lec: lNum, vidId: vId, vidTs: ts });
-      window.scrollTo({ top: 0, behavior: calm() ? 'auto' : 'smooth' });
-    };
-
-    return html`<div className="rm-page">
-      <section className="rm-hero">
-        <div style=${{ flex: 1, minWidth: '260px' }}>
-          <p className="eyebrow" style=${{ color: 'var(--c)' }}>Interactive Video Roadmap · خارطة فيديوهات المنهج والبلاي ليستس</p>
-          <h2 style=${{ fontSize: '1.5rem', margin: '4px 0 6px' }}>رود ماب فيديوهات ${c.name} (${totalVideos} فيديو مباشر بالـ Timestamps)</h2>
-          <p className="muted" style=${{ margin: 0 }}>كل محاضرة وسكشن مربوطة بروابط الفيديوهات المباشرة (Direct Video IDs) من البلاي ليستس المعتمدة مع تقسيم الوقت (Timestamps)، سهم الانتقال للفيديو التالي، وكويز فوري على محتوى المحاضرة.</p>
-        </div>
-        <div className="row">
-          <div className="stat" style=${{ margin: 0, minWidth: '150px', padding: '12px 16px' }}>
-            <span>الفيديوهات المشاهدة</span>
-            <b>${watchedCount}<em> / ${totalVideos}</em></b>
-          </div>
-        </div>
-        <div className="rm-playlists" role="group" aria-label="Filter roadmap by playlist source">
-          <button className=${'rm-pl-card' + (plFilter === 'all' ? ' active' : '')} onClick=${() => setPlFilter('all')}>
-            <b>🗺️ كل البلاي ليستس والمصادر</b>
-            <small>${totalVideos} فيديو عبر ${c.lectures.length} ${uPlur(k)}</small>
-          </button>
-          ${playlists.map(p => html`<button key=${p.id} className=${'rm-pl-card' + (plFilter === p.id ? ' active' : '')} onClick=${() => setPlFilter(p.id)}>
-            <b>▶ ${p.id}</b>
-            <small>${p.count} فيديو مباشر جوه الموقع</small>
-          </button>`)}
-        </div>
-      </section>
-
-      ${activeLec && html`<InlineVideoStudio
-        k=${k}
-        lec=${activeLec}
-        go=${go}
-        initialVidId=${selectedVidId}
-        initialTs=${selectedTs}
-        onSelectSession=${n => { setActiveLecN(n); setSelectedVidId(null); setSelectedTs(0); go({ lec: n }); }}
-      />`}
-
-      <section style=${{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        <h2 className="sub-h" style=${{ margin: '4px 0 0' }}>مسار الفيديوهات الكامل خطوة بخطوة (${uCap(k)} 1 → ${uCap(k)} ${c.lectures.length})</h2>
-        ${c.lectures.map((l, idx) => {
-          const vids = (l.videos || []).filter(v => plFilter === 'all' || v.channel.split('·')[0].trim() === plFilter);
-          if (!vids.length) return null;
-          const qs = quizOf(k).filter(q => q.lec === l.n);
-          const nextL = idx < c.lectures.length - 1 ? c.lectures[idx + 1] : null;
-          return html`<div key=${l.n} className="rm-session-card" style=${l.n === activeLecN ? { borderColor: 'var(--s)', boxShadow: 'var(--shadow)' } : null}>
-            <div className="rm-session-head">
-              <div>
-                <p className="eyebrow" style=${{ color: 'var(--c)' }}>${uCap(k)} ${l.n} of ${c.lectures.length} · ${vids.length} فيديوهات</p>
-                <h3>${cleanTitle(l.title)}</h3>
-              </div>
-              <div className="row">
-                <button className="btn small" onClick=${() => go({ mode: 'read', lec: l.n, anchor: null })}>📖 قراءة الشرح + المشغل</button>
-                <button className="btn solid small" onClick=${() => go({ mode: 'quiz', lec: l.n, quizPreset: { lecs: [l.n], t: Date.now(), from: 'roadmap' } })}>🎯 كويز ${uCap(k)} ${l.n} (${qs.length} سؤال)</button>
-              </div>
-            </div>
-            <div className="rm-nodes">
-              ${vids.map((v, vi) => {
-                const vk = l.n + ':' + v.id;
-                const isW = watched.includes(vk) || watched.includes(v.id);
-                const isCur = l.n === activeLecN && (selectedVidId ? v.id === selectedVidId : vi === 0);
-                return html`<React.Fragment key=${v.id + '-' + vi}>
-                  <button className=${'vr-step' + (isCur ? ' active' : '') + (isW ? ' watched' : '')} onClick=${() => pickRoadmapVideo(l.n, v.id, 0)}>
-                    <span className="vr-num">${isW ? '✓' : vi + 1}</span>
-                    <span className="vr-meta">
-                      <b>${v.channel.split('·')[0].trim()} · ${v.duration || ''}</b>
-                      <small>${shortTitle(v.title, 42)}</small>
-                    </span>
-                  </button>
-                  <span className="vr-arrow" aria-hidden="true">→</span>
-                </React.Fragment>`;
-              })}
-              <button className="vr-quiz-pill" onClick=${() => go({ mode: 'quiz', lec: l.n, quizPreset: { lecs: [l.n], t: Date.now(), from: 'roadmap' } })}>
-                🎯 امتحن كويز ${uCap(k)} ${l.n} (${qs.length} سؤال)
-              </button>
-              ${nextL && html`<React.Fragment>
-                <span className="vr-arrow" aria-hidden="true">→</span>
-                <button className="btn ghost small" onClick=${() => pickRoadmapVideo(nextL.n, (nextL.videos && nextL.videos[0] && nextL.videos[0].id) || null, 0)}>
-                  المحطة التالية: ${uPref(k, nextL.n)} →
-                </button>
-              </React.Fragment>`}
-            </div>
-          </div>`;
-        })}
-      </section>
-    </div>`;
-  }
-
   /* ════════════ PATH: each lecture is a stop ════════════ */
-  function PathView({ k, lecN, go, read, known }) {
+  function PathView({ k, lecN, nav, go, read, known }) {
     const c = C[k], stats = store.get('stats:' + k, {}), knownSet = new Set(known);
     const stops = c.lectures.map(l => ({ n: l.n, t: l.title, done: read.includes(l.n) })).concat([{ n: 'rev', t: 'Revision sheet', done: false, last: true }]);
     const N = stops.length;
@@ -1036,7 +913,8 @@ function start() {
       ];
       detail = html`<div className="stop">
         <div className="st-info"><p className="eyebrow">${uCap(k)} ${l.n} of ${c.lectures.length}${isRead ? ' · read' : ''}</p><h2>${cleanTitle(l.title)}</h2>
-          <p>${examQs ? examQs + ' past-exam question' + (examQs > 1 ? 's come' : ' comes') + ' from this ' + uLow(k) + '. ' : ''}${l.qa.length ? html`<button className="linkbtn" onClick=${() => go({ mode: 'ask', askLec: l.n })}>Practise its ${l.qa.length} Q&A →</button>` : null}</p></div>
+          <p>${examQs ? examQs + ' past-exam question' + (examQs > 1 ? 's come' : ' comes') + ' from this ' + uLow(k) + '. ' : ''}${l.qa.length ? html`<button className="linkbtn" onClick=${() => go({ mode: 'ask', askLec: l.n })}>Practise its ${l.qa.length} Q&A →</button>` : null}</p>
+          ${l.videos && l.videos.length ? html`<p><button className="linkbtn" onClick=${() => { const el = document.querySelector('.path .vstudio'); if (el) el.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' }); }}>▶ Watch its ${l.videos.length} video${l.videos.length === 1 ? '' : 's'} and timestamps ↓</button></p>` : null}</div>
         ${steps.map(([t, sub, st, fn], i) => html`<button key=${i} className=${'step' + (i === nextStep ? ' go' : '') + ([isRead, cardsDone, quizDone][i] ? ' done' : '')} onClick=${fn}>
           <span className="sn">${[isRead, cardsDone, quizDone][i] ? '✓' : i + 1}</span><b>${t}</b><span>${sub}</span><em>${st}</em></button>`)}
       </div>`;
@@ -1054,14 +932,13 @@ function start() {
       <ol className="map-v">${stops.map((s, i) => html`<li key=${s.n}><button className=${'vnode' + (s.done ? ' done' : '') + (s.n === lecN ? ' cur' : '')} onClick=${() => sel(i, s)} aria-current=${s.n === lecN ? 'step' : null}>
         <span className="dot">${s.last ? '★' : s.done ? '✓' : s.n}</span><span>${s.last ? 'Revision sheet' : cleanTitle(s.t)}</span></button></li>`)}</ol>
       ${detail}
-      ${l && l.videos && l.videos.length > 0 && html`<div style=${{ marginTop: '18px' }}><${InlineVideoStudio} k=${k} lec=${l} go=${go} onSelectSession=${n => go({ lec: n })} /></div>`}
+      ${l && l.videos && l.videos.length > 0 && html`<div style=${{ marginTop: '18px' }}><${InlineVideoStudio} k=${k} lec=${l} go=${go} initialVidId=${nav && nav.vidId} initialTs=${nav && nav.vidTs} onSelectSession=${n => go({ lec: n })} /></div>`}
     </section>`;
   }
 
   function CourseBody({ k, mode, nav, go, lecN, known, setKnown, miss, setMiss, fixed, setFixed, best, setBest, read, setRead, barRef, onSection }) {
     return html`
-        ${mode === 'path' && html`<${PathView} key="path" k=${k} lecN=${lecN} go=${go} read=${read} known=${known} />`}
-        ${mode === 'videos' && html`<${VideoRoadmapView} key="videos" k=${k} lecN=${lecN} nav=${nav} go=${go} />`}
+        ${mode === 'path' && html`<${PathView} key="path" k=${k} lecN=${lecN} nav=${nav} go=${go} read=${read} known=${known} />`}
         ${mode === 'read' && lecN === 'rev' && html`<${RevisionSheet} key="rev" k=${k} go=${go} read=${read} onSection=${onSection} />`}
         ${mode === 'read' && lecN !== 'rev' && html`<${Read} key="read" k=${k} lecN=${lecN} anchor=${nav.anchor} nav=${nav} go=${go} read=${read} setRead=${setRead} barRef=${barRef} onSection=${onSection} />`}
         ${mode === 'cards' && html`<${Cards} key="cards" k=${k} focus=${nav.cardFocus} startLec=${nav.cardLec} auto=${nav.cardsAuto} go=${go} known=${known} setKnown=${setKnown} />`}
@@ -2472,7 +2349,7 @@ function start() {
       (l.extra || []).forEach((x, i) => out.push({ k, kind: 'Extra question', lec: l.n, pref, title: strip(x.q), text: x.o.map(o => strip(o[0])).join(' · '), to: Object.assign({}, basePatch, { mode: 'quiz', lec: l.n, quizPreset: { ids: ['x' + l.n + '-' + i], t: 0 } }) }));
       (l.videos || []).forEach(v => {
         const tsText = (v.timestamps || []).map(ts => ts.time + ' ' + ts.label).join(' · ');
-        out.push({ k, kind: 'Video', lec: l.n, pref, title: v.title + ' (' + v.channel + ')', text: tsText, to: Object.assign({}, basePatch, { mode: 'videos', lec: l.n, vidId: v.id, vidTs: 0 }) });
+        out.push({ k, kind: 'Video', lec: l.n, pref, title: v.title + ' (' + v.channel + ')', text: tsText, to: Object.assign({}, basePatch, { mode: 'path', lec: l.n, vidId: v.id, vidTs: 0 }) });
       });
     };
     c.lectures.forEach(l => pushSession(l, 'lectures', 'L'));
