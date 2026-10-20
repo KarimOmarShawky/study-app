@@ -33,3 +33,14 @@ A missing `public/og.jpg` was what made an earlier Vercel build fail with
 `Error: ENOENT: no such file or directory, open 'public/og.jpg'`.
 When uploading files through the GitHub web UI, make sure the `public/` folder is included
 (GitHub keeps empty folders out of a repo).
+
+## Textbook quick quizzes
+
+`book/<course>.js` holds five questions per lecture, written from the course textbook
+(*Operating System Concepts*, 9th ed. — Silberschatz, Galvin & Gagne). Every question records the section and
+page it comes from in `src`, e.g. `Book · Ch. 5 §5.2, p. 206–207`, and every option's explanation quotes or
+closely paraphrases the book — no invented answers.
+
+`build.mjs` attaches these to each lecture as `bookQuiz` (lectures only; lab sessions have their own numbering and
+are skipped), and the video player's **Quick quiz** shows these five with the citation under each question. A
+session with no book quiz falls back to the first five questions of its own quiz.
