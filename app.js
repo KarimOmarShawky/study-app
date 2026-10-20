@@ -1,0 +1,2572 @@
+// Libraries come from cdnjs/jsdelivr with deferred script tags. If one of them failed to load,
+// try a mirror before starting, and show a clear message if nothing works.
+(function () {
+  const MIRRORS = {
+    React: ['https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js', 'https://unpkg.com/react@18.3.1/umd/react.production.min.js'],
+    ReactDOM: ['https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js', 'https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js'],
+    htm: ['https://unpkg.com/htm@3.1.1/dist/htm.umd.js', 'https://cdnjs.cloudflare.com/ajax/libs/htm/3.1.1/htm.umd.js']
+  };
+  const fail = () => { document.getElementById('root').innerHTML = '<p class="boot">The page couldn’t load its code. Check your internet connection, then refresh.</p>'; };
+  const loadOne = (urls, i, done) => {
+    if (i >= urls.length) return fail();
+    const s = document.createElement('script'); s.src = urls[i];
+    s.onload = done; s.onerror = () => { s.remove(); loadOne(urls, i + 1, done); };
+    document.head.appendChild(s);
+  };
+  const missing = ['React', 'ReactDOM', 'htm'].filter(g => !window[g]);
+  const next = () => { const g = missing.shift(); if (!g) return start(); loadOne(MIRRORS[g], 0, () => window[g] ? next() : fail()); };
+  next();
+})();
+
+function start() {
+  const { useState, useEffect, useLayoutEffect, useMemo, useRef, useCallback } = React;
+  const html = htm.bind(React.createElement);
+  const C = window.COURSES = window.COURSES || {};   // filled course by course as data/<id>.js files load
+  const M = window.MANIFEST || {};                   // names and counts only, loaded up front
+  const baseOf = k => String(k || '').replace(/:labs$/, '');
+  const isLabs = k => String(k || '').endsWith(':labs');
+  const uCap = k => isLabs(k) ? 'Lab' : 'Lecture';
+  const uLow = k => isLabs(k) ? 'lab' : 'lecture';
+  const uPlur = k => isLabs(k) ? 'labs' : 'lectures';
+  const uPref = (k, n) => isLabs(k) ? 'Lab ' + n : 'L' + n;
+  function hydrateManifest() {
+    Object.keys(M).forEach(k => {
+      if (M[k] && M[k].tracks && M[k].tracks.labs && !M[k + ':labs']) {
+        M[k + ':labs'] = Object.assign({}, M[k], M[k].tracks.labs, { baseId: k, track: 'labs', short: M[k].short + ' Labs' });
+      }
+    });
+  }
+  function hydrateCourseData(k) {
+    const b = baseOf(k), c = C[b];
+    if (!c) return;
+    if (c.tracks) {
+      if (c.tracks.lectures && c.tracks.lectures.sessions) c.lectures = c.tracks.lectures.sessions;
+      if (c.tracks.labs && c.tracks.labs.sessions && !C[b + ':labs']) {
+        C[b + ':labs'] = Object.assign({}, c, {
+          id: b + ':labs', baseId: b, track: 'labs',
+          short: c.short + ' Labs',
+          lectures: c.tracks.labs.sessions
+        });
+      }
+    }
+  }
+  hydrateManifest();
+  Object.keys(C).forEach(hydrateCourseData);
+  // each level lists its courses as [id, elective]; ORDER is the level on screen, set by App on every render
+  const LEVELS = [
+    { id: 'l3', name: 'Level 3', sem: 'Semester 1', order: [['os', 0], ['algo', 0], ['swe', 0], ['files', 0], ['sad', 0], ['dbms', 0]] },
+    { id: 'l2', name: 'Level 2', sem: 'Semester 1', order: [['dm', 0], ['or', 0], ['ds', 0], ['web', 0], ['micro', 0], ['sa', 0]] }
+  ].map(v => Object.assign(v, { order: v.order.filter(([k]) => M[k]) })).filter(v => v.order.length);
+  const levelOf = k => LEVELS.find(v => v.order.some(o => o[0] === k));
+  let LEVEL = LEVELS.find(v => v.id === 'l3') || LEVELS[0];
+  let ORDER = LEVEL ? LEVEL.order : [];
+  const LET = 'ABCDEFGH';
+
+  /* ── storage (same keys as the previous version, so progress carries over) ──
+     Parsed values are cached, so reading the same key again costs nothing; every write in this tab goes through set(),
+     and writes from another tab arrive as a 'storage' event that drops the cache. Treat returned values as read-only. */
+  const cache = new Map();
+  const store = {
+    get(k, d) {
+      if (!cache.has(k)) { let v = null; try { const raw = localStorage.getItem('sd:' + k); v = raw == null ? null : JSON.parse(raw); } catch (e) {} cache.set(k, v); }
+      const v = cache.get(k); return v == null ? d : v;
+    },
+    set(k, v) { cache.set(k, v); try { localStorage.setItem('sd:' + k, JSON.stringify(v)); } catch (e) {} }
+  };
+  window.addEventListener('storage', e => { if (e.key == null) cache.clear(); else if (e.key.startsWith('sd:')) cache.delete(e.key.slice(3)); window.dispatchEvent(new Event('sd-store')); });
+  // HCI was renumbered (this term's lectures 1–4 came first, last year's 1–9 became 5–13): move saved HCI progress with it, once
+  (function moveHciProgress() {
+    try {
+      if (localStorage.getItem('sd:hcirenum') === '1') return;
+      const sh = n => n + 4, id = s => typeof s === 'string' ? s.replace(/^(x?)(\d+)-/, (m, x, n) => x + sh(+n) + '-') : s;
+      const get = k => { const v = localStorage.getItem('sd:' + k); return v == null ? null : JSON.parse(v); }, put = (k, v) => localStorage.setItem('sd:' + k, JSON.stringify(v));
+      ['known', 'miss', 'fixed'].forEach(k => { const v = get(k + ':hci'); if (Array.isArray(v)) put(k + ':hci', v.map(id)); });
+      ['srs', 'stats'].forEach(k => { const v = get(k + ':hci'); if (v && typeof v === 'object') put(k + ':hci', Object.fromEntries(Object.entries(v).map(([a, b]) => [id(a), b]))); });
+      const read = get('read:hci'); if (Array.isArray(read)) put('read:hci', read.map(n => typeof n === 'number' ? sh(n) : n));
+      const ll = get('lastlec:hci'); if (typeof ll === 'number') put('lastlec:hci', sh(ll));
+      ['nav2', 'last'].forEach(k => { const v = get(k); if (v && v.course === 'hci' && typeof v.lec === 'number') put(k, Object.assign({}, v, { lec: sh(v.lec) })); });
+      // per-lecture keys (reading position, book position): highest lecture first so nothing is overwritten
+      const keys = []; for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+      keys.map(k => /^(sd:(?:pos|posf):hci:|sd:bookpos:hci:L)(\d+)$/.exec(k)).filter(Boolean).sort((a, b) => b[2] - a[2])
+        .forEach(m => { const v = localStorage.getItem(m[0]); localStorage.removeItem(m[0]); localStorage.setItem(m[1] + sh(+m[2]), v); });
+      localStorage.setItem('sd:hcirenum', '1');
+    } catch (e) {}
+  })();
+  // then last year's lectures were merged into this term's (old 5+6 → 1, 7 → 2, 8–13 → 5–10): move saved HCI progress again, once
+  (function mergeHciProgress() {
+    try {
+      if (localStorage.getItem('sd:hcimerge') === '1') return;
+      const M = {"quiz":{"1":{"n":1,"items":[16,17,18,19,20,21,-1,22,23,24,25,26,-1,27,28,29,30,31,32,33]},"2":{"n":2,"items":[9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]},"5":[[0,10,1,0],[10,35,1,34]],"6":[[0,6,1,10],[6,6,1,59]],"7":[[0,9,2,0],[9,21,2,28]],"8":[[0,33,5,0]],"9":[[0,18,6,0]],"10":[[0,7,7,0]],"11":[[0,22,8,0]],"12":[[0,19,9,0]],"13":[[0,7,10,0]]},"card":{"1":{"n":1,"items":[-1,17,18,19,20,21,22,23,24,25,-1,26,27,28,29,30,-1,31,32,33,34,35,36,37,38]},"2":{"n":2,"items":[9,10,11,12,13,14,15,16,17,18,-1,19,20,21,22,23,24,25,26,27,28,29]},"5":[[0,10,1,0]],"6":[[0,7,1,10]],"7":[[0,9,2,0]],"8":[[0,8,5,0]],"9":[[0,9,6,0]],"10":[[0,8,7,0]],"11":[[0,7,8,0]],"12":[[0,11,9,0]],"13":[[0,9,10,0]]},"extra":{"5":[[0,10,1,0]],"6":[[0,10,1,10]],"7":[[0,10,2,0]],"8":[[0,10,5,0]],"9":[[0,10,6,0]],"10":[[0,10,7,0]],"11":[[0,10,8,0]],"12":[[0,10,9,0]],"13":[[0,10,10,0]]},"lec":{"1":1,"2":2,"5":1,"6":1,"7":2,"8":5,"9":6,"10":7,"11":8,"12":9,"13":10}};
+      const to = (kind, id) => {
+        const m = /^(x?)(\d+)-(\d+)$/.exec(id); if (!m) return id;
+        const e = M[m[1] ? 'extra' : kind][m[2]], i = +m[3]; if (!e) return id;
+        if (e.items) { const j = e.items[i]; return j == null || j < 0 ? null : m[1] + e.n + '-' + j; }
+        const r = e.find(r => i >= r[0] && i < r[1]); return r ? m[1] + r[2] + '-' + (r[3] + i - r[0]) : null;
+      };
+      const get = k => { const v = localStorage.getItem('sd:' + k); return v == null ? null : JSON.parse(v); }, put = (k, v) => localStorage.setItem('sd:' + k, JSON.stringify(v));
+      const lec = n => typeof n === 'number' && M.lec[n] != null ? M.lec[n] : n;
+      [['known', 'card'], ['miss', 'quiz'], ['fixed', 'quiz']].forEach(([k, kind]) => { const v = get(k + ':hci'); if (Array.isArray(v)) put(k + ':hci', [...new Set(v.map(id => to(kind, id)).filter(Boolean))]); });
+      [['srs', 'card'], ['stats', 'quiz']].forEach(([k, kind]) => { const v = get(k + ':hci'); if (v && typeof v === 'object') { const o = {}; Object.entries(v).forEach(([id, x]) => { const n = to(kind, id); if (n && !(n in o)) o[n] = x; }); put(k + ':hci', o); } });
+      const read = get('read:hci'); if (Array.isArray(read)) put('read:hci', [...new Set(read.map(lec))]);
+      const ll = get('lastlec:hci'); if (typeof ll === 'number') put('lastlec:hci', lec(ll));
+      ['nav2', 'last'].forEach(k => { const v = get(k); if (v && v.course === 'hci' && typeof v.lec === 'number') put(k, Object.assign({}, v, { lec: lec(v.lec) })); });
+      // reading positions: merged lectures start from the top; the rest move with their lecture
+      const keys = []; for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+      keys.map(k => /^(sd:(?:pos|posf):hci:|sd:bookpos:hci:L)(\d+)$/.exec(k)).filter(Boolean).sort((a, b) => a[2] - b[2]).forEach(m => {
+        const n = +m[2], v = localStorage.getItem(m[0]);
+        if ([1, 2, 5, 6, 7].includes(n)) localStorage.removeItem(m[0]);
+        else if (M.lec[n] != null && M.lec[n] !== n) { localStorage.removeItem(m[0]); localStorage.setItem(m[1] + M.lec[n], v); }
+      });
+      localStorage.setItem('sd:hcimerge', '1');
+    } catch (e) {}
+  })();
+  // state saved under a key: written only when it changes (not on mount), and re-read if the key changes
+  function usePersist(key, init) {
+    const [s, setS] = useState(() => ({ key, v: store.get(key, init) }));
+    const v = s.key === key ? s.v : store.get(key, init);
+    const setV = useCallback(next => setS(o => {
+      const cur = o.key === key ? o.v : store.get(key, init), nv = typeof next === 'function' ? next(cur) : next;
+      if (nv === cur && o.key === key) return o;
+      store.set(key, nv); queueMicrotask(() => window.dispatchEvent(new Event('sd-store')));
+      return { key, v: nv };
+    }), [key]);
+    return [v, setV];
+  }
+
+  /* ── data helpers ── */
+  const strip = s => String(s == null ? '' : s).replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+  const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const isExam = q => !!q.src && /^(exam|midterm)\b/i.test(q.src);
+  const memo = {};
+  const cardsOf = k => memo['c' + k] || (memo['c' + k] = C[k].lectures.flatMap(l => l.cards.map((x, i) => ({ id: l.n + '-' + i, f: x[0], b: x[1], lec: l.n }))));
+  // where a question came from: the professor (past exam, revision sheet, lecture example), a student summary, or written for this site
+  const originOf = q => q.xtra || !q.src ? 'extra' : /^(exam|midterm)\b/i.test(q.src) ? 'exam' : /sheet|revision/i.test(q.src) ? 'sheet' : /^lecture\b/i.test(q.src) ? 'lecture' : /summary/i.test(q.src) ? 'summary' : 'extra';
+  const isProf = q => ['exam', 'sheet', 'lecture'].includes(originOf(q));
+  const ORIGIN = { exam: ['Past exam', 'prof'], sheet: ["Professor's sheet", 'prof'], lecture: ['Lecture example', 'prof'], summary: ['Student summary', 'summary'], extra: ['Extra question', 'extra'] };
+  const Source = ({ q }) => { const o = originOf(q), [label, cls] = ORIGIN[o]; return html`<span className=${'srcbadge ' + cls} title=${o === 'extra' ? 'Written for Study Deck from this lecture, not from the professor' : q.src}>${o === 'extra' ? label : (o === 'exam' || o === 'sheet' ? q.src : label)}</span>`; };
+  const quizOf = k => memo['q' + k] || (memo['q' + k] = C[k].lectures.flatMap(l => l.quiz.map((x, i) => Object.assign({ id: l.n + '-' + i, lec: l.n }, x))
+    .concat((l.extra || []).map((x, i) => Object.assign({ id: 'x' + l.n + '-' + i, lec: l.n, xtra: true }, x)))));
+  const quizById = k => memo['m' + k] || (memo['m' + k] = new Map(quizOf(k).map(q => [q.id, q])));
+  const lecTitle = (k, n) => (M[k].lectures.find(l => l.n === n) || {}).title || '';
+  const H = ({ h, as, className }) => React.createElement(as || 'span', { className, dangerouslySetInnerHTML: { __html: h == null ? '' : String(h) } });
+  const pad = n => String(n).padStart(2, '0');
+  const shortTitle = (t, n) => {
+    if (t.length <= n) return t;
+    const cut = t.slice(0, n), sp = cut.lastIndexOf(' ');
+    return (sp > n * 0.5 ? cut.slice(0, sp) : cut).replace(/[\s,:;–—-]+$/, '') + '…';
+  };
+
+  function progressOf(k) {
+    const cards = M[k].cards;
+    const known = store.get('known:' + k, []).length;
+    const labK = M[k + ':labs'] ? k + ':labs' : null;
+    const labDue = labK ? dueInfo(labK, M[labK].cards).total : 0;
+    return { cards, known, pctKnown: cards ? Math.round(known / cards * 100) : 0, best: store.get('best:' + k, null), miss: store.get('miss:' + k, []).length,
+      read: store.get('read:' + k, []).length, lectures: M[k].lectures.length, fixed: store.get('fixed:' + k, []).length, due: dueInfo(k, M[k].cards).total + labDue };
+  }
+
+  const calm = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  /* ── study memory: spaced repetition for cards, answer history for questions ── */
+  const NEW_PER_DAY = 20;
+  const today = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
+  // a small SM-2 style scheduler: Again resets, Hard grows slowly, Good multiplies by the card's ease
+  function srsStep(prev, rating) {
+    const s = Object.assign({ ivl: 0, ease: 2.5, reps: 0, lapses: 0 }, prev || {});
+    if (rating === 0) { s.reps = 0; s.lapses += 1; s.ease = Math.max(1.3, s.ease - 0.2); s.ivl = 0; }
+    else if (rating === 1) { s.ease = Math.max(1.3, s.ease - 0.15); s.ivl = s.reps === 0 ? 1 : Math.max(s.ivl + 1, Math.round(s.ivl * 1.2)); s.reps += 1; }
+    else { s.ivl = s.reps === 0 ? 2 : s.reps === 1 ? 4 : Math.max(s.ivl + 1, Math.round(s.ivl * s.ease)); s.reps += 1; }
+    s.due = today() + s.ivl;
+    return s;
+  }
+  const ivlLabel = d => d <= 0 ? 'today' : d === 1 ? '1 day' : d < 30 ? d + ' days' : (d / 30).toFixed(d < 60 ? 1 : 0) + ' mo';
+  function dueInfo(k, totalCards) {
+    const srs = store.get('srs:' + k, {}), t = today(), log = store.get('srsnew:' + k, { day: 0, count: 0 });
+    const ids = Object.keys(srs);
+    const due = ids.filter(id => srs[id].due <= t).length;
+    const fresh = Math.max(0, Math.min(NEW_PER_DAY - (log.day === t ? log.count : 0), totalCards - ids.length));
+    return { due, fresh, total: due + fresh, seen: ids.length, tomorrow: ids.filter(id => srs[id].due === t + 1).length };
+  }
+  function recordAnswers(k, pairs) {
+    const st = Object.assign({}, store.get('stats:' + k, {}));
+    pairs.forEach(([id, ok]) => { const v = (st[id] || [0, 0]).slice(); v[ok ? 0 : 1] += 1; st[id] = v; });
+    store.set('stats:' + k, st);
+    const day = Object.assign({}, store.get('daily', {})), t = today(), d = (day[t] || [0, 0]).slice();
+    pairs.forEach(([, ok]) => { d[0] += ok ? 1 : 0; d[1] += 1; });
+    day[t] = d; Object.keys(day).forEach(x => { if (+x < t - 60) delete day[x]; });
+    store.set('daily', day);
+  }
+  const fmtClock = ms => { const s = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+
+  /* ── Egyptian Arabic explanations, shown under the English when the reader switches them on ── */
+  /* ── code highlighting: one small tokenizer for the languages the courses use (C++, JavaScript, PHP, HTML/CSS, 8086 assembly) ── */
+  const KW = {
+    c: 'auto break case catch class const continue default delete do else enum extern false for friend if include define inline int long new nullptr operator private protected public return short signed sizeof static struct switch template this throw true try typedef typename union unsigned using virtual void volatile while bool char double float string cin cout endl NULL namespace std',
+    js: 'async await break case catch class const continue default delete do else export extends false finally for function if import in instanceof let new null of return super switch this throw true try typeof undefined var void while with NaN Infinity document window console',
+    php: 'abstract and array as break case catch class clone const continue declare default do echo else elseif empty endfor endforeach endif endwhile extends false final for foreach function global if implements include include_once instanceof isset list new null or print private protected public require require_once return static switch throw true try unset use var while xor',
+    asm: 'mov movs movsb movsw add adc sub sbb mul imul div idiv inc dec neg cmp and or xor not test shl shr sal sar rol ror rcl rcr push pop pusha popa pushf popf lea lds les lss xchg jmp je jne jz jnz jg jge jl jle ja jae jb jbe jc jnc jo jno js jns jcxz loop loope loopne loopz loopnz call ret int iret nop hlt cld std cli sti lods lodsb lodsw lodsd stos stosb stosw stosd ins insb insw insd outs outsb outsw cmps scas rep repe repne in out org db dw dd equ proc endp end offset ptr byte word dword segment ends assume main',
+    reg: 'ax bx cx dx al ah bl bh cl ch dl dh si di bp sp ip cs ds ss es fs gs eax ebx ecx edx esi edi ebp esp eip flags eflags'
+  };
+  const kwSet = {}; Object.keys(KW).forEach(k => { kwSet[k] = new Set(KW[k].split(' ')); });
+  const escHtml = t => t.replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]));
+  function codeLang(t) {
+    if (/^\s*(?:[a-z_]\w*:\s*)?(mov|add|sub|push|pop|inc|dec|jmp|lea|int|call|loop|cmp|org|lods\w*|stos\w*|shl|shr|rol|ror|xchg|mul|div)\s+[\w\[]/im.test(t) && !/[{};]\s*$/m.test(t.replace(/;.*$/gm, ''))) return 'asm';
+    if (/<\?php|\$[a-z_]\w*/i.test(t)) return 'php';
+    if (/<\/?[a-z][\w-]*[\s>\/]/i.test(t) || /^\s*<!DOCTYPE/i.test(t)) return 'html';
+    if (/#include|\bcout\b|\bcin\b|\bint\s+main|\bstruct\s+\w+|->|::/.test(t)) return 'c';
+    if (/^\s*[\w.#:\-\s,>*\[\]="]+\{[^}]*:[^}]*\}/m.test(t) && !/\bfunction\b|=>|\bvar\b|\blet\b/.test(t)) return 'css';
+    return 'js';
+  }
+  const TOKEN = /(\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->|\/\/[^\n]*)|("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|`(?:\\.|[^`\\])*`)|(<\/?[A-Za-z!][\w-]*|\/?>|<\?php|\?>)|(\$[A-Za-z_]\w*)|(\b0x[\da-fA-F]+\b|\b\d[\da-fA-F]*[hH]\b|\b\d+(?:\.\d+)?\b)|([A-Za-z_][\w-]*)/g;
+  function codeHtml(text, lang) {
+    lang = lang || codeLang(text);
+    const asm = lang === 'asm', css = lang === 'css', markup = lang === 'html' || lang === 'php';
+    const kw = kwSet[lang === 'html' ? 'js' : lang === 'css' ? 'js' : lang] || kwSet.js;
+    const span = (c, t) => '<span class="tk-' + c + '">' + escHtml(t) + '</span>';
+    let out = '', last = 0, inTag = false, m;
+    const src = text;
+    // assembly: ';' starts a comment, so pull comments out line by line first
+    const re = asm ? /(;[^\n]*)|("(?:[^"\n])*"|'(?:[^'\n])*')|([^\s\S])|([^\s\S])|(\b0x[\da-fA-F]+\b|\b\d[\da-fA-F]*[hHbB]?\b)|([A-Za-z_][\w]*)/g : TOKEN;
+    re.lastIndex = 0;
+    while ((m = re.exec(src))) {
+      out += escHtml(src.slice(last, m.index)); last = re.lastIndex;
+      const t = m[0];
+      if (m[1]) out += span('com', t);
+      else if (m[2]) out += span(inTag ? 'val' : 'str', t);
+      else if (m[3]) { out += span('tag', t); inTag = /^<[A-Za-z]/.test(t) ? true : /^\/?>$/.test(t) ? false : inTag; }
+      else if (m[4]) out += span('var', t);
+      else if (m[5]) out += span('num', t);
+      else if (m[6]) {
+        const after = src.slice(last, last + 40), low = t.toLowerCase();
+        if (inTag && markup) out += span('attr', t);
+        else if (asm && kwSet.reg.has(low)) out += span('var', t);
+        else if (asm && kwSet.asm.has(low)) out += span('kw', t);
+        else if (asm && /^\s*:/.test(after)) out += span('fn', t);
+        else if (css && /^\s*:(?!:)/.test(after) && /[{;]\s*$/.test(src.slice(0, m.index))) out += span('attr', t);
+        else if (!asm && kw.has(t)) out += span('kw', t);
+        else if (!asm && /^\s*\(/.test(after)) out += span('fn', t);
+        else out += escHtml(t);
+      }
+    }
+    return out + escHtml(src.slice(last));
+  }
+  // code blocks that arrive inside HTML strings (questions, answers, Q&A) are highlighted after they render
+  function highlightPres(root) {
+    root.querySelectorAll('pre:not([data-hl])').forEach(p => {
+      p.setAttribute('data-hl', '');
+      if (p.children.length) return;            // already marked up by hand: leave it
+      const t = p.textContent; if (!t.trim()) return;
+      p.innerHTML = codeHtml(t);
+    });
+  }
+
+  let LANG = 'en';
+  const arOf = k => {
+    if (LANG !== 'ar' || !window.AR) return null;
+    const b = baseOf(k), root = window.AR[b];
+    if (!root) return null;
+    if (isLabs(k)) return root.labs || { lectures: {} };
+    return root;
+  };
+  const arLec = (k, n) => { const A = arOf(k); return (A && A.lectures && A.lectures[n]) || null; };
+  const arQ = (k, q, j) => { const m = q && q.id && /^(x?)(\d+)-(\d+)$/.exec(q.id); const L = m && arLec(k, m[2]); const arr = L && (m[1] ? L.extra : L.quiz); return (arr && arr[+m[3]] && arr[+m[3]][j]) || null; };
+  const arCard = (k, id) => { const m = /^(\d+)-(\d+)$/.exec(id || ''); const L = m && arLec(k, m[1]); return (L && L.cards && L.cards[+m[2]]) || null; };
+  const Ar = ({ t, cls }) => t ? html`<span className=${'ar' + (cls ? ' ' + cls : '')} dir="rtl" lang="ar" dangerouslySetInnerHTML=${{ __html: t }}></span>` : null;
+  const scriptOnce = {};
+  const loadScript = src => scriptOnce[src] || (scriptOnce[src] = new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = () => { s.remove(); res(); }; s.onerror = () => { delete scriptOnce[src]; s.remove(); rej(); }; document.head.appendChild(s); }));
+  const loadAr = k => { const b = baseOf(k); return (M[b] && M[b].ar && !(window.AR && window.AR[b])) ? loadScript(dataUrl('ar-' + b)) : Promise.resolve(); };
+  // Fonts used only sometimes (Arabic, the Book view's serif) are added when first needed. The site build (dist.mjs) serves them
+  // locally and passes their @font-face rules in window.FONT_CSS; the plain page falls back to Google Fonts.
+  function lazyFont(name, google) {
+    if (document.getElementById('font-' + name)) return;
+    const css = window.FONT_CSS && window.FONT_CSS[name];
+    const el = document.createElement(css ? 'style' : 'link'); el.id = 'font-' + name;
+    if (css) el.textContent = css; else { el.rel = 'stylesheet'; el.href = google; }
+    document.head.appendChild(el);
+  }
+  const arFont = () => lazyFont('ar', 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600&display=swap');
+  function LangButton({ lang, setLang, k }) {
+    const on = lang === 'ar';
+    // on touch, start the Arabic font and this course's Arabic file before the click lands
+    const warm = () => { if (on) return; arFont(); if (k) loadAr(k).catch(() => {}); };
+    return html`<button className=${'langbtn' + (on ? ' on' : '')} aria-pressed=${String(on)} onPointerDown=${warm} onMouseEnter=${warm} onClick=${() => setLang(on ? 'en' : 'ar')}
+      title=${on ? 'Hide the Arabic explanations' : 'Show Egyptian Arabic explanations under the English'}><span lang="ar">عربي</span></button>`;
+  }
+
+  /* ── tiny icons ── */
+  const Icon = {
+    search: html`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>`,
+    back: html`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>`,
+    tick: html`<svg className="mark" viewBox="0 0 34 34" aria-label="correct"><path d="M6 18 L14 26 L29 6"/></svg>`,
+    cross: html`<svg className="mark" viewBox="0 0 34 34" aria-label="your wrong answer"><path d="M8 8 L26 26 M26 8 L8 26"/></svg>`
+  };
+
+  /* ── course data loads on demand ── */
+  // the hosted build lists a content hash per data file, so a file's URL changes only when its content does and browsers can cache it for good
+  const dataUrl = name => 'data/' + name + '.js' + (window.DATA_V && window.DATA_V[name] ? '?v=' + window.DATA_V[name] : '');
+  const pending = {};
+  function loadCourse(k) {
+    const b = baseOf(k);
+    if (C[b]) { hydrateCourseData(b); return Promise.resolve(); }
+    return pending[b] || (pending[b] = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = dataUrl(b);
+      s.onload = () => { s.remove(); if (C[b]) { hydrateCourseData(b); resolve(); } else { delete pending[b]; reject(new Error('empty')); } };
+      s.onerror = () => { delete pending[b]; s.remove(); reject(new Error('network')); };
+      document.head.appendChild(s);
+    }));
+  }
+  const prefetch = k => { loadCourse(baseOf(k)).catch(() => {}); };
+  // Memory: course data stays loaded while you use a level. When you switch level, the other level's courses (and their Arabic
+  // and derived lists) are let go; going back re-reads them from the browser cache. So memory holds one level at most, not all 12.
+  function releaseExcept(keep) {
+    for (const k of Object.keys(C)) if (!keep.has(baseOf(k))) { delete C[k]; delete pending[k]; ['c', 'q', 'm'].forEach(p => delete memo[p + k]); }
+    if (window.AR) for (const k of Object.keys(window.AR)) if (!keep.has(baseOf(k))) { delete window.AR[k]; delete scriptOnce[dataUrl('ar-' + k)]; }
+  }
+  function useCourse(k) {
+    const [state, setState] = useState(C[k] ? 'ready' : 'loading');
+    const [attempt, setAttempt] = useState(0);
+    useEffect(() => {
+      if (C[k]) { setState('ready'); return; }
+      let live = true; setState('loading');
+      loadCourse(k).then(() => live && setState('ready'), () => live && setState('error'));
+      return () => { live = false; };
+    }, [k, attempt]);
+    return [state, () => setAttempt(a => a + 1)];
+  }
+
+  /* ── light / dark ── */
+  const darkMQ = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function currentDark() {
+    const t = document.documentElement.getAttribute('data-theme');
+    return t ? t === 'dark' : !!(darkMQ && darkMQ.matches);
+  }
+  function useTheme() {
+    const [dark, setDark] = useState(currentDark);
+    useEffect(() => {
+      if (!darkMQ) return;
+      const onChange = () => setDark(currentDark());
+      darkMQ.addEventListener ? darkMQ.addEventListener('change', onChange) : darkMQ.addListener(onChange);
+      return () => { darkMQ.removeEventListener ? darkMQ.removeEventListener('change', onChange) : darkMQ.removeListener(onChange); };
+    }, []);
+    const toggle = ev => {
+      const next = currentDark() ? 'light' : 'dark';
+      const apply = () => { document.documentElement.setAttribute('data-theme', next); store.set('theme', next); ReactDOM.flushSync(() => setDark(next === 'dark')); };
+      const calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!document.startViewTransition || calm || !ev || !ev.currentTarget) return apply();
+      const r = ev.currentTarget.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+      const st = document.documentElement.style;
+      st.setProperty('--vx', x + 'px'); st.setProperty('--vy', y + 'px');
+      st.setProperty('--vr', Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y)) + 'px');
+      document.documentElement.classList.add('vt-theme');
+      const vt = document.startViewTransition(apply);
+      vt.finished.finally(() => document.documentElement.classList.remove('vt-theme'));
+    };
+    return { dark, toggle };
+  }
+  function LampButton({ theme, compact }) {
+    const label = theme.dark ? 'Switch to light mode' : 'Switch to dark mode';
+    return html`<button className=${'lamp' + (theme.dark ? ' off' : '') + (compact ? ' compact' : '')} onClick=${theme.toggle} aria-label=${label} title=${label}>
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path className="shade" d="M8.5 3.5h7l2.8 6.5H5.7z"/>
+        <path className="stem" d="M12 10v8.5M7.5 20.5h9"/>
+        <path className="rays" d="M8 13l-1.6 2.6M12 13.2v3M16 13l1.6 2.6"/>
+      </svg>
+      ${!compact && html`<span>${theme.dark ? 'Light' : 'Dark'}</span>`}
+    </button>`;
+  }
+
+  const TAB_ICONS = {
+    read: 'M5 4h11l3 3v13H5zM8 9h8M8 13h8M8 17h5',
+    cards: 'M4 7h13v12H4zM7 4h13v12',
+    ask: 'M4 5h16v11H9l-5 4zM9 9h6M9 12h4',
+    quiz: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18zM8.5 12.5l2.4 2.4 4.6-5',
+    papers: 'M6 3h12v18H6zM9 7h6M9 11h6M9 15h3',
+    progress: 'M4 20h16M7 20v-6M12 20V7M17 20v-9'
+  };
+  const SHORT_TAB = { read: 'Notes', cards: 'Cards', ask: 'Q&A', quiz: 'Quiz', papers: 'Papers', progress: 'Progress' };
+
+  /* ════════════ APP ════════════ */
+  function App() {
+    const [nav, setNav] = useState(() => {
+      const hash = decodeURIComponent(location.hash.slice(1));
+      if (M[hash]) return { view: 'course', course: hash, mode: 'path' };
+      const saved = store.get('nav2', null);
+      if (saved && (saved.view === 'shelf' || M[saved.course])) return saved;
+      return { view: 'shelf' };
+    });
+    const [searching, setSearching] = useState(false);
+    const [syncing, setSyncing] = useState(false);
+    const theme = useTheme();
+    const [lang, setLang] = usePersist('lang', 'en');
+    LANG = lang;
+    const [levelId, setLevel] = usePersist('level', 'l3');
+    // an open course shows its own level; otherwise the one picked on the home page
+    LEVEL = (nav.view === 'course' && levelOf(nav.course)) || LEVELS.find(v => v.id === levelId) || LEVELS[LEVELS.length - 1];
+    ORDER = LEVEL.order;
+    useEffect(() => { if (LEVEL.id !== levelId) setLevel(LEVEL.id); }, [LEVEL.id]);
+    useEffect(() => { releaseExcept(new Set(LEVEL.order.map(o => o[0]).concat(nav.course ? [nav.course] : []))); }, [LEVEL.id]);
+    const [, setArTick] = useState(0);
+    useEffect(() => {
+      if (lang !== 'ar') return;
+      arFont();
+      if (nav.view === 'course' && M[nav.course]) loadAr(nav.course).then(() => setArTick(t => t + 1), () => {});
+    }, [lang, nav.view, nav.course]);
+    const navRef = useRef(nav); navRef.current = nav;
+    // big moves (screen, course, tab, lecture) cross-fade with the View Transitions API where available
+    const navigate = useCallback(next => {
+      const cur = navRef.current, n = typeof next === 'function' ? next(cur) : next;
+      const big = ['view', 'course', 'mode', 'lec'].some(key => n[key] !== cur[key]);
+      if (big && document.startViewTransition && !calm() && !document.querySelector('.bookmode')) document.startViewTransition(() => ReactDOM.flushSync(() => setNav(n)));
+      else setNav(n);
+    }, []);
+    const go = useCallback(patch => navigate(n => Object.assign({}, n, patch)), []);
+
+    useEffect(() => {
+      // warm up the course you were last studying while the browser is idle
+      const last = store.get('last', null);
+      if (!last || !M[last.course] || C[last.course] || !ORDER.some(o => o[0] === last.course)) return;
+      const net = navigator.connection || {};
+      if (net.saveData || /2g/.test(net.effectiveType || '')) return;
+      const idle = window.requestIdleCallback || (f => setTimeout(f, 1200));
+      (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => idle(() => prefetch(last.course)));
+    }, []);
+
+    useEffect(() => {
+      const keep = { view: nav.view, course: nav.course, track: nav.track, mode: nav.mode, lec: nav.lec };
+      store.set('nav2', keep);
+      if (nav.view === 'course') store.set('last', keep);
+      const tk = (nav.view === 'course' && nav.track === 'labs' && M[nav.course + ':labs']) ? nav.course + ':labs' : nav.course;
+      if (nav.view === 'course' && typeof nav.lec === 'number') store.set('lastlec:' + tk, nav.lec);
+      document.body.dataset.course = nav.view === 'course' ? baseOf(nav.course) : '';
+    }, [nav.view, nav.course, nav.track, nav.mode, nav.lec]);
+
+    useEffect(() => {
+      const onKey = e => {
+        const typing = e.target.matches && e.target.matches('input, textarea, select');
+        if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !typing)) { e.preventDefault(); setSearching(true); }
+      };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }, []);
+
+    const openSearch = () => setSearching(true);
+    const inCourse = nav.view === 'course' && M[nav.course];
+    const bar = { go, openSearch, openSync: () => setSyncing(true), theme, lang, setLang, setLevel };
+
+    return html`
+      <div className="app" key="app">
+        ${inCourse
+          ? html`<${CourseView} key=${nav.course} nav=${nav} bar=${bar} />`
+          : html`<${Home} bar=${bar} />`}
+      </div>
+      ${searching && html`<${Search} key="search" close=${() => setSearching(false)} go=${p => { setSearching(false); navigate(p); }} />`}
+      ${syncing && html`<${SyncModal} key="sync" close=${() => setSyncing(false)} />`}
+    `;
+  }
+
+  /* ════════════ TOP BAR ════════════ */
+  const lastLec = k => { const n = store.get('lastlec:' + k, null); return M[k].lectures.some(l => l.n === n) ? n : undefined; };
+  function Topbar({ bar, cur, children }) {
+    const { go, openSearch, theme, lang, setLang } = bar;
+    const open = k => k === cur ? go({ mode: 'path' }) : go({ view: 'course', course: k, mode: 'path', lec: lastLec(k), anchor: null, quizPreset: null, cardFocus: null, cardLec: null });
+    return html`<header className="topbar">
+      <button className="brand" onClick=${() => go({ view: 'shelf' })} aria-label="Study Deck home"><span className="logo" aria-hidden="true">S</span><b>Study Deck</b></button>
+      <nav className="cpills" aria-label="Courses">${ORDER.map(([k]) => html`<button key=${k} className=${'cpill sp-' + k} aria-current=${String(k === cur)} onMouseEnter=${() => prefetch(k)} onPointerDown=${() => prefetch(k)} onClick=${() => open(k)}><i aria-hidden="true"></i>${M[k].short}</button>`)}</nav>
+      <div className="tb-tools">
+        <button className="tb-search" onClick=${openSearch} aria-label="Search">${Icon.search}<span>Search</span><kbd>/</kbd></button>
+        <button className="langbtn" onClick=${bar.openSync} title="Export or import your study progress across devices"><span>Sync</span></button>
+        <${LangButton} lang=${lang} setLang=${setLang} k=${cur} />
+        <${LampButton} theme=${theme} compact=${true} />
+      </div>
+      ${children}
+    </header>`;
+  }
+
+  /* ════════════ HOME: bento tiles ════════════ */
+  const lecOfId = id => { const m = /^x?(\d+)-/.exec(id); return m ? +m[1] : null; };
+  function Home({ bar }) {
+    const { go, openSearch, lang, setLang, setLevel } = bar;
+    // the tiles read saved progress directly, so redraw when it changes (including from another tab)
+    const [, setTick] = useState(0);
+    useEffect(() => { const f = () => setTick(t => t + 1); window.addEventListener('sd-store', f); return () => window.removeEventListener('sd-store', f); }, []);
+    const lastAny = store.get('last', null);
+    const last = lastAny && ORDER.some(o => o[0] === lastAny.course) ? lastAny : null;
+    const rows = ORDER.map(([k, el]) => Object.assign({ k, el, readList: store.get('read:' + k, []) }, progressOf(k)));
+    const sum = rows.reduce((a, r) => { a.due += r.due; a.read += r.read; a.lec += r.lectures; a.known += r.known; a.cards += r.cards; return a; }, { due: 0, read: 0, lec: 0, known: 0, cards: 0 });
+    const h = new Date().getHours();
+    const greet = h < 5 ? 'Up late' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    const t = today(), daily = store.get('daily', {});
+    const week = [6, 5, 4, 3, 2, 1, 0].map(d => { const v = daily[t - d] || [0, 0]; return { d: t - d, r: v[0], n: v[1] }; });
+    const wk = week.reduce((a, x) => ({ r: a.r + x.r, n: a.n + x.n }), { r: 0, n: 0 });
+    const ever = ORDER.reduce((a, [k]) => { Object.values(store.get('stats:' + k, {})).forEach(v => { a.r += v[0]; a.n += v[0] + v[1]; }); return a; }, { r: 0, n: 0 });
+    const acc = wk.n ? wk : ever;
+    const maxN = Math.max(1, ...week.map(x => x.n));
+    const weak = ORDER.flatMap(([k]) => {
+      const g = {}; store.get('miss:' + k, []).forEach(id => { const n = lecOfId(id); if (n != null) (g[n] = g[n] || []).push(id); });
+      return Object.keys(g).map(n => ({ k, n: +n, ids: g[n] }));
+    }).sort((a, b) => b.ids.length - a.ids.length).slice(0, 3);
+    const dueTop = rows.filter(r => r.due).sort((a, b) => b.due - a.due)[0];
+    const papers = ORDER.reduce((a, [k]) => a + (M[k].exams || 0), 0);
+    const paperCourse = last && M[last.course] ? last.course : ORDER[0][0];
+    const cont = last && M[last.course] ? last : null;
+    const posf = cont && cont.mode === 'read' && typeof cont.lec === 'number' ? store.get('posf:' + cont.course + ':' + cont.lec, null) : null;
+    const contPct = !cont ? 0 : posf != null ? Math.round(posf * 100)
+      : Math.round(progressOf(cont.course).read / Math.max(1, M[cont.course].lectures.length) * 100);
+    const contWhat = !cont ? '' : cont.mode === 'read' && typeof cont.lec === 'number' ? 'of this lecture read' : 'of the course read';
+    const modeName = { path: 'Path', videos: 'Video Roadmap', read: 'Notes', cards: 'Cards', ask: 'Q&A', quiz: 'Quiz', papers: 'Past papers', progress: 'Progress', miss: 'Progress' };
+    const openCourse = (k, extra) => { go(Object.assign({ view: 'course', course: k, mode: 'path', lec: lastLec(k), anchor: null, quizPreset: null, cardFocus: null, cardLec: null }, extra || {})); window.scrollTo(0, 0); };
+    const dayLetter = d => 'SMTWTFS'[new Date(d * 86400000).getUTCDay()];
+    return html`<div className="page home-page">
+      <${Topbar} bar=${bar} cur=${null} />
+      <main className="content home">
+        <div className="hello">
+          <div className="hello-l">
+            <p className="hello-k">${LEVEL.name} · ${LEVEL.sem}</p>
+            <h1>${greet}</h1>
+            <p>${ORDER.length} courses · ${sum.lec} lectures · ${papers} solved past papers</p>
+            ${LEVELS.length > 1 && html`<div className="lvls" role="group" aria-label="Level and semester">${LEVELS.map(v => html`<button key=${v.id} aria-pressed=${String(v.id === LEVEL.id)} onClick=${() => setLevel(v.id)}>
+              <b>${v.name}</b><span>${v.sem} · ${v.order.length} courses</span></button>`)}</div>`}
+          </div>
+          <button className="hsearch" onClick=${openSearch}>${Icon.search}<span>Search notes, cards, past papers…</span><kbd>/</kbd></button>
+        </div>
+        <div className="bento">
+          ${cont ? html`<button className=${'tile t-cont sp-' + cont.course} onMouseEnter=${() => prefetch(cont.course)} onPointerDown=${() => prefetch(cont.course)} onClick=${() => go(Object.assign({}, cont, { view: 'course' }))}>
+              <span className="ring" style=${{ '--p': contPct }} aria-hidden="true"><i>${contPct}%</i></span>
+              <span className="tc-text"><span className="tl">Continue · ${modeName[cont.mode] || 'Notes'}</span>
+                <b className="tc-title">${typeof cont.lec === 'number' ? lecTitle(cont.course, cont.lec) : cont.lec === 'rev' ? 'Revision sheet' : M[cont.course].name}</b>
+                <span className="tc-sub">${M[cont.course].name}${typeof cont.lec === 'number' ? ' · Lecture ' + cont.lec : ''} · ${contPct}% ${contWhat}</span>
+                <span className="tgo">Resume →</span></span>
+            </button>`
+          : html`<button className="tile t-cont" onClick=${() => openCourse(ORDER[0][0])}>
+              <span className="ring" style=${{ '--p': 0 }} aria-hidden="true"><i>0%</i></span>
+              <span className="tc-text"><span className="tl">Start here</span><b className="tc-title">Pick a course and follow its path</b>
+                <span className="tc-sub">Each lecture is a stop: read the notes, flip the cards, pass the quiz.</span><span className="tgo">Open ${M[ORDER[0][0]].name} →</span></span>
+            </button>`}
+          <button className="tile t-due" disabled=${!dueTop} onClick=${() => dueTop && openCourse(dueTop.k, { mode: 'cards', cardsAuto: Date.now() })}>
+            <span className="tl">Cards due today</span><b className="big">${sum.due}</b>
+            <span className="tsub">${dueTop ? 'Start with ' + M[dueTop.k].short + ' →' : 'All caught up'}</span>
+            <span className="stk" aria-hidden="true"><i></i><i></i><i></i></span>
+          </button>
+          <div className="tile t-acc">
+            <span className="tl">${wk.n ? 'Quiz accuracy · last 7 days' : 'Quiz accuracy'}</span>
+            <b className="big">${acc.n ? Math.round(acc.r / acc.n * 100) + '%' : '–'}</b>
+            <span className="tsub">${wk.n ? wk.n + ' answers this week' : ever.n ? ever.n + ' answers so far' : 'No answers yet'}</span>
+            <span className="bars" aria-label="Answers per day, last 7 days">${week.map(x => html`<span key=${x.d} title=${x.n + ' answers, ' + x.r + ' right'}><b><i style=${{ height: (x.n ? Math.max(12, x.n / maxN * 100) : 5) + '%', opacity: x.n ? 1 : .35 }}></i></b><em>${dayLetter(x.d)}</em></span>`)}</span>
+          </div>
+          <div className="t-courses">
+            <div className="t-head"><h2>${LEVEL.name}, ${LEVEL.sem} courses</h2><span>${sum.read} of ${sum.lec} lectures read</span></div>
+            ${rows.map(r => html`<button key=${r.k} className=${'tile t-course sp-' + r.k} title=${M[r.k].name} onMouseEnter=${() => prefetch(r.k)} onPointerDown=${() => prefetch(r.k)} onClick=${() => openCourse(r.k)}>
+            <span className="tcs">${M[r.k].code}${r.el ? ' · Elective' : ''}</span>
+            <b className="tcn">${M[r.k].name}</b>
+            <span className="dots" aria-hidden="true">${M[r.k].lectures.map(l => html`<i key=${l.n} className=${r.readList.includes(l.n) ? 'f' : ''}></i>`)}</span>
+            <span className="tcf"><span>${r.read}/${r.lectures} read</span>${r.due ? html`<em>${r.due} due</em>` : null}</span>
+          </button>`)}</div>
+          <div className="tile t-weak">
+            <span className="tl">Weak spots, from your mistakes</span>
+            ${weak.length ? html`<ul>${weak.map(w => html`<li key=${w.k + w.n}><button className=${'sp-' + w.k} onClick=${() => openCourse(w.k, { mode: 'quiz', lec: w.n, quizPreset: { ids: w.ids, t: Date.now(), from: 'home' } })}>
+                <i aria-hidden="true"></i><span>${M[w.k].short} · L${w.n} ${shortTitle(lecTitle(w.k, w.n), 40)}</span><em>${w.ids.length} to fix</em></button></li>`)}</ul>`
+              : html`<p className="tempty">Questions you get wrong collect here, grouped by lecture, so you know what to fix before the exam.</p>`}
+          </div>
+          <button className="tile t-papers" onClick=${() => openCourse(paperCourse, { mode: 'papers' })}>
+            <span className="tl">Solved past papers</span><b className="big">${papers}</b><span className="tsub">Every answer explained · open ${M[paperCourse].short} →</span>
+          </button>
+          <button className=${'tile t-ar' + (lang === 'ar' ? ' on' : '')} aria-pressed=${String(lang === 'ar')} onClick=${() => setLang(lang === 'ar' ? 'en' : 'ar')}>
+            <span className="tl">Explanations</span><b className="big" lang="ar">بالعربي</b>
+            <span className="tsub">${lang === 'ar' ? 'On: Egyptian Arabic under each answer' : 'Off: tap to show Egyptian Arabic'}</span>
+          </button>
+        </div>
+        <p className="foot">Built from the course slides, revision sheets and past papers on the MA Platform. Where an official answer key disagrees with the lectures, both are shown. Progress is saved in this browser only.</p>
+      </main>
+    </div>`;
+  }
+
+  /* ════════════ COURSE ════════════ */
+  function CourseView({ nav, bar }) {
+    const { go } = bar;
+    const baseK = baseOf(nav.course), baseM = M[baseK];
+    const hasTracks = !!(baseM && baseM.tracks && baseM.tracks.labs && baseM.tracks.labs.lectures.length);
+    const [savedTrack, setSavedTrack] = usePersist('track:' + baseK, 'lectures');
+    const activeTrack = hasTracks ? (nav.track || savedTrack || 'lectures') : 'lectures';
+    useEffect(() => { if (hasTracks && nav.track && nav.track !== savedTrack) setSavedTrack(nav.track); }, [hasTracks, nav.track]);
+    const k = (hasTracks && activeTrack === 'labs' && M[baseK + ':labs']) ? baseK + ':labs' : baseK;
+    const c = M[k] || baseM;
+    const [status, retry] = useCourse(baseK);
+    const [known, setKnown] = usePersist('known:' + k, []);
+    const [miss, setMiss] = usePersist('miss:' + k, []);
+    const [fixed, setFixed] = usePersist('fixed:' + k, []);
+    const [best, setBest] = usePersist('best:' + k, null);
+    const [read, setRead] = usePersist('read:' + k, []);
+    const barRef = useRef(null);
+    const mode = nav.mode === 'miss' ? 'progress' : (nav.mode || 'path');
+    // with no session chosen, the path points at the first session you haven't read
+    const lecN = nav.lec === 'rev' ? 'rev' : c.lectures.some(l => l.n === nav.lec) ? nav.lec : ((c.lectures.find(l => !read.includes(l.n)) || c.lectures[0]).n);
+
+    useEffect(() => { if (!nav.anchor) window.scrollTo(0, 0); }, [mode, activeTrack]);
+
+    const switchTrack = nextTrack => {
+      if (nextTrack === activeTrack) return;
+      setSavedTrack(nextTrack);
+      const nextK = nextTrack === 'labs' ? baseK + ':labs' : baseK;
+      go({ track: nextTrack, lec: lastLec(nextK), anchor: null, quizPreset: null, cardFocus: null, cardLec: null });
+    };
+
+    const modes = [
+      ['path', 'Path', null],
+      ...(c.videos ? [['videos', 'Videos · رود ماب', c.videos]] : []),
+      ['read', 'Notes', c.lectures.length],
+      ['cards', 'Cards', c.cards],
+      ['ask', 'Q&A', c.qa],
+      ['quiz', 'Quiz', c.quiz],
+      ['papers', 'Past papers', baseM.exams],
+      ['progress', 'Progress', miss.length || null]
+    ];
+    return html`<div className="page">
+      <${Topbar} bar=${bar} cur=${baseK}><div className="readbar" hidden=${mode !== 'read' || status !== 'ready' || lecN === 'rev'}><i ref=${barRef}></i></div></${Topbar}>
+      <section className=${'band' + (mode === 'path' ? ' tall' : '')}>
+        <div className="band-in">
+          <div className="band-top">
+            <div className="band-id">
+              <p className="band-k">${LEVEL.name} · ${LEVEL.sem} · ${baseM.code} · ${(ORDER.find(o => o[0] === baseK) || [])[1] ? 'Elective' : 'Core course'}${hasTracks ? ' · ' + (activeTrack === 'labs' ? 'Labs Track' : 'Lectures Track') : ''}</p>
+              <h1>${baseM.name}</h1>
+              <p className="band-by">${baseM.by}</p>
+              ${hasTracks && html`<div className="track-switch" role="tablist" aria-label="Course track">
+                ${[['lectures', 'Lectures', baseM.tracks.lectures.lectures.length], ['labs', 'Labs', baseM.tracks.labs.lectures.length]].map(([tid, tlabel, tcount]) =>
+                  html`<button key=${tid} role="tab" className="track-btn" aria-selected=${String(activeTrack === tid)} aria-pressed=${String(activeTrack === tid)}
+                    onClick=${() => switchTrack(tid)}>
+                    <span>${tlabel}</span><span className="tbadge">${tcount}</span>
+                  </button>`)}
+              </div>`}
+            </div>
+            <div className="band-stats">
+              <div><b>${read.length}<em>/${c.lectures.length}</em></b><span>${uPlur(k)} read</span></div>
+              <div><b>${known.length}<em>/${c.cards}</em></b><span>cards known</span></div>
+              <div><b>${best == null ? '–' : best + '%'}</b><span>best quiz</span></div>
+            </div>
+          </div>
+          <nav className="ctabs" role="tablist" aria-label="Course sections">
+            ${modes.map(([id, label, n]) => html`<button key=${id} role="tab" className="ctab" aria-selected=${String(mode === id)}
+              onClick=${() => go({ mode: id, anchor: null, quizPreset: null, cardFocus: null, cardLec: null })}>${label}${n != null ? html`<span className="n">${n}</span>` : null}</button>`)}
+          </nav>
+        </div>
+      </section>
+      <main className=${'content course m-' + mode}>
+        ${status === 'loading' && html`<div className="paper loadsheet" aria-busy="true"><span className="pen">Opening ${baseM.name}…</span><i></i><i></i><i></i></div>`}
+        ${status === 'error' && html`<div className="paper empty"><span className="pen">Couldn't load this course.</span>Check your internet connection, then try again.<div style=${{ marginTop: '14px' }}><button className="btn" onClick=${retry}>Try again</button></div></div>`}
+        ${status === 'ready' && html`<${CourseBody} k=${k} mode=${mode} nav=${nav} go=${go} lecN=${lecN} known=${known} setKnown=${setKnown} miss=${miss} setMiss=${setMiss} fixed=${fixed} setFixed=${setFixed} best=${best} setBest=${setBest} read=${read} setRead=${setRead} barRef=${barRef} onSection=${() => {}} />`}
+      </main>
+    </div>`;
+  }
+
+
+  /* ════════════ INLINE VIDEO STUDIO & VIDEO ROADMAP ════════════ */
+  function InlineVideoStudio({ k, lec, go, initialVidId, initialTs, onSelectSession }) {
+    const c = C[k];
+    const videos = (lec && lec.videos) || [];
+    const [watched, setWatched] = usePersist('watched:' + k, []);
+    const [vidIdx, setVidIdx] = useState(() => {
+      if (initialVidId) {
+        const found = videos.findIndex(v => v.id === initialVidId);
+        if (found >= 0) return found;
+      }
+      return 0;
+    });
+    const [startSec, setStartSec] = useState(initialTs || 0);
+    const [autoPlay, setAutoPlay] = useState(!!initialTs);
+    const [quickQuiz, setQuickQuiz] = useState(false);
+    const [qPicks, setQPicks] = useState({});
+
+    useEffect(() => {
+      if (initialVidId) {
+        const found = videos.findIndex(v => v.id === initialVidId);
+        setVidIdx(found >= 0 ? found : 0);
+      } else {
+        setVidIdx(0);
+      }
+      setStartSec(initialTs || 0);
+      setAutoPlay(!!initialTs);
+      setQuickQuiz(false);
+      setQPicks({});
+    }, [k, lec && lec.n, initialVidId, initialTs]);
+
+    if (!lec || !videos.length) return null;
+
+    const safeIdx = Math.min(vidIdx, videos.length - 1);
+    const curVid = videos[safeIdx] || videos[0];
+    const vidKey = lec.n + ':' + curVid.id;
+    const isWatched = watched.includes(vidKey) || watched.includes(curVid.id);
+    const toggleWatched = (vk = vidKey) => {
+      setWatched(prev => prev.includes(vk) ? prev.filter(x => x !== vk) : prev.concat(vk));
+    };
+    const markWatched = (vk = vidKey) => {
+      setWatched(prev => prev.includes(vk) ? prev : prev.concat(vk));
+    };
+
+    const lecIdx = c.lectures.findIndex(x => x.n === lec.n);
+    const nextLec = lecIdx >= 0 && lecIdx < c.lectures.length - 1 ? c.lectures[lecIdx + 1] : null;
+    const prevLec = lecIdx > 0 ? c.lectures[lecIdx - 1] : null;
+
+    const selectVideo = (i, sec = 0, play = true) => {
+      setVidIdx(i);
+      setStartSec(sec);
+      setAutoPlay(play);
+    };
+
+    const goNextVideo = () => {
+      markWatched(vidKey);
+      if (safeIdx < videos.length - 1) {
+        selectVideo(safeIdx + 1, 0, true);
+      } else if (nextLec) {
+        if (onSelectSession) onSelectSession(nextLec.n);
+        else go({ lec: nextLec.n });
+        window.scrollTo({ top: 0, behavior: calm() ? 'auto' : 'smooth' });
+      }
+    };
+
+    const goPrevVideo = () => {
+      if (safeIdx > 0) {
+        selectVideo(safeIdx - 1, 0, true);
+      } else if (prevLec) {
+        if (onSelectSession) onSelectSession(prevLec.n);
+        else go({ lec: prevLec.n });
+        window.scrollTo({ top: 0, behavior: calm() ? 'auto' : 'smooth' });
+      }
+    };
+
+    const timestamps = curVid.timestamps || [];
+    const activeTsIdx = timestamps.reduce((best, ts, i) => ts.t <= startSec ? i : best, 0);
+    const qs = useMemo(() => quizOf(k).filter(q => q.lec === lec.n), [k, lec.n]);
+    const embedUrl = 'https://www.youtube.com/embed/' + curVid.id + '?rel=0&modestbranding=1&playsinline=1' + (startSec > 0 ? '&start=' + startSec : '') + (autoPlay ? '&autoplay=1' : '');
+
+    const pickAns = (q, j) => {
+      if (qPicks[q.id] != null) return;
+      setQPicks(p => Object.assign({}, p, { [q.id]: j }));
+      recordAnswers(k, [[q.id, j === q.a]]);
+    };
+    const qAnswered = Object.keys(qPicks).length;
+    const qRight = qs.filter(q => qPicks[q.id] === q.a).length;
+
+    return html`<section className="vstudio" aria-label=${'Inline Video Player for ' + uCap(k) + ' ' + lec.n}>
+      <header className="vstudio-head">
+        <div className="vstudio-title">
+          <p className="eyebrow" style=${{ color: 'var(--c)' }}>مشغل الفيديو المدمج والـ Timestamps · ${uCap(k)} ${lec.n} Video Roadmap</p>
+          <h3>
+            <span className="vstudio-badge">▶ ${safeIdx + 1} / ${videos.length}</span>
+            <span>${cleanTitle(lec.title)}</span>
+          </h3>
+        </div>
+        <div className="row">
+          <button className="btn ghost small" onClick=${() => go({ mode: 'videos', lec: lec.n })}>🗺️ كل الفيديوهات والرود ماب (${c.lectures.reduce((a, x) => a + (x.videos ? x.videos.length : 0), 0)})</button>
+          <a className="btn ghost small" href=${'https://www.youtube.com/watch?v=' + curVid.id + (startSec ? '&t=' + startSec + 's' : '')} target="_blank" rel="noopener noreferrer" style=${{ textDecoration: 'none' }}>يوتيوب ↗</a>
+        </div>
+      </header>
+
+      <div className="vroadmap-bar" role="tablist" aria-label="Session video roadmap">
+        ${videos.map((v, i) => {
+          const vk = lec.n + ':' + v.id;
+          const w = watched.includes(vk) || watched.includes(v.id);
+          return html`<React.Fragment key=${v.id + '-' + i}>
+            <button role="tab" aria-selected=${String(i === safeIdx)} className=${'vr-step' + (i === safeIdx ? ' active' : '') + (w ? ' watched' : '')} onClick=${() => selectVideo(i, 0, true)} title=${v.title + ' (' + v.channel + ')'}>
+              <span className="vr-num">${w ? '✓' : i + 1}</span>
+              <span className="vr-meta">
+                <b>${v.channel.split('·')[0].trim()}</b>
+                <small>${v.duration || ''} · ${shortTitle(v.title, 34)}</small>
+              </span>
+            </button>
+            <span className="vr-arrow" aria-hidden="true">→</span>
+          </React.Fragment>`;
+        })}
+        <button className="vr-quiz-pill" onClick=${() => go({ mode: 'quiz', lec: lec.n, quizPreset: { lecs: [lec.n], t: Date.now(), from: 'video' } })} title="ابدأ كويز كامل على محتوى المحاضرة">
+          🎯 كويز ${uCap(k)} ${lec.n} (${qs.length} سؤال)
+        </button>
+      </div>
+
+      <div className="vplayer-grid">
+        <div className="vplayer-col">
+          <div className="vframe-wrap">
+            <iframe
+              key=${curVid.id + '-' + startSec + '-' + (autoPlay ? 1 : 0)}
+              src=${embedUrl}
+              title=${curVid.title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+            ></iframe>
+          </div>
+          <div className="vplayer-info">
+            <div className="vplayer-top">
+              <div>
+                <h4>${curVid.title}</h4>
+                <div className="vplayer-ch">
+                  <span className="tag lec">${curVid.channel}</span>
+                  ${curVid.duration && html`<span className="num">⏱ ${curVid.duration}</span>`}
+                  <span className="num">ID: <code>${curVid.id}</code></span>
+                </div>
+              </div>
+              <button className=${'btn' + (isWatched ? ' solid' : '')} onClick=${() => toggleWatched(vidKey)}>
+                ${isWatched ? '✓ تم المشاهدة' : 'تحديد كمشاهد'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="vts-col">
+          <div className="vts-head">
+            <span>⏱ تقسيم المحاضرة (Timestamps) — اضغط للانتقال فوراً</span>
+            <span>${timestamps.length} فقرات</span>
+          </div>
+          <ol className="vts-list">
+            ${timestamps.map((ts, ti) => html`<li key=${ti}>
+              <button className=${'vts-btn' + (ti === activeTsIdx ? ' active' : '')} onClick=${() => { setStartSec(ts.t); setAutoPlay(true); }}>
+                <span className="vts-time">▶ ${ts.time}</span>
+                <span className="vts-label">${ts.label}</span>
+              </button>
+            </li>`)}
+          </ol>
+          ${timestamps.length > 1 && html`<div className="row" style=${{ padding: '8px 12px', borderTop: '1px solid var(--line)', background: 'var(--paper)' }}>
+            <button className="btn ghost small" disabled=${activeTsIdx <= 0} onClick=${() => { const prev = timestamps[Math.max(0, activeTsIdx - 1)]; setStartSec(prev.t); setAutoPlay(true); }}>← الفقرة السابقة</button>
+            <span className="grow"></span>
+            <button className="btn ghost small" disabled=${activeTsIdx >= timestamps.length - 1} onClick=${() => { const nxt = timestamps[Math.min(timestamps.length - 1, activeTsIdx + 1)]; setStartSec(nxt.t); setAutoPlay(true); }}>الفقرة التالية →</button>
+          </div>`}
+        </div>
+      </div>
+
+      <footer className="vpost-bar">
+        <div className="vpost-nav">
+          <button className="btn" disabled=${safeIdx === 0 && !prevLec} onClick=${goPrevVideo}>
+            ← ${safeIdx > 0 ? 'الفيديو السابق (' + safeIdx + '/' + videos.length + ')' : prevLec ? uPref(k, prevLec.n) : 'السابق'}
+          </button>
+          <button className="btn next-vid" disabled=${safeIdx >= videos.length - 1 && !nextLec} onClick=${goNextVideo}>
+            ${safeIdx < videos.length - 1
+              ? 'الفيديو التالي (' + (safeIdx + 2) + '/' + videos.length + '): ' + videos[safeIdx + 1].channel.split('·')[0].trim() + ' →'
+              : nextLec
+                ? 'المحاضرة التالية: ' + uPref(k, nextLec.n) + ' →'
+                : '✓ آخر فيديو في المسار'}
+          </button>
+        </div>
+        <div className="vpost-quiz">
+          <button className="btn" onClick=${() => setQuickQuiz(q => !q)}>
+            ${quickQuiz ? 'إخفاء الكويز السريع ▲' : '⚡ كويز سريع تحت الفيديو (' + Math.min(5, qs.length) + ' أسئلة)'}
+          </button>
+          <button className="btn quiz-vid" onClick=${() => { markWatched(vidKey); go({ mode: 'quiz', lec: lec.n, quizPreset: { lecs: [lec.n], t: Date.now(), from: 'video' } }); }}>
+            🎯 كويز كامل على محتوى ${uCap(k)} ${lec.n} (${qs.length} سؤال) →
+          </button>
+        </div>
+      </footer>
+
+      ${quickQuiz && qs.length > 0 && html`<div className="vquick-quiz">
+        <div className="vquick-head">
+          <div>
+            <p className="kicker" style=${{ color: 'var(--c)' }}>اختبر فهمك فوراً بعد الفيديو · ${uCap(k)} ${lec.n}</p>
+            <h4 style=${{ margin: '2px 0 0', fontSize: '1.05rem' }}>كويز سريع على محتوى ${uCap(k)} ${lec.n} (${qRight}/${qAnswered || Math.min(5, qs.length)} صحيحة)</h4>
+          </div>
+          <div className="row">
+            <button className="btn small" onClick=${() => setQPicks({})}>إعادة المحاولة</button>
+            <button className="btn solid small" onClick=${() => go({ mode: 'quiz', lec: lec.n, quizPreset: { lecs: [lec.n], t: Date.now(), from: 'video' } })}>فتح كل الـ ${qs.length} سؤال في وضع الامتحان →</button>
+          </div>
+        </div>
+        <ol className="xq-list">
+          ${qs.slice(0, 5).map((q, qi) => {
+            const p = qPicks[q.id], done = p != null;
+            return html`<li key=${q.id} className="xq-item">
+              <div className="xq-q"><span className="xq-n">${qi + 1}</span><H h=${q.q} /></div>
+              <ol className="opts">${q.o.map((o, j) => html`<li key=${j}>
+                <button className=${'opt' + (p === j ? ' picked' : '') + (done && j === q.a ? ' answer' : '')} disabled=${done} onClick=${() => pickAns(q, j)}>
+                  <span className="bubble">${LET[j]}</span><span className="otext"><H h=${o[0]} /></span><span>${done && j === q.a ? Icon.tick : done && j === p ? Icon.cross : null}</span>
+                </button>
+                ${done && html`<p className=${'why ' + (j === q.a ? 'right' : 'wrong')}><b>${j === q.a ? 'Right' : 'Wrong'}</b><H h=${o[1]} /></p>`}
+              </li>`)}</ol>
+            </li>`;
+          })}
+        </ol>
+      </div>`}
+    </section>`;
+  }
+
+  function VideoRoadmapView({ k, lecN, nav, go }) {
+    const c = C[k];
+    const [watched, setWatched] = usePersist('watched:' + k, []);
+    const [plFilter, setPlFilter] = useState('all');
+    const [activeLecN, setActiveLecN] = useState(() => c.lectures.some(l => l.n === lecN) ? lecN : c.lectures[0].n);
+    const [selectedVidId, setSelectedVidId] = useState(nav.vidId || null);
+    const [selectedTs, setSelectedTs] = useState(nav.vidTs || 0);
+
+    useEffect(() => {
+      if (c.lectures.some(l => l.n === lecN)) setActiveLecN(lecN);
+      if (nav.vidId) setSelectedVidId(nav.vidId);
+      if (nav.vidTs != null) setSelectedTs(nav.vidTs);
+    }, [lecN, nav.vidId, nav.vidTs]);
+
+    const playlists = useMemo(() => {
+      const map = new Map();
+      c.lectures.forEach(l => {
+        (l.videos || []).forEach(v => {
+          const ch = v.channel.split('·')[0].trim();
+          if (!map.has(ch)) map.set(ch, { id: ch, title: v.channel, playlistId: v.playlistId, count: 0 });
+          map.get(ch).count += 1;
+        });
+      });
+      return [...map.values()];
+    }, [k]);
+
+    const totalVideos = c.lectures.reduce((a, l) => a + (l.videos ? l.videos.length : 0), 0);
+    const watchedCount = c.lectures.reduce((a, l) => a + (l.videos || []).filter(v => watched.includes(l.n + ':' + v.id) || watched.includes(v.id)).length, 0);
+    const activeLec = c.lectures.find(l => l.n === activeLecN) || c.lectures[0];
+
+    const pickRoadmapVideo = (lNum, vId, ts = 0) => {
+      setActiveLecN(lNum);
+      setSelectedVidId(vId);
+      setSelectedTs(ts);
+      go({ lec: lNum, vidId: vId, vidTs: ts });
+      window.scrollTo({ top: 0, behavior: calm() ? 'auto' : 'smooth' });
+    };
+
+    return html`<div className="rm-page">
+      <section className="rm-hero">
+        <div style=${{ flex: 1, minWidth: '260px' }}>
+          <p className="eyebrow" style=${{ color: 'var(--c)' }}>Interactive Video Roadmap · خارطة فيديوهات المنهج والبلاي ليستس</p>
+          <h2 style=${{ fontSize: '1.5rem', margin: '4px 0 6px' }}>رود ماب فيديوهات ${c.name} (${totalVideos} فيديو مباشر بالـ Timestamps)</h2>
+          <p className="muted" style=${{ margin: 0 }}>كل محاضرة وسكشن مربوطة بروابط الفيديوهات المباشرة (Direct Video IDs) من البلاي ليستس المعتمدة مع تقسيم الوقت (Timestamps)، سهم الانتقال للفيديو التالي، وكويز فوري على محتوى المحاضرة.</p>
+        </div>
+        <div className="row">
+          <div className="stat" style=${{ margin: 0, minWidth: '150px', padding: '12px 16px' }}>
+            <span>الفيديوهات المشاهدة</span>
+            <b>${watchedCount}<em> / ${totalVideos}</em></b>
+          </div>
+        </div>
+        <div className="rm-playlists" role="group" aria-label="Filter roadmap by playlist source">
+          <button className=${'rm-pl-card' + (plFilter === 'all' ? ' active' : '')} onClick=${() => setPlFilter('all')}>
+            <b>🗺️ كل البلاي ليستس والمصادر</b>
+            <small>${totalVideos} فيديو عبر ${c.lectures.length} ${uPlur(k)}</small>
+          </button>
+          ${playlists.map(p => html`<button key=${p.id} className=${'rm-pl-card' + (plFilter === p.id ? ' active' : '')} onClick=${() => setPlFilter(p.id)}>
+            <b>▶ ${p.id}</b>
+            <small>${p.count} فيديو مباشر جوه الموقع</small>
+          </button>`)}
+        </div>
+      </section>
+
+      ${activeLec && html`<InlineVideoStudio
+        k=${k}
+        lec=${activeLec}
+        go=${go}
+        initialVidId=${selectedVidId}
+        initialTs=${selectedTs}
+        onSelectSession=${n => { setActiveLecN(n); setSelectedVidId(null); setSelectedTs(0); go({ lec: n }); }}
+      />`}
+
+      <section style=${{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <h2 className="sub-h" style=${{ margin: '4px 0 0' }}>مسار الفيديوهات الكامل خطوة بخطوة (${uCap(k)} 1 → ${uCap(k)} ${c.lectures.length})</h2>
+        ${c.lectures.map((l, idx) => {
+          const vids = (l.videos || []).filter(v => plFilter === 'all' || v.channel.split('·')[0].trim() === plFilter);
+          if (!vids.length) return null;
+          const qs = quizOf(k).filter(q => q.lec === l.n);
+          const nextL = idx < c.lectures.length - 1 ? c.lectures[idx + 1] : null;
+          return html`<div key=${l.n} className="rm-session-card" style=${l.n === activeLecN ? { borderColor: 'var(--s)', boxShadow: 'var(--shadow)' } : null}>
+            <div className="rm-session-head">
+              <div>
+                <p className="eyebrow" style=${{ color: 'var(--c)' }}>${uCap(k)} ${l.n} of ${c.lectures.length} · ${vids.length} فيديوهات</p>
+                <h3>${cleanTitle(l.title)}</h3>
+              </div>
+              <div className="row">
+                <button className="btn small" onClick=${() => go({ mode: 'read', lec: l.n, anchor: null })}>📖 قراءة الشرح + المشغل</button>
+                <button className="btn solid small" onClick=${() => go({ mode: 'quiz', lec: l.n, quizPreset: { lecs: [l.n], t: Date.now(), from: 'roadmap' } })}>🎯 كويز ${uCap(k)} ${l.n} (${qs.length} سؤال)</button>
+              </div>
+            </div>
+            <div className="rm-nodes">
+              ${vids.map((v, vi) => {
+                const vk = l.n + ':' + v.id;
+                const isW = watched.includes(vk) || watched.includes(v.id);
+                const isCur = l.n === activeLecN && (selectedVidId ? v.id === selectedVidId : vi === 0);
+                return html`<React.Fragment key=${v.id + '-' + vi}>
+                  <button className=${'vr-step' + (isCur ? ' active' : '') + (isW ? ' watched' : '')} onClick=${() => pickRoadmapVideo(l.n, v.id, 0)}>
+                    <span className="vr-num">${isW ? '✓' : vi + 1}</span>
+                    <span className="vr-meta">
+                      <b>${v.channel.split('·')[0].trim()} · ${v.duration || ''}</b>
+                      <small>${shortTitle(v.title, 42)}</small>
+                    </span>
+                  </button>
+                  <span className="vr-arrow" aria-hidden="true">→</span>
+                </React.Fragment>`;
+              })}
+              <button className="vr-quiz-pill" onClick=${() => go({ mode: 'quiz', lec: l.n, quizPreset: { lecs: [l.n], t: Date.now(), from: 'roadmap' } })}>
+                🎯 امتحن كويز ${uCap(k)} ${l.n} (${qs.length} سؤال)
+              </button>
+              ${nextL && html`<React.Fragment>
+                <span className="vr-arrow" aria-hidden="true">→</span>
+                <button className="btn ghost small" onClick=${() => pickRoadmapVideo(nextL.n, (nextL.videos && nextL.videos[0] && nextL.videos[0].id) || null, 0)}>
+                  المحطة التالية: ${uPref(k, nextL.n)} →
+                </button>
+              </React.Fragment>`}
+            </div>
+          </div>`;
+        })}
+      </section>
+    </div>`;
+  }
+
+  /* ════════════ PATH: each lecture is a stop ════════════ */
+  function PathView({ k, lecN, go, read, known }) {
+    const c = C[k], stats = store.get('stats:' + k, {}), knownSet = new Set(known);
+    const stops = c.lectures.map(l => ({ n: l.n, t: l.title, done: read.includes(l.n) })).concat([{ n: 'rev', t: 'Revision sheet', done: false, last: true }]);
+    const N = stops.length;
+    const pts = stops.map((s, i) => ({ x: 7 + i * 86 / Math.max(1, N - 1), y: i % 2 ? 32 : 64 }));
+    const lastDone = stops.reduce((a, s, i) => s.done ? i : a, -1);
+    const line = arr => arr.map((p, i) => (i ? 'L' : 'M') + (p.x * 10).toFixed(1) + ' ' + (p.y * 2.4).toFixed(1)).join(' ');
+    const sel = (key, s) => go({ lec: s.n });
+    const l = lecN === 'rev' ? null : c.lectures.find(x => x.n === lecN);
+    let detail;
+    if (!l) {
+      detail = html`<div className="stop">
+        <div className="st-info"><p className="eyebrow">Last stop</p><h2>Revision sheet</h2><p>Every key term, formula and past-paper answer in one place, for the night before the exam.</p></div>
+        <button className="step go" onClick=${() => go({ mode: 'read', lec: 'rev', anchor: null })}><span className="sn">1</span><b>Open the revision sheet</b><span>All ${c.lectures.length} ${uPlur(k)}</span><em>Open →</em></button>
+        <button className="step" onClick=${() => go({ mode: 'quiz' })}><span className="sn">2</span><b>Timed mock exam</b><span>Past-exam questions first</span><em>Set it up →</em></button>
+      </div>`;
+    } else {
+      const cardIds = l.cards.map((_, i) => l.n + '-' + i), kn = cardIds.filter(id => knownSet.has(id)).length;
+      const qs = quizOf(k).filter(q => q.lec === l.n);
+      let r = 0, w = 0; qs.forEach(q => { const v = stats[q.id]; if (v) { r += v[0]; w += v[1]; } });
+      const att = r + w, acc = att ? Math.round(r / att * 100) : null;
+      const isRead = read.includes(l.n), cardsDone = cardIds.length > 0 && kn === cardIds.length, quizDone = att >= 5 && acc >= 70;
+      const nextStep = [isRead, cardsDone, quizDone].indexOf(false);
+      const examQs = l.quiz.filter(isExam).length;
+      const steps = [
+        ['Read the notes', l.notes.length + ' sections · ' + minutesFor(l) + ' min', isRead ? '✓ Read' : 'Start →', () => go({ mode: 'read', lec: l.n, anchor: null })],
+        ['Flip the cards', kn + ' of ' + cardIds.length + ' known', cardsDone ? '✓ All known' : 'Open →', () => go({ mode: 'cards', cardLec: l.n, cardFocus: null })],
+        ['Take the quiz', qs.length + ' questions' + (acc != null ? ' · ' + acc + '% so far' : ''), quizDone ? '✓ Passed' : '70% to pass →', () => go({ mode: 'quiz', quizPreset: { lecs: [l.n], t: Date.now(), from: 'path' } })]
+      ];
+      detail = html`<div className="stop">
+        <div className="st-info"><p className="eyebrow">${uCap(k)} ${l.n} of ${c.lectures.length}${isRead ? ' · read' : ''}</p><h2>${cleanTitle(l.title)}</h2>
+          <p>${examQs ? examQs + ' past-exam question' + (examQs > 1 ? 's come' : ' comes') + ' from this ' + uLow(k) + '. ' : ''}${l.qa.length ? html`<button className="linkbtn" onClick=${() => go({ mode: 'ask', askLec: l.n })}>Practise its ${l.qa.length} Q&A →</button>` : null}</p></div>
+        ${steps.map(([t, sub, st, fn], i) => html`<button key=${i} className=${'step' + (i === nextStep ? ' go' : '') + ([isRead, cardsDone, quizDone][i] ? ' done' : '')} onClick=${fn}>
+          <span className="sn">${[isRead, cardsDone, quizDone][i] ? '✓' : i + 1}</span><b>${t}</b><span>${sub}</span><em>${st}</em></button>`)}
+      </div>`;
+    }
+    return html`<section className="path" aria-label="Lecture path">
+      <div className="map">
+        <svg className="map-line" viewBox="0 0 1000 240" preserveAspectRatio="none" aria-hidden="true">
+          <path d=${line(pts)} className="mp-todo" />
+          ${lastDone >= 0 && html`<path d=${line(pts.slice(0, lastDone + 1))} className="mp-done" />`}
+        </svg>
+        ${stops.map((s, i) => html`<button key=${s.n} className=${'node' + (s.done ? ' done' : '') + (s.n === lecN ? ' cur' : '') + (i % 2 ? ' up' : '')} style=${{ left: pts[i].x + '%', top: (pts[i].y) + '%' }}
+          onClick=${() => sel(i, s)} aria-current=${s.n === lecN ? 'step' : null} title=${s.t}>
+          <span className="dot">${s.last ? '★' : s.done ? '✓' : s.n}</span><span className="nl">${s.last ? 'Revision' : shortTitle(cleanTitle(s.t), 24)}</span></button>`)}
+      </div>
+      <ol className="map-v">${stops.map((s, i) => html`<li key=${s.n}><button className=${'vnode' + (s.done ? ' done' : '') + (s.n === lecN ? ' cur' : '')} onClick=${() => sel(i, s)} aria-current=${s.n === lecN ? 'step' : null}>
+        <span className="dot">${s.last ? '★' : s.done ? '✓' : s.n}</span><span>${s.last ? 'Revision sheet' : cleanTitle(s.t)}</span></button></li>`)}</ol>
+      ${detail}
+      ${l && l.videos && l.videos.length > 0 && html`<div style=${{ marginTop: '18px' }}><${InlineVideoStudio} k=${k} lec=${l} go=${go} onSelectSession=${n => go({ lec: n })} /></div>`}
+    </section>`;
+  }
+
+  function CourseBody({ k, mode, nav, go, lecN, known, setKnown, miss, setMiss, fixed, setFixed, best, setBest, read, setRead, barRef, onSection }) {
+    return html`
+        ${mode === 'path' && html`<${PathView} key="path" k=${k} lecN=${lecN} go=${go} read=${read} known=${known} />`}
+        ${mode === 'videos' && html`<${VideoRoadmapView} key="videos" k=${k} lecN=${lecN} nav=${nav} go=${go} />`}
+        ${mode === 'read' && lecN === 'rev' && html`<${RevisionSheet} key="rev" k=${k} go=${go} read=${read} onSection=${onSection} />`}
+        ${mode === 'read' && lecN !== 'rev' && html`<${Read} key="read" k=${k} lecN=${lecN} anchor=${nav.anchor} nav=${nav} go=${go} read=${read} setRead=${setRead} barRef=${barRef} onSection=${onSection} />`}
+        ${mode === 'cards' && html`<${Cards} key="cards" k=${k} focus=${nav.cardFocus} startLec=${nav.cardLec} auto=${nav.cardsAuto} go=${go} known=${known} setKnown=${setKnown} />`}
+        ${mode === 'ask' && html`<${Ask} key="ask" k=${k} startLec=${nav.askLec} />`}
+        ${mode === 'quiz' && html`<${Quiz} key="quiz" k=${k} preset=${nav.quizPreset} go=${go} miss=${miss} setMiss=${setMiss} setFixed=${setFixed} best=${best} setBest=${setBest} />`}
+        ${mode === 'papers' && html`<${Papers} key="papers" k=${k} />`}
+        ${mode === 'progress' && html`<${Progress} key="progress" k=${k} miss=${miss} setMiss=${setMiss} fixed=${fixed} setFixed=${setFixed} read=${read} known=${known} best=${best} go=${go} />`}
+    `;
+  }
+
+  function LecFilter({ k, value, onChange, multi, scroll }) {
+    const c = C[k];
+    const isOn = n => multi ? (value === 'all' ? false : value.includes(n)) : value === n;
+    const toggle = n => {
+      if (!multi) return onChange(n);
+      const cur = value === 'all' ? [] : value;
+      const next = cur.includes(n) ? cur.filter(x => x !== n) : cur.concat(n);
+      onChange(next.length ? next : 'all');
+    };
+    return html`<div className=${'filters' + (scroll ? ' scroller' : '')} role="group" aria-label=${'Filter by ' + uLow(k)}>
+      <button className="fchip" aria-pressed=${String(value === 'all')} onClick=${() => onChange('all')}>All ${uPlur(k)}</button>
+      ${c.lectures.map(l => html`<button key=${l.n} className="fchip" aria-pressed=${String(isOn(l.n))} title=${l.title} onClick=${() => toggle(l.n)}>
+        <span className="l">${uPref(k, l.n)}</span>${shortTitle(l.title, 28)}</button>`)}
+    </div>`;
+  }
+
+  /* ════════════ NOTES ════════════ */
+  const READ_SIZES = [['s', 'Smaller text', 14], ['m', 'Medium text', 16.5], ['l', 'Larger text', 19]];
+  const minutesMemo = new WeakMap();
+  const minutesFor = lec => {
+    if (minutesMemo.has(lec)) return minutesMemo.get(lec);
+    const words = lec.notes.reduce((a, s) => a + strip([].concat(s.pts || [], (s.table || []).flat(), s.formula || [], s.code || []).join(' ')).split(' ').length, 0);
+    const m = Math.max(1, Math.round(words / 180));
+    minutesMemo.set(lec, m); return m;
+  };
+
+  // animated diagram: the engine (viz.js, copied to data/) is fetched the first time a lecture with a diagram opens
+  // prediction results are kept per course (right, answered), for the Progress tab
+  const vzAnswer = k => ok => { const v = store.get('vzstat:' + k, [0, 0]); store.set('vzstat:' + k, [v[0] + (ok ? 1 : 0), v[1] + 1]); };
+  function VizBlock({ spec, ar, k }) {
+    const [ready, setReady] = useState(() => !!window.VIZ);
+    const [failed, setFailed] = useState(false);
+    useEffect(() => { if (!ready) loadScript(dataUrl('viz')).then(() => setReady(true), () => setFailed(true)); }, []);
+    const onAnswer = useMemo(() => k ? vzAnswer(k) : null, [k]);
+    if (failed) return html`<p className="muted small">The diagram didn't load. Check your connection and refresh.</p>`;
+    if (!ready) return html`<div className="vz vz-wait" aria-hidden="true"></div>`;
+    return html`<${window.VIZ.Viz} spec=${spec} ar=${ar} onAnswer=${onAnswer} />`;
+  }
+  // a lecture's own picture as an animation or a small hands-on version (figs.js, copied to data/, fetched when first needed)
+  function FigBlock({ name, ar }) {
+    const [ready, setReady] = useState(() => !!window.FIGS);
+    const [failed, setFailed] = useState(false);
+    useEffect(() => { if (!ready) loadScript(dataUrl('figs')).then(() => setReady(true), () => setFailed(true)); }, []);
+    if (failed) return html`<p className="muted small">The visual didn't load. Check your connection and refresh.</p>`;
+    if (!ready) return html`<div className="vz vz-wait" style=${{ height: '200px' }} aria-hidden="true"></div>`;
+    const F = window.FIGS[name]; return F ? html`<${F} ar=${ar} />` : null;
+  }
+  // past papers: a trace question can be worked through as a diagram, before or after revealing the model answer
+  function WatchSolved({ spec, ar, k }) {
+    const [open, setOpen] = useState(false);
+    const n = [].concat(spec).length;
+    return html`<div className="watch">
+      <button className=${'watchbtn' + (open ? ' on' : '')} onClick=${() => setOpen(o => !o)} aria-expanded=${String(open)}>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M7 5l12 7-12 7z" /></svg>
+        ${open ? 'Hide the step-by-step diagram' : n > 1 ? 'Work through it step by step (' + n + ' diagrams)' : 'Work through it step by step'}
+      </button>
+      ${open && html`<${VizBlock} spec=${spec} ar=${ar} k=${k} />`}
+    </div>`;
+  }
+
+  function Read({ k, lecN, anchor, nav, go, read, setRead, barRef, onSection }) {
+    const c = C[k];
+    const idx = c.lectures.findIndex(l => l.n === lecN);
+    const lec = c.lectures[idx];
+    const pageRef = useRef(null);
+    const armed = useRef(false);
+    const [prefs, setPrefs] = usePersist('readprefs', { size: 'm', hl: true, focus: false });
+    const [active, setActive] = useState(0);
+    const [resumed, setResumed] = useState(false);
+    const titles = useMemo(() => lec.notes.map(s => strip(s.h)), [k, lec.n]);
+    const mins = useMemo(() => minutesFor(lec), [k, lec.n]);
+    const isRead = read.includes(lec.n);
+    const arL = arLec(k, lec.n);
+    const notesBody = useMemo(() => lec.notes.map((s, i) => { const an = arL && arL.notes && arL.notes[i]; return html`<section key=${i} className="note" id=${'sec-' + lec.n + '-' + i} data-i=${i}>
+            <h3><span className="sec">§${i + 1}</span><${H} h=${s.h} />${s.ly && html` <span className="srcbadge summary" title="This part is from last year's slides and is not in this term's slides">Last year's slides</span>`}</h3>
+            <${Ar} t=${an && an.h} cls="arh" />
+            ${s.formula && html`<div className="formula">${(Array.isArray(s.formula) ? s.formula : [s.formula]).join('\n')}</div>`}
+            ${s.table && html`<div className="tbl"><table>
+              <thead><tr>${s.table[0].map((x, j) => html`<th key=${j} dangerouslySetInnerHTML=${{ __html: x }}></th>`)}</tr></thead>
+              <tbody>${s.table.slice(1).map((r, ri) => html`<tr key=${ri}>${r.map((x, j) => html`<td key=${j} dangerouslySetInnerHTML=${{ __html: x }}></td>`)}</tr>`)}</tbody>
+            </table></div>`}
+            ${s.code && html`<pre className="code" data-hl="" dangerouslySetInnerHTML=${{ __html: codeHtml(Array.isArray(s.code) ? s.code.join('\n') : s.code) }}></pre>`}
+            ${s.callout && html`<div className="callout" dangerouslySetInnerHTML=${{ __html: s.callout }}></div>`}
+            ${s.pts && html`<ul>${s.pts.map((p, j) => html`<li key=${j}><span dangerouslySetInnerHTML=${{ __html: p }}></span><${Ar} t=${an && an.pts && an.pts[j]} /></li>`)}</ul>`}
+            ${s.viz && html`<${VizBlock} spec=${s.viz} ar=${!!arL} k=${k} />`}
+            ${s.fig && html`<${FigBlock} name=${s.fig} ar=${!!arL} />`}
+          </section>`; }), [lec, arL]);
+    const toggleRead = () => setRead(r => r.includes(lec.n) ? r.filter(x => x !== lec.n) : r.concat(lec.n));
+    const setPref = patch => setPrefs(p => Object.assign({}, p, patch));
+    const posKey = 'pos:' + k + ':' + lec.n;
+    const [book, setBook] = usePersist('bookopen', false);
+    const chapter = useMemo(() => !book ? null : ({
+      id: 'L' + lec.n, kicker: 'Lecture ' + lec.n + ' · ' + c.short, title: cleanTitle(lec.title), runTitle: splitTitle(lec.title)[0], sections: titles.map((t, i) => (i + 1) + ' · ' + t),
+      content: bookLecture(c, lec),
+      next: idx < c.lectures.length - 1 ? () => go({ lec: c.lectures[idx + 1].n }) : null, nextId: idx < c.lectures.length - 1 ? 'L' + c.lectures[idx + 1].n : null,
+      prev: idx > 0 ? () => go({ lec: c.lectures[idx - 1].n }) : null, prevId: idx > 0 ? 'L' + c.lectures[idx - 1].n : null
+    }), [k, lec.n, book]);
+    const closeBook = sec => {
+      setBook(false);
+      requestAnimationFrame(() => { const el = document.getElementById('sec-' + lec.n + '-' + sec); if (el) el.scrollIntoView({ block: 'start' }); });
+    };
+
+    // progress bar + remembering where you stopped: one passive listener, painted with transform, no re-render while scrolling
+    useEffect(() => {
+      let frame = 0, lastSave = 0;
+      const paint = () => {
+        frame = 0;
+        const el = pageRef.current, bar = barRef && barRef.current;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        if (bar) bar.style.transform = 'scaleX(' + Math.min(1, Math.max(0, (innerHeight * 0.85 - r.top) / Math.max(1, r.height))).toFixed(4) + ')';
+        const now = Date.now();
+        if (armed.current && now - lastSave > 700) { lastSave = now; store.set(posKey, Math.max(0, Math.round(-r.top))); store.set('posf:' + k + ':' + lec.n, Math.min(1, Math.max(0, (innerHeight - r.top) / Math.max(1, r.height)))); }
+      };
+      const onScroll = () => { if (!frame) frame = requestAnimationFrame(paint); };
+      paint();
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll, { passive: true });
+      return () => { cancelAnimationFrame(frame); window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll); };
+    }, [lec.n]);
+
+    // reopen a lecture where you stopped (unless you arrived from search at a specific section)
+    useEffect(() => {
+      armed.current = false; setResumed(false);
+      const y = anchor ? 0 : store.get(posKey, 0);
+      const t = requestAnimationFrame(() => {
+        if (y > 400 && pageRef.current) {
+          window.scrollTo(0, pageRef.current.getBoundingClientRect().top + window.scrollY + y);
+          setResumed(true);
+        }
+        setTimeout(() => { armed.current = true; }, 400);
+      });
+      return () => cancelAnimationFrame(t);
+    }, [lec.n]);
+
+    useEffect(() => {
+      if (!anchor) return;
+      const el = document.getElementById(anchor);
+      if (el) { el.scrollIntoView({ block: 'start' }); el.classList.remove('flash-target'); void el.offsetWidth; el.classList.add('flash-target'); }
+      go({ anchor: null });
+    }, [anchor]);
+
+    // which section is on screen
+    useEffect(() => {
+      setActive(0);
+      if (!('IntersectionObserver' in window)) return;
+      const seen = new Set();
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => e.isIntersecting ? seen.add(+e.target.dataset.i) : seen.delete(+e.target.dataset.i));
+        if (seen.size) setActive(Math.min.apply(null, [...seen]));
+      }, { rootMargin: '-96px 0px -55% 0px' });
+      lec.notes.forEach((_, i) => { const el = document.getElementById('sec-' + lec.n + '-' + i); if (el) io.observe(el); });
+      return () => io.disconnect();
+    }, [lec.n]);
+    useEffect(() => { onSection && onSection({ lec: lec.n, title: lec.title, sec: active, secTitle: titles[active] || '' }); }, [lec.n, active]);
+    useEffect(() => () => onSection && onSection(null), []);
+
+    // focus mode hides the course header and tabs as well
+    useEffect(() => {
+      document.body.classList.toggle('focus-read', !!prefs.focus);
+      return () => document.body.classList.remove('focus-read');
+    }, [prefs.focus]);
+
+    const jump = i => {
+      const at = Math.max(0, Math.min(lec.notes.length - 1, i));
+      const el = document.getElementById('sec-' + lec.n + '-' + at);
+      if (el) { setActive(at); el.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' }); }
+    };
+    const openLec = n => { go({ lec: n }); window.scrollTo(0, 0); };
+    const sizeAt = READ_SIZES.findIndex(x => x[0] === prefs.size);
+
+    useEffect(() => {
+      const onKey = e => {
+        if (e.target.matches && e.target.matches('input, textarea, select') || e.ctrlKey || e.metaKey || e.altKey || document.querySelector('.scrim, .bookmode, .fmode')) return;
+        const key = e.key;
+        if (key === 'b') setBook(true);
+        else if (key === 'j') jump(active + 1);
+        else if (key === 'k') jump(active - 1);
+        else if (key === 'ArrowRight' && idx < c.lectures.length - 1) openLec(c.lectures[idx + 1].n);
+        else if (key === 'ArrowLeft' && idx > 0) openLec(c.lectures[idx - 1].n);
+        else if (key === 'f') setPref({ focus: !prefs.focus });
+        else if (key === 'Escape' && prefs.focus) setPref({ focus: false });
+        else if (key === '+' || key === '=') setPref({ size: READ_SIZES[Math.min(2, sizeAt + 1)][0] });
+        else if (key === '-') setPref({ size: READ_SIZES[Math.max(0, sizeAt - 1)][0] });
+        else return;
+        e.preventDefault();
+      };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    });
+
+    return html`<div className=${'read' + (prefs.focus ? ' focus' : '')} data-size=${prefs.size} data-hl=${prefs.hl ? 'on' : 'off'}>
+      <div className="readcol">
+        <div className="readtools" role="toolbar" aria-label="Reading options">
+          <span className="rt-meta">${mins} min read · ${lec.notes.length} sections</span>
+          <select className="secpick" id=${'secpick-' + k} aria-label="Jump to a section" value=${active} onChange=${e => jump(+e.target.value)}>
+            ${titles.map((t, i) => html`<option key=${i} value=${i}>§${i + 1} ${t}</option>`)}
+          </select>
+          <span className="grow"></span>
+          <span className="sizes" role="group" aria-label="Text size">
+            ${READ_SIZES.map(([id, label, px]) => html`<button key=${id} aria-pressed=${String(prefs.size === id)} title=${label} aria-label=${label} onClick=${() => setPref({ size: id })}><span style=${{ fontSize: px + 'px' }}>A</span></button>`)}
+          </span>
+          <button className="tbtn" aria-pressed=${String(!!prefs.hl)} onClick=${() => setPref({ hl: !prefs.hl })} title="Show or hide highlighted key terms"><span className="hlswatch"></span>Highlights</button>
+          <button className="tbtn" aria-pressed=${String(!!prefs.focus)} onClick=${() => setPref({ focus: !prefs.focus })} title="Focus mode (F)">${prefs.focus ? 'Exit focus' : 'Focus'}</button>
+          <button className="tbtn bookbtn" onClick=${() => setBook(true)} title="Read as a book (B)"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M3 5.5C5.5 4.5 9 4.5 12 6.5c3-2 6.5-2 9-1v13c-2.5-1-6-1-9 1-3-2-6.5-2-9-1z M12 6.5v13" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/></svg>Book view</button>
+        </div>
+        ${resumed && html`<div className="resume"><span>Picked up where you stopped.</span><button className="linkbtn" onClick=${() => { window.scrollTo({ top: 0, behavior: calm() ? 'auto' : 'smooth' }); setResumed(false); }}>Start from the top</button><button className="linkbtn muted" aria-label="Dismiss" onClick=${() => setResumed(false)}>✕</button></div>`}
+
+        ${lec.videos && lec.videos.length > 0 && html`<${InlineVideoStudio} k=${k} lec=${lec} go=${go} initialVidId=${nav && nav.vidId} initialTs=${nav && nav.vidTs} onSelectSession=${openLec} />`}
+        <article className="paper" ref=${pageRef}>
+          
+          <header className="page-head">
+            <p className="kicker" style=${{ color: 'var(--c)' }}>${uCap(k)} ${lec.n} · ${c.short}</p>
+            <h2>${lec.title}</h2>
+            <p className="meta">${mins} min read · ${lec.notes.length} sections · ${(lec.videos || []).length ? lec.videos.length + ' videos · ' : ''}${lec.cards.length} cards · ${lec.quiz.length} quiz questions</p>
+          </header>
+          ${notesBody}
+          <${ExtraQuestions} k=${k} lec=${lec} go=${go} ar=${arL} />
+          <footer className="page-foot">
+            <button className=${'btn readmark' + (isRead ? ' on' : '')} aria-pressed=${String(isRead)} onClick=${toggleRead}>${isRead ? '✓ Read' : 'Mark ' + uLow(k) + ' as read'}</button>
+            <button className="btn solid" onClick=${() => go({ mode: 'quiz', quizPreset: { lecs: [lec.n], t: Date.now() } })}>Quiz me on ${uLow(k)} ${lec.n}</button>
+            <button className="btn" onClick=${() => go({ mode: 'cards', cardLec: lec.n, cardFocus: null })}>Flip its ${lec.cards.length} cards</button>
+            <span className="grow"></span>
+            ${idx > 0 && html`<button className="btn ghost" onClick=${() => openLec(c.lectures[idx - 1].n)}>← ${uPref(k, c.lectures[idx - 1].n)}</button>`}
+            ${idx < c.lectures.length - 1 && html`<button className="btn ghost" onClick=${() => openLec(c.lectures[idx + 1].n)}>${uPref(k, c.lectures[idx + 1].n)} →</button>`}
+          </footer>
+        </article>
+      </div>
+
+      ${book && html`<${Book} k=${k} chapter=${chapter} onClose=${closeBook} />`}
+      ${!prefs.focus && html`<aside className="outline" aria-label="In this lecture">
+        <p className="kicker">In this lecture</p>
+        <ol>${titles.map((t, i) => html`<li key=${i}><button className=${i === active ? 'on' : i < active ? 'past' : ''} aria-current=${i === active ? 'location' : null} onClick=${() => jump(i)}>
+          <span className="on-n">§${i + 1}</span><span>${t}</span></button></li>`)}</ol>
+        <div className="ol-actions">
+          <button className=${'btn readmark' + (isRead ? ' on' : '')} aria-pressed=${String(isRead)} onClick=${toggleRead}>${isRead ? '✓ Read' : 'Mark as read'}</button>
+          <button className="btn" onClick=${() => go({ mode: 'quiz', quizPreset: { lecs: [lec.n], t: Date.now() } })}>Quiz me</button>
+        </div>
+        <p className="keys"><kbd>J</kbd> <kbd>K</kbd> sections · <kbd>←</kbd> <kbd>→</kbd> lectures · <kbd>F</kbd> focus · <kbd>B</kbd> book · <kbd>+</kbd> <kbd>−</kbd> size</p>
+      </aside>`}
+    </div>`;
+  }
+
+  /* ── "Extra questions": practice written for the site from this lecture, answered in place ── */
+  // memo: the notes page re-renders as you scroll (the outline follows you); this list only changes with its own answers
+  const ExtraQuestions = React.memo(function ExtraQuestions({ k, lec, go }) {
+    const items = useMemo(() => quizOf(k).filter(q => q.lec === lec.n && originOf(q) === 'extra'), [k, lec.n]);
+    const [picks, setPicks] = useState({});
+    const [showAll, setShowAll] = useState(false);
+    useEffect(() => { setPicks({}); setShowAll(false); }, [k, lec.n]);
+    if (!items.length) return null;
+    const shown = showAll ? items : items.slice(0, 5);
+    const answered = Object.keys(picks).length, right = items.filter(q => picks[q.id] === q.a).length;
+    const pick = (q, j) => { if (picks[q.id] != null) return; setPicks(p => Object.assign({}, p, { [q.id]: j })); recordAnswers(k, [[q.id, j === q.a]]); };
+    return html`<section className="xq" aria-labelledby=${'xq-' + lec.n}>
+      <header className="xq-head">
+        <div>
+          <p className="kicker">Practice · not from the professor</p>
+          <h3 id=${'xq-' + lec.n}>Extra questions</h3>
+          <p className="muted small">${items.length} questions written for Study Deck from this lecture's material. The professor's own questions (past exams and sheets) are marked separately in the Quiz tab.</p>
+        </div>
+        ${answered > 0 && html`<span className="pen xq-score">${right}/${answered}</span>`}
+      </header>
+      <ol className="xq-list">${shown.map((q, n) => { const p = picks[q.id], done = p != null; return html`<li key=${q.id} className="xq-item">
+        <div className="xq-q"><span className="xq-n">${n + 1}</span><${H} h=${q.q} /></div>
+        <ol className="opts">${q.o.map((o, j) => html`<li key=${j}>
+          <button className=${'opt' + (p === j ? ' picked' : '') + (done && j === q.a ? ' answer' : '')} disabled=${done} onClick=${() => pick(q, j)}>
+            <span className="bubble">${LET[j]}</span><span className="otext"><${H} h=${o[0]} /></span><span>${done && j === q.a ? Icon.tick : done && j === p ? Icon.cross : null}</span>
+          </button>
+          ${done && html`<p className=${'why ' + (j === q.a ? 'right' : 'wrong')}><b>${j === q.a ? 'Right' : 'Wrong'}</b><${H} h=${o[1]} /><${Ar} t=${arQ(k, q, j)} /></p>`}
+        </li>`)}</ol>
+      </li>`; })}</ol>
+      <div className="row">
+        ${items.length > 5 && html`<button className="btn" onClick=${() => setShowAll(v => !v)}>${showAll ? 'Show fewer' : 'Show all ' + items.length}</button>`}
+        <button className="btn ghost" onClick=${() => go({ mode: 'quiz', quizPreset: { ids: shuffle(items.map(q => q.id)), t: Date.now() } })}>Take them as a quiz</button>
+      </div>
+    </section>`;
+  });
+
+  /* ════════════ INDEX CARDS ════════════ */
+  function Cards(props) {
+    const { k, auto, go } = props;
+    const [reviewing, setReviewing] = useState(false);
+    useEffect(() => { if (auto) { setReviewing(true); go({ cardsAuto: null }); } }, [auto]);
+    const info = dueInfo(k, cardsOf(k).length);
+    return html`<div>
+      <section className="revpanel">
+        <div><p className="eyebrow">Spaced review</p><h2>${info.total ? info.total + ' card' + (info.total > 1 ? 's' : '') + ' to review today' : 'Nothing to review right now'}</h2>
+          <p className="muted">${info.total ? info.due + ' coming back · ' + info.fresh + ' new. Cards you know well come back less often.' : info.tomorrow ? info.tomorrow + ' card' + (info.tomorrow > 1 ? 's come' : ' comes') + ' back tomorrow.' : 'Cards come back on a schedule as you rate them.'}</p></div>
+        <button className="btn solid big" disabled=${!info.total} onClick=${() => setReviewing(true)}>Start review</button>
+      </section>
+      <h2 className="sub-h">Browse the cards</h2>
+      <${Browse} ...${props} />
+      ${reviewing && html`<${Review} k=${k} known=${props.known} setKnown=${props.setKnown} onClose=${() => setReviewing(false)} />`}
+    </div>`;
+  }
+
+  function Review({ k, known, setKnown, onClose }) {
+    const all = cardsOf(k);
+    const byId = useMemo(() => new Map(all.map(c => [c.id, c])), [k]);
+    const [srs, setSrs] = usePersist('srs:' + k, {});
+    const [, setLog] = usePersist('srsnew:' + k, { day: 0, count: 0 });
+    const t = today();
+    const [queue, setQueue] = useState(() => {
+      const s = store.get('srs:' + k, {}), lg = store.get('srsnew:' + k, { day: 0, count: 0 });
+      const due = all.filter(c => s[c.id] && s[c.id].due <= t).sort((a, b) => s[a.id].due - s[b.id].due).map(c => c.id);
+      const left = Math.max(0, NEW_PER_DAY - (lg.day === t ? lg.count : 0));
+      return due.concat(all.filter(c => !s[c.id]).slice(0, left).map(c => c.id));
+    });
+    const [flip, setFlip] = useState(false);
+    const [done, setDone] = useState(0);
+    const id = queue[0], card = id && byId.get(id), isNew = !!card && !srs[id];
+    const preview = card ? [0, 1, 2].map(r => srsStep(srs[id], r).ivl) : [];
+    const rate = r => {
+      if (!card || !flip) return;
+      const next = srsStep(srs[id], r);
+      setSrs(o => Object.assign({}, o, { [id]: next }));
+      if (isNew) setLog(l => l.day === t ? { day: t, count: l.count + 1 } : { day: t, count: 1 });
+      if (r === 0) setKnown(kn => kn.filter(x => x !== id));
+      else if (next.ivl >= 7) setKnown(kn => kn.includes(id) ? kn : kn.concat(id));
+      setQueue(q => { const rest = q.slice(1); if (r === 0) rest.splice(Math.min(rest.length, 4), 0, id); return rest; });
+      setDone(d => d + 1); setFlip(false);
+    };
+    useEffect(() => {
+      const onKey = e => {
+        if (e.target.matches && e.target.matches('input, textarea, select') || e.ctrlKey || e.metaKey || e.altKey) return;
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setFlip(f => !f); }
+        else if (flip && ['1', '2', '3'].includes(e.key)) rate(+e.key - 1);
+      };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    });
+    const prog = html`<span className="f-bar"><i style=${{ width: (done / Math.max(1, done + queue.length) * 100) + '%' }}></i></span>`;
+    const chip = C[k].short + ' · cards';
+    if (!card) {
+      const info = dueInfo(k, all.length);
+      return html`<${FocusShell} onClose=${onClose} chip=${chip} progress=${prog}>
+        <div className="f-result">
+          <span className="f-score ok" style=${{ '--p': 100 }}><b>${done}</b><em>reviewed</em></span>
+          <h2 className="f-q">${done ? 'Done for today!' : 'Nothing to review right now.'}</h2>
+          <p className="f-note">${info.tomorrow ? info.tomorrow + ' card' + (info.tomorrow > 1 ? 's come' : ' comes') + ' back tomorrow.' : 'Cards come back on a schedule as you rate them.'}</p>
+          <div className="f-acts"><button className="f-go" onClick=${onClose}>Back to the course</button></div>
+        </div>
+      </${FocusShell}>`;
+    }
+    return html`<${FocusShell} onClose=${onClose} chip=${chip} progress=${prog} resetKey=${done}
+      sheet=${flip && html`<div className="f-sheet rate-sheet" role="group" aria-label="How well did you know it?">
+        <button className="f-rate again" onClick=${() => rate(0)}><b>Again</b><small>${ivlLabel(preview[0])}</small></button>
+        <button className="f-rate hard" onClick=${() => rate(1)}><b>Hard</b><small>${ivlLabel(preview[1])}</small></button>
+        <button className="f-rate good" onClick=${() => rate(2)}><b>Good</b><small>${ivlLabel(preview[2])}</small></button>
+      </div>`}>
+      <p className="f-src"><span className="f-tag">${isNew ? 'New card' : 'Review'}</span><span>${queue.length} left · L${card.lec} ${shortTitle(lecTitle(k, card.lec), 40)}</span></p>
+      <div className="stack f-stack">
+        <button className=${'icard' + (flip ? ' flipped' : '')} onClick=${() => setFlip(f => !f)} aria-label=${flip ? 'Show the question side' : 'Show the answer side'}>
+          <span className="in">
+            <span className="face front"><span className="fbody"><span className="term">${card.f}</span></span><span className="ftip">tap or press Space to flip</span></span>
+            <span className="face back"><span className="fhead"><span className="l">${card.f.length > 60 ? card.f.slice(0, 58) + '…' : card.f}</span><span>Answer</span></span>
+              <span className="fbody"><span className="ans">${card.b}</span><${Ar} t=${arCard(k, card.id)} /></span></span>
+          </span>
+        </button>
+      </div>
+      ${!flip ? html`<div key="acts" className="f-acts"><button className="f-go" onClick=${() => setFlip(true)}>Show answer</button></div><p key="keys" className="f-keys"><kbd>Space</kbd> flip, then rate with <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></p>`
+        : html`<p className="f-keys">How well did you know it? <kbd>1</kbd> again · <kbd>2</kbd> hard · <kbd>3</kbd> good</p>`}
+    </${FocusShell}>`;
+  }
+
+  function Browse({ k, focus, startLec, go, known, setKnown }) {
+    const all = cardsOf(k);
+    const focusCard = focus ? all.find(x => x.id === focus) : null;
+    const [lec, setLec] = useState(focusCard ? focusCard.lec : (startLec || 'all'));
+    const [order, setOrder] = useState(null);
+    const [hideKnown, setHideKnown] = useState(false);
+    const [i, setI] = useState(0);
+    const [flip, setFlip] = useState(false);
+    const knownSet = useMemo(() => new Set(known), [known]);
+
+    let deck = lec === 'all' ? all : all.filter(x => x.lec === lec);
+    if (order) { const rank = new Map(order.map((id, n) => [id, n])); deck = deck.slice().sort((a, b) => rank.get(a.id) - rank.get(b.id)); }
+    if (hideKnown) deck = deck.filter(x => !knownSet.has(x.id) || (focusCard && x.id === focusCard.id));
+
+    useEffect(() => {
+      if (focusCard) {
+        setLec(focusCard.lec); setOrder(null); setHideKnown(false); setFlip(false);
+        setI(Math.max(0, all.filter(x => x.lec === focusCard.lec).findIndex(x => x.id === focusCard.id)));
+        go({ cardFocus: null });
+      }
+    }, [focus]);
+    useEffect(() => { if (startLec) go({ cardLec: null }); }, []);
+
+    const n = deck.length;
+    const at = Math.min(i, Math.max(0, n - 1));
+    const card = deck[at];
+    const move = d => { if (!n) return; setFlip(false); setI((at + d + n) % n); };
+    const toggleKnown = () => {
+      if (!card) return;
+      const has = knownSet.has(card.id);
+      setKnown(has ? known.filter(x => x !== card.id) : known.concat(card.id));
+      if (!has) { setFlip(false); if (!hideKnown) setI((at + 1) % n); }
+    };
+    const resetTo = l => { setLec(l); setI(0); setFlip(false); };
+
+    useEffect(() => {
+      const onKey = e => {
+        if (e.target.matches && e.target.matches('input, textarea, select') || e.ctrlKey || e.metaKey || e.altKey || document.querySelector('.fmode, .scrim')) return;
+        if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); setFlip(f => !f); }
+        else if (e.key === 'ArrowRight') move(1);
+        else if (e.key === 'ArrowLeft') move(-1);
+        else if (e.key.toLowerCase() === 'k') toggleKnown();
+      };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    });
+
+    const deckKnown = (lec === 'all' ? all : all.filter(x => x.lec === lec)).filter(x => knownSet.has(x.id)).length;
+    const deckTotal = (lec === 'all' ? all : all.filter(x => x.lec === lec)).length;
+
+    return html`<div>
+      <${LecFilter} k=${k} value=${lec} onChange=${resetTo} scroll=${true} />
+      <div className="deck">
+        <div className="deckbar">
+          <span className="muted small">${deckKnown} of ${deckTotal} cards marked known</span>
+          <span className="row">
+            <label className="row small" style=${{ gap: '6px', cursor: 'pointer' }}><input id="hide-known" type="checkbox" checked=${hideKnown} onChange=${e => { setHideKnown(e.target.checked); setI(0); setFlip(false); }} /> Hide known</label>
+            <button className="btn ghost" onClick=${() => { setOrder(shuffle(all.map(x => x.id))); setI(0); setFlip(false); }}>Shuffle</button>
+            ${order && html`<button className="btn ghost" onClick=${() => { setOrder(null); setI(0); setFlip(false); }}>In order</button>`}
+          </span>
+        </div>
+        ${!card ? html`<div className="paper empty" style=${{ width: 'min(680px,100%)' }}>
+          <span className="pen">All done here.</span>
+          You marked every card in this set as known.
+          <div style=${{ marginTop: '14px' }}><button className="btn" onClick=${() => setHideKnown(false)}>Show them again</button></div>
+        </div>` : html`
+          <div key="thin" className="thin"><i style=${{ width: ((at + 1) / n * 100) + '%' }}></i></div>
+          <div key="stack" className="stack">
+            ${knownSet.has(card.id) && html`<span className="known-stamp">known</span>`}
+            <button className=${'icard' + (flip ? ' flipped' : '')} onClick=${() => setFlip(f => !f)} aria-label=${flip ? 'Show the question side' : 'Show the answer side'}>
+              <span className="in">
+                <span className="face front">
+                  <span className="fhead"><span className="l">L${card.lec} · ${lecTitle(k, card.lec)}</span><span>Card ${at + 1}</span></span>
+                  <span className="fbody"><span className="term">${card.f}</span></span>
+                  <span className="ftip">tap to flip</span>
+                </span>
+                <span className="face back">
+                  <span className="fhead"><span className="l">${card.f.length > 60 ? card.f.slice(0, 58) + '…' : card.f}</span><span>Answer</span></span>
+                  <span className="fbody"><span className="ans">${card.b}</span><${Ar} t=${arCard(k, card.id)} /></span>
+                </span>
+              </span>
+            </button>
+          </div>
+          <div key="ctl" className="cardctl">
+            <button className="btn" onClick=${() => move(-1)} aria-label="Previous card">←</button>
+            <span className="count">${at + 1} / ${n}</span>
+            <button className="btn" onClick=${() => move(1)} aria-label="Next card">→</button>
+            <button className="btn knew" aria-pressed=${String(knownSet.has(card.id))} onClick=${toggleKnown}>${knownSet.has(card.id) ? '✓ Known' : 'I know this'}</button>
+          </div>
+          <p key="keys" className="muted small" style=${{ margin: 0 }}><kbd>Space</kbd> flip · <kbd>←</kbd> <kbd>→</kbd> move · <kbd>K</kbd> mark known</p>
+        `}
+      </div>
+    </div>`;
+  }
+
+  /* ════════════ Q&A ════════════ */
+  function Ask({ k, startLec }) {
+    const c = C[k];
+    const [lec, setLec] = useState(startLec || 'all');
+    const [open, setOpen] = useState({});
+    useEffect(() => { if (startLec) setLec(startLec); }, [startLec]);
+    const lecs = lec === 'all' ? c.lectures : c.lectures.filter(l => l.n === lec);
+    const allKeys = lecs.flatMap(l => l.qa.map((_, i) => l.n + '-' + i));
+    const allOpen = allKeys.length && allKeys.every(x => open[x]);
+    return html`<div>
+      <${LecFilter} k=${k} value=${lec} onChange=${setLec} scroll=${true} />
+      <article className="paper">
+        
+        <div className="row" style=${{ marginBottom: '6px' }}>
+          <p className="muted small" style=${{ margin: 0 }} >Say your answer out loud or write it down, then open the model answer.</p>
+          <span className="grow"></span>
+          <button className="btn ghost" onClick=${() => { const o = {}; if (!allOpen) allKeys.forEach(x => o[x] = true); setOpen(o); }}>${allOpen ? 'Hide all answers' : 'Show all answers'}</button>
+        </div>
+        <div className="asklist">
+          ${lecs.map(l => html`<section key=${l.n} className="askgroup">
+            <h3><span className="sec">L${l.n}</span>${l.title}</h3>
+            ${l.qa.map((x, i) => { const id = l.n + '-' + i; return html`<div key=${id} className="askitem">
+              <div className="askq"><span className="qn">Q${i + 1}</span><p>${x[0]}${x[2] && html` <span className="srcbadge summary" title=${x[2]}>Student summary</span>`}</p>
+                <button className="linkbtn" aria-expanded=${String(!!open[id])} onClick=${() => setOpen(o => Object.assign({}, o, { [id]: !o[id] }))}>${open[id] ? 'Hide' : 'Show answer'}</button></div>
+              ${open[id] && html`<div className="askans">${x[1]}<${Ar} t=${(arLec(k, l.n) || {}).qa && arLec(k, l.n).qa[i]} /></div>`}
+            </div>`; })}
+          </section>`)}
+        </div>
+      </article>
+    </div>`;
+  }
+
+  /* ════════════ FOCUS MODE: one thing on screen ════════════ */
+  function FocusShell({ onClose, chip, progress, children, sheet, resetKey }) {
+    const body = useRef(null), closeRef = useRef(onClose); closeRef.current = onClose;
+    useEffect(() => { const r = document.documentElement, prev = r.style.overflow; r.style.overflow = 'hidden'; return () => { r.style.overflow = prev; }; }, []);
+    useEffect(() => { const f = e => { if (e.key === 'Escape' && !document.querySelector('.scrim')) closeRef.current(); }; window.addEventListener('keydown', f); return () => window.removeEventListener('keydown', f); }, []);
+    useEffect(() => { if (body.current) body.current.scrollTop = 0; }, [resetKey]);
+    return html`<div className="fmode" role="dialog" aria-modal="true" aria-label=${chip}>
+      <div className="f-top"><button className="f-x" onClick=${onClose} aria-label="Close">✕</button><div className="f-prog">${progress}</div><span className="f-chip">${chip}</span></div>
+      <div className=${'f-body' + (sheet ? ' has-sheet' : '')} ref=${body}><div className="f-in">${children}</div></div>
+      ${sheet}
+    </div>`;
+  }
+
+  /* ════════════ QUIZ ════════════ */
+  function Quiz({ k, preset, go, miss, setMiss, setFixed, best, setBest }) {
+    const all = quizOf(k);
+    const [lecs, setLecs] = useState('all');
+    const [src, setSrc] = usePersist('qsrc', 'all');
+    const [count, setCount] = usePersist('qcount', '10');
+    const [run, setRun] = useState(null);
+    const [mock, setMockState] = useState(() => { const m = loadMock(k); if (m && !m.ids.some(id => quizById(k).has(id))) { saveMock(k, null); return null; } return m; });
+    const setMock = m => { saveMock(k, m); setMockState(m); window.scrollTo(0, 0); };
+    const [mockLen, setMockLen] = usePersist('mocklen', 20);
+    const startMock = nq => {
+      const ex = shuffle(all.filter(isExam)), rest = shuffle(all.filter(q => !isExam(q)));
+      const ids = ex.concat(rest).slice(0, nq).map(q => q.id);
+      const minutes = Math.round(ids.length * 1.5);
+      setMock({ ids, minutes, started: Date.now(), deadline: Date.now() + minutes * 60000, ans: {}, flag: {}, i: 0, result: null });
+    };
+
+    const srcMode = src === 'exam' ? 'prof' : src;
+    // counts on the source buttons follow the chosen lectures, so a button never promises questions the quiz can't show
+    const missSet = new Set(miss);
+    const inLecs = all.filter(q => lecs === 'all' || lecs.includes(q.lec));
+    const bySrc = { all: inLecs.length, prof: inLecs.filter(isProf).length, extra: inLecs.filter(q => originOf(q) === 'extra').length, miss: inLecs.filter(q => missSet.has(q.id)).length };
+    const pool = inLecs.filter(q => srcMode === 'all' || (srcMode === 'prof' ? isProf(q) : srcMode === 'extra' ? originOf(q) === 'extra' : missSet.has(q.id)));
+    // practice rounds (retrying misses, practising saved mistakes, a single question) are marked but never set the best score
+    const start = (items, practice, from) => { if (items.length) setRun({ items, i: 0, picks: [], saved: false, practice: !!practice, from: from || null }); };
+    const closeRun = () => { const from = run && run.from; setRun(null); if (from === 'path') go({ mode: 'path' }); else if (from === 'home') go({ view: 'shelf' }); };
+    const startFromSetup = () => start(count === 'all' ? shuffle(pool) : shuffle(pool).slice(0, +count), src === 'miss');
+    useEffect(() => { if (src === 'exam') setSrc('prof'); }, []);
+
+    useEffect(() => {
+      if (!preset) return;
+      if (preset.ids) { const want = new Set(preset.ids); start(all.filter(q => want.has(q.id)), true, preset.from); }
+      else if (preset.lecs) { setLecs(preset.lecs); start(shuffle(all.filter(q => preset.lecs.includes(q.lec))), false, preset.from); }
+      go({ quizPreset: null });
+    }, [preset && preset.t]);
+
+    const pick = j => {
+      if (!run || run.picks[run.i] != null) return;
+      const q = run.items[run.i];
+      const picks = run.picks.slice(); picks[run.i] = j;
+      setRun(Object.assign({}, run, { picks }));
+      recordAnswers(k, [[q.id, j === q.a]]);
+      const wasMissed = miss.includes(q.id);
+      setMiss(m => j === q.a ? m.filter(x => x !== q.id) : (m.includes(q.id) ? m : m.concat(q.id)));
+      if (j === q.a && wasMissed) setFixed(f => f.includes(q.id) ? f : f.concat(q.id));
+      if (j !== q.a) setFixed(f => f.filter(x => x !== q.id));
+    };
+    const next = () => setRun(r => r && r.picks[r.i] != null ? Object.assign({}, r, { i: r.i + 1 }) : r);
+
+    useEffect(() => {
+      if (!run || run.i >= run.items.length) return;
+      const onKey = e => {
+        if (e.target.matches && e.target.matches('input, textarea, select') || e.ctrlKey || e.metaKey || e.altKey) return;
+        const n = run.items[run.i].o.length, key = e.key.toLowerCase();
+        let j = -1;
+        if (/^[1-8]$/.test(key)) j = +key - 1; else if (/^[a-h]$/.test(key)) j = key.charCodeAt(0) - 97;
+        if (j >= 0 && j < n) pick(j);
+        else if (e.key === 'Enter') { e.preventDefault(); next(); }
+      };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }, [run]);
+
+    const chip = C[k].short + (run && run.items.length && run.items.every(q => q.lec === run.items[0].lec) ? ' · Lecture ' + run.items[0].lec : '') + (run && run.practice ? ' · practice' : '');
+    const segs = run && (run.items.length <= 40
+      ? html`<span className="f-segs">${run.items.map((qq, i) => { const p = run.picks[i]; return html`<i key=${i} className=${i === run.i ? 'cur' : p == null ? '' : p === qq.a ? 'ok' : 'no'}></i>`; })}</span>`
+      : html`<span className="f-bar"><i style=${{ width: (Math.min(run.i, run.items.length) / run.items.length * 100) + '%' }}></i></span>`);
+
+    /* finished */
+    if (run && run.i >= run.items.length) {
+      const total = run.items.length;
+      const right = run.items.filter((q, i) => run.picks[i] === q.a).length;
+      const pct = Math.round(right / total * 100);
+      const counts = !run.practice && total >= 5;
+      if (!run.saved) { run.saved = true; if (counts && (best == null || pct > best)) setTimeout(() => setBest(pct), 0); }
+      const missed = run.items.map((q, i) => ({ q, p: run.picks[i] })).filter(x => x.p !== x.q.a);
+      const line = pct === 100 ? 'Full marks.' : pct >= 85 ? 'Excellent work.' : pct >= 65 ? 'Good. Fix the few below.' : pct >= 50 ? 'Pass, but re-read the notes.' : 'Back to the notes, then retry.';
+      return html`<${FocusShell} onClose=${closeRun} chip=${chip} progress=${segs}>
+        <div className="f-result">
+          <span className=${'f-score' + (pct >= 70 ? ' ok' : ' no')} style=${{ '--p': pct }}><b>${right}/${total}</b><em>${pct}%</em></span>
+          <h2 className="f-q">${line}</h2>
+          <p className="f-note">${missed.length ? missed.length + ' question' + (missed.length > 1 ? 's were' : ' was') + ' added to your mistakes.' : 'Nothing new in your mistakes.'}${run.practice ? ' Practice rounds don’t change your best score.' : !counts ? ' Quizzes under 5 questions don’t change your best score.' : ''}</p>
+          <div className="f-acts">
+            ${missed.length > 0 && html`<button className="f-go" onClick=${() => start(shuffle(missed.map(x => x.q)), true, run.from)}>Retry the ${missed.length} I missed</button>`}
+            ${!run.practice && html`<button className="f-ghost" onClick=${() => start(shuffle(run.items), false, run.from)}>Same questions, new order</button>`}
+            <button className="f-ghost" onClick=${closeRun}>Done</button>
+          </div>
+          ${missed.length > 0 && html`<div className="f-corr">
+            <h3>Corrections</h3>
+            ${missed.map(({ q, p }) => html`<div key=${q.id} className="f-rv">
+              <p className="f-rq"><${H} h=${q.q} /></p>
+              <p><span className="bad">You: ${LET[p]}</span> <${H} h=${q.o[p][0]} />. <span className="muted"><${H} h=${q.o[p][1]} /></span><${Ar} t=${arQ(k, q, p)} /></p>
+              <p><span className="good">Answer: ${LET[q.a]}</span> <${H} h=${q.o[q.a][0]} />. <span className="muted"><${H} h=${q.o[q.a][1]} /></span><${Ar} t=${arQ(k, q, q.a)} /></p>
+            </div>`)}
+          </div>`}
+        </div>
+      </${FocusShell}>`;
+    }
+
+    /* question: one at a time, full screen */
+    if (run) {
+      const q = run.items[run.i], pk = run.picks[run.i], done = pk != null, ok = pk === q.a;
+      const one = q.o.length < 3 || q.o.some(o => strip(o[0]).length > 46);
+      return html`<${FocusShell} onClose=${closeRun} chip=${chip} progress=${segs} resetKey=${run.i}
+        sheet=${done && html`<div className=${'f-sheet ' + (ok ? 'ok' : 'no')} role="status">
+          <div><h3>${ok ? 'Correct!' : 'Not quite. It’s ' + LET[q.a] + '.'}</h3><p>Every choice is explained above${arQ(k, q, q.a) ? ', with Arabic' : ''}.</p></div>
+          <button className="f-go" onClick=${next}>${run.i + 1 < run.items.length ? 'Continue' : 'See my score'}</button>
+        </div>`}>
+        <p className="f-src"><${Source} q=${q} /><span>Question ${run.i + 1} of ${run.items.length} · L${q.lec}</span></p>
+        <${H} as="h2" className="f-q" h=${q.q} />
+        <ol className=${'f-opts' + (one ? ' one' : '')}>
+          ${q.o.map((o, j) => html`<li key=${j} className=${done ? (j === q.a ? 'ok' : j === pk ? 'no' : 'dim') : ''}>
+            <button className="f-opt" disabled=${done} onClick=${() => pick(j)}>
+              <span className="f-let">${done && j === q.a ? '✓' : done && j === pk ? '✕' : LET[j]}</span><span className="f-ot"><${H} h=${o[0]} /></span>
+            </button>
+            ${done && html`<p className="f-why"><b>${j === q.a ? 'Why it’s right:' : 'Why not:'}</b> <${H} h=${o[1]} /><${Ar} t=${arQ(k, q, j)} /></p>`}
+          </li>`)}
+        </ol>
+        ${!done && html`<p className="f-keys">Press <kbd>A</kbd>–<kbd>${LET[q.o.length - 1]}</kbd> or <kbd>1</kbd>–<kbd>${q.o.length}</kbd> · <kbd>Esc</kbd> to stop</p>`}
+      </${FocusShell}>`;
+    }
+
+    if (mock) return html`<${MockExam} k=${k} mock=${mock} setMock=${setMock} setMiss=${setMiss} setFixed=${setFixed} onNew=${() => startMock(mock.ids.length)} />`;
+
+    /* setup */
+    const n = count === 'all' ? pool.length : Math.min(+count, pool.length);
+    const exams = [...new Set(all.filter(isExam).map(q => q.src))];
+    return html`<div>
+      <article className="paper setup">
+        
+        <div>
+          <p className="kicker">Answer sheet</p>
+          <h2>Build a quiz</h2>
+          <p className="muted" style=${{ margin: 0, maxWidth: '52ch' }}>Fill in a bubble to answer. The sheet is marked straight away, and every choice gets a reason: why the right one is right and why each wrong one is wrong.</p>
+          <div className="fieldset"><span className="flabel">Lectures</span><${LecFilter} k=${k} value=${lecs} onChange=${setLecs} multi=${true} /></div>
+          <div className="fieldset"><span className="flabel">Questions</span>
+            <div className="seg">
+              ${[['all', 'All questions'], ['prof', "Professor's"], ['extra', 'Extra questions'], ['miss', 'My mistakes']].map(([v, l]) =>
+                html`<button key=${v} aria-pressed=${String(srcMode === v)} disabled=${!bySrc[v] && srcMode !== v} onClick=${() => setSrc(v)}>${l} <span className="segn">${bySrc[v]}</span></button>`)}
+            </div>
+          </div>
+          <div className="fieldset"><span className="flabel">Length</span>
+            <div className="seg">${['10', '20', '30', 'all'].map(v => html`<button key=${v} aria-pressed=${String(count === v)} onClick=${() => setCount(v)}>${v === 'all' ? 'Everything' : v}</button>`)}</div>
+          </div>
+        </div>
+        <div className="cover">
+          <p className="kicker">${C[k].short} · ${lecs === 'all' ? 'all lectures' : 'L' + lecs.join(', L')}</p>
+          <div className="big">${n}</div>
+          <p className="muted small" style=${{ margin: '4px 0 0' }}>question${n === 1 ? '' : 's'} on this sheet, from ${pool.length} that match</p>
+          <ul>
+            <li>${all.length} questions in this course</li>
+            <li><span className="srcbadge prof">Professor's</span> ${all.filter(isProf).length} from past exams, the professor's sheets and lecture examples</li>
+            <li><span className="srcbadge extra">Extra</span> ${all.filter(q => originOf(q) === 'extra').length} written for Study Deck from the lectures</li>
+            ${all.some(q => originOf(q) === 'summary') && html`<li><span className="srcbadge summary">Summary</span> ${all.filter(q => originOf(q) === 'summary').length} from student summaries</li>`}
+            ${best != null && html`<li>Your best score: ${best}%</li>`}
+          </ul>
+          <button className="btn solid" style=${{ width: '100%', justifyContent: 'center' }} disabled=${!pool.length} onClick=${startFromSetup}>Start the quiz</button>
+          ${!pool.length && html`<div className="nomatch">
+            <p className="small">${srcMode === 'prof'
+              ? "The professor's past papers and sheets didn't ask about " + (lecs === 'all' ? 'this course' : (lecs.length > 1 ? 'these lectures' : 'Lecture ' + lecs[0])) + '. Practise with the extra questions instead, or take the professor\'s questions from every lecture.'
+              : srcMode === 'miss' ? 'No saved mistakes for ' + (lecs === 'all' ? 'this course' : 'these lectures') + ' yet. Questions you get wrong will appear here.'
+              : 'No questions match these lectures.'}</p>
+            <div className="row">
+              ${srcMode !== 'extra' && bySrc.extra > 0 && html`<button className="btn" onClick=${() => setSrc('extra')}>Use the ${bySrc.extra} extra questions</button>`}
+              ${srcMode === 'prof' && lecs !== 'all' && html`<button className="btn ghost" onClick=${() => setLecs('all')}>Professor's from all lectures (${all.filter(isProf).length})</button>`}
+              ${srcMode !== 'all' && bySrc.all > 0 && html`<button className="btn ghost" onClick=${() => setSrc('all')}>All ${bySrc.all} questions</button>`}
+            </div>
+          </div>`}
+        </div>
+      </article>
+      <article className="paper mockcard">
+        
+        <div>
+          <p className="kicker" style=${{ color: 'var(--pen)' }}>Exam conditions</p>
+          <h2>Timed mock exam</h2>
+          <p className="muted" style=${{ margin: '0 0 14px', maxWidth: '56ch' }}>A mixed paper built from past-exam questions first, with 1.5 minutes per question. No hints while it runs: answer, flag, change your mind, then hand in. Everything is marked at the end with full explanations.</p>
+          <div className="seg">${[10, 20, 30, 40].map(v => html`<button key=${v} aria-pressed=${String(mockLen === v)} onClick=${() => setMockLen(v)}>${v} questions · ${Math.round(v * 1.5)} min</button>`)}</div>
+        </div>
+        <div className="cover">
+          <p className="kicker">${C[k].short} · mock paper</p>
+          <div className="big">${fmtClock(Math.round(Math.min(mockLen, all.length) * 1.5) * 60000).replace(/:00$/, '')}<span className="unit"> min</span></div>
+          <ul>
+            <li>${Math.min(mockLen, all.length)} questions, ${Math.min(mockLen, all.filter(isExam).length)} from past papers</li>
+            ${store.get('mock:' + k, null) != null && html`<li>Best mock so far: ${store.get('mock:' + k, null)}%</li>`}
+          </ul>
+          <button className="btn solid" style=${{ width: '100%', justifyContent: 'center' }} onClick=${() => startMock(mockLen)}>Start the timer</button>
+        </div>
+      </article>
+      ${exams.length > 0 && html`<p className="muted small" style=${{ marginTop: '14px' }}>Past-paper questions come from: ${exams.join(' · ')}</p>`}
+    </div>`;
+  }
+
+  /* ════════════ MOCK EXAM ════════════ */
+  const MOCKS = {};
+  function loadMock(k) { if (MOCKS[k]) return MOCKS[k]; try { const v = JSON.parse(sessionStorage.getItem('sd:mock:' + k)); if (v) MOCKS[k] = v; } catch (e) {} return MOCKS[k] || null; }
+  function saveMock(k, m) { MOCKS[k] = m; try { m ? sessionStorage.setItem('sd:mock:' + k, JSON.stringify(m)) : sessionStorage.removeItem('sd:mock:' + k); } catch (e) {} }
+
+  function MockExam({ k, mock, setMock, setMiss, setFixed, onNew }) {
+    const byId = quizById(k);
+    const items = mock.ids.map(id => byId.get(id)).filter(Boolean);
+    const [now, setNow] = useState(Date.now());
+    const [confirm, setConfirm] = useState(false);
+    const latest = useRef(mock); latest.current = mock;
+    const upd = patch => setMock(Object.assign({}, latest.current, patch));
+    const submit = () => {
+      const m = latest.current; if (m.result) return;
+      const pairs = items.map(q => [q.id, m.ans[q.id] === q.a]);
+      recordAnswers(k, pairs);
+      const okIds = pairs.filter(p => p[1]).map(p => p[0]), badIds = pairs.filter(p => !p[1]).map(p => p[0]);
+      setMiss(list => { const keep = list.filter(id => !okIds.includes(id)); badIds.forEach(id => { if (!keep.includes(id)) keep.push(id); }); setFixed(f => f.filter(id => !badIds.includes(id)).concat(okIds.filter(id => list.includes(id) && !f.includes(id)))); return keep; });
+      const right = okIds.length, pct = Math.round(right / items.length * 100);
+      const prev = store.get('mock:' + k, null); if (prev == null || pct > prev) store.set('mock:' + k, pct);
+      upd({ result: { right, pct, used: Math.min(m.minutes * 60000, Date.now() - m.started), timeUp: Date.now() >= m.deadline } });
+    };
+    useEffect(() => {
+      if (mock.result) return;
+      if (Date.now() >= mock.deadline) { submit(); return; }
+      const t = setInterval(() => { setNow(Date.now()); if (Date.now() >= latest.current.deadline) submit(); }, 1000);
+      return () => clearInterval(t);
+    }, [mock.result]);
+    // keyboard: the handler is refreshed every render; hooks stay above the early return for the result view
+    const keyRef = useRef(null);
+    useEffect(() => { const f = e => { if (!latest.current.result && keyRef.current) keyRef.current(e); }; window.addEventListener('keydown', f); return () => window.removeEventListener('keydown', f); }, []);
+
+    if (mock.result) {
+      const r = mock.result;
+      const byLec = {};
+      items.forEach(q => { const b = byLec[q.lec] || (byLec[q.lec] = [0, 0]); b[1]++; if (mock.ans[q.id] === q.a) b[0]++; });
+      return html`<article className="paper">
+        
+        <div className="row" style=${{ gap: '28px', alignItems: 'center' }}>
+          <div className="score">
+            
+            <span className="pen">${r.right}/${items.length}</span>
+          </div>
+          <div>
+            <p className="kicker">Mock exam · ${r.pct}% · ${r.timeUp ? 'time ran out' : 'handed in after ' + fmtClock(r.used)}</p>
+            <p className="pen" style=${{ fontSize: '2rem', margin: '6px 0 0' }}>${r.pct >= 85 ? 'Exam ready.' : r.pct >= 65 ? 'Solid. Fix the gaps below.' : r.pct >= 50 ? 'A pass. Keep revising.' : 'Not yet. Back to the notes.'}</p>
+            <p className="muted small" style=${{ margin: '8px 0 0' }}>Wrong and unanswered questions were added to Mistakes.</p>
+          </div>
+        </div>
+        <div className="tbl" style=${{ marginTop: '22px' }}><table>
+          <thead><tr><th>Lecture</th><th>Score</th><th style=${{ width: '40%' }}></th></tr></thead>
+          <tbody>${Object.entries(byLec).sort((a, b) => a[0] - b[0]).map(([n, [ok, tot]]) => html`<tr key=${n}><td>L${n} · ${lecTitle(k, +n)}</td><td className="num">${ok}/${tot}</td>
+            <td><span className="meter" style=${{ '--w': Math.round(ok / tot * 100) + '%', '--sp': ok / tot >= 0.6 ? 'var(--ok)' : 'var(--pen)' }}><b>${Math.round(ok / tot * 100)}%</b><i></i></span></td></tr>`)}</tbody>
+        </table></div>
+        <div className="row" style=${{ marginTop: '18px' }}>
+          <button className="btn solid" onClick=${onNew}>Sit another paper</button>
+          <button className="btn ghost" onClick=${() => setMock(null)}>Back to quiz setup</button>
+        </div>
+        <div className="review">
+          <h3>Marked paper</h3>
+          ${items.map((q, i) => { const p = mock.ans[q.id], ok = p === q.a; return html`<details key=${q.id} className="rv mockrv" open=${!ok}>
+            <summary><span className=${ok ? 'good' : 'bad'}>${ok ? '✓' : p == null ? 'No answer' : '✗'}</span> <b>Q${i + 1}.</b> <${H} h=${q.q} /></summary>
+            <ol className="opts">${q.o.map((o, j) => html`<li key=${j}>
+              <div className=${'opt' + (p === j ? ' picked' : '') + (j === q.a ? ' answer' : '')}><span className="bubble">${LET[j]}</span><span className="otext"><${H} h=${o[0]} /></span><span>${j === q.a ? Icon.tick : p === j ? Icon.cross : null}</span></div>
+              <p className=${'why ' + (j === q.a ? 'right' : 'wrong')}><b>${j === q.a ? 'Right' : 'Wrong'}</b><${H} h=${o[1]} /><${Ar} t=${arQ(k, q, j)} /></p></li>`)}</ol>
+          </details>`; })}
+        </div>
+      </article>`;
+    }
+
+    const i = Math.min(mock.i, items.length - 1), q = items[i];
+    const left = mock.deadline - now, answered = items.filter(x => mock.ans[x.id] != null).length;
+    const choose = j => upd({ ans: Object.assign({}, mock.ans, { [q.id]: j }) });
+    const goTo = n => upd({ i: Math.max(0, Math.min(items.length - 1, n)) });
+    keyRef.current = e => {
+      if (e.target.matches && e.target.matches('input, textarea, select') || e.ctrlKey || e.metaKey || e.altKey) return;
+      const key = e.key.toLowerCase(); let j = -1;
+      if (/^[1-8]$/.test(key)) j = +key - 1; else if (/^[a-e]$/.test(key)) j = key.charCodeAt(0) - 97;
+      if (j >= 0 && j < q.o.length) choose(j);
+      else if (e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); goTo(i + 1); }
+      else if (e.key === 'ArrowLeft') goTo(i - 1);
+      else if (key === 'f') upd({ flag: Object.assign({}, mock.flag, { [q.id]: !mock.flag[q.id] }) });
+    };
+
+    return html`<div className="mock">
+      <div className="mockbar">
+        <span className=${'clock' + (left < 5 * 60000 ? ' low' : '')} aria-label="Time left">${fmtClock(left)}</span>
+        <span className="muted small">${answered}/${items.length} answered</span>
+        <span className="grow"></span>
+        ${confirm ? html`<span className="row small"><span>${items.length - answered ? items.length - answered + ' unanswered. ' : ''}Hand in now?</span>
+            <button className="btn solid" onClick=${submit}>Hand in</button><button className="btn ghost" onClick=${() => setConfirm(false)}>Keep going</button></span>`
+          : html`<button className="btn" onClick=${() => setConfirm(true)}>Hand in</button>`}
+      </div>
+      <div className="mockgrid">
+        <article className="paper">
+          
+          <div className="qtop">
+            <span>Question ${i + 1} of ${items.length}</span>
+            <span className="tag lec">L${q.lec}</span>
+            <${Source} q=${q} />
+            ${mock.flag[q.id] && html`<span className="tag exam">flagged</span>`}
+          </div>
+          <${H} as="h2" className="qtext" h=${q.q} />
+          <ol className="opts">${q.o.map((o, j) => html`<li key=${j}><button className=${'opt' + (mock.ans[q.id] === j ? ' picked' : '')} onClick=${() => choose(j)}>
+            <span className="bubble">${LET[j]}</span><span className="otext"><${H} h=${o[0]} /></span><span></span></button></li>`)}</ol>
+          <div className="qfoot">
+            <button className="btn ghost" disabled=${i === 0} onClick=${() => goTo(i - 1)}>← Previous</button>
+            <button className=${'btn' + (mock.flag[q.id] ? ' flagged' : '')} aria-pressed=${String(!!mock.flag[q.id])} onClick=${() => upd({ flag: Object.assign({}, mock.flag, { [q.id]: !mock.flag[q.id] }) })}>${mock.flag[q.id] ? 'Flagged' : 'Flag for review'}</button>
+            <button className="btn solid" onClick=${() => i + 1 < items.length ? goTo(i + 1) : setConfirm(true)}>${i + 1 < items.length ? 'Next →' : 'Finish'}</button>
+          </div>
+        </article>
+        <aside className="navgrid" aria-label="Jump to a question">
+          <p className="kicker">Answer sheet</p>
+          <div className="nums">${items.map((x, n) => html`<button key=${x.id} aria-current=${n === i ? 'step' : null}
+            className=${(mock.ans[x.id] != null ? 'done' : '') + (mock.flag[x.id] ? ' flag' : '')} onClick=${() => goTo(n)} aria-label=${'Question ' + (n + 1)}>${n + 1}</button>`)}</div>
+          <p className="muted small" style=${{ margin: 0 }}>Filled = answered · red ring = flagged</p>
+          <p className="keys"><kbd>A</kbd>–<kbd>D</kbd> answer · <kbd>←</kbd> <kbd>→</kbd> move · <kbd>F</kbd> flag</p>
+        </aside>
+      </div>
+    </div>`;
+  }
+
+  /* ════════════ PAST PAPERS ════════════ */
+  function Papers({ k }) {
+    const b = baseOf(k), c = C[b];
+    if (!c.exams || !c.exams.length) return html`<div className="paper empty"><span className="pen">No past papers yet.</span>Past papers for ${c.name} will appear here once added.</div>`;
+    const [ix, setIx] = usePersist('paper:' + b, 0);
+    const exI = Math.min(ix, c.exams.length - 1), ex = c.exams[exI];
+    const arEx = (si, ii) => { const A = arOf(b); const t = A && A.exams && A.exams[exI] && A.exams[exI].sections[si] && A.exams[exI].sections[si].items[ii]; return t || {}; };
+    const [st, setSt] = useState({});
+    useEffect(() => setSt({}), [ix]);
+    const total = ex.sections.reduce((a, s) => a + s.items.length, 0);
+    const set = (key, patch) => setSt(o => Object.assign({}, o, { [key]: Object.assign({}, o[key], patch) }));
+    const scored = Object.entries(st).filter(([key, v]) => v.pick != null);
+    const right = scored.filter(([key, v]) => { const [si, ii] = key.split('.').map(Number); return ex.sections[si].items[ii].a === v.pick; }).length;
+
+    return html`<div className="papers">
+      <nav className="plist" aria-label="Past papers">
+        ${c.exams.map((e, i) => html`<button key=${i} className="pitem" aria-current=${String(e === ex)} onClick=${() => { setIx(i); window.scrollTo(0, 0); }}>
+          ${e.title}<small>${e.sections.reduce((a, s) => a + s.items.length, 0)} questions</small></button>`)}
+      </nav>
+      <article className="paper">
+        
+        <header className="exhead">
+          <p className="kicker">${c.code} · ${c.name}</p>
+          <h2>${ex.title}</h2>
+          <p>${ex.meta}</p>
+          ${ex.note && html`<p className="exnote"><span className="pen">Note:</span>${ex.note}</p>`}
+        </header>
+        <div className="extools">
+          <span className="muted small">${total} questions. Choose an answer or draft one, then check it.</span>
+          <span className="grow"></span>
+          ${scored.length > 0 && html`<span className="pen" style=${{ fontSize: '1.5rem' }}>${right}/${scored.length}</span>`}
+          <button className="btn ghost" onClick=${() => { const o = {}; ex.sections.forEach((s, si) => s.items.forEach((_, ii) => { o[si + '.' + ii] = Object.assign({}, st[si + '.' + ii], { open: true }); })); setSt(o); }}>Show all answers</button>
+          <button className="btn ghost" onClick=${() => setSt({})}>Clear</button>
+        </div>
+        ${ex.sections.map((s, si) => html`<section key=${si} className="psec">
+          <div className="psec-h"><h3>${s.title}</h3><span>${s.marks}</span></div>
+          ${s.items.map((it, ii) => {
+            const key = si + '.' + ii, my = st[key] || {}, open = !!my.open || my.pick != null;
+            const opts = it.type === 'tf' ? ['True', 'False'] : it.o;
+            return html`<div key=${key} className="eq">
+              <span className="num">${ii + 1}</span>
+              <div style=${{ minWidth: 0 }}>
+                <${H} as="div" className="qt" h=${it.q} />
+                ${opts && html`<div className="eopts">${opts.map((o, oi) => html`<button key=${oi} disabled=${open}
+                    className=${'eopt' + (my.pick === oi ? ' picked' : '') + (open && oi === it.a ? ' answer' : '')}
+                    onClick=${() => set(key, { pick: oi, open: true })}>
+                    <span className="bubble">${it.type === 'tf' ? o[0] : LET[oi].toLowerCase()}</span><${H} h=${o} /></button>`)}</div>`}
+                ${it.type === 'written' && !open && html`<textarea className="draft" id=${'draft-' + k + '-' + ix + '-' + key} placeholder="Draft your answer here (it is not saved)…"></textarea>`}
+                ${it.viz && html`<${WatchSolved} spec=${it.viz} ar=${!!arOf(k)} k=${k} />`}
+                ${!open && html`<div><button className="linkbtn" style=${{ marginTop: '8px' }} onClick=${() => set(key, { open: true })}>${it.type === 'written' ? 'Show the model answer' : 'Reveal the answer'}</button></div>`}
+                ${open && html`<div className="model">
+                  <div className="lab">${opts ? (my.pick == null ? 'Answer' : my.pick === it.a ? '✓ Correct' : '✗ Not this one') : 'Model answer'}</div>
+                  ${it.key && html`<span className="keyn">${it.key}</span>`}
+                  ${it.ans && html`<${H} as="div" className="ansbox" h=${it.ans} />`}
+                  <${Ar} t=${arEx(si, ii).ans} cls="arblock" />
+                  ${opts && html`<p style=${{ margin: '0 0 6px' }}><b>${it.type === 'mcq' ? LET[it.a].toLowerCase() + ') ' : ''}<${H} h=${opts[it.a]} /></b></p>`}
+                  <p className="expl" style=${{ margin: 0 }}><b>Why: </b><${H} h=${it.why} /><${Ar} t=${arEx(si, ii).why} /></p>
+                  ${opts && it.ow && html`<div className="owhy"><div className="lab">Why the other choices are wrong</div>
+                    <ul>${opts.map((o, oi) => oi !== it.a && it.ow[oi] && html`<li key=${oi} className=${my.pick === oi ? 'mine' : ''}>
+                      <b>${it.type === 'mcq' ? LET[oi].toLowerCase() + ') ' : ''}<${H} h=${o} />${my.pick === oi ? html` <em>your choice</em>` : null}</b>
+                      <span><${H} h=${it.ow[oi]} /></span><${Ar} t=${(arEx(si, ii).ow || [])[oi]} /></li>`)}</ul></div>`}
+                </div>`}
+              </div>
+            </div>`;
+          })}
+        </section>`)}
+      </article>
+    </div>`;
+  }
+
+  /* ════════════ BOOK VIEW ════════════
+     The chapter is laid out once with CSS columns (one column = one page). Every visible page renders the same
+     content shifted to its column, so pagination is exact and a page-turn leaf can show any two pages. */
+  const cleanTitle = t => t.replace(/\s*\((?:Lec|Lecture|Topic)\b[^)]*\)\s*$/i, '').trim();
+  const splitTitle = t => { t = cleanTitle(t); const i = t.indexOf(': '); return i > 0 && i <= 48 ? [t.slice(0, i), t.slice(i + 2)] : [t, '']; };
+  function bookLecture(c, lec) {
+    const [main, sub] = splitTitle(lec.title);
+    return html`<div className="bcontent" lang="en">
+      <header className="bopen"><p className="bk">Lecture ${lec.n}</p><h1>${main}</h1>${sub && html`<p className="bsubt">${sub}</p>`}<p className="bsub">${c.name}</p><div className="borna" aria-hidden="true">❦</div></header>
+      ${lec.notes.map((s, i) => {
+        // like a typeset book, a heading never sits alone at the foot of a page: it travels with its first block
+        const blocks = [];
+        if (s.formula) blocks.push(html`<div className="formula">${(Array.isArray(s.formula) ? s.formula : [s.formula]).join('\n')}</div>`);
+        if (s.table) blocks.push(html`<table><thead><tr>${s.table[0].map((x, j) => html`<th key=${j} dangerouslySetInnerHTML=${{ __html: x }}></th>`)}</tr></thead>
+          <tbody>${s.table.slice(1).map((r, ri) => html`<tr key=${ri}>${r.map((x, j) => html`<td key=${j} dangerouslySetInnerHTML=${{ __html: x }}></td>`)}</tr>`)}</tbody></table>`);
+        if (s.code) blocks.push(html`<pre data-hl="" dangerouslySetInnerHTML=${{ __html: codeHtml(Array.isArray(s.code) ? s.code.join('\n') : s.code) }}></pre>`);
+        const pts = s.pts || [];
+        const li = (p, j) => html`<li key=${j} dangerouslySetInnerHTML=${{ __html: p }}></li>`;
+        const firstIsList = !blocks.length && pts.length;
+        return html`<section key=${i} className="bsec" data-i=${i}>
+          <div className="bkeep">
+            <p className="bsn">Section ${i + 1}</p>
+            <h2><${H} h=${s.h} />${s.ly ? " (last year's slides)" : ''}</h2>
+            ${blocks.length ? blocks[0] : firstIsList ? html`<ul>${li(pts[0], 0)}</ul>` : null}
+          </div>
+          ${blocks.slice(1)}
+          ${firstIsList ? (pts.length > 1 && html`<ul className="bcont">${pts.slice(1).map((p, j) => li(p, j + 1))}</ul>`) : (pts.length > 0 && html`<ul>${pts.map(li)}</ul>`)}
+        </section>`;
+      })}
+      <p className="bend">End of lecture ${lec.n}</p>
+    </div>`;
+  }
+  function bookRevision(c) {
+    return html`<div className="bcontent" lang="en">
+      <header className="bopen"><p className="bk">Revision sheet</p><h1>${c.name}</h1><p className="bsub">Every key term, formula and past-paper answer</p><div className="borna" aria-hidden="true">❦</div></header>
+      ${c.lectures.map((l, i) => { const formulas = l.notes.filter(s => s.formula).flatMap(s => s.formula); const exam = l.quiz.filter(isExam);
+        return html`<section key=${l.n} className="bsec" data-i=${i}>
+          <div className="bkeep"><p className="bsn">Lecture ${l.n}</p><h2>${cleanTitle(l.title)}</h2></div>
+          <dl className="bterms">${l.cards.map((x, j) => html`<div key=${j}><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`)}</dl>
+          ${formulas.length > 0 && html`<div className="formula">${formulas.join('\n')}</div>`}
+          ${exam.length > 0 && html`<p className="bk-small">From past papers</p><ul>${exam.map((q, j) => html`<li key=${j}><${H} h=${q.q} /> <b>→ <${H} h=${q.o[q.a][0]} /></b></li>`)}</ul>`}
+        </section>`; })}
+      <p className="bend">End of the revision sheet</p>
+    </div>`;
+  }
+
+  const BOOK_FS = { s: 15.5, m: 17, l: 19 };
+  function Book({ k, chapter, onClose }) {
+    const c = M[k];
+    const stageRef = useRef(null), measureRef = useRef(null);
+    const [size, setSize] = usePersist('booksize', 'm');
+    const [stage, setStage] = useState({ w: innerWidth, h: Math.max(300, innerHeight - 120) });
+    useEffect(() => {
+      const el = stageRef.current; if (!el) return;
+      const ro = new ResizeObserver(() => setStage({ w: el.clientWidth, h: el.clientHeight }));
+      ro.observe(el); return () => ro.disconnect();
+    }, []);
+    useEffect(() => { const r = document.documentElement, prev = r.style.overflow; r.style.overflow = 'hidden'; return () => { r.style.overflow = prev; }; }, []);
+    useEffect(() => {
+      // the book is typeset in a serif; load it only when a book is opened
+      lazyFont('book', 'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,36,400;0,36,500;1,36,400&display=swap');
+    }, []);
+
+    // page geometry, in book units; the whole book is then scaled to fit the screen
+    const spread = stage.w >= 760 && stage.w > stage.h * 0.95;
+    const PW = spread ? 520 : 380;
+    const PH = spread ? 740 : Math.round(Math.min(900, Math.max(600, PW * (stage.h - 24) / Math.max(200, stage.w - 24))));
+    const PX = spread ? 50 : 28, PT = 54, PB = 58;
+    const CW = PW - 2 * PX, CH = PH - PT - PB, FS = BOOK_FS[size] || 17;
+    const bookW = spread ? PW * 2 : PW, bookH = PH;
+    const fit = Math.max(0.2, Math.min((stage.w - 24) / (bookW + 28), (stage.h - 20) / (bookH + 24)));
+    const [z, setZ] = useState(1);
+    const zRef = useRef(1); zRef.current = z;
+    const scale = fit * z;
+
+    // measure pages and where each section starts
+    const [lay, setLay] = useState({ pages: 1, sec: [] });
+    useLayoutEffect(() => {
+      const el = measureRef.current; if (!el) return;
+      const run = () => setLay({
+        pages: Math.max(1, Math.round((el.scrollWidth + 2 * PX) / PW)),
+        sec: [...el.querySelectorAll('[data-i]')].map(n => Math.floor((n.offsetLeft + 2) / PW))
+      });
+      run(); if (document.fonts) document.fonts.ready.then(run);
+    }, [chapter.id, PW, PH, FS]);
+    const total = lay.pages, step = spread ? 2 : 1;
+    const secNowRef = useRef(0);
+    const norm = p => { p = Math.max(0, Math.min(total - 1, p)); return spread ? p - (p % 2) : p; };
+
+    const posKey = 'bookpos:' + k + ':' + chapter.id;
+    const readPos = () => { const v = store.get(posKey, 0); return v === 'end' ? 1e6 : v; };
+    const [p, setP] = useState(readPos);
+    const [turn, setTurn] = useState(null);
+    useEffect(() => { setP(readPos()); setTurn(null); }, [chapter.id]);
+    const page = norm(p);
+    useEffect(() => { if (total > 1 || page === 0) store.set(posKey, page); }, [page, total, posKey]);
+
+    // a new turn while one is animating finishes the current one at once, so quick presses never get dropped
+    const here = () => turn ? turn.to : page;
+    const turnTo = target => {
+      const base = here(), busy = !!turn;
+      if (target > total - 1 || (spread && target >= total)) { if (chapter.next) { store.set('bookpos:' + k + ':' + chapter.nextId, 0); chapter.next(); } return; }
+      if (target < 0) { if (chapter.prev) { store.set('bookpos:' + k + ':' + chapter.prevId, 'end'); chapter.prev(); } return; }
+      target = norm(target);
+      if (target === base) { if (busy) { setTurn(null); setP(base); } return; }
+      if (busy || calm() || Math.abs(target - base) > step) { setTurn(null); setP(target); return; }
+      setTurn({ dir: target > base ? 1 : -1, from: base, to: target, go: false });
+      requestAnimationFrame(() => requestAnimationFrame(() => setTurn(t => t && Object.assign({}, t, { go: true }))));
+    };
+    const finish = () => setTurn(t => { if (t) setP(t.to); return null; });
+    useEffect(() => { if (!turn || !turn.go) return; const id = setTimeout(finish, 760); return () => clearTimeout(id); }, [turn && turn.go]);
+    const next = () => turnTo(here() + step), prev = () => turnTo(here() - step);
+
+    // zoom around a point (pinch centre, cursor, or the middle of the screen)
+    const zoomAt = (nz, cx, cy) => {
+      const st = stageRef.current; nz = Math.max(1, Math.min(4, nz));
+      if (!st || Math.abs(nz - zRef.current) < 0.001) return;
+      const r = st.getBoundingClientRect();
+      if (cx == null) { cx = r.left + r.width / 2; cy = r.top + r.height / 2; }
+      const ratio = nz / zRef.current, px = cx - r.left + st.scrollLeft, py = cy - r.top + st.scrollTop;
+      ReactDOM.flushSync(() => setZ(nz));
+      st.scrollLeft = px * ratio - (cx - r.left); st.scrollTop = py * ratio - (cy - r.top);
+    };
+    const close = () => onClose(secNowRef.current);
+
+    // keyboard
+    const keys = useRef(null);
+    keys.current = e => {
+      if (e.target.matches && e.target.matches('input[type="text"], textarea, select') || e.ctrlKey || e.metaKey || e.altKey) return;
+      const kk = e.key;
+      if (kk === 'ArrowRight' || kk === 'PageDown' || (kk === ' ' && !e.shiftKey)) next();
+      else if (kk === 'ArrowLeft' || kk === 'PageUp' || (kk === ' ' && e.shiftKey)) prev();
+      else if (kk === 'Home') turnTo(0);
+      else if (kk === 'End') turnTo(total - 1);
+      else if (kk === '+' || kk === '=') zoomAt(zRef.current + 0.25);
+      else if (kk === '-') zoomAt(zRef.current - 0.25);
+      else if (kk === '0') zoomAt(1);
+      else if (kk === 'Escape') close();
+      else return;
+      e.preventDefault();
+    };
+    useEffect(() => { const f = e => keys.current(e); window.addEventListener('keydown', f); return () => window.removeEventListener('keydown', f); }, []);
+
+    // wheel: Ctrl/pinch-wheel zooms; at fit, a deliberate wheel or trackpad swipe turns the page
+    const wheelAcc = useRef({ v: 0, t: 0 });
+    useEffect(() => {
+      const st = stageRef.current; if (!st) return;
+      const onWheel = e => {
+        if (e.ctrlKey || e.metaKey) { e.preventDefault(); zoomAt(zRef.current * Math.exp(-e.deltaY * 0.0022), e.clientX, e.clientY); return; }
+        if (zRef.current > 1.02) return;
+        e.preventDefault();
+        const a = wheelAcc.current, now = Date.now();
+        if (now - a.t < 650) return;
+        a.v += Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+        if (Math.abs(a.v) > 90) { a.t = now; const d = a.v; a.v = 0; keys.current({ key: d > 0 ? 'ArrowRight' : 'ArrowLeft', target: st, preventDefault() {} }); }
+      };
+      st.addEventListener('wheel', onWheel, { passive: false });
+      return () => st.removeEventListener('wheel', onWheel);
+    }, []);
+
+    // touch and mouse: swipe or tap the page edge to turn, pinch or double-tap to zoom
+    const ptr = useRef({ pts: new Map(), pinch: null, start: null, lastTap: 0 });
+    const onDown = e => {
+      const P = ptr.current; P.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (P.pts.size === 2) { const [a, b] = [...P.pts.values()]; P.pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: zRef.current }; P.start = null; }
+      else if (P.pts.size === 1) P.start = { x: e.clientX, y: e.clientY, t: Date.now(), type: e.pointerType };
+    };
+    const onMove = e => {
+      const P = ptr.current; if (!P.pts.has(e.pointerId)) return;
+      P.pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (P.pinch && P.pts.size === 2) { const [a, b] = [...P.pts.values()]; zoomAt(P.pinch.z * Math.hypot(a.x - b.x, a.y - b.y) / P.pinch.d, (a.x + b.x) / 2, (a.y + b.y) / 2); }
+    };
+    const onUp = e => {
+      const P = ptr.current; P.pts.delete(e.pointerId);
+      if (P.pts.size < 2) P.pinch = null;
+      const s0 = P.start; P.start = null;
+      if (!s0 || P.pts.size) return;
+      const dx = e.clientX - s0.x, dy = e.clientY - s0.y, moved = Math.hypot(dx, dy);
+      if (s0.type !== 'mouse' && zRef.current <= 1.02 && Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.4) { dx < 0 ? next() : prev(); return; }
+      if (moved > 8 || (window.getSelection && String(window.getSelection()).length)) return;
+      const now = Date.now();
+      if (s0.type !== 'mouse' && now - P.lastTap < 300) { P.lastTap = 0; zoomAt(zRef.current > 1.3 ? 1 : 2, e.clientX, e.clientY); return; }
+      P.lastTap = now;
+      if (zRef.current > 1.02) return;
+      const book = stageRef.current && stageRef.current.querySelector('.bbook'); if (!book) return;
+      const r = book.getBoundingClientRect(), x = (e.clientX - r.left) / r.width;
+      if (x > 0.82) next(); else if (x < 0.18) prev();
+    };
+
+    const flow = i => ({ width: CW + 'px', height: CH + 'px', columnWidth: CW + 'px', columnGap: 2 * PX + 'px', fontSize: FS + 'px', transform: 'translateX(' + (-i * PW) + 'px)' });
+    const pageEl = (i, side, key) => (i == null || i < 0 || i >= total)
+      ? html`<div key=${key} className=${'bpage blank ' + side}></div>`
+      : html`<div key=${key} className=${'bpage ' + side} aria-hidden=${key === 'leaf-f' || key === 'leaf-b' ? 'true' : null}>
+          ${i > 0 && html`<div className="brun">${side === 'left' && spread ? c.name : (chapter.runTitle || chapter.title)}</div>`}
+          <div className="bwin"><div className="bflow" style=${flow(i)}>${chapter.content}</div></div>
+          <div className="bnum">${i + 1}</div>
+        </div>`;
+
+    let left = null, right = null, leaf = null;
+    if (spread) {
+      left = page; right = page + 1;
+      if (turn && turn.dir > 0) { left = turn.from; right = turn.from + 3; leaf = { cls: 'fwd spread', f: [turn.from + 1, 'right'], b: [turn.from + 2, 'left'] }; }
+      if (turn && turn.dir < 0) { left = turn.from - 2; right = turn.from + 1; leaf = { cls: 'back', f: [turn.from, 'left'], b: [turn.from - 1, 'right'] }; }
+    } else {
+      right = page;
+      if (turn && turn.dir > 0) { right = turn.to; leaf = { cls: 'fwd', f: [turn.from, 'right'], b: [null, 'left'] }; }
+      if (turn && turn.dir < 0) { right = turn.from; leaf = { cls: 'in', f: [turn.to, 'right'], b: [null, 'left'] }; }
+    }
+    const label = spread ? 'Pages ' + (page + 1) + (page + 2 <= total ? '–' + (page + 2) : '') + ' of ' + total : 'Page ' + (page + 1) + ' of ' + total;
+    const shortLabel = spread ? label : (page + 1) + ' / ' + total;
+    const atEnd = here() + step > total - 1, atStart = here() === 0;
+    const lastVisible = page + (spread ? 1 : 0);
+    let secNow = lay.sec.findIndex(pg => pg >= page && pg <= lastVisible);
+    if (secNow < 0) secNow = lay.sec.reduce((best, pg, i) => pg <= page ? i : best, 0);
+    secNowRef.current = secNow;
+
+    return html`<div className="bookmode" role="dialog" aria-modal="true" aria-label=${'Book view: ' + chapter.title}>
+      <header className="bbar">
+        <button className="btn ghost" onClick=${close} aria-label="Close the book">✕<span className="hide-s"> Close</span></button>
+        <div className="btitle"><span className="kicker">${chapter.kicker}</span><b>${chapter.title}</b></div>
+        <select className="secpick bsel" id=${'booksec-' + k} aria-label="Go to a section" value=${secNow} onChange=${e => turnTo(lay.sec[+e.target.value] || 0)}>
+          ${chapter.sections.map((t, i) => html`<option key=${i} value=${i}>${t}</option>`)}
+        </select>
+        <div className="bzoom" role="group" aria-label="Zoom">
+          <button onClick=${() => zoomAt(zRef.current - 0.25)} disabled=${z <= 1} aria-label="Zoom out">−</button>
+          <button className="zv" onClick=${() => zoomAt(1)} title="Fit the page (0)">${Math.round(z * 100)}%</button>
+          <button onClick=${() => zoomAt(zRef.current + 0.25)} disabled=${z >= 4} aria-label="Zoom in">+</button>
+        </div>
+        <span className="sizes hide-s" role="group" aria-label="Text size">
+          ${READ_SIZES.map(([id, lab, px]) => html`<button key=${id} aria-pressed=${String(size === id)} title=${lab} aria-label=${lab} onClick=${() => setSize(id)}><span style=${{ fontSize: px + 'px' }}>A</span></button>`)}
+        </span>
+      </header>
+
+      <div className=${'bstage' + (z > 1.02 ? ' zoomed' : '')} ref=${stageRef} onPointerDown=${onDown} onPointerMove=${onMove} onPointerUp=${onUp} onPointerCancel=${onUp}>
+        <div className="bsizer" style=${{ width: (bookW + 28) * scale + 'px', height: (bookH + 24) * scale + 'px' }}>
+          <div className=${'bbook' + (spread ? ' spread' : ' single')} style=${{ width: bookW + 'px', height: bookH + 'px', left: 14 * scale + 'px', top: 12 * scale + 'px', transform: 'scale(' + scale + ')',
+              '--pw': PW + 'px', '--ph': PH + 'px', '--px': PX + 'px', '--pt': PT + 'px', '--cw': CW + 'px', '--ch': CH + 'px' }}>
+            <div className="bcover" aria-hidden="true"></div>
+            ${spread && pageEl(left, 'left', 'L')}
+            ${pageEl(right, 'right', 'R')}
+            ${leaf && html`<div className=${'bleaf ' + leaf.cls + (turn.go ? ' go' : '')} onTransitionEnd=${e => { if (e.target === e.currentTarget) finish(); }}>
+              <div className="bface front">${pageEl(leaf.f[0], leaf.f[1], 'leaf-f')}</div>
+              <div className="bface back">${pageEl(leaf.b[0], leaf.b[1], 'leaf-b')}</div>
+            </div>`}
+            ${spread && html`<div className="bspine" aria-hidden="true"></div>`}
+          </div>
+        </div>
+        <div className="bmeasure" aria-hidden="true"><div ref=${measureRef} className="bflow" style=${Object.assign(flow(0), { transform: 'none', position: 'relative' })}>${chapter.content}</div></div>
+      </div>
+
+      <footer className="bfoot">
+        <button className="bturn" onClick=${prev} disabled=${atStart && !chapter.prev} aria-label=${atStart && chapter.prev ? 'Previous lecture' : 'Previous page'}>${atStart && chapter.prev ? '« Lecture' : '‹'}</button>
+        <input type="range" id=${'bookpage-' + k} min="0" max=${Math.max(0, total - 1)} step=${step} value=${page} aria-label="Page" onInput=${e => turnTo(+e.target.value)} />
+        <span className="bplabel" aria-label=${label}><span className="lf">${label}</span><span className="ls">${shortLabel}</span></span>
+        <button className="bturn" onClick=${next} disabled=${atEnd && !chapter.next} aria-label=${atEnd && chapter.next ? 'Next lecture' : 'Next page'}>${atEnd && chapter.next ? 'Lecture »' : '›'}</button>
+      </footer>
+    </div>`;
+  }
+
+  /* ════════════ PROGRESS (weak spots) ════════════ */
+  function Progress({ k, miss, setMiss, fixed, setFixed, read, known, best, go }) {
+    const c = C[k];
+    const stats = store.get('stats:' + k, {}), srs = store.get('srs:' + k, {}), t = today();
+    const knownSet = new Set(known), missSet = new Set(miss);
+    const rows = c.lectures.map(l => {
+      const cardIds = l.cards.map((_, i) => l.n + '-' + i), qIds = l.quiz.map((_, i) => l.n + '-' + i);
+      let r = 0, w = 0; qIds.forEach(id => { const v = stats[id]; if (v) { r += v[0]; w += v[1]; } });
+      const att = r + w, acc = att ? r / att : null;
+      const kn = cardIds.filter(id => knownSet.has(id)).length;
+      const due = cardIds.filter(id => srs[id] && srs[id].due <= t).length;
+      const isRead = read.includes(l.n), mistakes = qIds.filter(id => missSet.has(id)).length;
+      const status = !(isRead || att || kn) ? 'new' : att >= 3 && acc < 0.6 ? 'weak' : isRead && att >= 3 && acc >= 0.85 ? 'strong' : 'going';
+      return { l, cards: cardIds.length, kn, due, att, acc, isRead, mistakes, status };
+    });
+    const att = rows.reduce((a, r) => a + r.att, 0), right = rows.reduce((a, r) => a + (r.acc || 0) * r.att, 0);
+    const di = dueInfo(k, cardsOf(k).length), bestMock = store.get('mock:' + k, null);
+    const LABEL = { new: 'Not started', weak: 'Weak spot', going: 'In progress', strong: 'Strong' };
+    // courses with animated diagrams also show how well the student predicts the next step
+    const vz = c.lectures.some(l => l.notes.some(n => n.viz)) ? store.get('vzstat:' + k, [0, 0]) : null;
+
+    const next = [];
+    if (di.total) next.push({ t: 'Review ' + di.total + ' index card' + (di.total > 1 ? 's' : ''), d: (di.due ? di.due + ' due for review' : '') + (di.due && di.fresh ? ' and ' : '') + (di.fresh ? di.fresh + ' new for today' : '') + '. About ' + Math.max(1, Math.round(di.total * 0.25)) + ' min.',
+      a: [['Start review', () => go({ mode: 'cards', cardsAuto: Date.now() })]] });
+    const weak = rows.filter(r => r.status === 'weak').sort((a, b) => a.acc - b.acc)[0];
+    if (weak) next.push({ t: 'Shore up lecture ' + weak.l.n + ': ' + weak.l.title, d: Math.round(weak.acc * 100) + '% correct over ' + weak.att + ' answers. Re-read the notes, then quiz it again.',
+      a: [['Re-read notes', () => go({ mode: 'read', lec: weak.l.n })], ['Quiz this lecture', () => go({ mode: 'quiz', quizPreset: { lecs: [weak.l.n], t: Date.now() } })]] });
+    if (miss.length) next.push({ t: 'Fix ' + miss.length + ' saved mistake' + (miss.length > 1 ? 's' : ''), d: 'Questions you got wrong before. Each one leaves the list when you answer it right.',
+      a: [['Practise them', () => go({ mode: 'quiz', quizPreset: { ids: shuffle(miss.slice()), t: Date.now() } })]] });
+    const untested = rows.find(r => r.isRead && !r.att);
+    if (untested) next.push({ t: 'Test yourself on lecture ' + untested.l.n, d: 'You read it but haven\'t answered any of its ' + untested.l.quiz.length + ' questions yet.',
+      a: [['Quiz this lecture', () => go({ mode: 'quiz', quizPreset: { lecs: [untested.l.n], t: Date.now() } })]] });
+    const fresh = rows.find(r => r.status === 'new');
+    if (fresh) next.push({ t: 'Start lecture ' + fresh.l.n + ': ' + fresh.l.title, d: 'Not opened yet. About ' + minutesFor(fresh.l) + ' min to read.', a: [['Read it', () => go({ mode: 'read', lec: fresh.l.n })]] });
+    if (next.length < 3) next.push({ t: 'Sit a timed mock exam', d: 'Past-exam questions under time pressure, marked at the end.' + (bestMock != null ? ' Your best so far: ' + bestMock + '%.' : ''), a: [['Go to mock exam', () => go({ mode: 'quiz' })]] });
+
+    return html`<div className="progress">
+      <section className="pg-stats">
+        <div><b>${read.length}<span className="of">/${c.lectures.length}</span></b><span>lectures read</span></div>
+        <div><b>${known.length}<span className="of">/${cardsOf(k).length}</span></b><span>cards known</span></div>
+        <div><b>${di.total}</b><span>cards to review today</span></div>
+        <div><b>${att ? Math.round(right / att * 100) + '%' : '–'}</b><span>${att ? 'correct over ' + att + ' answers' : 'quiz accuracy'}</span></div>
+        <div><b>${best == null ? '–' : best + '%'}</b><span>best quiz</span></div>
+        <div><b>${bestMock == null ? '–' : bestMock + '%'}</b><span>best mock exam</span></div>
+        ${vz && html`<div><b>${vz[1] ? Math.round(vz[0] / vz[1] * 100) + '%' : '–'}</b><span>${vz[1] ? 'diagram predictions right (' + vz[0] + ' of ' + vz[1] + ')' : 'diagram predictions'}</span></div>`}
+      </section>
+
+      <section className="paper pg-next">
+        
+        <p className="kicker">Study next</p>
+        <ol>${next.slice(0, 3).map((x, i) => html`<li key=${i}>
+          <span className="pg-n">${i + 1}</span>
+          <div><h3>${x.t}</h3><p>${x.d}</p><div className="row">${x.a.map(([label, fn], j) => html`<button key=${j} className=${'btn' + (j === 0 ? ' solid' : '')} onClick=${fn}>${label}</button>`)}</div></div>
+        </li>`)}</ol>
+      </section>
+
+      <section className="ledger pg-table">
+        <table>
+          <thead><tr><th>Lecture</th><th>Read</th><th>Cards known</th><th>Quiz accuracy</th><th>Mistakes</th><th>Status</th></tr></thead>
+          <tbody>${rows.map(r => html`<tr key=${r.l.n} onClick=${() => go({ mode: 'read', lec: r.l.n })}>
+            <td><span className="cname"><span className="lnum">L${r.l.n}</span><span className="lt">${r.l.title}</span></span></td>
+            <td>${r.isRead ? html`<span style=${{ color: 'var(--ok)' }}>✓</span>` : html`<span className="muted">–</span>`}</td>
+            <td><span className="meter" style=${{ '--w': Math.round(r.kn / Math.max(1, r.cards) * 100) + '%', '--sp': 'var(--c)' }}><b>${r.kn}/${r.cards}</b><i></i></span></td>
+            <td>${r.att ? html`<span className="meter" style=${{ '--w': Math.round(r.acc * 100) + '%', '--sp': r.acc >= 0.6 ? 'var(--ok)' : 'var(--pen)' }}><b>${Math.round(r.acc * 100)}%</b><i></i></span><small className="muted"> ${r.att} ans.</small>` : html`<span className="muted">not tried</span>`}</td>
+            <td>${r.mistakes ? html`<span style=${{ color: 'var(--pen)' }}>${r.mistakes}</span>` : html`<span className="muted">0</span>`}</td>
+            <td><span className=${'status ' + r.status}>${LABEL[r.status]}</span></td>
+          </tr>`)}</tbody>
+        </table>
+      </section>
+
+      <${Mistakes} k=${k} miss=${miss} setMiss=${setMiss} fixed=${fixed} setFixed=${setFixed} go=${go} />
+    </div>`;
+  }
+
+  /* ════════════ REVISION SHEET ════════════ */
+  function RevisionSheet({ k, go, read, onSection }) {
+    const c = C[k];
+    const [cover, setCover] = usePersist('revcover', false);
+    const [shown, setShown] = useState({});
+    useEffect(() => { onSection && onSection(null); setShown({}); }, [k]);
+    const reveal = id => cover && setShown(o => Object.assign({}, o, { [id]: !o[id] }));
+    const hidden = id => cover && !shown[id];
+    const data = useMemo(() => c.lectures.map(l => ({
+      l,
+      formulas: l.notes.filter(s => s.formula).flatMap(s => s.formula),
+      exam: l.quiz.map((q, i) => Object.assign({ id: l.n + '-' + i }, q)).filter(isExam)
+    })), [k]);
+    const terms = data.reduce((a, d) => a + d.l.cards.length, 0), formulas = data.reduce((a, d) => a + d.formulas.length, 0), exam = data.reduce((a, d) => a + d.exam.length, 0);
+    const coverProps = id => hidden(id) ? { className: 'covered', role: 'button', tabIndex: 0, 'aria-label': 'Show answer', onClick: () => reveal(id), onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); reveal(id); } } } : { onClick: () => reveal(id) };
+    const jump = n => { const el = document.getElementById('rev-' + n); if (el) el.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' }); };
+    const [book, setBook] = usePersist('bookopen', false);
+    const chapter = useMemo(() => !book ? null : ({ id: 'rev', kicker: 'Revision sheet', title: c.name, sections: c.lectures.map(l => 'Lecture ' + l.n + ' · ' + cleanTitle(l.title)), content: bookRevision(c), next: null, prev: null }), [k, book]);
+
+    return html`<div className="read">
+      <div className="readcol">
+        <div className="readtools">
+          <span className="rt-meta">${terms} terms · ${formulas} formula lines · ${exam} past-paper answers</span>
+          <span className="grow"></span>
+          <button className="tbtn" aria-pressed=${String(!!cover)} onClick=${() => { setCover(!cover); setShown({}); }}>${cover ? 'Show all answers' : 'Cover the answers'}</button>
+          <button className="tbtn bookbtn" onClick=${() => setBook(true)}><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M3 5.5C5.5 4.5 9 4.5 12 6.5c3-2 6.5-2 9-1v13c-2.5-1-6-1-9 1-3-2-6.5-2-9-1z M12 6.5v13" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/></svg>Book view</button>
+        </div>
+        ${book && html`<${Book} k=${k} chapter=${chapter} onClose=${i => { setBook(false); requestAnimationFrame(() => jump(c.lectures[i] ? c.lectures[i].n : c.lectures[0].n)); }} />`}
+        <article className="paper revsheet">
+          
+          <header className="page-head">
+            <p className="kicker" style=${{ color: 'var(--c)' }}>Revision sheet · ${c.short}</p>
+            <h2>The whole course on one page</h2>
+            <p className="meta">${cover ? 'Answers are covered. Tap one to check yourself.' : 'Every key term, formula and past-paper answer, lecture by lecture.'}</p>
+          </header>
+          ${data.map(({ l, formulas, exam }) => html`<section key=${l.n} className="rev-lec" id=${'rev-' + l.n}>
+            <h3><span className="sec">L${l.n}</span>${l.title}</h3>
+            <dl className="terms">${l.cards.map((x, i) => { const id = 'c' + l.n + '-' + i; return html`<div key=${i} className="term"><dt>${x[0]}</dt><dd ...${coverProps(id)}>${x[1]}<${Ar} t=${arCard(k, l.n + '-' + i)} /></dd></div>`; })}</dl>
+            ${formulas.length > 0 && html`<div className="formula">${formulas.join('\n')}</div>`}
+            ${exam.length > 0 && html`<div className="rev-exam"><p className="flabel">From past papers</p><ul>
+              ${exam.map(q => html`<li key=${q.id}><${H} h=${q.q} /> <span className="arrow">→</span> <b ...${coverProps('q' + q.id)}><${H} h=${q.o[q.a][0]} /></b></li>`)}
+            </ul></div>`}
+          </section>`)}
+        </article>
+      </div>
+      <aside className="outline" aria-label="Lectures on this sheet">
+        <p className="kicker">On this sheet</p>
+        <ol>${c.lectures.map(l => html`<li key=${l.n}><button onClick=${() => jump(l.n)}><span className="on-n">L${l.n}</span><span>${l.title}</span></button></li>`)}</ol>
+      </aside>
+    </div>`;
+  }
+
+  /* ════════════ MISTAKES ════════════ */
+  function Mistakes({ k, miss, setMiss, fixed, setFixed, go }) {
+    const items = miss.map(id => quizById(k).get(id)).filter(Boolean);
+    const [confirm, setConfirm] = useState(false);
+    return html`<article className="paper">
+      
+      <header className="misshead">
+        <div>
+          <p className="kicker">Saved from your quizzes</p>
+          <h2>${items.length} to fix<span className="fixed-n"> · ${fixed.length} fixed</span></h2>
+          <p className="muted small" style=${{ margin: '6px 0 0' }}>A question leaves this list, and counts as fixed, when you answer it correctly in a later quiz.</p>
+        </div>
+        ${items.length > 0 && html`<div className="row">
+          <button className="btn solid" onClick=${() => go({ mode: 'quiz', quizPreset: { ids: shuffle(items.map(q => q.id)), t: Date.now() } })}>Practise all ${items.length}</button>
+          ${confirm ? html`<span className="row small"><span>Clear the list?</span><button className="btn" onClick=${() => { setMiss([]); setFixed([]); setConfirm(false); }}>Yes, clear</button><button className="btn ghost" onClick=${() => setConfirm(false)}>Keep</button></span>`
+                    : html`<button className="btn ghost" onClick=${() => setConfirm(true)}>Clear list</button>`}
+        </div>`}
+      </header>
+      ${!items.length ? html`<div className="empty"><span className="pen">Clean sheet.</span>${fixed.length ? 'You fixed all ' + fixed.length + ' question' + (fixed.length > 1 ? 's' : '') + ' you got wrong. New mistakes will appear here.' : 'Questions you get wrong in a quiz will be collected here.'}</div>`
+        : html`<div className="review" style=${{ marginTop: '6px' }}>${items.map(q => html`<div key=${q.id} className="rv">
+            <div className="row" style=${{ alignItems: 'flex-start' }}>
+              <div className="grow" style=${{ minWidth: 0 }}>
+                <p className="qtop" style=${{ margin: '0 0 4px' }}><span className="tag lec">L${q.lec}</span><${Source} q=${q} /></p>
+                <div className="q"><${H} h=${q.q} /></div>
+                <p><span className="good">Answer: ${LET[q.a]}</span><${H} h=${q.o[q.a][0]} />. <span className="muted"><${H} h=${q.o[q.a][1]} /></span><${Ar} t=${arQ(k, q, q.a)} /></p>
+              </div>
+              <button className="btn ghost small" onClick=${() => go({ mode: 'quiz', quizPreset: { ids: [q.id], t: Date.now() } })}>Try again</button>
+            </div>
+          </div>`)}</div>`}
+    </article>`;
+  }
+
+
+  function SyncModal({ close }) {
+    const [code, setCode] = useState(() => {
+      try {
+        const out = {};
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('sd:')) out[k] = localStorage.getItem(k);
+        }
+        return btoa(unescape(encodeURIComponent(JSON.stringify(out))));
+      } catch (e) { return ''; }
+    });
+    const [input, setInput] = useState('');
+    const [msg, setMsg] = useState(null);
+    useEffect(() => {
+      const onKey = e => { if (e.key === 'Escape') close(); };
+      window.addEventListener('keydown', onKey);
+      return () => window.removeEventListener('keydown', onKey);
+    }, []);
+    const copyCode = () => {
+      if (navigator.clipboard) navigator.clipboard.writeText(code).then(() => setMsg(['ok', '✓ Backup code copied to clipboard!']));
+    };
+    const downloadJson = () => {
+      const out = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('sd:')) out[k] = localStorage.getItem(k);
+      }
+      const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'study-deck-progress-' + new Date().toISOString().slice(0, 10) + '.json';
+      a.click();
+      setMsg(['ok', '✓ Backup JSON downloaded!']);
+    };
+    const importCode = () => {
+      try {
+        const raw = input.trim();
+        if (!raw) return setMsg(['err', 'Paste a backup code or JSON first.']);
+        const parsed = raw.startsWith('{') ? JSON.parse(raw) : JSON.parse(decodeURIComponent(escape(atob(raw))));
+        let count = 0;
+        Object.entries(parsed).forEach(([k, v]) => {
+          if (k.startsWith('sd:') && typeof v === 'string') { localStorage.setItem(k, v); count++; }
+        });
+        cache.clear();
+        window.dispatchEvent(new Event('sd-store'));
+        setMsg(['ok', '✓ Restored ' + count + ' progress keys! Reloading…']);
+        setTimeout(() => location.reload(), 600);
+      } catch (e) {
+        setMsg(['err', 'Invalid backup code or JSON format.']);
+      }
+    };
+    return html`<div className="scrim" onClick=${e => e.target === e.currentTarget && close()}>
+      <div className="sync-modal" role="dialog" aria-modal="true" aria-label="Sync progress across devices">
+        <div className="row"><h2>Sync Progress (100% Client-Side)</h2><span className="grow"></span><button className="btn ghost" onClick=${close}>✕</button></div>
+        <p className="muted small" style=${{ margin: 0 }}>All progress lives in your browser’s <code>localStorage</code>. Copy your sync string or download a JSON backup to restore on another phone or laptop.</p>
+        <div>
+          <p className="flabel" style=${{ marginBottom: '6px' }}>1. Export from this device</p>
+          <textarea readOnly value=${code} onFocus=${e => e.target.select()} />
+          <div className="row" style=${{ marginTop: '8px' }}>
+            <button className="btn solid" onClick=${copyCode}>Copy sync code</button>
+            <button className="btn" onClick=${downloadJson}>Download .json</button>
+          </div>
+        </div>
+        <div>
+          <p className="flabel" style=${{ marginBottom: '6px' }}>2. Import onto this device</p>
+          <textarea placeholder="Paste your sync code or JSON content here…" value=${input} onInput=${e => setInput(e.target.value)} />
+          <div className="row" style=${{ marginTop: '8px' }}>
+            <button className="btn solid" onClick=${importCode}>Restore progress</button>
+            ${msg && html`<span className=${'sync-status ' + (msg[0] === 'err' ? 'err' : '')}>${msg[1]}</span>`}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  /* ════════════ SEARCH ════════════ */
+  let INDEX = new Map();                       // course id → its search entries; emptied when search closes
+  function indexOf(k) {
+    if (INDEX.has(k)) return INDEX.get(k);
+    const out = [], c = C[k];
+    const pushSession = (l, trackId, pref) => {
+      const basePatch = { view: 'course', course: k, track: trackId };
+      l.notes.forEach((s, i) => {
+        const body = [].concat(s.pts || [], s.formula || [], (s.table || []).flat(), s.code || []).map(strip).join(' ');
+        out.push({ k, kind: 'Notes', lec: l.n, pref, title: strip(s.h), text: body, to: Object.assign({}, basePatch, { mode: 'read', lec: l.n, anchor: 'sec-' + l.n + '-' + i }) });
+      });
+      l.cards.forEach((x, i) => out.push({ k, kind: 'Card', lec: l.n, pref, title: x[0], text: x[1], to: Object.assign({}, basePatch, { mode: 'cards', lec: l.n, cardFocus: l.n + '-' + i }) }));
+      l.qa.forEach(x => out.push({ k, kind: 'Q&A', lec: l.n, pref, title: x[0], text: x[1], to: Object.assign({}, basePatch, { mode: 'ask', lec: l.n, askLec: l.n }) }));
+      l.quiz.forEach((x, i) => out.push({ k, kind: originOf(x) === 'extra' ? 'Extra question' : 'Quiz', lec: l.n, pref, title: strip(x.q), text: x.o.map(o => strip(o[0])).join(' · '), to: Object.assign({}, basePatch, { mode: 'quiz', lec: l.n, quizPreset: { ids: [l.n + '-' + i], t: 0 } }) }));
+      (l.extra || []).forEach((x, i) => out.push({ k, kind: 'Extra question', lec: l.n, pref, title: strip(x.q), text: x.o.map(o => strip(o[0])).join(' · '), to: Object.assign({}, basePatch, { mode: 'quiz', lec: l.n, quizPreset: { ids: ['x' + l.n + '-' + i], t: 0 } }) }));
+      (l.videos || []).forEach(v => {
+        const tsText = (v.timestamps || []).map(ts => ts.time + ' ' + ts.label).join(' · ');
+        out.push({ k, kind: 'Video', lec: l.n, pref, title: v.title + ' (' + v.channel + ')', text: tsText, to: Object.assign({}, basePatch, { mode: 'videos', lec: l.n, vidId: v.id, vidTs: 0 }) });
+      });
+    };
+    c.lectures.forEach(l => pushSession(l, 'lectures', 'L'));
+    if (c.tracks && c.tracks.labs && c.tracks.labs.sessions) {
+      c.tracks.labs.sessions.forEach(l => pushSession(l, 'labs', 'Lab '));
+    }
+    if (false) c.lectures.forEach(l => {
+      l.notes.forEach((s, i) => {
+        const body = [].concat(s.pts || [], s.formula || [], (s.table || []).flat(), s.code || []).map(strip).join(' ');
+        out.push({ k, kind: 'Notes', lec: l.n, title: strip(s.h), text: body, to: { view: 'course', course: k, mode: 'read', lec: l.n, anchor: 'sec-' + l.n + '-' + i } });
+      });
+      l.cards.forEach((x, i) => out.push({ k, kind: 'Card', lec: l.n, title: x[0], text: x[1], to: { view: 'course', course: k, mode: 'cards', lec: l.n, cardFocus: l.n + '-' + i } }));
+      l.qa.forEach(x => out.push({ k, kind: 'Q&A', lec: l.n, title: x[0], text: x[1], to: { view: 'course', course: k, mode: 'ask', lec: l.n, askLec: l.n } }));
+      l.quiz.forEach((x, i) => out.push({ k, kind: originOf(x) === 'extra' ? 'Extra question' : 'Quiz', lec: l.n, title: strip(x.q), text: x.o.map(o => strip(o[0])).join(' · '), to: { view: 'course', course: k, mode: 'quiz', lec: l.n, quizPreset: { ids: [l.n + '-' + i], t: 0 } } }));
+      (l.extra || []).forEach((x, i) => out.push({ k, kind: 'Extra question', lec: l.n, title: strip(x.q), text: x.o.map(o => strip(o[0])).join(' · '), to: { view: 'course', course: k, mode: 'quiz', lec: l.n, quizPreset: { ids: ['x' + l.n + '-' + i], t: 0 } } }));
+    });
+    out.forEach(e => { e.low = (e.title + ' ' + e.text).toLowerCase(); });
+    INDEX.set(k, out);
+    return out;
+  }
+  const esc = s => s.replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  function highlight(s, terms) {
+    let h = esc(s);
+    terms.forEach(t => { if (t.length < 2) return; const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig'); h = h.replace(re, '<mark>$1</mark>'); });
+    return h;
+  }
+  function snippet(text, terms) {
+    const low = text.toLowerCase();
+    let at = -1; terms.some(t => (at = low.indexOf(t)) >= 0);
+    if (at < 0) return text.slice(0, 160);
+    const s = Math.max(0, at - 60);
+    return (s ? '…' : '') + text.slice(s, s + 180);
+  }
+  function Search({ close, go }) {
+    const [q, setQ] = useState('');
+    const [sel, setSel] = useState(0);
+    const inputRef = useRef(null);
+    // courses download one by one; results come from the ones already here, and grow as the rest arrive
+    const [loaded, setLoaded] = useState(() => ORDER.filter(([k]) => C[k]).length);
+    const [failed, setFailed] = useState(false);
+    const ready = loaded === ORDER.length;
+    useEffect(() => { inputRef.current && inputRef.current.focus(); }, []);
+    useEffect(() => {
+      let live = true;
+      ORDER.forEach(([k]) => { if (!C[k]) loadCourse(k).then(() => live && setLoaded(ORDER.filter(([x]) => C[x]).length), () => live && setFailed(true)); });
+      // the index holds a lower-cased copy of every course; let it go when search closes (rebuilding it takes a few ms)
+      return () => { live = false; INDEX = new Map(); };
+    }, []);
+    const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+    const results = useMemo(() => {
+      if (q.trim().length < 2 || !loaded) return [];
+      const idx = ORDER.filter(([k]) => C[k]).flatMap(([k]) => indexOf(k));
+      const hits = idx.filter(e => terms.every(t => e.low.includes(t)));
+      const score = e => terms.reduce((a, t) => a + (e.title.toLowerCase().includes(t) ? 3 : 0), 0) + (e.kind === 'Notes' ? 1 : 0);
+      return hits.sort((a, b) => score(b) - score(a)).slice(0, 40);
+    }, [q, loaded]);
+    const choose = r => { const to = Object.assign({}, r.to); if (to.quizPreset) to.quizPreset = Object.assign({}, to.quizPreset, { t: Date.now() }); go(to); window.scrollTo(0, 0); };
+    const onKey = e => {
+      if (e.key === 'Escape') { e.stopPropagation(); close(); }   // don't also close a quiz or book underneath
+      else if (e.key === 'ArrowDown') { e.preventDefault(); setSel(s => Math.min(s + 1, results.length - 1)); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); setSel(s => Math.max(s - 1, 0)); }
+      else if (e.key === 'Enter' && results[sel]) choose(results[sel]);
+    };
+    return html`<div className="scrim" onMouseDown=${e => { if (e.target === e.currentTarget) close(); }}>
+      <div className="palette" role="dialog" aria-label="Search all courses">
+        <div className="sin">${Icon.search}
+          <input id="search-input" ref=${inputRef} value=${q} placeholder="Search notes, cards, Q&A and quiz questions…" onInput=${e => { setQ(e.target.value); setSel(0); }} onKeyDown=${onKey} autoComplete="off" />
+          <kbd>Esc</kbd>
+        </div>
+        <div className="results">
+          ${failed && html`<p className="small" style=${{ padding: '8px 18px', color: 'var(--pen)' }}>Some courses didn't load, so their results are missing. Check your connection and reopen search.</p>`}
+          ${!ready && !failed && html`<p className="muted small" style=${{ padding: '8px 18px' }}>${loaded ? 'Searching ' + loaded + ' of ' + ORDER.length + ' courses, the rest are still loading…' : 'Loading the courses for search…'}</p>`}
+          ${!loaded ? null
+            : q.trim().length < 2 ? html`<p className="muted small" style=${{ padding: '8px 18px' }}>Try ${LEVEL.id === 'l2' ? '"simplex", "linked list", "DFD", "MOV" or "flexbox"' : '"Belady", "FIRST set", "wireframe", "Nyquist" or "cyclomatic"'}.</p>`
+            : !results.length ? html`<p className="muted small" style=${{ padding: '8px 18px' }}>${ready ? 'Nothing matches "' + q + '". Try a shorter word.' : 'Nothing yet for "' + q + '".'}</p>`
+            : results.map((r, i) => html`<button key=${i} className=${'res sp-' + r.k + (i === sel ? ' on' : '')} onMouseEnter=${() => setSel(i)} onClick=${() => choose(r)}>
+                <span className="chipdot"></span>
+                <span style=${{ minWidth: 0 }}>
+                  <span className="rm">${C[r.k].short} · ${(r.pref || 'L') + r.lec} · ${r.kind}</span>
+                  <span className="rt" style=${{ display: 'block' }} dangerouslySetInnerHTML=${{ __html: highlight(r.title, terms) }}></span>
+                  <span className="rs" dangerouslySetInnerHTML=${{ __html: highlight(snippet(r.text, terms), terms) }}></span>
+                </span>
+              </button>`)}
+        </div>
+        <div className="shint"><span><kbd>↑</kbd> <kbd>↓</kbd> move</span><span><kbd>Enter</kbd> open</span><span>${results.length ? results.length + (results.length === 40 ? '+' : '') + ' results' : ''}</span></div>
+      </div>
+    </div>`;
+  }
+
+  /* ── boot ── */
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  if (!ORDER.length) { document.getElementById('root').innerHTML = '<p class="boot">The course files did not load. Refresh the page to try again.</p>'; return; }
+  root.render(html`<${App} />`);
+  const rootEl = document.getElementById('root');
+  let hlQueued = false;
+  new MutationObserver(() => { if (hlQueued) return; hlQueued = true; requestAnimationFrame(() => { hlQueued = false; highlightPres(rootEl); }); }).observe(rootEl, { childList: true, subtree: true });
+}
