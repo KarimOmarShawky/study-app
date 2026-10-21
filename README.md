@@ -45,40 +45,29 @@ closely paraphrases the book — no invented answers.
 are skipped), and the video player's **Quick quiz** shows these five with the citation under each question. A
 session with no book quiz falls back to the first five questions of its own quiz.
 
-## Concept-first visualizations
+## Visualizer
 
-The Visualizer is a topic laboratory, independent of the selected lecture and all
-assessment datasets. `topics.js` defines its topic catalog, neutral examples,
-computed snapshot models, diagram renderers, and shared playback workspace.
-`figs.js` supplies reusable sorting/tree/OS engines and a few standalone diagrams.
-Both are copied into versioned `data/` assets by `build.mjs` and loaded on demand.
+The Visualizer tab is a topic lab: a topic list and a shared workspace (inputs, diagram, playback, step history, inspector)
+drawn by `topics.js`. For Algorithms, every topic follows the course: `lab.js` registers one module per topic in
+`window.LAB[id]` with the slides' methods and conventions, "From the course" presets that load each worked example from
+the slides and exams (a dropdown on phones), free "try your own" input, its engine, drawing, legend and cost.
 
-**Algorithm topics (12):** sorting, binary search, recursion trees, hashing, dynamic
-arrays/amortization, balanced trees, dynamic programming, graph exploration,
-spanning trees, prefix coding, problem reductions, and bit operations.
+**Algorithms topics (13):** sorting (insertion, merge, MERGE, exchange, PARTITION, quicksort, counting, radix), searching
+(binary, binsearch, sequential, comparison), selection (RAND-SELECT, median of medians), recurrences (recursion trees,
+Master method, iteration, substitution, unequal splits), hashing (5 hash functions; chaining, linear, quadratic, double
+hashing with insert/search/delete), amortized analysis (aggregate, accounting, potential), skip lists, red-black trees
+(insert, delete with rbTreeFix, order-statistic queries), dynamic programming (7 problems), shortest paths (Dijkstra, BFS),
+spanning trees (Kruskal, Prim), Huffman codes, and P/NP reductions (3-CNF SAT to CLIQUE, truth tables).
 
-Each topic uses its own visual grammar: bars with a held key and insertion hole;
-merge buffers; branching recursion trees and work profiles; key-to-bucket routing
-and probes; capacity slots and append costs; red–black trees; dependency-highlighted
-DP grids; computed shortest-path/frontier diagrams; Kruskal forests; Huffman trees;
-SAT/clique compatibility graphs; and fixed-width bit rows. Inputs are editable.
-BFS and Dijkstra intentionally run on the same undirected graph so their hop and
-weighted distances can be compared. Negative edge weights are rejected.
+A module is `{ meta, defaults, presets: [{ label, src, cfg }], Controls, build(cfg) → frames, Diagram, legend, cost }`;
+each frame has `desc` (plain caption), optional `html`, `inv` and `metrics`. Topics without a module keep the models in
+`topics.js` (the OS lab, and the bit-operations model still embedded in the notes as `algo-bit-sim`).
 
-**OS topics (5):** CPU scheduling, page replacement, deadlock, memory placement,
-and disk scheduling. CPU and page models use neutral, editable workloads. The
-other models explicitly state their resource/memory/disk assumptions.
+**OS topics (5):** CPU scheduling, page replacement, deadlock, memory placement, and disk scheduling, with neutral,
+editable workloads.
 
-The shared workspace offers first/previous/next/last, play/pause, playback speed,
-step scrubbing, diagram zoom, a live-state inspector, and optional history. Focus
-the diagram to use arrows, Home/End, and Space. Recursion and reductions use direct
-manipulation (depth/assignment selection) rather than a meaningless timeline.
-
-Topic search and navigation replace the old lecture index and exam presets.
-Embedded `fig: 'algo-sort-sim'` (and related registered names) now renders the same
-neutral workspace through `TOPICS.Embed`. The separate `viz.js` code tracer remains
-available to authored notes via `viz: { type, ...settings }`; `kind` is a supported
-legacy alias. Existing lecture text and past-paper content are not rewritten.
+Notes can embed a workspace with `fig: 'algo-sort-sim'` (and the other registered `algo-*-sim` names) through
+`TOPICS.Embed`. The separate `viz.js` code tracer remains available via `viz: { type, ...settings }`.
 
 ### Regression checks
 
@@ -89,9 +78,8 @@ node --test tests/*.test.cjs
 node build.mjs && node dist.mjs
 ```
 
-The optional browser test covers all 17 topics, algorithm variants, custom input,
-invalid-input recovery, playback, keyboard controls, topic search, neutral embedded
-figures, mobile layout, and the absence of lecture/exam references in the lab:
+The optional browser test opens all 13 Algorithms topics and plays every course example to the end, then checks
+playback, keyboard controls, topic search, the phone layout, embedded figures and the 5 OS topics:
 
 ```bash
 npm install --no-save --package-lock=false @playwright/test

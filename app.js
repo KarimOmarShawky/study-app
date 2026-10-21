@@ -617,7 +617,7 @@ function start() {
     // no separate Videos tab: the player and its timestamps sit inside the Path tab, under the lecture
     const modes = [
       ['path', 'Path', null],
-      ...(baseK === 'algo' ? [['studio', 'Visualizer', 12]] : baseK === 'os' ? [['studio', 'Visualizer', 5]] : []),
+      ...(baseK === 'algo' ? [['studio', 'Visualizer', 13]] : baseK === 'os' ? [['studio', 'Visualizer', 5]] : []),
       ['read', 'Notes', c.lectures.length],
       ['cards', 'Cards', c.cards],
       ['ask', 'Q&A', c.qa],
@@ -958,7 +958,7 @@ function start() {
     const [failed, setFailed] = useState(false);
     useEffect(() => {
       let live = true;
-      Promise.all([loadScript(dataUrl('figs')), loadScript(dataUrl('topics'))])
+      Promise.all([loadScript(dataUrl('figs')), loadScript(dataUrl('topics')), loadScript(dataUrl('lab'))])
         .then(() => { if (live) setReady(true); }, () => { if (live) setFailed(true); });
       return () => { live = false; };
     }, []);
@@ -1038,7 +1038,7 @@ function start() {
     const needsTopics = /^(algo-|os-cpu-sim$|os-page-sim$)/.test(name);
     // names like 'ag-…' live in figs-ag.js, which builds on figs.js (window.FIGKIT)
     const extra = /^([a-z]+)-/.exec(name), file = extra && ['ag'].includes(extra[1]) ? 'figs-' + extra[1] : null;
-    const files = ['figs'].concat(needsTopics ? ['topics'] : [], file ? [file] : []);
+    const files = ['figs'].concat(needsTopics ? ['topics', 'lab'] : [], file ? [file] : []);
     const [ready, setReady] = useState(() => !!(window.FIGS && window.FIGS[name]) && (!needsTopics || !!window.TOPICS));
     const [failed, setFailed] = useState(false);
     useEffect(() => {

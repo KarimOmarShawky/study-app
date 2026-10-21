@@ -429,6 +429,16 @@ code, pre, kbd, .formula{ font-variant-ligatures:none; font-feature-settings:"li
 /* Topic diagram auxiliaries */
 .tl-view-tools{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 15px;border-bottom:1px solid var(--rule);font-size:.62rem;color:var(--graphite);}.tl-view-tools label{display:flex;align-items:center;gap:5px;}.tl-view-tools select{font:inherit;background:var(--paper);border:1px solid var(--line);border-radius:5px;color:var(--ink);padding:4px;}.tl-stage-body{min-width:0;}.tl-stage.tl-zoomed svg{max-height:none;}.tl-held-key{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;font-size:.7rem;padding:4px 0 12px;color:var(--graphite);}.tl-held-key b{padding:7px 12px;border:1px solid #7863d4;border-radius:7px;background:color-mix(in srgb,#7863d4 10%,var(--paper));color:var(--ink);font-family:var(--mono);}.tl-held-key span{font-size:.6rem;}.tl-merge-buffers{padding:8px 0;display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}.tl-merge-buffers>div{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}.tl-merge-buffers b{font-size:.65rem;margin-right:5px;}.tl-merge-buffers span{padding:6px 8px;border:1px solid var(--line);background:var(--paper);border-radius:5px;font:.8rem var(--mono);}.tl-merge-buffers .consumed{opacity:.3;text-decoration:line-through;}.tl-merge-buffers .current{border-color:var(--c);background:color-mix(in srgb,var(--c) 14%,var(--paper));}
 .tl-stage svg rect,.tl-stage svg circle{transition:fill .2s ease;}
+/* course examples above a lab topic's inputs (lab.js presets) */
+.tl-presets{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px 15px;border-bottom:1px solid var(--rule);}
+.tl-presets>span{width:100%;font-size:.78rem;font-weight:700;color:var(--graphite);letter-spacing:.02em;}
+.tl-presets button{font:inherit;font-size:.86rem;line-height:1.25;padding:6px 12px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;text-align:left;min-height:36px;}
+.tl-presets button small{display:block;font-size:.74rem;color:var(--graphite);margin-top:1px;}
+.tl-presets button[aria-pressed="true"]{border-color:var(--c);box-shadow:0 0 0 1px var(--c);background:color-mix(in srgb,var(--c) 10%,var(--paper));}
+.tl-presets select{display:none;width:100%;font:inherit;font-size:.9rem;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);}
+@media(max-width:700px){.tl-presets-long button{display:none;}.tl-presets-long select{display:block;}}
+.tl-lab-inputs label{font-size:.8rem;}
+.tl-legend,.tl-view-tools{font-size:.78rem;}
 .tl-embedded{margin:14px 0 22px;}.tl-embedded .tl-visual-grid{grid-template-columns:minmax(0,1fr) 220px;}
 @media(max-width:900px){.tl-embedded .tl-visual-grid{grid-template-columns:1fr;}}
 /* Concept-first laboratory: topic navigation, one primary diagram, contextual state. */

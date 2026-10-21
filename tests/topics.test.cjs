@@ -3,16 +3,26 @@ const { test }=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm');
 const ctx={console,React:{},htm:{bind:()=>()=>null},document:{getElementById:()=>true}};ctx.window=ctx;vm.createContext(ctx);
-for(const file of ['figs.js','topics.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx,{filename:file});
+for(const file of ['figs.js','topics.js','lab.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx,{filename:file});
 const {models:M,TOPICS,OS_TOPICS}=ctx.TOPICS;
 const clean=x=>JSON.parse(JSON.stringify(x));
 
-test('topic catalog is independent of course and assessment data',()=>{
-  assert.equal(TOPICS.length,12);assert.equal(OS_TOPICS.length,5);
-  assert.equal(new Set(TOPICS.concat(OS_TOPICS).map(t=>t.id)).size,17);
+test('topic catalog: 13 course topics (each rebuilt in lab.js) and 5 OS topics',()=>{
+  assert.equal(TOPICS.length,13);assert.equal(OS_TOPICS.length,5);
+  assert.equal(new Set(TOPICS.concat(OS_TOPICS).map(t=>t.id)).size,18);
   assert.equal(ctx.COURSES,undefined);
-  assert.doesNotMatch(JSON.stringify(TOPICS.concat(OS_TOPICS)),/\b(exam|midterm|lecture|Basheer|slides?)\b/i);
+  for(const t of TOPICS)assert.equal(typeof (ctx.LAB[t.id]||{}).build,'function','lab module for '+t.id);
   assert.equal(typeof ctx.TOPICS.Embed,'function');
+});
+test('every course example in the lab builds without an input error',()=>{
+  for(const t of TOPICS){
+    const L=ctx.LAB[t.id];
+    for(const cfg of [L.defaults].concat((L.presets||[]).map(p=>p.cfg))){
+      const frames=L.build(JSON.parse(JSON.stringify(cfg)));
+      assert.ok(Array.isArray(frames)&&frames.length>0,t.id+': '+JSON.stringify(cfg));
+      for(const f of frames)assert.equal(typeof f.desc,'string',t.id+' frame desc');
+    }
+  }
 });
 test('binary search handles matches, misses, and empty candidate intervals',()=>{
   const hit=M.searchFrames({text:'8,2,4,4,0',target:'0'});

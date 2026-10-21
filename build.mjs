@@ -180,7 +180,7 @@ for (const id of Object.keys(COURSES)) {
   manifest[id].ar = 1;
   console.log(`data/ar-${id}.js`.padEnd(20), (json.length / 1024).toFixed(0).padStart(5), 'KB');
 }
-for (const aux of ['viz', 'figs', 'topics', 'figs-ag']) {
+for (const aux of ['viz', 'figs', 'topics', 'lab', 'figs-ag']) {
   if (!existsSync(`${aux}.js`)) continue;
   const src = readFileSync(`${aux}.js`, 'utf8');
   writeFileSync(`data/${aux}.js`, src);

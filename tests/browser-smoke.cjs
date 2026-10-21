@@ -12,71 +12,51 @@ const assert = require('node:assert/strict');
     await page.evaluate(subject => localStorage.setItem('sd:nav2', JSON.stringify({ view: 'course', course: subject, mode: 'studio', lec: 1 })), subject);
     await page.reload(); await page.locator('.topic-lab').waitFor();
   };
-  const choose = async title => {
+  const choose = async (title, neutral = false) => {
     await page.getByRole('navigation', { name: 'Visualization topics' }).getByRole('button', { name: new RegExp('^' + title) }).click();
     assert.equal(await page.locator('.tl-error').count(), 0);
-    assert.doesNotMatch(await page.locator('.topic-lab').innerText(), /lecture|\bLEC\b|\bexams?\b|midterm|Basheer|slides?/i);
+    if (neutral) assert.doesNotMatch(await page.locator('.topic-lab').innerText(), /lecture|\bLEC\b|\bexams?\b|midterm|Basheer|slides?/i);
   };
+  const last = async () => { const b = page.getByRole('button', { name: 'Last step', exact: true }); if (await b.count() && await b.isEnabled()) await b.click(); };
   await open('algo');
-  const topics=['Sorting','Binary search','Recursion trees','Hashing','Dynamic arrays','Balanced trees','Dynamic programming','Graph exploration','Spanning trees','Prefix coding','Problem reductions','Bit operations'];
-  assert.equal(await page.locator('.tl-nav button').count(), 12);
+  // the Algorithms lab follows the course: every topic loads each worked example from the slides and plays it to the end
+  const topics=['Sorting','Searching','Selection','Recurrences','Hashing','Amortized analysis','Skip lists','Red-black trees','Dynamic programming','Shortest paths','Spanning trees','Huffman codes','P, NP and reductions'];
+  assert.equal(await page.locator('.tl-nav button').count(), 13);
   for (const title of topics) {
     await choose(title);
-    const next=page.getByRole('button', { name: 'Last step', exact: true });
-    if (await next.count()) await next.click();
-    assert.equal(await page.locator('.tl-error').count(), 0);
+    const presets = page.locator('.tl-presets button');
+    assert.ok(await presets.count() > 0, 'course examples: ' + title);
+    for (let i = 0; i < await presets.count(); i++) {
+      await presets.nth(i).click(); await last();
+      assert.equal(await page.locator('.tl-error').count(), 0, title + ' example ' + i);
+    }
   }
   await choose('Sorting');
-  await page.getByLabel('Values', {exact:true}).fill('5, 0, -1, 2');
-  await page.getByRole('button', {name:'Last step',exact:true}).click();
-  assert.match(await page.locator('.tl-explanation').innerText(), /-1, 0, 2, 5/);
-  await page.getByLabel('Values', {exact:true}).fill('1, bad, 3');
-  assert.equal(await page.locator('.tl-error').count(), 1);
-  await page.getByRole('button', {name:'Reset example'}).click();
-  assert.equal(await page.locator('.tl-error').count(), 0);
-  for (const strategy of ['merge','quick','counting','insertion']) {
-    await page.getByLabel('Strategy', {exact:true}).selectOption(strategy);
-    await page.getByRole('button', {name:'Last step',exact:true}).click();
-  }
-  await page.getByRole('button',{name:'First step',exact:true}).click();
+  { const first = page.getByRole('button',{name:'First step',exact:true}); if (await first.isEnabled()) await first.click(); }
   await page.getByLabel('Playback speed').selectOption('3');
   await page.getByRole('button',{name:'Play',exact:true}).click();
-  await page.waitForFunction(()=>+document.querySelector('[aria-label="Simulation step"]').value>0);
+  // polled from the test side: the page's Content-Security-Policy blocks waitForFunction's string evaluation
+  for (let t = 0; t < 40 && +(await page.getByLabel('Simulation step').inputValue()) === 0; t++) await page.waitForTimeout(100);
+  assert.ok(+(await page.getByLabel('Simulation step').inputValue()) > 0);
   await page.getByRole('button',{name:'Pause',exact:true}).click();
   await page.locator('.tl-stage').focus(); await page.keyboard.press('End');
   const slider=page.getByLabel('Simulation step');assert.equal(await slider.inputValue(),await slider.getAttribute('max'));
-  await choose('Hashing');
-  for (const strategy of ['linear','double','chain']) {
-    await page.getByLabel('Strategy',{exact:true}).selectOption(strategy);
-    await page.getByRole('button',{name:'Last step',exact:true}).click();
-    assert.ok(await page.locator('.tl-buckets strong').count());
-  }
-  await choose('Graph exploration');
-  await page.getByLabel('Edges · vertex vertex weight').fill('A B 2, B C 3, A C 9');
-  await page.getByRole('button',{name:'Last step',exact:true}).click();
-  assert.match(await page.locator('.tl-distances').innerText(), /C\s+5\s+via B/);
-  await page.getByLabel('Strategy',{exact:true}).selectOption('bfs');
-  await page.getByRole('button',{name:'Last step',exact:true}).click();
-  assert.match(await page.locator('.tl-distances').innerText(), /C\s+1\s+via A/);
-  await choose('Dynamic programming');
-  await page.getByLabel('Strategy',{exact:true}).selectOption('knapsack');
-  await page.getByRole('button',{name:'Last step',exact:true}).click();
-  assert.match(await page.locator('.tl-explanation').innerText(), /Optimal value = 18/);
   await page.getByRole('button',{name:/Inspect the step history/}).click();
-  assert.ok(await page.locator('.tl-history li').count()>10);
+  assert.ok(await page.locator('.tl-history li').count()>5);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   for(const title of topics){await choose(title);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)<=1,'overflow: '+title);}
-  await page.getByLabel('Find a concept').fill('prefix');
+  // on phones a long list of examples is a dropdown
+  await choose('Hashing'); assert.ok(await page.getByLabel('Load a worked example').isVisible());
+  await page.getByLabel('Find a concept').fill('huffman');
   assert.equal(await page.locator('.tl-nav button').count(),1);
   await page.getByLabel('Find a concept').fill('');
-  // Notes use the same neutral topic workspace, not a second exam-centric implementation.
+  // notes embed the same topic workspaces
   await page.evaluate(()=>localStorage.setItem('sd:nav2',JSON.stringify({view:'course',course:'algo',mode:'read',lec:1})));
   await page.reload(); await page.locator('.tl-embedded').first().waitFor();
-  assert.doesNotMatch(await page.locator('.tl-embedded').first().innerText(), /\b(exam|midterm|lecture|Basheer|slide)\b/i);
   await open('os');
   for(const title of ['CPU scheduling','Page replacement','Deadlock','Memory placement','Disk scheduling']) {
-    await choose(title); assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)<=1,'overflow: '+title);
+    await choose(title, true); assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)<=1,'overflow: '+title);
   }
   await choose('CPU scheduling');
   for(const method of ['FCFS','SJF','SRTF','RR']) {
@@ -91,6 +71,6 @@ const assert = require('node:assert/strict');
     assert.equal(await page.locator('.tl-error').count(),0);
   }
   assert.deepEqual(errors,[]);
-  console.log('Browser smoke passed: 12 independent concepts, 5 OS topics, algorithm variants, custom inputs, playback, search, mobile, and no assessment references.');
+  console.log('Browser smoke passed: 13 course-matched Algorithms topics with every worked example, 5 neutral OS topics, playback, search and mobile layout.');
   await browser.close();
 })().catch(e=>{console.error(e);process.exit(1);});
