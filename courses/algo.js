@@ -302,7 +302,16 @@ window.COURSES.algo = {
                   6
                 ]
               },
-              "fig": "algo-sort-sim"
+              "fig": [
+                "algo-sort-sim",
+                "ag-1-isort"
+              ],
+              "figAt": {
+                "ag-1-isort": 2
+              },
+              "figH": {
+                "ag-1-isort": "Insertion sort on the slide's array 8 2 4 9 3 6, one pass of j at a time"
+              }
             },
             {
               "h": "Kinds of Analysis, Machine-Independent Time & Θ-Notation (Slides 1.19–1.24)",
@@ -314,7 +323,25 @@ window.COURSES.algo = {
               "formula": [
                 "Θ(g(n)) = { f(n) : ∃ c₁, c₂, n₀ > 0 such that 0 ≤ c₁·g(n) ≤ f(n) ≤ c₂·g(n) ∀ n ≥ n₀ }",
                 "Insertion Sort: Worst = Θ(n²), Average = Θ(n²), Best = Θ(n), Space = O(1)"
-              ]
+              ],
+              "fig": [
+                "ag-1-theta",
+                "ag-1-asym",
+                "ag-1-order",
+                "ag-1-cases"
+              ],
+              "figAt": {
+                "ag-1-theta": 1,
+                "ag-1-asym": 1,
+                "ag-1-order": 1,
+                "ag-1-cases": 2
+              },
+              "figH": {
+                "ag-1-theta": "Θ-notation: 3n³ + 90n² − 5n + 6046 squeezed between 3n³ and 4n³",
+                "ag-1-asym": "A Θ(n²) algorithm beats a Θ(n³) one once n passes n₀",
+                "ag-1-order": "Why 0.1n² + n + 100 is order n²: the quadratic term takes over",
+                "ag-1-cases": "Insertion sort's worst, average and best case, counted test by test"
+              }
             },
             {
               "h": "Merge Sort, Linear-Time Two-Finger Merge & Recursion Tree Proof (Slides 1.25–1.52)",
@@ -366,7 +393,19 @@ window.COURSES.algo = {
                   "—",
                   "cn lg n + Θ(n) = Θ(n lg n)"
                 ]
-              ]
+              ],
+              "fig": [
+                "ag-1-merge",
+                "ag-1-rtree"
+              ],
+              "figAt": {
+                "ag-1-merge": 1,
+                "ag-1-rtree": 2
+              },
+              "figH": {
+                "ag-1-merge": "MERGE of 2 7 13 20 and 1 9 11 12: always take the smaller head",
+                "ag-1-rtree": "Recursion tree of T(n) = 2T(n/2) + cn, built level by level"
+              }
             },
             {
               "h": "Neapolitan Ch. 1 Algorithms: Search, Exchange Sort, Matrix Mult, Fibonacci & Every-Case Analysis (Slides 1.53–1.74)",
@@ -374,7 +413,33 @@ window.COURSES.algo = {
                 "<b>Every-Case Complexity $T(n)$ (Slides 1.54–1.66)</b>: Exists when the basic operation count is invariant across all inputs of size $n$:<ul><li><b>Add Array Members</b>: $T(n) = n$ additions.</li><li><b>Exchange Sort</b>: $T(n) = (n-1) + (n-2) + \\dots + 1 = \\frac{n(n-1)}{2}$ comparisons.</li><li><b>Matrix Multiplication</b>: $T(n) = n^3$ multiplications.</li></ul>",
                 "<b>Sequential Search Case Analysis (Slides 1.67–1.70)</b>: Does <i>not</i> have an every-case complexity:<ul><li><b>Worst Case</b>: $W(n) = n$ ($x$ at $S[n]$ or absent).</li><li><b>Best Case</b>: $B(n) = 1$ ($x = S[1]$).</li><li><b>Average Case ($x \\in S$ equally likely)</b>: $A(n) = \\sum_{k=1}^n k(1/n) = \\frac{n+1}{2}$.</li><li><b>Average Case ($x \\in S$ with probability $p$)</b>: $A(n) = p\\frac{n+1}{2} + (1-p)n = n\\left(1 - \\frac{p}{2}\\right) + \\frac{p}{2}$.</li></ul>",
                 "<b>Fibonacci: Recursive $O(2^n)$ vs. Iterative DP $O(n)$ (Slides 1.59–1.63)</b>: Naive recursive `fib(n)` satisfies $T(n) = T(n-1) + T(n-2) + 1 > 2 T(n-2) > 2^{n/2}$ by induction ($n \\ge 2$), whereas iterative `fib2(n)` stores `f[0..n]` and runs in $T(n) = n + 1 = \\Theta(n)$."
-              ]
+              ],
+              "fig": [
+                "ag-1-every",
+                "ag-1-seqsearch",
+                "ag-1-binsearch",
+                "ag-1-fibtree",
+                "ag-1-fib2",
+                "ag-1-fibtime",
+                "ag-1-cross"
+              ],
+              "figAt": {
+                "ag-1-every": 0,
+                "ag-1-seqsearch": 1,
+                "ag-1-binsearch": 1,
+                "ag-1-fibtree": 2,
+                "ag-1-fib2": 2,
+                "ag-1-fibtime": 2
+              },
+              "figH": {
+                "ag-1-every": "Exchange sort makes n(n−1)/2 comparisons on every input",
+                "ag-1-seqsearch": "Sequential search: best, worst and average number of comparisons",
+                "ag-1-binsearch": "Sequential vs binary search: n comparisons vs ⌊lg n⌋ + 1",
+                "ag-1-fibtree": "The recursion tree of fib(n): how many terms it computes",
+                "ag-1-fib2": "fib2 fills f[0 .. n] once: n + 1 terms",
+                "ag-1-fibtime": "Execution time of fib2 (A2) vs recursive fib (A1)",
+                "ag-1-cross": "Applying the theory: where the linear algorithm starts to win"
+              }
             }
           ],
           "cards": [
@@ -1159,14 +1224,48 @@ window.COURSES.algo = {
                 "<b>1. Proof by Mathematical Induction (Slides 2.11–2.15)</b>: Prove base case(s), assume the inductive hypothesis for $i \\le k-1$, and prove for $k$. Slide Proof that $F_i < (5/3)^i$ for $i \\ge 1$ ($F_0=1, F_1=1, F_2=2$):<ul><li><b>Base Cases</b>: $F_1 = 1 < 5/3$; $F_2 = 2 < 25/9$.</li><li><b>Inductive Step</b>: $F_k = F_{k-1} + F_{k-2} < (5/3)^{k-1} + (5/3)^{k-2} = (5/3)^{k-2}(5/3 + 1) = (5/3)^{k-2}(8/3)$. Since $8/3 = 24/9 < 25/9 = (5/3)^2$, $F_k < (5/3)^{k-2}(5/3)^2 = (5/3)^k$.</li></ul>",
                 "<b>2. Proof by Counterexample (Slide 2.16)</b>: Disprove $F_k \\le k^2$ by showing a single counterexample: at $k = 11$, $F_{11} = 144 > 11^2 = 121$.",
                 "<b>3. Proof by Contradiction (Slides 2.17–2.18)</b>: Assume the theorem is false and derive a contradiction. Example (<i>No largest integer</i>): Assume largest integer $B$ exists; then $C = B + 1$ is an integer with $C > B$, contradiction!"
-              ]
+              ],
+              "fig": [
+                "ag-2-induction",
+                "ag-2-factorial",
+                "ag-2-hanoi",
+                "ag-2-counter",
+                "ag-2-contra",
+                "ag-2-sets",
+                "ag-2-logs"
+              ],
+              "figAt": {
+                "ag-2-induction": 0,
+                "ag-2-factorial": 0,
+                "ag-2-hanoi": 0,
+                "ag-2-counter": 1,
+                "ag-2-contra": 2
+              },
+              "figH": {
+                "ag-2-induction": "Induction proof that F<sub>i</sub> &lt; (5/3)<sup>i</sup>, line by line",
+                "ag-2-factorial": "Recursion example 1: computing n! on the call stack",
+                "ag-2-hanoi": "Recursion example 2: the Tower of Hanoi, play it or watch the 2<sup>n</sup> − 1 moves",
+                "ag-2-counter": "Counterexample: F<sub>k</sub> ≤ k² first fails at k = 11",
+                "ag-2-contra": "Contradiction: if B were the largest integer, C = B + 1 beats it",
+                "ag-2-sets": "Set notation from the math revision: ∈, |P|, ∪, ∩, − and ⊆ on a Venn diagram",
+                "ag-2-logs": "The four logarithm rules, each checked with numbers"
+              }
             },
             {
               "h": "Algorithm Criteria, Fundamental Operations & Term Contribution (Slides 2.19–2.38)",
               "pts": [
                 "<b>Five Criteria of an Algorithm (Slide 2.21)</b>: (1) <b>Input</b> ($\\ge 0$ quantities), (2) <b>Output</b> ($\\ge 1$ quantity), (3) <b>Definiteness</b> (clear, unambiguous instructions), (4) <b>Finiteness</b> (terminates after a finite number of steps), (5) <b>Efficiency</b> (feasible time/space).",
                 "<b>Term Contribution on $T(n) = 3n^2 + 8n + 10$ (Slides 2.32–2.38)</b>: As $n \\to \\infty$, the highest-order term $3n^2$ approaches $100\\%$ of $T(n)$ (e.g., $97.37\\%$ at $n=100$) while lower-order terms $8n$ and $10$ become negligible, justifying dropping lower-order terms and leading constants."
-              ]
+              ],
+              "fig": [
+                "ag-2-contrib"
+              ],
+              "figAt": {
+                "ag-2-contrib": 1
+              },
+              "figH": {
+                "ag-2-contrib": "Term contribution: how 3n², 8n and 10 share T(n) as n grows"
+              }
             },
             {
               "h": "Big-Oh, Big-Omega, Theta Definitions, Witness Proofs & Composition Rules (Slides 2.39–2.62)",
@@ -1179,7 +1278,36 @@ window.COURSES.algo = {
               "formula": [
                 "O(g(n)): f(n) ≤ c·g(n) ∀ n ≥ n₀  |  Ω(g(n)): f(n) ≥ c·g(n) ∀ n ≥ n₀  |  Θ(g(n)): c₁·g(n) ≤ f(n) ≤ c₂·g(n)",
                 "Growth Rate Order: lg² n ≪ n lg n ≪ n² ≪ n² lg n ≪ n³ ≪ 2ⁿ ≪ n! ≪ 2^(2ⁿ)"
-              ]
+              ],
+              "fig": [
+                "ag-2-bigoh",
+                "ag-2-rules",
+                "ag-2-ex12",
+                "ag-2-growth",
+                "ag-2-growtab",
+                "ag-2-sum3",
+                "ag-2-bounds",
+                "ag-2-selectk"
+              ],
+              "figAt": {
+                "ag-2-bigoh": 0,
+                "ag-2-rules": 1,
+                "ag-2-ex12": 1,
+                "ag-2-growth": 1,
+                "ag-2-growtab": 1,
+                "ag-2-sum3": 2,
+                "ag-2-bounds": 3
+              },
+              "figH": {
+                "ag-2-bigoh": "Big-Oh witnesses: find c and n₀ for 3n + 2 and 3n² + 20",
+                "ag-2-rules": "Big-Oh rules: sequence adds, a loop around multiplies",
+                "ag-2-ex12": "Example 12: a doubling loop around an n-step loop is O(n log n)",
+                "ag-2-growth": "The 7 functions used in analysis, drawn one by one",
+                "ag-2-growtab": "How the 7 functions grow for n = 5 to 10000",
+                "ag-2-sum3": "Three algorithms for 1 + 2 + … + n: operations counted",
+                "ag-2-bounds": "O, Ω and Θ on f(n) = 3n + 2",
+                "ag-2-selectk": "selectkth: counting the comparisons"
+              }
             }
           ],
           "cards": [
@@ -1391,7 +1519,25 @@ window.COURSES.algo = {
               "pts": [
                 "<b>Iteration (Back-Substitution) Method (Slides 3.11–3.13)</b>: Unroll the recurrence until reaching $T(1)$:<ul><li>$T(n) = c + T(n/2) = i\\cdot c + T(n/2^i) = c\\lg n + T(1) = \\Theta(\\lg n)$ (at $i = \\lg n$).</li><li>$T(n) = n + 2T(n/2) = n + 2(n/2 + 2T(n/4)) = i\\cdot n + 2^i T(n/2^i) = n\\lg n + n T(1) = \\Theta(n\\lg n)$.</li></ul>",
                 "<b>Substitution Method (Guess & Strong Induction, Slides 3.15–3.20)</b>:<ul><li><b>$T(n) = T(n-1) + n \\le cn^2$ (Slide 3.18)</b>: $T(n) \\le c(n-1)^2 + n = cn^2 - (2cn - c - n) \\le cn^2$ for $c \\ge \\frac{n}{2n-1}$, which holds for all $n \\ge 1$ when $\\mathbf{c \\ge 1}$.</li><li><b>$T(n) = 3T(n/4) + n^2 \\le dn^2$ (Slide 3.19)</b>: $T(n) \\le 3d(n/4)^2 + n^2 = \\left(\\frac{3}{16}d + 1\\right)n^2 \\le dn^2 \\iff \\mathbf{d \\ge 16/13}$.</li><li><b>$T(n) = 2T(n/2) + n \\le cn\\lg n$ (Slide 3.20)</b>: $T(n) \\le 2c(n/2)\\lg(n/2) + n = cn\\lg n - cn + n \\le cn\\lg n$ for $\\mathbf{c \\ge 1}$.</li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-3-bs-iter",
+                "ag-3-iter-n",
+                "ag-3-asym",
+                "ag-3-subst"
+              ],
+              "figAt": {
+                "ag-3-bs-iter": 0,
+                "ag-3-iter-n": 0,
+                "ag-3-asym": 1,
+                "ag-3-subst": 1
+              },
+              "figH": {
+                "ag-3-bs-iter": "Iterating the binary-search recurrence T(n) = c + T(n/2)",
+                "ag-3-iter-n": "Iterating T(n) = n + 2T(n/2), and the handwritten example with T(1) = 4",
+                "ag-3-asym": "O, Ω, Θ and ω: the definitions the induction goal uses, on the slide examples",
+                "ag-3-subst": "The substitution method, line by line, on the four slide examples"
+              }
             },
             {
               "h": "The Recursion-Tree Method & The Master Theorem (Slides 3.21–3.30)",
@@ -1457,7 +1603,22 @@ window.COURSES.algo = {
                   "Θ(√n lg n)"
                 ]
               ],
-              "fig": "algo-rec-sim"
+              "fig": [
+                "algo-rec-sim",
+                "ag-3-tree-sq",
+                "ag-3-tree-4n",
+                "ag-3-master"
+              ],
+              "figAt": {
+                "ag-3-tree-sq": 0,
+                "ag-3-tree-4n": 0,
+                "ag-3-master": 0
+              },
+              "figH": {
+                "ag-3-tree-sq": "Recursion tree of T(n) = T(n/4) + T(n/2) + n², level by level",
+                "ag-3-tree-4n": "Recursion tree of T(n) = 2T(n/2) + 4n with T(1) = 4: every row sums to 4n",
+                "ag-3-master": "The master method step by step: the slide examples, or your own recurrence"
+              }
             }
           ],
           "cards": [
@@ -1640,6 +1801,21 @@ window.COURSES.algo = {
                   15
                 ],
                 "target": 9
+              },
+              "fig": [
+                "ag-4-recur",
+                "ag-4-bsearch",
+                "ag-4-power"
+              ],
+              "figAt": {
+                "ag-4-recur": 0,
+                "ag-4-bsearch": 1,
+                "ag-4-power": 2
+              },
+              "figH": {
+                "ag-4-recur": "The divide-and-conquer recurrence, part by part: merge sort, binary search, matrix D&amp;C and Strassen",
+                "ag-4-bsearch": "Binary search: find 9 in 3 5 7 8 9 12 15, one subarray at a time",
+                "ag-4-power": "Powering a number: aⁿ from a<sup>⌊n/2⌋</sup> computed once"
               }
             },
             {
@@ -1649,15 +1825,57 @@ window.COURSES.algo = {
                 "<b>Midterm 2024 Q6 & Midterm 2025 Q4 Workout: Compute $F(16)$ in 4 Steps</b>:<ul><li><b>Step 1</b>: $M^2 = \\begin{pmatrix}1&1\\\\1&0\\end{pmatrix}^2 = \\begin{pmatrix}2&1\\\\1&1\\end{pmatrix}$ ($F_2=1$).</li><li><b>Step 2</b>: $M^4 = (M^2)^2 = \\begin{pmatrix}5&3\\\\3&2\\end{pmatrix}$ ($F_4=3$).</li><li><b>Step 3</b>: $M^8 = (M^4)^2 = \\begin{pmatrix}34&21\\\\21&13\\end{pmatrix}$ ($F_8=21$).</li><li><b>Step 4</b>: $M^{16} = (M^8)^2 = \\begin{pmatrix}1597&987\\\\987&610\\end{pmatrix} \\implies \\mathbf{F(16) = 987}$!</li></ul>"
               ],
               "formula": [
-                "[[F_{n+1}, F_n], [F_n, F_{n-1}]] = [[1, 1], [1, 0]]^n  ⇒  F(16) = 987 in 4 squarings (M² → M⁴ → M⁸ → M¹⁶)"
-              ]
+                "[[Fₙ₊₁, Fₙ], [Fₙ, Fₙ₋₁]] = [[1, 1], [1, 0]]ⁿ  ⇒  F(16) = 987 in 4 squarings (M² → M⁴ → M⁸ → M¹⁶)"
+              ],
+              "fig": [
+                "ag-4-fib",
+                "ag-4-fibproof",
+                "ag-4-fibsq"
+              ],
+              "figAt": {
+                "ag-4-fib": 0,
+                "ag-4-fibproof": 0,
+                "ag-4-fibsq": 1
+              },
+              "figH": {
+                "ag-4-fib": "Fibonacci numbers three ways: naive recursion, bottom-up, and φⁿ/√5 rounding",
+                "ag-4-fibproof": "Proof of the matrix theorem by induction",
+                "ag-4-fibsq": "Recursive squaring: F(16) = 987 from M², M⁴, M⁸, M¹⁶ (or your own n)"
+              }
             },
             {
               "h": "Strassen's Matrix Multiplication & VLSI H-Tree Embedding (Slides 4.27–4.54)",
               "pts": [
                 "<b>Strassen's Algorithm (Slides 4.35–4.45)</b>: Multiplies two $2\\times 2$ block matrices using <b>7 recursive multiplications</b> ($P_1..P_7$) instead of 8: $T(n) = 7T(n/2) + \\Theta(n^2) = \\mathbf{\\Theta(n^{\\lg 7}) \\approx \\Theta(n^{2.81})}$.",
                 "<b>VLSI H-Tree Layout (Slides 4.46–4.53)</b>: Embeds a complete binary tree of $n$ leaves with side length $L(n) = 2L(n/4) + \\Theta(1) = \\Theta(\\sqrt{n})$, achieving optimal $\\mathbf{\\text{Area} = L(n)^2 = \\Theta(n)}$ instead of naive $\\Theta(n\\lg n)$."
-              ]
+              ],
+              "fig": [
+                "ag-4-matmul",
+                "ag-4-blocks",
+                "ag-4-strassen",
+                "ag-4-strassen-r",
+                "ag-4-strassen-num",
+                "ag-4-vlsi",
+                "ag-4-htree"
+              ],
+              "figAt": {
+                "ag-4-matmul": 0,
+                "ag-4-blocks": 0,
+                "ag-4-strassen": 0,
+                "ag-4-strassen-r": 0,
+                "ag-4-strassen-num": 0,
+                "ag-4-vlsi": 1,
+                "ag-4-htree": 1
+              },
+              "figH": {
+                "ag-4-matmul": "The standard algorithm: each c<sub>ij</sub> costs n multiplications, n³ in all",
+                "ag-4-blocks": "Divide and conquer on 2×2 blocks: 8 multiplications, still Θ(n³)",
+                "ag-4-strassen": "Strassen's idea: 7 products P<sub>1</sub>…P<sub>7</sub> give r, s, t, u",
+                "ag-4-strassen-r": "Checking r = P<sub>5</sub> + P<sub>4</sub> − P<sub>2</sub> + P<sub>6</sub> = ae + bg term by term",
+                "ag-4-strassen-num": "Strassen on numbers: 7 products against the standard 8",
+                "ag-4-vlsi": "Naive VLSI layout: height Θ(lg n), width Θ(n), area Θ(n lg n)",
+                "ag-4-htree": "H-tree embedding: side Θ(√n), area Θ(n)"
+              }
             }
           ],
           "cards": [
@@ -1856,6 +2074,21 @@ window.COURSES.algo = {
                   2,
                   11
                 ]
+              },
+              "fig": [
+                "ag-5-divide",
+                "ag-5-invariant",
+                "ag-5-partition"
+              ],
+              "figAt": {
+                "ag-5-divide": 0,
+                "ag-5-invariant": 1,
+                "ag-5-partition": 2
+              },
+              "figH": {
+                "ag-5-divide": "Divide, conquer, combine: the array split around the pivot x",
+                "ag-5-invariant": "The PARTITION invariant: x | ≤ x | ≥ x | ? with pointers p, i, j, q",
+                "ag-5-partition": "PARTITION step by step on 6 10 13 5 8 3 2 11 (or your own array)"
               }
             },
             {
@@ -1869,14 +2102,41 @@ window.COURSES.algo = {
               "formula": [
                 "Worst-Case: T(n) = T(0) + T(n−1) + cn = Θ(n²)  |  Best-Case: T(n) = 2T(n/2) + cn = Θ(n lg n)",
                 "1/10 : 9/10 Split: T(n) = T(n/10) + T(9n/10) + cn = Θ(n lg n)  |  Alternating L/U: L(n) = 2L(n/2−1) + Θ(n) = Θ(n lg n)"
-              ]
+              ],
+              "fig": [
+                "ag-5-worst",
+                "ag-5-almost-best",
+                "ag-5-lucky"
+              ],
+              "figAt": {
+                "ag-5-worst": 0,
+                "ag-5-almost-best": 2,
+                "ag-5-lucky": 3
+              },
+              "figH": {
+                "ag-5-worst": "Worst-case recursion tree: T(n) = T(0) + T(n−1) + cn grows to Θ(n<sup>2</sup>)",
+                "ag-5-almost-best": "The 1/10 : 9/10 split recursion tree, level by level",
+                "ag-5-lucky": "Alternating lucky and unlucky splits still give Θ(n lg n)"
+              }
             },
             {
               "h": "Randomized Quicksort & Expected Running-Time Proof (Slides 5.34–5.47)",
               "pts": [
                 "<b>Randomized Quicksort (Slide 5.34)</b>: Partition around a uniformly chosen random element in $A[p..q]$. No specific input can trigger the worst case; expected time is $\\Theta(n\\lg n)$ for all inputs.",
                 "<b>Expected Running Time Derivation (Slides 5.35–5.46)</b>: Let indicator $X_k = 1$ if `PARTITION` yields a $k : (n-k-1)$ split ($E[X_k] = 1/n$). Then $E[T(n)] = \\frac{1}{n}\\sum_{k=0}^{n-1}(E[T(k)] + E[T(n-k-1)] + \\Theta(n)) = \\frac{2}{n}\\sum_{k=2}^{n-1} E[T(k)] + \\Theta(n)$. By substitution with $E[T(k)] \\le ak\\lg k$ and $\\sum_{k=2}^{n-1} k\\lg k \\le \\frac{1}{2}n^2\\lg n - \\frac{1}{8}n^2$, we obtain $E[T(n)] \\le an\\lg n - (\\frac{a}{4}n - \\Theta(n)) \\le an\\lg n = \\mathbf{\\Theta(n \\lg n)}$."
-              ]
+              ],
+              "fig": [
+                "ag-5-random",
+                "ag-5-expect"
+              ],
+              "figAt": {
+                "ag-5-random": 0,
+                "ag-5-expect": 1
+              },
+              "figH": {
+                "ag-5-random": "A random pivot gives each k : n−k−1 split probability 1/n",
+                "ag-5-expect": "Expected running time, one line of the derivation at a time"
+              }
             }
           ],
           "cards": [
@@ -2028,7 +2288,19 @@ window.COURSES.algo = {
               "h": "Decision-Tree Model & Ω(n lg n) Lower Bound (Slides 6.1–6.10)",
               "pts": [
                 "<b>Decision-Tree Lower Bound Theorem (Slides 6.8–6.10)</b>: Any comparison sort on $n$ elements can be modeled as a binary decision tree where internal nodes compare $a_i : a_j$ and leaves represent sorted permutations. Since all $n!$ permutations must appear as leaves and a binary tree of height $h$ has $\\le 2^h$ leaves, $n! \\le 2^h \\implies h \\ge \\lg(n!) \\ge \\lg((n/e)^n) = n\\lg n - n\\lg e = \\mathbf{\\Omega(n \\lg n)}$. Corollary: <b>Merge Sort and Heapsort are asymptotically optimal comparison sorts</b>."
-              ]
+              ],
+              "fig": [
+                "ag-6-dtree",
+                "ag-6-lower-bound"
+              ],
+              "figAt": {
+                "ag-6-dtree": 0,
+                "ag-6-lower-bound": 0
+              },
+              "figH": {
+                "ag-6-dtree": "The decision tree for 3 elements, followed on 〈9, 4, 6〉 (or your own three numbers)",
+                "ag-6-lower-bound": "n! leaves need height h ≥ lg(n!) = Ω(n lg n)"
+              }
             },
             {
               "h": "Counting Sort & Dr. Basheer's 4-Row Exam Table (Slides 6.11–6.30)",
@@ -2094,13 +2366,43 @@ window.COURSES.algo = {
                   1,
                   2
                 ]
+              },
+              "fig": [
+                "ag-6-csort",
+                "ag-6-stable"
+              ],
+              "figAt": {
+                "ag-6-csort": 0,
+                "ag-6-stable": 0
+              },
+              "figH": {
+                "ag-6-csort": "Counting sort loop by loop on A = 4 1 3 4 3 (also the exam table, or your own)",
+                "ag-6-stable": "Counting sort is stable: equal keys keep their input order"
               }
             },
             {
               "h": "Radix Sort & Punched Cards (Slides 6.31–6.47)",
               "pts": [
                 "<b>LSD Radix Sort (Slides 6.31–6.39)</b>: Sorts from least-significant digit to most-significant digit using Counting Sort as the stable intermediate sort. For $n$ $b$-bit numbers grouped into $r$-bit digits ($d = b/r$ passes, $k = 2^r - 1$), $T(n) = \\Theta((b/r)(n + 2^r))$. Choosing $r = \\lfloor \\lg n \\rfloor$ gives $\\mathbf{T(n) = \\Theta(bn / \\lg n)}$."
-              ]
+              ],
+              "fig": [
+                "ag-6-radix",
+                "ag-6-radix-proof",
+                "ag-6-radix-r",
+                "ag-6-sorter"
+              ],
+              "figAt": {
+                "ag-6-radix": 0,
+                "ag-6-radix-proof": 0,
+                "ag-6-radix-r": 0,
+                "ag-6-sorter": 0
+              },
+              "figH": {
+                "ag-6-radix": "Radix sort, least-significant digit first, on the slide’s seven numbers (or your own)",
+                "ag-6-radix-proof": "Why radix sort is correct: induction on the digit position",
+                "ag-6-radix-r": "Choosing r: b/r passes of Θ(n + 2<sup>r</sup>) each",
+                "ag-6-sorter": "Hollerith’s card sorter: one pass of a stable sort on one column"
+              }
             }
           ],
           "cards": [
@@ -2233,13 +2535,46 @@ window.COURSES.algo = {
                 "<b>`RAND-SELECT(A, p, q, i)` (Slides 7.3–7.4)</b>: Partitions $A[p..q]$ around a random pivot at $r$ with relative rank $k = r - p + 1$. If $i == k$, return $A[r]$; if $i < k$, recurse on $A[p..r-1]$ for rank $i$; if $i > k$, recurse on $A[r+1..q]$ for rank $i - k$.",
                 "<b>Expected vs. Worst-Case Time (Slides 7.5–7.18)</b>: Because `RAND-SELECT` recurses on <b>only one side</b>, a $9/10$ split gives $T(n) = T(9n/10) + \\Theta(n) = \\Theta(n)$ (Master Case 3). Expected time is $\\mathbf{E[T(n)] = \\Theta(n)}$, while the unlucky worst case ($0:n-1$ split) is $\\Theta(n^2)$."
               ],
-              "code": "RAND-SELECT(A, p, q, i)\n1  if p = q then return A[p]\n2  r ← RAND-PARTITION(A, p, q)\n3  k ← r - p + 1\n4  if i = k then return A[r]\n5  if i < k\n6     then return RAND-SELECT(A, p, r - 1, i)\n7     else return RAND-SELECT(A, r + 1, q, i - k)"
+              "code": "RAND-SELECT(A, p, q, i)\n1  if p = q then return A[p]\n2  r ← RAND-PARTITION(A, p, q)\n3  k ← r - p + 1\n4  if i = k then return A[r]\n5  if i < k\n6     then return RAND-SELECT(A, p, r - 1, i)\n7     else return RAND-SELECT(A, r + 1, q, i - k)",
+              "fig": [
+                "ag-7-rank",
+                "ag-7-randsel",
+                "ag-7-lucky",
+                "ag-7-expect"
+              ],
+              "figAt": {
+                "ag-7-rank": 0,
+                "ag-7-randsel": 0,
+                "ag-7-lucky": 1,
+                "ag-7-expect": 1
+              },
+              "figH": {
+                "ag-7-rank": "Order statistics: the element of rank i, on slide 4's array",
+                "ag-7-randsel": "RAND-SELECT on the slide example (i = 7), or your own array with random pivots",
+                "ag-7-lucky": "Lucky 9 : 1 splits give Θ(n), unlucky 0 : n−1 splits give Θ(n²)",
+                "ag-7-expect": "Expected time of RAND-SELECT, line by line, with every split drawn"
+              }
             },
             {
               "h": "Worst-Case Linear-Time Selection: Median-of-Medians (Slides 7.19–7.30)",
               "pts": [
                 "<b>BFPRT Deterministic `SELECT` (Slides 7.19–7.30)</b>: (1) Divide $n$ elements into $\\lfloor n/5 \\rfloor$ groups of $5$ and find each group’s median; (2) Recursively `SELECT` the median $x$ of the $\\lfloor n/5 \\rfloor$ medians in $T(n/5)$ time; (3) Partition around $x$ (guaranteed at least $3\\lfloor n/10 \\rfloor \\ge n/4$ elements $\\le x$ and $\\ge n/4$ elements $\\ge x$); (4) Recurse on at most $3n/4$ elements. Recurrence: $T(n) \\le T(n/5) + T(3n/4) + \\Theta(n) = \\mathbf{\\Theta(n)}$ in the worst case (since $1/5 + 3/4 = 19/20 < 1$)."
-              ]
+              ],
+              "fig": [
+                "ag-7-mom",
+                "ag-7-n50",
+                "ag-7-selrec"
+              ],
+              "figAt": {
+                "ag-7-mom": 0,
+                "ag-7-n50": 0,
+                "ag-7-selrec": 0
+              },
+              "figH": {
+                "ag-7-mom": "Choosing the pivot: groups of 5, their medians and the median of medians x",
+                "ag-7-n50": "For n ≥ 50, 3⌊n/10⌋ ≥ n/4: step 4 recurses on at most 3n/4 elements",
+                "ag-7-selrec": "The recurrence of SELECT, T(n) = T(n/5) + T(3n/4) + Θ(n), solved"
+              }
             }
           ],
           "cards": [
@@ -2373,7 +2708,28 @@ window.COURSES.algo = {
               "pts": [
                 "<b>Direct Addressing (Slides 8.5–8.6)</b>: $h(k) = k$ stores each key at its own index in $O(1)$ worst-case search/insert/delete, but wastes massive memory when the universe of keys is large.",
                 "<b>Four Hash Function Construction Methods (Slides 8.7–8.15)</b>:<ul><li><b>1. Division Method</b>: $h(k) = k \\bmod n$. Choose table size $n$ to be a <b>prime number</b> not close to a power of 2 or 10 (Slide 8.9 shows why $n=4$ maps $10, 20, 30, 40, 50$ only to slots $0$ and $2$, whereas prime $n=7$ spreads them across $3, 6, 2, 4, 1$).</li><li><b>2. Multiplication Method</b>: $h(k) = \\lfloor n (k A \\bmod 1) \\rfloor$ where $0 < A < 1$ (Knuth suggests $A \\approx (\\sqrt{5}-1)/2 \\approx 0.618033$). Slide 8.11 Example ($n=100, A=0.618033$): $h(123) = \\lfloor 100(76.018059 \\bmod 1) \\rfloor = \\lfloor 1.8059 \\rfloor = 1$; $h(150) = \\lfloor 100(92.70495 \\bmod 1) \\rfloor = 70$. Note: In binary implementation $m = 2^p$ (so for $p=7$, $m = 2^7 = 128$, Final 2 Q6).</li><li><b>3. Mid-Square Method</b>: Square $k$ ($k^2$) and extract the middle $r$ digits (e.g., $n=100 \\implies r=2$ digits).</li><li><b>4. Folding Method</b>: Partition key $K$ into parts matching the address width and add them. Slide 8.15 Example (`K = 12345678`, 2-digit address `0..99`):<ul><li><b>Fold-Shifting</b>: $12 + 34 + 56 + 78 = 180 \\implies 180 \\bmod 100 = \\mathbf{80}$.</li><li><b>Fold-Boundary</b> (reverse outer parts `12→21` and `78→87`): $21 + 34 + 56 + 87 = 198 \\implies 198 \\bmod 100 = \\mathbf{98}$.</li></ul></li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-8-direct",
+                "ag-8-mod-prime",
+                "ag-8-mult",
+                "ag-8-midsquare",
+                "ag-8-folding"
+              ],
+              "figAt": {
+                "ag-8-direct": 0,
+                "ag-8-mod-prime": 1,
+                "ag-8-mult": 1,
+                "ag-8-midsquare": 1,
+                "ag-8-folding": 1
+              },
+              "figH": {
+                "ag-8-direct": "Direct hashing h(K) = K, then the division method and its collision",
+                "ag-8-mod-prime": "Why n should be prime: 10, 20, 30, 40, 50 mod 4 and mod 7",
+                "ag-8-mult": "Multiplication method: h(123) = 1 and h(150) = 70, line by line",
+                "ag-8-midsquare": "Mid-square method: the slide's five examples",
+                "ag-8-folding": "Folding 12345678: fold-shifting gives 80, fold-boundary gives 98"
+              }
             },
             {
               "h": "Amortized Analysis of Dynamic Hash Table Doubling (Slides 8.16–8.29)",
@@ -2381,10 +2737,28 @@ window.COURSES.algo = {
                 "<b>Dynamic Table Doubling Problem (Slides 8.16–8.23, Midterm 2018 Q6, Final 2019 Q2 & Final Summer Q28)</b>: Start with table capacity $1$ and double the table size ($1, 2, 4, 8, 16, \\dots$) whenever an insertion overflows the current table, copying all existing elements into the new table:<ul><li><b>1. Aggregate Method</b>: The $i$-th insertion costs $c_i = i$ if $i - 1$ is a power of 2 ($i = 1, 2, 3, 5, 9, \\dots$, where $i-1 = 2^k$ items are copied + $1$ new item inserted), and $c_i = 1$ otherwise. For $n$ insertions: $\\sum_{i=1}^n c_i \\le n + \\sum_{j=0}^{\\lfloor \\lg(n-1) \\rfloor} 2^j < n + 2n = 3n = O(n)$. Thus the amortized cost per insertion is $\\frac{3n}{n} = \\mathbf{3 = O(1)}$!</li><li><b>2. Accounting (Banker's) Method (Slides 8.24–8.26)</b>: Charge $\\hat{c}_i = \\mathbf{\\$3}$ per insertion: $\\$1$ pays for the immediate insertion, $\\$1$ is stored as credit on the newly inserted element itself, and $\\$1$ is stored as credit on one of the already-present elements in the first half of the table. When the table fills from $m/2$ to $m$, every one of the $m$ elements holds $\\$1$ credit, paying for all $m$ copies on the next doubling with bank balance never dropping below $0$!</li><li><b>3. Potential (Physicist's) Method (Slides 8.27–8.29)</b>: Define potential $\\Phi(D_i) = 2 \\cdot \\text{num}_i - \\text{size}_i$. For a non-expansion step, $\\hat{c}_i = c_i + \\Phi(D_i) - \\Phi(D_{i-1}) = 1 + 2 = 3$. For an expansion step ($\\text{size}_i = 2\\cdot\\text{size}_{i-1}, \\text{num}_{i-1} = \\text{size}_{i-1}$), $\\hat{c}_i = \\text{num}_i + (2) - (\\text{num}_i - 1) = 3 = O(1)$!</li></ul>"
               ],
               "formula": [
-                "Aggregate Method (Table Doubling 1, 2, 4, 8…): Total Cost = n + Σ_{j=0..⌊lg n⌋} 2^j < n + 2n = 3n ⇒ Amortized Cost = 3n / n = O(1)",
+                "Aggregate Method (Table Doubling 1, 2, 4, 8…): Total Cost = n + Σ (j = 0 … ⌊lg n⌋) 2ʲ < n + 2n = 3n ⇒ Amortized Cost = 3n / n = O(1)",
                 "Accounting Method: Charge $3 per insert ($1 immediate write + $1 self-credit + $1 partner-credit)",
-                "Potential Method: Φ(D_i) = 2·num_i − size_i ⇒ Amortized Cost ĉ_i = c_i + Φ(D_i) − Φ(D_{i-1}) = 3 = O(1)"
-              ]
+                "Potential Method: Φ(Dᵢ) = 2·numᵢ − sizeᵢ ⇒ Amortized Cost ĉᵢ = cᵢ + Φ(Dᵢ) − Φ(Dᵢ₋₁) = 3 = O(1)"
+              ],
+              "fig": [
+                "ag-8-aggregate",
+                "ag-8-accounting",
+                "ag-8-potential",
+                "ag-8-potential-table"
+              ],
+              "figAt": {
+                "ag-8-aggregate": 0,
+                "ag-8-accounting": 0,
+                "ag-8-potential": 0,
+                "ag-8-potential-table": 0
+              },
+              "figH": {
+                "ag-8-aggregate": "Aggregate method: ten insertions into a doubling table cost at most 3n",
+                "ag-8-accounting": "Accounting method: charge $3 per insert and watch the bank",
+                "ag-8-potential": "Potential method: both cases give amortized cost 3",
+                "ag-8-potential-table": "Potential method table for 17 insertions, row by row"
+              }
             },
             {
               "h": "Separate Chaining & Open Addressing: Linear, Quadratic & Double Hashing (Slides 8.30–8.94)",
@@ -2503,7 +2877,20 @@ window.COURSES.algo = {
                   "—"
                 ]
               ],
-              "fig": "algo-hash-sim",
+              "fig": [
+                "algo-hash-sim",
+                "ag-8-chaining",
+                "ag-8-bst-chains",
+                "ag-8-avl",
+                "ag-8-rehash",
+                "ag-8-linear",
+                "ag-8-quadratic",
+                "ag-8-lin-quad",
+                "ag-8-secondary",
+                "ag-8-double",
+                "ag-8-probes",
+                "ag-8-cache"
+              ],
               "viz": {
                 "type": "hash",
                 "title": "Midterm 2022 Q1: Hash Table (m = 11) on [0, 30, 1, 55, 16, 28, 13, 9, 26]",
@@ -2547,6 +2934,32 @@ window.COURSES.algo = {
                     26
                   ]
                 ]
+              },
+              "figAt": {
+                "ag-8-chaining": 0,
+                "ag-8-bst-chains": 0,
+                "ag-8-avl": 0,
+                "ag-8-rehash": 0,
+                "ag-8-linear": 1,
+                "ag-8-quadratic": 1,
+                "ag-8-lin-quad": 1,
+                "ag-8-secondary": 1,
+                "ag-8-double": 1,
+                "ag-8-probes": 1,
+                "ag-8-cache": 1
+              },
+              "figH": {
+                "ag-8-chaining": "Separate chaining: load factor and the cost of search, delete and insert",
+                "ag-8-bst-chains": "A BST in every slot: worst case and best case",
+                "ag-8-avl": "AVL trees in the slots: balance factors and fixing 20, 30, 40",
+                "ag-8-rehash": "Rehashing when the load factor passes the threshold 2",
+                "ag-8-linear": "Linear probing: insert, search and delete with the Deleted marker",
+                "ag-8-quadratic": "Quadratic probing on 7, 36, 18, 62, 51",
+                "ag-8-lin-quad": "Linear against quadratic probing on the same keys",
+                "ag-8-secondary": "Secondary clustering: 62 cannot be inserted",
+                "ag-8-double": "Double hashing with hash2(k) = 7 − (k mod 7)",
+                "ag-8-probes": "Expected probes 1/(1 − α): 2 when half full, 10 when 90% full",
+                "ag-8-cache": "Cache misses per lookup: chaining against linear probing"
               }
             }
           ],
@@ -2747,7 +3160,16 @@ window.COURSES.algo = {
               "pts": [
                 "<b>Balanced Search Trees (Slide 9.2)</b>: Guarantee tree height $h = O(\\lg n)$ for a dynamic set of $n$ items (unlike standard BSTs whose worst-case height is $\\Theta(n)$ on sorted input). Examples: AVL trees, 2-3 trees, 2-3-4 trees, B-trees, Red-Black trees.",
                 "<b>Red-Black Properties (Slide 9.3 & Lec 10 Slide 3)</b>: A BST with one extra color bit (`RED` or `BLACK`) per node satisfying:<ul><li><b>1. Color Property</b>: Every node is either <b>red</b> or <b>black</b>.</li><li><b>2. Root & Leaf Property</b>: The <b>root</b> is black, and every <b>leaf (`NIL` sentinel)</b> is black.</li><li><b>3. Red Property (No Two Consecutive Reds)</b>: If a node is red, then its parent (and both of its children) are black.</li><li><b>4. Black-Height Property</b>: For each node $x$, all simple paths from $x$ to descendant `NIL` leaves contain the <b>same number of black nodes</b>, called the <b>black-height $bh(x)$</b> (not counting $x$ itself).</li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-9-props"
+              ],
+              "figAt": {
+                "ag-9-props": 1
+              },
+              "figH": {
+                "ag-9-props": "The slides' example tree, checked against the four red-black properties"
+              }
             },
             {
               "h": "Proof of Height Bound: h ≤ 2 lg(n + 1) (Slides 9.9–9.16)",
@@ -2760,7 +3182,16 @@ window.COURSES.algo = {
               "formula": [
                 "Subtree Internal Nodes Bound: n ≥ 2^(bh(root)) − 1 ≥ 2^(h/2) − 1  ⇒  h ≤ 2 lg(n + 1) = O(lg n)"
               ],
-              "code": "TREE-MAXIMUM(x)\n1  while right[x] ≠ NIL\n2      do x ← right[x]\n3  return x\n\nTREE-PREDECESSOR(x)\n1  if left[x] ≠ NIL\n2     then return TREE-MAXIMUM(left[x])\n3  y ← p[x]\n4  while y ≠ NIL and x = left[y]\n5      do x ← y\n6         y ← p[y]\n7  return y"
+              "code": "TREE-MAXIMUM(x)\n1  while right[x] ≠ NIL\n2      do x ← right[x]\n3  return x\n\nTREE-PREDECESSOR(x)\n1  if left[x] ≠ NIL\n2     then return TREE-MAXIMUM(left[x])\n3  y ← p[x]\n4  while y ≠ NIL and x = left[y]\n5      do x ← y\n6         y ← p[y]\n7  return y",
+              "fig": [
+                "ag-9-merge"
+              ],
+              "figAt": {
+                "ag-9-merge": 1
+              },
+              "figH": {
+                "ag-9-merge": "Merging red nodes into their black parents gives a 2-3-4 tree, and h ≤ 2 lg(n + 1)"
+              }
             },
             {
               "h": "Rotations & RB-INSERT Cases 1, 2 & 3 (Slides 9.17–9.29)",
@@ -2768,7 +3199,22 @@ window.COURSES.algo = {
                 "<b>Rotations (Slide 9.18)</b>: `LEFT-ROTATE(A)` and `RIGHT-ROTATE(B)` restructure pointers locally in $\\mathbf{O(1)}$ time while strictly preserving the BST inorder key ordering ($\\alpha \\le A \\le \\beta \\le B \\le \\gamma$).",
                 "<b>`RB-INSERT(T, x)` Overview & Cases 1–3 (Slides 9.19–9.29)</b>: Insert $x$ using standard BST insertion and color $x$ <b>RED</b> (so Property 4 black-height is preserved, and only Property 3 ”red parent of red $x$” or Property 2 ”root is red” can be violated). While `color[p[x]] == RED`:<ul><li><b>Case 1 (Uncle $y$ is RED)</b>: Recolor parent and uncle `BLACK`, recolor grandparent `RED`, and move pointer $x$ up to grandparent (`x ← p[p[x]]`). Costs $O(1)$ per level up the tree, 0 rotations.</li><li><b>Case 2 (Uncle $y$ is BLACK and $x$ forms a zig-zag triangle with $p[x]$ and $p[p[x]]$)</b>: Rotate `p[x]` to transform the triangle into a straight line (Case 3).</li><li><b>Case 3 (Uncle $y$ is BLACK and $x$ forms a straight line with $p[x]$ and $p[p[x]]$)</b>: Recolor `p[x]` `BLACK`, grandparent `RED`, and rotate grandparent. <b>Terminates immediately!</b></li><li><b>Total Insertion Cost</b>: $O(\\lg n)$ time and <b>at most 2 rotations</b>!</li></ul>"
               ],
-              "fig": "algo-rbt-sim"
+              "fig": [
+                "algo-rbt-sim",
+                "ag-9-rotate",
+                "ag-9-insert15",
+                "ag-9-cases"
+              ],
+              "figAt": {
+                "ag-9-rotate": 0,
+                "ag-9-insert15": 1,
+                "ag-9-cases": 1
+              },
+              "figH": {
+                "ag-9-rotate": "RIGHT-ROTATE(B) and LEFT-ROTATE(A) keep the inorder order",
+                "ag-9-insert15": "Inserting x = 15 into the example tree, step by step",
+                "ag-9-cases": "RB-INSERT pseudocode and the pictures of Cases 1, 2 and 3"
+              }
             }
           ],
           "cards": [
@@ -2916,8 +3362,23 @@ window.COURSES.algo = {
               "h": "Coloring Red-Black Trees & Insertion Problem Trace (Slides 10.1–10.19)",
               "pts": [
                 "<b>Coloring Exercise on `{7, 5, 9, 12}` (Slide 10.8 & Final 2019 Credit Q3)</b>: Root `7` is <b>BLACK</b>; children `5` and `9` are <b>BLACK</b> (each having black-height $1$ to `NIL`); child `12` (under `9`) must be <b>RED</b> so that every path from root `7` to `NIL` has the exact same black-height ($bh(7) = 2$, counting `5/9` and `NIL`).",
-                "<b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of black `11`, colored <b>RED</b> (valid!).</li></ul>"
-              ]
+                "<b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of red `11` (after the recoloring, `9` is red and `8`, `12` are black). Red breaks Property 3 (red `11` with a red child) and black breaks Property 4 (black-height), so <b>no color works</b>: the tree is too imbalanced and its <b>structure must change</b> (rotations) to allow recoloring, in $O(\\lg n)$ time (Slide 10.19).</li></ul>"
+              ],
+              "fig": [
+                "ag-10-bh",
+                "ag-10-color",
+                "ag-10-problem"
+              ],
+              "figAt": {
+                "ag-10-bh": 0,
+                "ag-10-color": 0,
+                "ag-10-problem": 1
+              },
+              "figH": {
+                "ag-10-bh": "Review: black-height and why h ≤ 2 lg(n + 1)",
+                "ag-10-color": "Colour this tree: tap the nodes of 7, 5, 9, 12 and check the five properties",
+                "ag-10-problem": "The problem with insertion: where do 8, 11 and 10 go, and what colour?"
+              }
             },
             {
               "h": "Pointer-Level Rotation Pseudocode & Insertion Cases 1–6 (Slides 10.20–10.32)",
@@ -2925,7 +3386,22 @@ window.COURSES.algo = {
                 "<b>`rightRotate(y)` Pointer Manipulation (Slide 10.21)</b>: Let `x = y->left`. Set `y->left = x->right` (and if `x->right != NIL`, `x->right->p = y`); set `x->p = y->p` (updating `root` or `y->p`'s child pointer); finally set `x->right = y` and `y->p = x`.",
                 "<b>Symmetric Insertion Cases 1–6 (Slides 10.25–10.31)</b>:<ul><li>When `x->p` is a <b>left child</b> of `x->p->p`, let uncle `y = x->p->p->right`:<ul><li><b>Case 1 (`y` is RED)</b>: Recolor `x->p` and `y` BLACK, `x->p->p` RED, set `x = x->p->p`.</li><li><b>Case 2 (`y` is BLACK, `x` is right child)</b>: Set `x = x->p`, `leftRotate(x)` $\\rightarrow$ becomes Case 3.</li><li><b>Case 3 (`y` is BLACK, `x` is left child)</b>: Recolor `x->p` BLACK, `x->p->p` RED, `rightRotate(x->p->p)`.</li></ul></li><li>When `x->p` is a <b>right child</b> of `x->p->p`, Cases 4, 5, 6 are the exact left-right mirror images!</li></ul>"
               ],
-              "code": "rbInsert(x) {\n  treeInsert(x);\n  x->color = RED;\n  while (x != root && x->p->color == RED) {\n    if (x->p == x->p->p->left) {\n      y = x->p->p->right;           // y is uncle of x\n      if (y->color == RED) {        // Case 1: uncle is RED\n        x->p->color = BLACK;\n        y->color = BLACK;\n        x->p->p->color = RED;\n        x = x->p->p;\n      } else {\n        if (x == x->p->right) {     // Case 2: zig-zag triangle\n          x = x->p;\n          leftRotate(x);\n        }\n        x->p->color = BLACK;        // Case 3: straight line\n        x->p->p->color = RED;\n        rightRotate(x->p->p);\n      }\n    } else { /* Cases 4-6: symmetric with left <-> right */ }\n  }\n  root->color = BLACK;\n}"
+              "code": "rbInsert(x) {\n  treeInsert(x);\n  x->color = RED;\n  while (x != root && x->p->color == RED) {\n    if (x->p == x->p->p->left) {\n      y = x->p->p->right;           // y is uncle of x\n      if (y->color == RED) {        // Case 1: uncle is RED\n        x->p->color = BLACK;\n        y->color = BLACK;\n        x->p->p->color = RED;\n        x = x->p->p;\n      } else {\n        if (x == x->p->right) {     // Case 2: zig-zag triangle\n          x = x->p;\n          leftRotate(x);\n        }\n        x->p->color = BLACK;        // Case 3: straight line\n        x->p->p->color = RED;\n        rightRotate(x->p->p);\n      }\n    } else { /* Cases 4-6: symmetric with left <-> right */ }\n  }\n  root->color = BLACK;\n}",
+              "fig": [
+                "ag-10-rotptr",
+                "ag-10-rotex",
+                "ag-10-cases"
+              ],
+              "figAt": {
+                "ag-10-rotptr": 0,
+                "ag-10-rotex": 0,
+                "ag-10-cases": 1
+              },
+              "figH": {
+                "ag-10-rotptr": "rightRotate(y), one pointer change at a time",
+                "ag-10-rotex": "Rotation example: rotate left about 9",
+                "ag-10-cases": "rbInsert: Cases 1, 2, 3 with the code, and the symmetric Cases 4-6"
+              }
             }
           ],
           "cards": [
@@ -2939,7 +3415,7 @@ window.COURSES.algo = {
             ],
             [
               "Coloring Red-Black Trees & Insertion Problem Trace (Slides 10.1–10.19) — Core Principle & Complexity",
-              "<b>Coloring Exercise on `{7, 5, 9, 12}` (Slide 10.8 & Final 2019 Credit Q3)</b>: Root `7` is <b>BLACK</b>; children `5` and `9` are <b>BLACK</b> (each having black-height $1$ to `NIL`); child `12` (under `9`) must be <b>RED</b> so that every path from root `7` to `NIL` has the exact same black-height ($bh(7) = 2$, counting `5/9` and `NIL`). <b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of black `11`, colored <b>RED</b> (valid!).</li></ul>"
+              "<b>Coloring Exercise on `{7, 5, 9, 12}` (Slide 10.8 & Final 2019 Credit Q3)</b>: Root `7` is <b>BLACK</b>; children `5` and `9` are <b>BLACK</b> (each having black-height $1$ to `NIL`); child `12` (under `9`) must be <b>RED</b> so that every path from root `7` to `NIL` has the exact same black-height ($bh(7) = 2$, counting `5/9` and `NIL`). <b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of red `11` (after the recoloring, `9` is red and `8`, `12` are black). Red breaks Property 3 (red `11` with a red child) and black breaks Property 4 (black-height), so <b>no color works</b>: the tree is too imbalanced and its <b>structure must change</b> (rotations) to allow recoloring, in $O(\\lg n)$ time (Slide 10.19).</li></ul>"
             ],
             [
               "Pointer-Level Rotation Pseudocode & Insertion Cases 1–6 (Slides 10.20–10.32) — Core Principle & Complexity",
@@ -3050,18 +3526,53 @@ window.COURSES.algo = {
             {
               "h": "Complete Slide & Exam Insertion Traces (Slides 11.1–11.14)",
               "pts": [
-                "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(R), 93(B)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `93` (or right of `47`/left of `71`), colored <b>RED</b>.</li><li><b>Insert `82`</b>: Placed as right child of red `65` under black `71` and red uncle `93` $\\implies$ <b>Case 1 (Uncle `93` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED.</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `65` with `NIL` (black) uncle $\\implies$ <b>Case 2 & Case 3</b>: Left-rotate `65` and right-rotate `71`, then recolor `82` BLACK and `71, 93` RED!</li></ul>",
+                "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(B), 93(R)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `71`, colored <b>RED</b> (parent black $\\implies$ valid).</li><li><b>Insert `82`</b>: Placed as left child of red `93` under black `71`, with red uncle `65` $\\implies$ <b>Case 1 (Uncle `65` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED (its parent `47` is black, so the loop stops).</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `93`, with a `NIL` (black) uncle and `87` an inner child $\\implies$ <b>Case 2 then Case 3</b>: left-rotate `82`, then recolor `87` BLACK and `93` RED and right-rotate `93`. Result: `71`(R) with children `65`(B) and `87`(B), and `87` has red children `82` and `93`.</li></ul>",
                 "<b>Final Exam Workout 1: Insert `(2, 1, 4, 5, 9, 3, 6, 7)` into an Empty Red-Black Tree (Final 2016 Q4 & Final 5 Q4)</b>:<ul><li>1. <b>Insert `2`</b>: `2(B)` is root.</li><li>2. <b>Insert `1`</b>: Left child of `2`, colored `1(R)`.</li><li>3. <b>Insert `4`</b>: Right child of `2`, colored `4(R)`. Tree: `2(B)` with children `1(R), 4(R)`.</li><li>4. <b>Insert `5`</b>: Right child of `4(R)`. Uncle `1(R)` is RED (<b>Case 1</b>) $\\implies$ recolor `1(B), 4(B)`, grandparent `2` stays `2(B)` (root).</li><li>5. <b>Insert `9`</b>: Right child of `5(R)` under `4(B)` with `NIL(B)` uncle (<b>Case 3 RR line</b>) $\\implies$ left-rotate `4(B)` and recolor `5(B)` and `4(R), 9(R)`.</li><li>6. <b>Insert `3`</b>: Left child of `4(R)` under `5(B)` with red uncle `9(R)` (<b>Case 1</b>) $\\implies$ recolor `4(B), 9(B)` and `5(R)`.</li><li>7. <b>Insert `6`</b>: Left child of `9(B)`, colored `6(R)`.</li><li>8. <b>Insert `7`</b>: Right child of `6(R)` under `9(B)` with `NIL(B)` uncle (<b>Case 2 LR triangle $\\to$ Case 3</b>) $\\implies$ left-rotate `6(R)`, right-rotate `9(B)`, recolor `7(B)` and `9(R)`!</li></ul>",
                 "<b>Final Exam Workout 2: Insert `(5, 1, 4, 10, 9, 20, 6, 7)` (Final 2018 I Q4, Final 2018 II Q7 & Exam Examples Q7)</b>:<ul><li>1. `5(B)` $\\to$ 2. `1(R)` left of `5` $\\to$ 3. `4(R)` right of `1(R)` (<b>Case 2+3 LR</b>: left-rotate `1`, right-rotate `5` $\\to$ root becomes `4(B)` with `1(R)` and `5(R)`!).</li><li>4. `10(R)` right of `5(R)` (<b>Case 1</b>: recolor `1(B), 5(B)`).</li><li>5. `9(R)` left of `10(R)` (<b>Case 2+3 RL</b>: right-rotate `10`, left-rotate `5` $\\to$ `9(B)` with `5(R), 10(R)`).</li><li>6. `20(R)` right of `10(R)` (<b>Case 1</b>: recolor `5(B), 10(B), 9(R)`).</li><li>7. `6(R)` right of `5(B)` $\\to$ 8. `7(R)` right of `6(R)` (<b>Case 3 RR</b>: left-rotate `5(B)` $\\to$ `6(B)` with `5(R), 7(R)`). Final root `4(B)` has $bh = 2$.</li></ul>"
               ],
-              "fig": "algo-rbt-sim"
+              "fig": [
+                "algo-rbt-sim",
+                "ag-11-ins",
+                "ag-11-lrot",
+                "ag-11-exam1",
+                "ag-11-exam2"
+              ],
+              "figAt": {
+                "ag-11-ins": 0,
+                "ag-11-lrot": 0,
+                "ag-11-exam1": 1,
+                "ag-11-exam2": 2
+              },
+              "figH": {
+                "ag-11-ins": "Insertion example: insert 65, 82, 87 into the slides' tree",
+                "ag-11-lrot": "The leftRotate code, traced on the left rotation of 82",
+                "ag-11-exam1": "rbInsert step by step: insert 2, 1, 4, 5, 9, 3, 6, 7 (or your own keys)",
+                "ag-11-exam2": "rbInsert step by step: insert 5, 1, 4, 10, 9, 20, 6, 7"
+              }
             },
             {
               "h": "Red-Black Tree Deletion & Doubly-Black Fixup (`rbTreeFix` Cases 1–4, Slides 11.15–11.39)",
               "pts": [
                 "<b>Deletion Overview (Slides 11.15–11.16)</b>: Standard BST deletion reduces deleting a 2-child node to deleting its inorder successor/predecessor `y` (which has at most one real child `x`).<ul><li>If the removed node `y` was <b>RED</b>, no Red-Black properties are violated—done!</li><li>If `y` was <b>BLACK</b>, removing it reduces the black-height along paths through `y`, so we pass an <b>”extra black token”</b> to `x` (the child replacing `y`) and call `rbTreeFix(root, x)`.</li></ul>",
                 "<b>Four Cases of `rbTreeFix(root, x)` (Slides 11.30–11.38)</b>: Let `y` be `x`’s sibling:<ul><li><b>Case (1): `x` is RED</b> (has a red color + extra black token): Simply color `x` <b>BLACK</b> and terminate!</li><li><b>Case (2): `x` is BLACK and sibling `y` is RED</b>: Color `y` BLACK and `x.parent` RED, rotate `x.parent` toward `x`, and update `y` to `x`’s new (now guaranteed BLACK) sibling $\\rightarrow$ falls into Case 3 or 4.</li><li><b>Case (3): `x` is BLACK, sibling `y` is BLACK, and BOTH nephews (`y.left`, `y.right`) are BLACK</b>: Color `y` RED and move the extra black token up to `x = x.parent` (loop continues, or stops if `x` is red via Case 1).</li><li><b>Case (4): `x` is BLACK, sibling `y` is BLACK, and AT LEAST ONE nephew is RED</b>:<ul><li><b>Subcase 4(i)</b> (far nephew is BLACK, near nephew is RED): Color near nephew BLACK, `y` RED, rotate `y` away from `x` $\\rightarrow$ transforms into Subcase 4(ii).</li><li><b>Subcase 4(ii)</b> (far nephew is RED): Color `y` with `x.parent`’s color, color `x.parent` BLACK, color far nephew BLACK, rotate `x.parent` toward `x`, and remove the extra black token completely (<b>terminates after at most 3 rotations total!</b>).</li></ul></li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-11-delex",
+                "ag-11-fixcases",
+                "ag-11-delsim",
+                "ag-11-eff"
+              ],
+              "figAt": {
+                "ag-11-delex": 0,
+                "ag-11-fixcases": 1,
+                "ag-11-delsim": 1
+              },
+              "figH": {
+                "ag-11-delex": "Deletion examples 1-3: delete 87, 71 and 32",
+                "ag-11-fixcases": "The four cases of rbTreeFix, with the code",
+                "ag-11-delsim": "Try your own: delete keys and watch rbTreeFix",
+                "ag-11-eff": "RB trees efficiency: sorted arrays, linked lists and RB trees compared"
+              }
             }
           ],
           "cards": [
@@ -3079,7 +3590,7 @@ window.COURSES.algo = {
             ],
             [
               "Complete Slide & Exam Insertion Traces (Slides 11.1–11.14) — Core Principle & Complexity",
-              "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(R), 93(B)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `93` (or right of `47`/left of `71`), colored <b>RED</b>.</li><li><b>Insert `82`</b>: Placed as right child of red `65` under black `71` and red uncle `93` $\\implies$ <b>Case 1 (Uncle `93` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED.</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `65` with `NIL` (black) uncle $\\implies$ <b>Case 2 & Case 3</b>: Left-rotate `65` and right-rotate `71`, then recolor `82` BLACK and `71, 93` RED!</li></ul> <b>Final Exam Workout 1: Insert `(2, 1, 4, 5, 9, 3, 6, 7)` into an Empty Red-Black Tree (Final 2016 Q4 & Final 5 Q4)</b>:<ul><li>1. <b>Insert `2`</b>: `2(B)` is root.</li><li>2. <b>Insert `1`</b>: Left child of `2`, colored `1(R)`.</li><li>3. <b>Insert `4`</b>: Right child of `2`, colored `4(R)`. Tree: `2(B)` with children `1(R), 4(R)`.</li><li>4. <b>Insert `5`</b>: Right child of `4(R)`. Uncle `1(R)` is RED (<b>Case 1</b>) $\\implies$ recolor `1(B), 4(B)`, grandparent `2` stays `2(B)` (root).</li><li>5. <b>Insert `9`</b>: Right child of `5(R)` under `4(B)` with `NIL(B)` uncle (<b>Case 3 RR line</b>) $\\implies$ left-rotate `4(B)` and recolor `5(B)` and `4(R), 9(R)`.</li><li>6. <b>Insert `3`</b>: Left child of `4(R)` under `5(B)` with red uncle `9(R)` (<b>Case 1</b>) $\\implies$ recolor `4(B), 9(B)` and `5(R)`.</li><li>7. <b>Insert `6`</b>: Left child of `9(B)`, colored `6(R)`.</li><li>8. <b>Insert `7`</b>: Right child of `6(R)` under `9(B)` with `NIL(B)` uncle (<b>Case 2 LR triangle $\\to$ Case 3</b>) $\\implies$ left-rotate `6(R)`, right-rotate `9(B)`, recolor `7(B)` and `9(R)`!</li></ul>"
+              "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(B), 93(R)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `71`, colored <b>RED</b> (parent black $\\implies$ valid).</li><li><b>Insert `82`</b>: Placed as left child of red `93` under black `71`, with red uncle `65` $\\implies$ <b>Case 1 (Uncle `65` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED (its parent `47` is black, so the loop stops).</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `93`, with a `NIL` (black) uncle and `87` an inner child $\\implies$ <b>Case 2 then Case 3</b>: left-rotate `82`, then recolor `87` BLACK and `93` RED and right-rotate `93`. Result: `71`(R) with children `65`(B) and `87`(B), and `87` has red children `82` and `93`.</li></ul> <b>Final Exam Workout 1: Insert `(2, 1, 4, 5, 9, 3, 6, 7)` into an Empty Red-Black Tree (Final 2016 Q4 & Final 5 Q4)</b>:<ul><li>1. <b>Insert `2`</b>: `2(B)` is root.</li><li>2. <b>Insert `1`</b>: Left child of `2`, colored `1(R)`.</li><li>3. <b>Insert `4`</b>: Right child of `2`, colored `4(R)`. Tree: `2(B)` with children `1(R), 4(R)`.</li><li>4. <b>Insert `5`</b>: Right child of `4(R)`. Uncle `1(R)` is RED (<b>Case 1</b>) $\\implies$ recolor `1(B), 4(B)`, grandparent `2` stays `2(B)` (root).</li><li>5. <b>Insert `9`</b>: Right child of `5(R)` under `4(B)` with `NIL(B)` uncle (<b>Case 3 RR line</b>) $\\implies$ left-rotate `4(B)` and recolor `5(B)` and `4(R), 9(R)`.</li><li>6. <b>Insert `3`</b>: Left child of `4(R)` under `5(B)` with red uncle `9(R)` (<b>Case 1</b>) $\\implies$ recolor `4(B), 9(B)` and `5(R)`.</li><li>7. <b>Insert `6`</b>: Left child of `9(B)`, colored `6(R)`.</li><li>8. <b>Insert `7`</b>: Right child of `6(R)` under `9(B)` with `NIL(B)` uncle (<b>Case 2 LR triangle $\\to$ Case 3</b>) $\\implies$ left-rotate `6(R)`, right-rotate `9(B)`, recolor `7(B)` and `9(R)`!</li></ul>"
             ],
             [
               "Red-Black Tree Deletion & Doubly-Black Fixup (`rbTreeFix` Cases 1–4, Slides 11.15–11.39) — Core Principle & Complexity",
@@ -3215,14 +3726,56 @@ window.COURSES.algo = {
                 "<b>`OS-SELECT(x, i)` — Finding the $i$-th Smallest Element in $O(\\lg n)$ (Slides 12.4–12.5)</b>:<ul><li>Compute $k = \\text{size}[\\text{left}[x]] + 1$ (the relative rank of $x$ within the subtree rooted at $x$).</li><li>If $i == k$, return $x$; if $i < k$, recurse on `OS-SELECT(left[x], i)`; if $i > k$, recurse on `OS-SELECT(right[x], i - k)`.</li><li><b>Slide Trace `OS-SELECT(root, 5)` on `{M(9), C(5), P(3), A(1), F(3), D(1), H(1), N(1), Q(1)}`</b>: At `M`, $k = 5 + 1 = 6$ ($i=5 < 6 \\to$ go left to `C`); at `C`, $k = 1 + 1 = 2$ ($i=5 > 2 \\to$ go right to `F` with $i = 5 - 2 = 3$); at `F`, $k = 1 + 1 = 2$ ($i=3 > 2 \\to$ go right to `H` with $i = 3 - 2 = 1$); at `H`, $k = 0 + 1 = 1 == i \\to$ return `H`!</li></ul>",
                 "<b>`OS-RANK(T, x)` — Finding the Rank of Node $x$ in $O(\\lg n)$ (Midterm 2025 Q6)</b>:<ul><li>Initialize $r = \\text{size}[\\text{left}[x]] + 1$ (rank of $x$ within its own subtree) and set $y = x$.</li><li>Climb up to the root (`while y ≠ T.root`): whenever $y$ is a <b>right child</b> of its parent (`if y == y.p.right`), add the left sibling's subtree plus the parent itself: `r = r + y.p.left.size + 1`. Set `y = y.p`.</li></ul>"
               ],
-              "code": "OS-SELECT(x, i)   // Returns ith smallest node in subtree at x\n1  k ← size[left[x]] + 1\n2  if i = k then return x\n3  if i < k\n4     then return OS-SELECT(left[x], i)\n5     else return OS-SELECT(right[x], i - k)\n\nOS-RANK(T, x)     // Returns rank of x in T (Midterm 2025 Q6)\n1  r ← x.left.size + 1\n2  y ← x\n3  while y ≠ T.root\n4      do if y = y.p.right\n5            then r ← r + y.p.left.size + 1\n6         y ← y.p\n7  return r"
+              "code": "OS-SELECT(x, i)   // Returns ith smallest node in subtree at x\n1  k ← size[left[x]] + 1\n2  if i = k then return x\n3  if i < k\n4     then return OS-SELECT(left[x], i)\n5     else return OS-SELECT(right[x], i - k)\n\nOS-RANK(T, x)     // Returns rank of x in T (Midterm 2025 Q6)\n1  r ← x.left.size + 1\n2  y ← x\n3  while y ≠ T.root\n4      do if y = y.p.right\n5            then r ← r + y.p.left.size + 1\n6         y ← y.p\n7  return r",
+              "fig": [
+                "ag-12-os-tree",
+                "ag-12-insert",
+                "ag-12-rotate-size",
+                "ag-12-select",
+                "ag-12-rank"
+              ],
+              "figAt": {
+                "ag-12-os-tree": 0,
+                "ag-12-insert": 1,
+                "ag-12-rotate-size": 1,
+                "ag-12-select": 2,
+                "ag-12-rank": 3
+              },
+              "figH": {
+                "ag-12-os-tree": "The OS-tree of the slides: every size[x] computed bottom up",
+                "ag-12-insert": "INSERT(“K”): sizes change only on the path, ranks would change everywhere",
+                "ag-12-rotate-size": "A rotation fixes subtree sizes in O(1)",
+                "ag-12-select": "OS-SELECT(root, i) step by step (the slide traces i = 5)",
+                "ag-12-rank": "OS-RANK(T, x) on the same tree: climb to the root, adding at every right turn"
+              }
             },
             {
               "h": "Data-Structure Augmentation Methodology & Interval Trees (Slides 12.9–12.25)",
               "pts": [
                 "<b>4-Step Data-Structure Augmentation Methodology (Slide 12.9)</b>:<ul><li><b>1.</b> Choose an underlying data structure (e.g., Red-Black Tree).</li><li><b>2.</b> Determine additional information to store in each node (e.g., `size[x]` or `m[x]`).</li><li><b>3.</b> Verify that the information can be maintained in $O(\\lg n)$ during `RB-INSERT` and `RB-DELETE` (including $O(1)$ updates during rotations!).</li><li><b>4.</b> Develop new dynamic-set operations that use the information (e.g., `OS-SELECT`, `OS-RANK`, `INTERVAL-SEARCH`).</li></ul>",
                 "<b>Interval Trees & `INTERVAL-SEARCH(i)` (Slides 12.10–12.25)</b>:<ul><li><b>1. Underlying structure</b>: Red-Black Tree keyed on the <b>low (left) endpoint</b> `low[int[x]]`.</li><li><b>2. Additional info</b>: `m[x] = max(high[int[x]], m[left[x]], m[right[x]])` (the maximum endpoint in $x$'s subtree).</li><li><b>3. Maintaining `m[x]`</b>: Updated in $O(1)$ time during rotations and $O(\\lg n)$ down the insertion/deletion path.</li><li><b>4. `INTERVAL-SEARCH(i)`</b>: Starting at `x = root`, while `x ≠ NIL` and `i` does not overlap `int[x]` (i.e., `low[i] > high[int[x]]` or `low[int[x]] > high[i]`): if `left[x] ≠ NIL` and `low[i] ≤ m[left[x]]`, go left (`x ← left[x]`), else go right (`x ← right[x]`). Runs in $O(\\lg n)$ time!</li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-12-intervals",
+                "ag-12-itree",
+                "ag-12-rotate-m",
+                "ag-12-isearch",
+                "ag-12-proof"
+              ],
+              "figAt": {
+                "ag-12-intervals": 1,
+                "ag-12-itree": 1,
+                "ag-12-rotate-m": 1,
+                "ag-12-isearch": 1,
+                "ag-12-proof": 1
+              },
+              "figH": {
+                "ag-12-intervals": "Intervals and the overlap query: move the query interval",
+                "ag-12-itree": "The slide’s interval tree: keyed on low endpoints, m[x] filled bottom up",
+                "ag-12-rotate-m": "A rotation fixes m[x] in O(1)",
+                "ag-12-isearch": "INTERVAL-SEARCH on [14,16] and [12,14] (or your own query)",
+                "ag-12-proof": "Why one child is enough: the two cases of the correctness proof"
+              }
             }
           ],
           "cards": [
@@ -3345,7 +3898,22 @@ window.COURSES.algo = {
                 "<b>Skip Lists Overview (Slides 13.2–13.3)</b>: Invented by Bill Pugh (1990). A generalization of a sorted linked list with multi-level forward pointers and $-\\infty / +\\infty$ header/sentinel nodes at every level.",
                 "<b>Perfect Skip Lists (Slides 13.4–13.11)</b>: Each higher level contains <i>exactly</i> $1/2$ the elements of the level below it, giving $\\lg n$ levels and $O(\\lg n)$ search time (visiting at most 2 nodes per level). <b>Drawback</b>: Like a perfect binary tree, inserting or deleting a single element can force rearranging the entire list ($\\Theta(n)$)!",
                 "<b>Randomized Skip Lists (Slides 13.12–13.17)</b>:<ul><li><b>Search(k)</b>: Start at the top-left header. If $k == \\text{key}$, done! If $k \\ge \\text{next key}$, <b>go right</b>; if $k < \\text{next key}$, <b>drop down one level</b>.</li><li><b>Insert(k)</b>: Search to find the position of $k$ at level $0$, insert $k$ at level $0$, and flip a fair coin (`while FLIP() == 'heads'`): each `heads` promotes the node one level higher (`i++`) with probability $1/2$.</li><li><b>Delete(k)</b>: Find $k$ and splice it out of every level in which it appears.</li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-13-perfect",
+                "ag-13-find",
+                "ag-13-random"
+              ],
+              "figAt": {
+                "ag-13-perfect": 1,
+                "ag-13-find": 1,
+                "ag-13-random": 2
+              },
+              "figH": {
+                "ag-13-perfect": "A perfect skip list, built level by level",
+                "ag-13-find": "Find 71 and Find 96 (or any key), one comparison at a time",
+                "ag-13-random": "Randomized skip list: insert 87 with coin flips, delete 87, or try your own"
+              }
             },
             {
               "h": "Skip List vs. BST & Backwards Probabilistic Analysis (Slides 13.18–13.23)",
@@ -3355,7 +3923,16 @@ window.COURSES.algo = {
               ],
               "formula": [
                 "Skip List Backwards Walk Recurrence: C(j) = 1 + 0.5·C(j−1) + 0.5·C(j)  ⇒  C(j) = 2j = 2 lg n = O(lg n)"
-              ]
+              ],
+              "fig": [
+                "ag-13-back"
+              ],
+              "figAt": {
+                "ag-13-back": 1
+              },
+              "figH": {
+                "ag-13-back": "Backwards analysis: reverse the search path, 2 steps per level"
+              }
             }
           ],
           "cards": [
@@ -3530,14 +4107,44 @@ window.COURSES.algo = {
                   "15",
                   "17 (Coins 1, 4, 6)"
                 ]
-              ]
+              ],
+              "fig": [
+                "ag-14-fib",
+                "ag-14-coinrow",
+                "ag-14-binom"
+              ],
+              "figAt": {
+                "ag-14-fib": 0,
+                "ag-14-coinrow": 1,
+                "ag-14-binom": 2
+              },
+              "figH": {
+                "ag-14-fib": "Fibonacci: the top-down recursion tree repeats work, the bottom-up table does each value once",
+                "ag-14-coinrow": "Coin-row on 5, 1, 2, 10, 6, 2: F(0) … F(6) filled one by one, then the chosen coins",
+                "ag-14-binom": "C(6, 3) by DP: the Pascal table filled row by row"
+              }
             },
             {
               "h": "Robot Coin Collection & Longest Common Subsequence (LCS, Slides 14.16–14.30)",
               "pts": [
                 "<b>3. Robot Coin Collection on an $n \\times m$ Board (Slides 14.16–14.19 & Final 2018 I Q6 / II Q9)</b>:<ul><li><b>Problem</b>: A robot starts at $(1, 1)$ and moves only <b>right</b> or <b>down</b> to $(n, m)$, collecting at most 1 coin per cell ($c_{ij} \\in \\{0, 1\\}$). Maximize total coins collected.</li><li><b>Recurrence</b>: $F[i, j] = \\max(F[i-1, j],\\; F[i, j-1]) + c_{ij}$ for $1 \\le i \\le n, 1 \\le j \\le m$, with $F[0, j] = F[i, 0] = 0$.</li><li><b>Complexity</b>: $\\mathbf{\\Theta(nm)}$ time and $\\mathbf{\\Theta(nm)}$ space! (Note from Lec 15 Slide 18: A greedy robot that just looks 1 step ahead fails because a local coin can trap the robot away from a rich row/column!)</li></ul>",
                 "<b>4. Longest Common Subsequence (LCS, Slides 14.20–14.30 & Final 2016 Q5 / Final 5 Q5)</b>:<ul><li><b>Problem</b>: Given strings $A = a_1 \\dots a_m$ and $B = b_1 \\dots b_n$, find the longest subsequence present in both (not necessarily contiguous).</li><li><b>Slide Examples</b>: `\"president\"` & `\"providence\"` $\\rightarrow$ `\"priden\"` (length $6$); `\"algorithm\"` & `\"alignment\"` $\\rightarrow$ `\"algm\"` or `\"algt\"` or `\"alim\"` (length $4$).</li><li><b>Recurrence for `len[i, j]`</b>:<ul><li>If $i = 0$ or $j = 0$: $\\text{len}[i, j] = 0$.</li><li>If $a_i == b_j$: $\\text{len}[i, j] = \\text{len}[i-1, j-1] + 1$ (record arrow `↖`).</li><li>If $a_i \\ne b_j$: $\\text{len}[i, j] = \\max(\\text{len}[i-1, j],\\; \\text{len}[i, j-1])$ (record `↑` or `←`).</li></ul></li><li><b>Complexity</b>: Table construction takes $\\mathbf{O(mn)}$ time and $\\mathbf{O(mn)}$ memory; backtracing from $(m, n)$ to $(0, 0)$ takes $\\mathbf{O(m + n)}$ time.</li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-14-robot",
+                "ag-14-lcs-match",
+                "ag-14-lcs"
+              ],
+              "figAt": {
+                "ag-14-robot": 0,
+                "ag-14-lcs-match": 1,
+                "ag-14-lcs": 1
+              },
+              "figH": {
+                "ag-14-robot": "Robot coin collecting: F(i, j) on the slide's 5 × 6 board and the best path",
+                "ag-14-lcs-match": "Common subsequences drawn as non-crossing lines: president / providence and algorithm / alignment",
+                "ag-14-lcs": "LCS-Length table for president / providence with prev arrows, then Output-LCS prints priden"
+              }
             },
             {
               "h": "0/1 Knapsack by Dynamic Programming vs. Greedy (Slides 14.31–14.37)",
@@ -3601,7 +4208,18 @@ window.COURSES.algo = {
                   "34 (Items 1,2,4)"
                 ]
               ],
-              "fig": "algo-dp-sim"
+              "fig": [
+                "algo-dp-sim",
+                "ag-14-knap",
+                "ag-14-change"
+              ],
+              "figAt": {
+                "ag-14-knap": 0
+              },
+              "figH": {
+                "ag-14-knap": "0/1 knapsack, W = 5: V[i, j] filled cell by cell, then backtracing finds items {1, 2, 4}",
+                "ag-14-change": "Change-making by DP: c[p] (fewest coins) and s[p] (last coin) for n = 16, D = {1, 5, 12, 25}"
+              }
             }
           ],
           "cards": [
@@ -3773,14 +4391,47 @@ window.COURSES.algo = {
                 "<b>Greedy Algorithms Principle (Slides 15.3 & Final 2021 Q36)</b>: A greedy algorithm works in phases, making the <b>locally optimal choice</b> at each step without regard for future consequences, hoping it leads to a <b>globally optimal solution</b>.",
                 "<b>When Greedy Succeeds vs. Fails in Coin Changing (Slides 15.4–15.5 & Final 2 Q57–Q59)</b>:<ul><li><b>US Coins (`25¢, 10¢, 5¢, 1¢`)</b>: Greedy always produces the minimum number of coins (e.g., `$6.39 = $5 + $1 + 25¢ + 10¢ + 4×1¢`).</li><li><b>Slide 15.5 ”Krons” Counterexample (`1, 7, 10` krons for sum `15`)</b>: Greedy picks `10 + 1 + 1 + 1 + 1 + 1` (<b>6 coins</b>), whereas the optimal solution is `7 + 7 + 1` (<b>3 coins</b>)!</li><li><b>Final Exam Counterexample (`1, 3, 4` coins for sum `6`, Final 2 Q58)</b>: Greedy picks `4 + 1 + 1` (<b>3 coins</b>), whereas optimal is `3 + 3` (<b>2 coins</b>)! General Coin Change requires Dynamic Programming in $O(S \\cdot N)$ time (Final 2 Q59).</li></ul>",
                 "<b>Multiprocessor Job Scheduling Counterexample (Slides 15.6–15.8)</b>: Given 9 jobs `[3, 5, 6, 10, 11, 14, 15, 18, 20]` on 3 processors:<ul><li><b>Longest-Job-First (LPT) Greedy</b>: Completion time = $18 + 11 + 6 = \\mathbf{35}$ min.</li><li><b>Shortest-Job-First (SPT) Greedy</b>: Completion time = $6 + 14 + 20 = \\mathbf{40}$ min.</li><li><b>Global Optimum</b> (`P1: 20+14=34`, `P2: 18+11+5=34`, `P3: 15+10+6+3=34`): Completion time = $\\mathbf{34}$ min (finding the exact optimum is NP-complete!).</li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-15-money",
+                "ag-15-sched"
+              ],
+              "figAt": {
+                "ag-15-money": 1,
+                "ag-15-sched": 2
+              },
+              "figH": {
+                "ag-15-money": "Counting money greedily: $6.39 in US money (optimal) and 15 krons with 1, 7, 10 coins (not optimal)",
+                "ag-15-sched": "Nine jobs on three processors: longest-first (35), shortest-first (40) and the optimum (34)"
+              }
             },
             {
               "h": "Where Greedy is Provably Optimal vs. Suboptimal (Slides 15.9–15.18)",
               "pts": [
                 "<b>Where Greedy Succeeds (Optimal)</b>:<ul><li><b>1. Huffman Encoding (Slide 15.9)</b>: Repeatedly merge the two lowest-frequency symbols (`A:22, B:12, C:24, D:6, E:27, F:9` $\\to$ merges `D(6)+F(9)=15`, `B(12)+15=27`, `A(22)+C(24)=46`, `E(27)+27=54`, `46+54=100`, giving average length $2.42$ bits/char).</li><li><b>2. Minimum Spanning Tree (Prim's & Kruskal's, Slide 15.10)</b>: Always yields a minimum-weight spanning tree.</li><li><b>3. Dijkstra's Shortest Path on Non-Negative Weights (Slides 15.13–15.16)</b>: Always yields exact shortest paths from source $s$.</li><li><b>4. Connecting $n$ White and $n$ Black Collinear Dots (Slide 15.17)</b>: Pairing the leftmost unmatched white dot with the leftmost unmatched black dot is provably optimal.</li></ul>",
                 "<b>Where Greedy Fails (Suboptimal)</b>:<ul><li><b>1. Traveling Salesman Problem (TSP, Slide 15.11)</b>: Nearest-neighbor greedy gets trapped into taking expensive return edges.</li><li><b>2. Robot Coin Collection on a Checkerboard (Slide 15.18)</b>: Looking only 1 step ahead misses richer paths further down/right (requires DP!).</li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-15-huffman",
+                "ag-15-mst",
+                "ag-15-wires",
+                "ag-15-tsp",
+                "ag-15-robots"
+              ],
+              "figAt": {
+                "ag-15-huffman": 0,
+                "ag-15-mst": 0,
+                "ag-15-wires": 0,
+                "ag-15-tsp": 1,
+                "ag-15-robots": 1
+              },
+              "figH": {
+                "ag-15-huffman": "Huffman encoding: combine the two smallest numbers until one tree is left, average 2.42 bits/char",
+                "ag-15-mst": "Minimum spanning tree: grow the tree by the cheapest edge to a new node, total 3+3+2+2+2 = 12",
+                "ag-15-wires": "Connecting white and black dots with the least wire",
+                "ag-15-tsp": "Greedy traveling salesman: nearest city first gives ABDBCE (16), the best route is ADBCE (14)",
+                "ag-15-robots": "Collecting all the coins on the checkerboard with the fewest right/down robots"
+              }
             }
           ],
           "cards": [
@@ -3926,7 +4577,16 @@ window.COURSES.algo = {
               "pts": [
                 "<b>Graph Edge Bounds (Slide 16.2)</b>: In a directed or undirected graph $G = (V, E)$, $|E| = O(V^2)$. If $G$ is connected, $|E| \\ge |V| - 1$, which implies $\\lg |E| = \\Theta(\\lg V)$.",
                 "<b>Adjacency Matrix vs. Adjacency List (Slides 16.3–16.7, Final 2021 Q19 & Final Summer Q11–Q12)</b>:<ul><li><b>Adjacency Matrix $A[1..n, 1..n]$</b>: Requires $\\mathbf{\\Theta(V^2)}$ storage ($n^2$ boolean/weight entries, e.g., $20^2 = 400$ entries for $|V|=20$, Final 2021 Q19). Ideal for <b>dense graphs</b>.</li><li><b>Adjacency List `Adj[v]`</b>: By the <b>Handshaking Lemma</b> ($\\sum_{v \\in V} \\deg(v) = 2|E|$ for undirected graphs; $\\sum_{v \\in V} \\text{out-deg}(v) = |E|$ for digraphs), adjacency lists use $\\mathbf{\\Theta(V + E)}$ storage. Ideal for <b>sparse graphs</b>.</li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-16-adj"
+              ],
+              "figAt": {
+                "ag-16-adj": 1
+              },
+              "figH": {
+                "ag-16-adj": "Adjacency matrix vs. adjacency lists for the slide's digraph, and the Handshaking Lemma"
+              }
             },
             {
               "h": "Minimum Spanning Trees: Optimal Substructure & Greedy-Choice Cut Property (Slides 16.8–16.25)",
@@ -3934,7 +4594,22 @@ window.COURSES.algo = {
                 "<b>Minimum Spanning Tree (MST) Properties (Slides 16.8–16.9 & Final 2021 Q40)</b>: Given a connected undirected weighted graph $G = (V, E, w)$, an MST $T \\subseteq E$ is an <b>acyclic</b> subset connecting all $|V|$ vertices with minimum total weight $w(T) = \\sum_{(u,v) \\in T} w(u, v)$.<ul><li>Has <b>no cycles</b>.</li><li>Has <b>exactly $|V| - 1$ edges</b> (whereas creating a cyclic graph on $n$ vertices requires at least $n$ edges, Final 2021 Q3).</li><li>May <b>not be unique</b> if edge weights are not all distinct.</li></ul>",
                 "<b>Optimal Substructure Proof (Cut-and-Paste, Slides 16.12–16.18)</b>: Removing any edge $(u, v) \\in T$ partitions $T$ into two subtrees $T_1, T_2$ over induced subgraphs $G_1, G_2$. Then $T_1$ must be an MST of $G_1$ (and $T_2$ of $G_2$), because if a lighter spanning tree $T'_1$ existed for $G_1$, then $T' = \\{(u, v)\\} \\cup T'_1 \\cup T_2$ would be a lighter spanning tree of $G$ than $T$—contradiction!",
                 "<b>Greedy-Choice Property (Cut Theorem, Slides 16.20–16.25)</b>: Let $A \\subseteq V$ be any subset of vertices ($\\emptyset \\ne A \\ne V$), and let $(u, v)$ be a <b>minimum-weight (light) edge crossing the cut $(A, V - A)$</b>. Then $(u, v)$ belongs to some MST of $G$!<ul><li><b>Cut-and-Paste Proof</b>: Suppose MST $T$ does not contain $(u, v)$. Adding $(u, v)$ to $T$ creates a unique cycle that must cross the cut $(A, V - A)$ via at least one other edge $(x, y) \\in T$ with $w(u, v) \\le w(x, y)$. Removing $(x, y)$ yields a spanning tree $T' = T - \\{(x, y)\\} \\cup \\{(u, v)\\}$ with $w(T') = w(T) - w(x, y) + w(u, v) \\le w(T)$, so $T'$ is also an MST containing $(u, v)$!</li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-16-mst-example",
+                "ag-16-opt-sub",
+                "ag-16-cut-proof"
+              ],
+              "figAt": {
+                "ag-16-mst-example": 0,
+                "ag-16-opt-sub": 1,
+                "ag-16-cut-proof": 2
+              },
+              "figH": {
+                "ag-16-mst-example": "Example of an MST: the slide's graph and its minimum spanning tree, w(T) = 53",
+                "ag-16-opt-sub": "Optimal substructure: remove (u, v) from T, and each subtree must be an MST of its part (cut and paste)",
+                "ag-16-cut-proof": "Proof of the cut theorem: swap the light edge (u, v) into T along the u-to-v path"
+              }
             },
             {
               "h": "Prim's MST Algorithm & Priority Queue Complexity Analysis (Slides 16.26–16.52)",
@@ -3969,7 +4644,19 @@ window.COURSES.algo = {
                 ]
               ],
               "code": "MST-PRIM(G, w, r)\n1  Q ← V[G]\n2  for each u ∈ Q\n3      do key[u] ← ∞\n4         π[u] ← NIL\n5  key[r] ← 0\n6  while Q ≠ ∅\n7      do u ← EXTRACT-MIN(Q)\n8         for each v ∈ Adj[u]\n9             do if v ∈ Q and w(u, v) < key[v]\n10                  then π[v] ← u\n11                       key[v] ← w(u, v)   // Implicit DECREASE-KEY",
-              "fig": "algo-graph-sim"
+              "fig": [
+                "algo-graph-sim",
+                "ag-16-prim",
+                "ag-16-prim-cost"
+              ],
+              "figAt": {
+                "ag-16-prim": 0,
+                "ag-16-prim-cost": 1
+              },
+              "figH": {
+                "ag-16-prim": "Prim's algorithm on the slide's graph: EXTRACT-MIN and key updates step by step (or your own weights and root)",
+                "ag-16-prim-cost": "Analysis of Prim: counting each line, then the cost with an array, a binary heap and a Fibonacci heap"
+              }
             }
           ],
           "cards": [
@@ -4143,7 +4830,25 @@ window.COURSES.algo = {
                 "<b>Kruskal's MST Algorithm (Slides 17.18–17.23)</b>:<ul><li><b>Concept</b>: Maintains a <b>forest of trees</b> (initially each vertex is its own tree via `MAKE-SET(v)`). Sorts all edges in non-decreasing order of weight, and adds edge $(u, v)$ to $A$ iff `FIND-SET(u) ≠ FIND-SET(v)` (i.e., it does not form a cycle), then merges their trees via `UNION(u, v)`.</li><li><b>Complexity Breakdown (Slide 17.21)</b>: Initializing sets takes $O(V)$, sorting edges takes $O(E \\log E)$, and $O(E)$ Disjoint-Set operations take $O(E \\log V)$ (or $O(E \\alpha(V))$). Since $|E| \\le |V|^2 \\implies \\log E \\le 2 \\log V$, total running time is $\\mathbf{O(E \\log E) = O(E \\log V)}$.</li></ul>",
                 "<b>Final 2021 Q17–Q18 & Final 2 Q33–Q34 Graph Trace (`A, B, C, D, E, F, G`)</b>:<ul><li>Edges: `(A,G)=1, (B,C)=1, (F,E)=1, (A,B)=2, (C,G)=4, (B,G)=3, (A,D)=3, (C,F)=3, (D,E)=5, (D,G)=5, (G,F)=6, (D,F)=4`.</li><li><b>Prim's Order starting at `A` (Q17)</b>: `(A,G)=1` $\\to$ `(A,B)=2` $\\to$ `(B,C)=1` $\\to$ `(A,D)=3` $\\to$ `(C,F)=3` $\\to$ `(F,E)=1` (<b>Choice b</b>!).</li><li><b>Kruskal's Global Sorted Edge Order (Q18)</b>: Picks all weight-1 edges first `(A,G)=1, (B,C)=1, (E,F)=1`, then weight-2 `(A,B)=2`, then weight-3 `(C,F)=3` and `(A,D)=3` (or `(D,F)=4`/`(D,E)`) (<b>Choice c</b>: `(A,G) then (B,C) then (E,F) then (A,B) then (C,F) then (D,E)`!).</li></ul>"
               ],
-              "code": "MST-KRUSKAL(G, w)\n1  A ← ∅\n2  for each vertex v ∈ V[G]\n3      do MAKE-SET(v)\n4  sort the edges of E into nondecreasing order by weight w\n5  for each edge (u, v) ∈ E, taken in nondecreasing order by weight\n6      do if FIND-SET(u) ≠ FIND-SET(v)\n7            then A ← A ∪ {(u, v)}\n8                 UNION(u, v)\n9  return A"
+              "code": "MST-KRUSKAL(G, w)\n1  A ← ∅\n2  for each vertex v ∈ V[G]\n3      do MAKE-SET(v)\n4  sort the edges of E into nondecreasing order by weight w\n5  for each edge (u, v) ∈ E, taken in nondecreasing order by weight\n6      do if FIND-SET(u) ≠ FIND-SET(v)\n7            then A ← A ∪ {(u, v)}\n8                 UNION(u, v)\n9  return A",
+              "fig": [
+                "ag-17-cut",
+                "ag-17-kruskal",
+                "ag-17-costs",
+                "ag-17-prim"
+              ],
+              "figAt": {
+                "ag-17-cut": 1,
+                "ag-17-kruskal": 1,
+                "ag-17-costs": 1,
+                "ag-17-prim": 2
+              },
+              "figH": {
+                "ag-17-cut": "Cuts and light edges: why the light edge crossing a cut that respects A is safe",
+                "ag-17-kruskal": "Kruskal's algorithm on the slide's graph: sorted edges, FIND-SET test and the growing forest (or your own graph)",
+                "ag-17-costs": "Running times of MST-KRUSKAL and PRIM, line by line",
+                "ag-17-prim": "Prim's algorithm on the same graph: keys, π and EXTRACT-MIN step by step, ending in the keys of slide 26 (or the exam graph from A)"
+              }
             },
             {
               "h": "Huffman Prefix Codes: Full Binary Tree Theorem & Optimality Proofs (Slides 17.28–17.46)",
@@ -4152,14 +4857,53 @@ window.COURSES.algo = {
                 "<b>Proof of Greedy-Choice Property (Exchange Argument, Slides 17.38–17.42 & Midterm 2024 Retake Qc)</b>: Let $x, y$ be the two characters with lowest frequency, and let $a, b$ be sibling leaves of maximum depth in an arbitrary optimal tree $T$. Exchanging $a \\leftrightarrow x$ (forming $T'$) and $b \\leftrightarrow y$ (forming $T''$) gives $B(T) - B(T') = (f(a) - f(x))(d_T(a) - d_T(x)) \\ge 0$ since $f(a) \\ge f(x)$ and $d_T(a) \\ge d_T(x)$. Thus $B(T'') \\le B(T)$, so placing $x, y$ as sibling leaves at maximum depth is optimal!",
                 "<b>Proof of Optimal Substructure (Slides 17.43–17.46)</b>: Merging $x, y$ into leaf $z$ with $f(z) = f(x) + f(y)$ yields tree $T'$ with $B(T) = B(T') + f(x) + f(y)$. If $T'$ were not optimal for $C' = C - \\{x, y\\} \\cup \\{z\\}$, replacing $T'$ with a better $T''$ would yield a tree for $C$ with cost $< B(T)$—contradiction!",
                 "<b>Final Exam Workout (Final 2018 I Q5 & II Q8: `A=20, B=30, C=15, D=5, E=8, F=22`)</b>:<ul><li>1. Merge `D(5) + E(8) = DE(13)`.</li><li>2. Merge `DE(13) + C(15) = DEC(28)`.</li><li>3. Merge `A(20) + F(22) = AF(42)`.</li><li>4. Merge `DEC(28) + B(30) = DECB(58)`.</li><li>5. Merge `AF(42) + DECB(58) = Root(100)`.</li><li><b>Resulting Codewords</b> (`0` left, `1` right): `A = 00` (len 2), `F = 01` (len 2), `B = 11` (len 2), `C = 101` (len 3), `D = 1000` (len 4), `E = 1001` (len 4). Average bits = $(20\\cdot2 + 22\\cdot2 + 30\\cdot2 + 15\\cdot3 + 5\\cdot4 + 8\\cdot4)/100 = \\mathbf{2.41}$ bits/char!</li></ul>"
-              ]
+              ],
+              "fig": [
+                "ag-17-huffman",
+                "ag-17-full-trees",
+                "ag-17-huff-exchange",
+                "ag-17-huff-sub",
+                "ag-17-huffman-sim"
+              ],
+              "figAt": {
+                "ag-17-huffman": 0,
+                "ag-17-full-trees": 0,
+                "ag-17-huff-exchange": 1,
+                "ag-17-huff-sub": 2,
+                "ag-17-huffman-sim": 3
+              },
+              "figH": {
+                "ag-17-huffman": "Prefix codes, and the slide's Huffman tree built merge by merge",
+                "ag-17-full-trees": "Full binary trees for 1 to 5 letters: each new letter adds one leaf and one internal node",
+                "ag-17-huff-exchange": "Exchange argument: swap x and y down to the deepest sibling leaves without raising B(T)",
+                "ag-17-huff-sub": "Optimal substructure: B(T) = B(T′) + f[x] + f[y], with the numbers of the slide example",
+                "ag-17-huffman-sim": "HUFFMAN(C) step by step: the slide's alphabet, the Final 2018 alphabet, or your own"
+              }
             },
             {
               "h": "Activity Selection (Interval Scheduling, Slides 17.47–17.58)",
               "pts": [
                 "<b>Activity Selection Problem (Slides 17.48–17.58)</b>: Given $n$ activities $S = \\{a_1, \\dots, a_n\\}$ with start and finish times $[s_i, f_i)$ sorted by finish time $f_1 \\le f_2 \\le \\dots \\le f_n$, find a maximum-size subset of mutually compatible activities ($f_i \\le s_j$ or $f_j \\le s_i$).",
                 "<b>Greedy Choice</b>: Always pick the compatible activity $a_m$ with the <b>earliest finish time</b>! After sorting in $O(n \\log n)$, `GREEDY-ACTIVITY-SELECTOR` scans once in $\\mathbf{\\Theta(n)}$ time."
-              ]
+              ],
+              "fig": [
+                "ag-17-act-example",
+                "ag-17-act-dp",
+                "ag-17-act-proof",
+                "ag-17-act-greedy"
+              ],
+              "figAt": {
+                "ag-17-act-example": 0,
+                "ag-17-act-dp": 0,
+                "ag-17-act-proof": 1,
+                "ag-17-act-greedy": 1
+              },
+              "figH": {
+                "ag-17-act-example": "The slide's 12 activities and three different maximum compatible subsets",
+                "ag-17-act-dp": "Subproblems S<sub>ij</sub> and the recurrence c[i, j] = c[i, k] + c[k, j] + 1",
+                "ag-17-act-proof": "Why the earliest-finishing activity is safe: the exchange, and why S<sub>im</sub> is empty",
+                "ag-17-act-greedy": "GREEDY-ACTIVITY-SELECTOR on the slide's activities (or your own)"
+              }
             }
           ],
           "cards": [
@@ -4334,7 +5078,25 @@ window.COURSES.algo = {
                 "<b>Optimal Substructure Theorem (Slides 18.5–18.7)</b>: <b>Every subpath of a shortest path is itself a shortest path!</b> (Proved by cut-and-paste: if a shorter subpath existed, splicing it in would produce a shorter overall path.)",
                 "<b>Triangle Inequality Theorem (Slides 18.8–18.9)</b>: For all $u, v, x \\in V$, $\\delta(u, v) \\le \\delta(u, x) + \\delta(x, v)$.",
                 "<b>Well-Definedness & Negative-Weight Cycles (Slides 18.10–18.11)</b>: If $G$ contains a <b>negative-weight cycle</b> reachable from $s$, then shortest paths are not well-defined ($\\delta(s, v) = -\\infty$ by traversing the negative cycle arbitrarily many times). <b>Dijkstra's algorithm requires all edge weights $w(u, v) \\ge 0$</b> and cannot detect negative-weight cycles (unlike Bellman-Ford and Floyd-Warshall, Final 2021 Q16 & Final 2022 Q32)."
-              ]
+              ],
+              "fig": [
+                "ag-18-path-weight",
+                "ag-18-cut-paste",
+                "ag-18-triangle",
+                "ag-18-neg-cycle"
+              ],
+              "figAt": {
+                "ag-18-path-weight": 0,
+                "ag-18-cut-paste": 1,
+                "ag-18-triangle": 2,
+                "ag-18-neg-cycle": 3
+              },
+              "figH": {
+                "ag-18-path-weight": "Weight of a path: w(p) = 4 + (−2) + (−5) + 1 = −2",
+                "ag-18-cut-paste": "Optimal substructure: the cut-and-paste proof",
+                "ag-18-triangle": "Triangle inequality: δ(u, v) ≤ δ(u, x) + δ(x, v)",
+                "ag-18-neg-cycle": "A negative-weight cycle makes δ(u, v) = −∞"
+              }
             },
             {
               "h": "Dijkstra's Algorithm, Slide Trace & 3-Part Correctness Proof (Slides 18.13–18.42)",
@@ -4350,6 +5112,27 @@ window.COURSES.algo = {
                 "type": "dijkstra",
                 "title": "Lecture 18 Slide 18.16: Dijkstra's Algorithm on {A, B, C, D, E}",
                 "preset": "lec18"
+              },
+              "fig": [
+                "ag-18-dijkstra",
+                "ag-18-lemmas",
+                "ag-18-proof",
+                "ag-18-analysis",
+                "ag-18-bfs"
+              ],
+              "figAt": {
+                "ag-18-dijkstra": 1,
+                "ag-18-lemmas": 2,
+                "ag-18-proof": 2,
+                "ag-18-analysis": 3,
+                "ag-18-bfs": 4
+              },
+              "figH": {
+                "ag-18-dijkstra": "Dijkstra on the slide graph: EXTRACT-MIN and relaxation step by step",
+                "ag-18-lemmas": "Correctness parts I and II: the two lemmas",
+                "ag-18-proof": "Correctness part III: why u cannot be the first wrong vertex",
+                "ag-18-analysis": "Analysis: |V| EXTRACT-MINs, Θ(E) DECREASE-KEYs, and the three queues",
+                "ag-18-bfs": "Breadth-first search on the slide graph with a FIFO queue"
               }
             }
           ],
@@ -4649,11 +5432,23 @@ window.COURSES.algo = {
                   ""
                 ]
               ],
-              "fig": "algo-graph-sim",
+              "fig": [
+                "algo-graph-sim",
+                "ag-19-table",
+                "ag-19-paths"
+              ],
               "viz": {
                 "type": "dijkstra",
                 "title": "Lecture 19 & Final 2019 Q7: Dijkstra Table Trace on {A, B, C, D, E, F, G}",
                 "preset": "lec19"
+              },
+              "figAt": {
+                "ag-19-table": 2,
+                "ag-19-paths": 3
+              },
+              "figH": {
+                "ag-19-table": "The exam table filled row by row: one EXTRACT-MIN per row, PARENT on top",
+                "ag-19-paths": "Reading the shortest paths back through PARENT"
               }
             }
           ],
@@ -4811,7 +5606,28 @@ window.COURSES.algo = {
                   "3.04 × 10⁶⁴ / 9.33 × 10¹⁵⁷",
                   "Physically impossible"
                 ]
-              ]
+              ],
+              "fig": [
+                "ag-20-bounds",
+                "ag-20-growth",
+                "ag-20-isprime",
+                "ag-20-tsp",
+                "ag-20-clique"
+              ],
+              "figAt": {
+                "ag-20-bounds": 0,
+                "ag-20-growth": 1,
+                "ag-20-isprime": 1,
+                "ag-20-tsp": 2,
+                "ag-20-clique": 2
+              },
+              "figH": {
+                "ag-20-bounds": "Big-O, Big-Omega and Theta: where c·g(n) bounds f(n) from n<sub>0</sub> on",
+                "ag-20-growth": "Complexity vs input length: polynomial against exponential growth",
+                "ag-20-isprime": "IsPrime(12) ⇒ No and IsPrime(1009) ⇒ Yes by trial division",
+                "ag-20-tsp": "TSP: the three tours of the slide's 4-city graph (OPT = 13) and the N! search space",
+                "ag-20-clique": "CLIQUE on the slide's graph: cliques of size 4 and 5, verifying a set, brute force over k-subsets"
+              }
             },
             {
               "h": "NP-Hard, NP-Complete, Reductions & 3-CNF SAT → CLIQUE (Slides 20.21–20.36)",
@@ -4820,7 +5636,25 @@ window.COURSES.algo = {
                 "<b>Polynomial-Time Reduction $R \\le_P Q$ (Slides 20.25–20.26)</b>: Problem $R$ reduces to $Q$ if any instance of $R$ can be transformed in polynomial time into an instance of $Q$ whose solution gives the solution to $R$ (meaning $R$ is ”no harder than” $Q$). Elementary example: $\\text{LCM}(m, n) = \\frac{m \\cdot n}{\\text{GCD}(m, n)}$ reduces LCM to GCD.",
                 "<b>SAT & Reducing `3-CNF SAT` to `CLIQUE` (Slides 20.27–20.36)</b>:<ul><li><b>SAT (Cook-Levin Theorem)</b>: First known NP-complete problem! Determines whether the variables of a Boolean formula can be assigned `TRUE`/`FALSE` to make the formula evaluate to `TRUE`.<ul><li>Slide 20.28 Example: $(a \\lor b) \\land (a \\lor \\neg b)$ is satisfiable by setting $a = \\text{TRUE}$.</li></ul></li><li><b>Polynomial-Time Reduction Construction (`3-CNF SAT` with $k$ clauses $\\le_P$ `k-CLIQUE`, Slides 20.30–20.36)</b>:<ul><li><b>1. Vertices</b>: For each of the $k$ clauses, create one vertex for each literal in that clause ($3k$ vertices total, partitioned into $k$ groups/triples).</li><li><b>2. Edges</b>: Connect two vertices $(u, v)$ by an edge <b>if and only if</b> (a) they belong to <b>different clauses</b>, AND (b) their literals are <b>consistent (not negations of each other)</b>, i.e., $u \\ne \\neg v$ (since $x_i$ and $\\neg x_i$ cannot both be true!).</li><li><b>3. Correctness</b>: The formula is satisfiable $\\iff$ each clause has at least one `TRUE` literal $\\iff$ the $k$ chosen `TRUE` literals (one per clause) have no contradictions and are all mutually connected, forming a <b>Clique of size $k$</b>!</li></ul></li></ul>"
               ],
-              "fig": "algo-np-sim"
+              "fig": [
+                "algo-np-sim",
+                "ag-20-classes",
+                "ag-20-reduce",
+                "ag-20-sat",
+                "ag-20-cnf-clique"
+              ],
+              "figAt": {
+                "ag-20-classes": 0,
+                "ag-20-reduce": 1,
+                "ag-20-sat": 2,
+                "ag-20-cnf-clique": 2
+              },
+              "figH": {
+                "ag-20-classes": "P vs NP, NP-hard and NP-complete as region diagrams, and the summary table",
+                "ag-20-reduce": "Reduction: LCM(m, n) solved through GCD(m, n), and linear to quadratic",
+                "ag-20-sat": "SAT: the slides' formulas with their truth tables, set the variables yourself",
+                "ag-20-cnf-clique": "3-CNF SAT to CLIQUE: build the graph for the slide's formula, a 3-clique gives a satisfying assignment"
+              }
             }
           ],
           "cards": [
@@ -5722,7 +6556,16 @@ window.COURSES.algo = {
               6
             ]
           },
-          "fig": "algo-sort-sim"
+          "fig": [
+            "algo-sort-sim",
+            "ag-1-isort"
+          ],
+          "figAt": {
+            "ag-1-isort": 2
+          },
+          "figH": {
+            "ag-1-isort": "Insertion sort on the slide's array 8 2 4 9 3 6, one pass of j at a time"
+          }
         },
         {
           "h": "Kinds of Analysis, Machine-Independent Time & Θ-Notation (Slides 1.19–1.24)",
@@ -5734,7 +6577,25 @@ window.COURSES.algo = {
           "formula": [
             "Θ(g(n)) = { f(n) : ∃ c₁, c₂, n₀ > 0 such that 0 ≤ c₁·g(n) ≤ f(n) ≤ c₂·g(n) ∀ n ≥ n₀ }",
             "Insertion Sort: Worst = Θ(n²), Average = Θ(n²), Best = Θ(n), Space = O(1)"
-          ]
+          ],
+          "fig": [
+            "ag-1-theta",
+            "ag-1-asym",
+            "ag-1-order",
+            "ag-1-cases"
+          ],
+          "figAt": {
+            "ag-1-theta": 1,
+            "ag-1-asym": 1,
+            "ag-1-order": 1,
+            "ag-1-cases": 2
+          },
+          "figH": {
+            "ag-1-theta": "Θ-notation: 3n³ + 90n² − 5n + 6046 squeezed between 3n³ and 4n³",
+            "ag-1-asym": "A Θ(n²) algorithm beats a Θ(n³) one once n passes n₀",
+            "ag-1-order": "Why 0.1n² + n + 100 is order n²: the quadratic term takes over",
+            "ag-1-cases": "Insertion sort's worst, average and best case, counted test by test"
+          }
         },
         {
           "h": "Merge Sort, Linear-Time Two-Finger Merge & Recursion Tree Proof (Slides 1.25–1.52)",
@@ -5786,7 +6647,19 @@ window.COURSES.algo = {
               "—",
               "cn lg n + Θ(n) = Θ(n lg n)"
             ]
-          ]
+          ],
+          "fig": [
+            "ag-1-merge",
+            "ag-1-rtree"
+          ],
+          "figAt": {
+            "ag-1-merge": 1,
+            "ag-1-rtree": 2
+          },
+          "figH": {
+            "ag-1-merge": "MERGE of 2 7 13 20 and 1 9 11 12: always take the smaller head",
+            "ag-1-rtree": "Recursion tree of T(n) = 2T(n/2) + cn, built level by level"
+          }
         },
         {
           "h": "Neapolitan Ch. 1 Algorithms: Search, Exchange Sort, Matrix Mult, Fibonacci & Every-Case Analysis (Slides 1.53–1.74)",
@@ -5794,7 +6667,33 @@ window.COURSES.algo = {
             "<b>Every-Case Complexity $T(n)$ (Slides 1.54–1.66)</b>: Exists when the basic operation count is invariant across all inputs of size $n$:<ul><li><b>Add Array Members</b>: $T(n) = n$ additions.</li><li><b>Exchange Sort</b>: $T(n) = (n-1) + (n-2) + \\dots + 1 = \\frac{n(n-1)}{2}$ comparisons.</li><li><b>Matrix Multiplication</b>: $T(n) = n^3$ multiplications.</li></ul>",
             "<b>Sequential Search Case Analysis (Slides 1.67–1.70)</b>: Does <i>not</i> have an every-case complexity:<ul><li><b>Worst Case</b>: $W(n) = n$ ($x$ at $S[n]$ or absent).</li><li><b>Best Case</b>: $B(n) = 1$ ($x = S[1]$).</li><li><b>Average Case ($x \\in S$ equally likely)</b>: $A(n) = \\sum_{k=1}^n k(1/n) = \\frac{n+1}{2}$.</li><li><b>Average Case ($x \\in S$ with probability $p$)</b>: $A(n) = p\\frac{n+1}{2} + (1-p)n = n\\left(1 - \\frac{p}{2}\\right) + \\frac{p}{2}$.</li></ul>",
             "<b>Fibonacci: Recursive $O(2^n)$ vs. Iterative DP $O(n)$ (Slides 1.59–1.63)</b>: Naive recursive `fib(n)` satisfies $T(n) = T(n-1) + T(n-2) + 1 > 2 T(n-2) > 2^{n/2}$ by induction ($n \\ge 2$), whereas iterative `fib2(n)` stores `f[0..n]` and runs in $T(n) = n + 1 = \\Theta(n)$."
-          ]
+          ],
+          "fig": [
+            "ag-1-every",
+            "ag-1-seqsearch",
+            "ag-1-binsearch",
+            "ag-1-fibtree",
+            "ag-1-fib2",
+            "ag-1-fibtime",
+            "ag-1-cross"
+          ],
+          "figAt": {
+            "ag-1-every": 0,
+            "ag-1-seqsearch": 1,
+            "ag-1-binsearch": 1,
+            "ag-1-fibtree": 2,
+            "ag-1-fib2": 2,
+            "ag-1-fibtime": 2
+          },
+          "figH": {
+            "ag-1-every": "Exchange sort makes n(n−1)/2 comparisons on every input",
+            "ag-1-seqsearch": "Sequential search: best, worst and average number of comparisons",
+            "ag-1-binsearch": "Sequential vs binary search: n comparisons vs ⌊lg n⌋ + 1",
+            "ag-1-fibtree": "The recursion tree of fib(n): how many terms it computes",
+            "ag-1-fib2": "fib2 fills f[0 .. n] once: n + 1 terms",
+            "ag-1-fibtime": "Execution time of fib2 (A2) vs recursive fib (A1)",
+            "ag-1-cross": "Applying the theory: where the linear algorithm starts to win"
+          }
         }
       ],
       "cards": [
@@ -6579,14 +7478,48 @@ window.COURSES.algo = {
             "<b>1. Proof by Mathematical Induction (Slides 2.11–2.15)</b>: Prove base case(s), assume the inductive hypothesis for $i \\le k-1$, and prove for $k$. Slide Proof that $F_i < (5/3)^i$ for $i \\ge 1$ ($F_0=1, F_1=1, F_2=2$):<ul><li><b>Base Cases</b>: $F_1 = 1 < 5/3$; $F_2 = 2 < 25/9$.</li><li><b>Inductive Step</b>: $F_k = F_{k-1} + F_{k-2} < (5/3)^{k-1} + (5/3)^{k-2} = (5/3)^{k-2}(5/3 + 1) = (5/3)^{k-2}(8/3)$. Since $8/3 = 24/9 < 25/9 = (5/3)^2$, $F_k < (5/3)^{k-2}(5/3)^2 = (5/3)^k$.</li></ul>",
             "<b>2. Proof by Counterexample (Slide 2.16)</b>: Disprove $F_k \\le k^2$ by showing a single counterexample: at $k = 11$, $F_{11} = 144 > 11^2 = 121$.",
             "<b>3. Proof by Contradiction (Slides 2.17–2.18)</b>: Assume the theorem is false and derive a contradiction. Example (<i>No largest integer</i>): Assume largest integer $B$ exists; then $C = B + 1$ is an integer with $C > B$, contradiction!"
-          ]
+          ],
+          "fig": [
+            "ag-2-induction",
+            "ag-2-factorial",
+            "ag-2-hanoi",
+            "ag-2-counter",
+            "ag-2-contra",
+            "ag-2-sets",
+            "ag-2-logs"
+          ],
+          "figAt": {
+            "ag-2-induction": 0,
+            "ag-2-factorial": 0,
+            "ag-2-hanoi": 0,
+            "ag-2-counter": 1,
+            "ag-2-contra": 2
+          },
+          "figH": {
+            "ag-2-induction": "Induction proof that F<sub>i</sub> &lt; (5/3)<sup>i</sup>, line by line",
+            "ag-2-factorial": "Recursion example 1: computing n! on the call stack",
+            "ag-2-hanoi": "Recursion example 2: the Tower of Hanoi, play it or watch the 2<sup>n</sup> − 1 moves",
+            "ag-2-counter": "Counterexample: F<sub>k</sub> ≤ k² first fails at k = 11",
+            "ag-2-contra": "Contradiction: if B were the largest integer, C = B + 1 beats it",
+            "ag-2-sets": "Set notation from the math revision: ∈, |P|, ∪, ∩, − and ⊆ on a Venn diagram",
+            "ag-2-logs": "The four logarithm rules, each checked with numbers"
+          }
         },
         {
           "h": "Algorithm Criteria, Fundamental Operations & Term Contribution (Slides 2.19–2.38)",
           "pts": [
             "<b>Five Criteria of an Algorithm (Slide 2.21)</b>: (1) <b>Input</b> ($\\ge 0$ quantities), (2) <b>Output</b> ($\\ge 1$ quantity), (3) <b>Definiteness</b> (clear, unambiguous instructions), (4) <b>Finiteness</b> (terminates after a finite number of steps), (5) <b>Efficiency</b> (feasible time/space).",
             "<b>Term Contribution on $T(n) = 3n^2 + 8n + 10$ (Slides 2.32–2.38)</b>: As $n \\to \\infty$, the highest-order term $3n^2$ approaches $100\\%$ of $T(n)$ (e.g., $97.37\\%$ at $n=100$) while lower-order terms $8n$ and $10$ become negligible, justifying dropping lower-order terms and leading constants."
-          ]
+          ],
+          "fig": [
+            "ag-2-contrib"
+          ],
+          "figAt": {
+            "ag-2-contrib": 1
+          },
+          "figH": {
+            "ag-2-contrib": "Term contribution: how 3n², 8n and 10 share T(n) as n grows"
+          }
         },
         {
           "h": "Big-Oh, Big-Omega, Theta Definitions, Witness Proofs & Composition Rules (Slides 2.39–2.62)",
@@ -6599,7 +7532,36 @@ window.COURSES.algo = {
           "formula": [
             "O(g(n)): f(n) ≤ c·g(n) ∀ n ≥ n₀  |  Ω(g(n)): f(n) ≥ c·g(n) ∀ n ≥ n₀  |  Θ(g(n)): c₁·g(n) ≤ f(n) ≤ c₂·g(n)",
             "Growth Rate Order: lg² n ≪ n lg n ≪ n² ≪ n² lg n ≪ n³ ≪ 2ⁿ ≪ n! ≪ 2^(2ⁿ)"
-          ]
+          ],
+          "fig": [
+            "ag-2-bigoh",
+            "ag-2-rules",
+            "ag-2-ex12",
+            "ag-2-growth",
+            "ag-2-growtab",
+            "ag-2-sum3",
+            "ag-2-bounds",
+            "ag-2-selectk"
+          ],
+          "figAt": {
+            "ag-2-bigoh": 0,
+            "ag-2-rules": 1,
+            "ag-2-ex12": 1,
+            "ag-2-growth": 1,
+            "ag-2-growtab": 1,
+            "ag-2-sum3": 2,
+            "ag-2-bounds": 3
+          },
+          "figH": {
+            "ag-2-bigoh": "Big-Oh witnesses: find c and n₀ for 3n + 2 and 3n² + 20",
+            "ag-2-rules": "Big-Oh rules: sequence adds, a loop around multiplies",
+            "ag-2-ex12": "Example 12: a doubling loop around an n-step loop is O(n log n)",
+            "ag-2-growth": "The 7 functions used in analysis, drawn one by one",
+            "ag-2-growtab": "How the 7 functions grow for n = 5 to 10000",
+            "ag-2-sum3": "Three algorithms for 1 + 2 + … + n: operations counted",
+            "ag-2-bounds": "O, Ω and Θ on f(n) = 3n + 2",
+            "ag-2-selectk": "selectkth: counting the comparisons"
+          }
         }
       ],
       "cards": [
@@ -6811,7 +7773,25 @@ window.COURSES.algo = {
           "pts": [
             "<b>Iteration (Back-Substitution) Method (Slides 3.11–3.13)</b>: Unroll the recurrence until reaching $T(1)$:<ul><li>$T(n) = c + T(n/2) = i\\cdot c + T(n/2^i) = c\\lg n + T(1) = \\Theta(\\lg n)$ (at $i = \\lg n$).</li><li>$T(n) = n + 2T(n/2) = n + 2(n/2 + 2T(n/4)) = i\\cdot n + 2^i T(n/2^i) = n\\lg n + n T(1) = \\Theta(n\\lg n)$.</li></ul>",
             "<b>Substitution Method (Guess & Strong Induction, Slides 3.15–3.20)</b>:<ul><li><b>$T(n) = T(n-1) + n \\le cn^2$ (Slide 3.18)</b>: $T(n) \\le c(n-1)^2 + n = cn^2 - (2cn - c - n) \\le cn^2$ for $c \\ge \\frac{n}{2n-1}$, which holds for all $n \\ge 1$ when $\\mathbf{c \\ge 1}$.</li><li><b>$T(n) = 3T(n/4) + n^2 \\le dn^2$ (Slide 3.19)</b>: $T(n) \\le 3d(n/4)^2 + n^2 = \\left(\\frac{3}{16}d + 1\\right)n^2 \\le dn^2 \\iff \\mathbf{d \\ge 16/13}$.</li><li><b>$T(n) = 2T(n/2) + n \\le cn\\lg n$ (Slide 3.20)</b>: $T(n) \\le 2c(n/2)\\lg(n/2) + n = cn\\lg n - cn + n \\le cn\\lg n$ for $\\mathbf{c \\ge 1}$.</li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-3-bs-iter",
+            "ag-3-iter-n",
+            "ag-3-asym",
+            "ag-3-subst"
+          ],
+          "figAt": {
+            "ag-3-bs-iter": 0,
+            "ag-3-iter-n": 0,
+            "ag-3-asym": 1,
+            "ag-3-subst": 1
+          },
+          "figH": {
+            "ag-3-bs-iter": "Iterating the binary-search recurrence T(n) = c + T(n/2)",
+            "ag-3-iter-n": "Iterating T(n) = n + 2T(n/2), and the handwritten example with T(1) = 4",
+            "ag-3-asym": "O, Ω, Θ and ω: the definitions the induction goal uses, on the slide examples",
+            "ag-3-subst": "The substitution method, line by line, on the four slide examples"
+          }
         },
         {
           "h": "The Recursion-Tree Method & The Master Theorem (Slides 3.21–3.30)",
@@ -6877,7 +7857,22 @@ window.COURSES.algo = {
               "Θ(√n lg n)"
             ]
           ],
-          "fig": "algo-rec-sim"
+          "fig": [
+            "algo-rec-sim",
+            "ag-3-tree-sq",
+            "ag-3-tree-4n",
+            "ag-3-master"
+          ],
+          "figAt": {
+            "ag-3-tree-sq": 0,
+            "ag-3-tree-4n": 0,
+            "ag-3-master": 0
+          },
+          "figH": {
+            "ag-3-tree-sq": "Recursion tree of T(n) = T(n/4) + T(n/2) + n², level by level",
+            "ag-3-tree-4n": "Recursion tree of T(n) = 2T(n/2) + 4n with T(1) = 4: every row sums to 4n",
+            "ag-3-master": "The master method step by step: the slide examples, or your own recurrence"
+          }
         }
       ],
       "cards": [
@@ -7060,6 +8055,21 @@ window.COURSES.algo = {
               15
             ],
             "target": 9
+          },
+          "fig": [
+            "ag-4-recur",
+            "ag-4-bsearch",
+            "ag-4-power"
+          ],
+          "figAt": {
+            "ag-4-recur": 0,
+            "ag-4-bsearch": 1,
+            "ag-4-power": 2
+          },
+          "figH": {
+            "ag-4-recur": "The divide-and-conquer recurrence, part by part: merge sort, binary search, matrix D&amp;C and Strassen",
+            "ag-4-bsearch": "Binary search: find 9 in 3 5 7 8 9 12 15, one subarray at a time",
+            "ag-4-power": "Powering a number: aⁿ from a<sup>⌊n/2⌋</sup> computed once"
           }
         },
         {
@@ -7069,15 +8079,57 @@ window.COURSES.algo = {
             "<b>Midterm 2024 Q6 & Midterm 2025 Q4 Workout: Compute $F(16)$ in 4 Steps</b>:<ul><li><b>Step 1</b>: $M^2 = \\begin{pmatrix}1&1\\\\1&0\\end{pmatrix}^2 = \\begin{pmatrix}2&1\\\\1&1\\end{pmatrix}$ ($F_2=1$).</li><li><b>Step 2</b>: $M^4 = (M^2)^2 = \\begin{pmatrix}5&3\\\\3&2\\end{pmatrix}$ ($F_4=3$).</li><li><b>Step 3</b>: $M^8 = (M^4)^2 = \\begin{pmatrix}34&21\\\\21&13\\end{pmatrix}$ ($F_8=21$).</li><li><b>Step 4</b>: $M^{16} = (M^8)^2 = \\begin{pmatrix}1597&987\\\\987&610\\end{pmatrix} \\implies \\mathbf{F(16) = 987}$!</li></ul>"
           ],
           "formula": [
-            "[[F_{n+1}, F_n], [F_n, F_{n-1}]] = [[1, 1], [1, 0]]^n  ⇒  F(16) = 987 in 4 squarings (M² → M⁴ → M⁸ → M¹⁶)"
-          ]
+            "[[Fₙ₊₁, Fₙ], [Fₙ, Fₙ₋₁]] = [[1, 1], [1, 0]]ⁿ  ⇒  F(16) = 987 in 4 squarings (M² → M⁴ → M⁸ → M¹⁶)"
+          ],
+          "fig": [
+            "ag-4-fib",
+            "ag-4-fibproof",
+            "ag-4-fibsq"
+          ],
+          "figAt": {
+            "ag-4-fib": 0,
+            "ag-4-fibproof": 0,
+            "ag-4-fibsq": 1
+          },
+          "figH": {
+            "ag-4-fib": "Fibonacci numbers three ways: naive recursion, bottom-up, and φⁿ/√5 rounding",
+            "ag-4-fibproof": "Proof of the matrix theorem by induction",
+            "ag-4-fibsq": "Recursive squaring: F(16) = 987 from M², M⁴, M⁸, M¹⁶ (or your own n)"
+          }
         },
         {
           "h": "Strassen's Matrix Multiplication & VLSI H-Tree Embedding (Slides 4.27–4.54)",
           "pts": [
             "<b>Strassen's Algorithm (Slides 4.35–4.45)</b>: Multiplies two $2\\times 2$ block matrices using <b>7 recursive multiplications</b> ($P_1..P_7$) instead of 8: $T(n) = 7T(n/2) + \\Theta(n^2) = \\mathbf{\\Theta(n^{\\lg 7}) \\approx \\Theta(n^{2.81})}$.",
             "<b>VLSI H-Tree Layout (Slides 4.46–4.53)</b>: Embeds a complete binary tree of $n$ leaves with side length $L(n) = 2L(n/4) + \\Theta(1) = \\Theta(\\sqrt{n})$, achieving optimal $\\mathbf{\\text{Area} = L(n)^2 = \\Theta(n)}$ instead of naive $\\Theta(n\\lg n)$."
-          ]
+          ],
+          "fig": [
+            "ag-4-matmul",
+            "ag-4-blocks",
+            "ag-4-strassen",
+            "ag-4-strassen-r",
+            "ag-4-strassen-num",
+            "ag-4-vlsi",
+            "ag-4-htree"
+          ],
+          "figAt": {
+            "ag-4-matmul": 0,
+            "ag-4-blocks": 0,
+            "ag-4-strassen": 0,
+            "ag-4-strassen-r": 0,
+            "ag-4-strassen-num": 0,
+            "ag-4-vlsi": 1,
+            "ag-4-htree": 1
+          },
+          "figH": {
+            "ag-4-matmul": "The standard algorithm: each c<sub>ij</sub> costs n multiplications, n³ in all",
+            "ag-4-blocks": "Divide and conquer on 2×2 blocks: 8 multiplications, still Θ(n³)",
+            "ag-4-strassen": "Strassen's idea: 7 products P<sub>1</sub>…P<sub>7</sub> give r, s, t, u",
+            "ag-4-strassen-r": "Checking r = P<sub>5</sub> + P<sub>4</sub> − P<sub>2</sub> + P<sub>6</sub> = ae + bg term by term",
+            "ag-4-strassen-num": "Strassen on numbers: 7 products against the standard 8",
+            "ag-4-vlsi": "Naive VLSI layout: height Θ(lg n), width Θ(n), area Θ(n lg n)",
+            "ag-4-htree": "H-tree embedding: side Θ(√n), area Θ(n)"
+          }
         }
       ],
       "cards": [
@@ -7276,6 +8328,21 @@ window.COURSES.algo = {
               2,
               11
             ]
+          },
+          "fig": [
+            "ag-5-divide",
+            "ag-5-invariant",
+            "ag-5-partition"
+          ],
+          "figAt": {
+            "ag-5-divide": 0,
+            "ag-5-invariant": 1,
+            "ag-5-partition": 2
+          },
+          "figH": {
+            "ag-5-divide": "Divide, conquer, combine: the array split around the pivot x",
+            "ag-5-invariant": "The PARTITION invariant: x | ≤ x | ≥ x | ? with pointers p, i, j, q",
+            "ag-5-partition": "PARTITION step by step on 6 10 13 5 8 3 2 11 (or your own array)"
           }
         },
         {
@@ -7289,14 +8356,41 @@ window.COURSES.algo = {
           "formula": [
             "Worst-Case: T(n) = T(0) + T(n−1) + cn = Θ(n²)  |  Best-Case: T(n) = 2T(n/2) + cn = Θ(n lg n)",
             "1/10 : 9/10 Split: T(n) = T(n/10) + T(9n/10) + cn = Θ(n lg n)  |  Alternating L/U: L(n) = 2L(n/2−1) + Θ(n) = Θ(n lg n)"
-          ]
+          ],
+          "fig": [
+            "ag-5-worst",
+            "ag-5-almost-best",
+            "ag-5-lucky"
+          ],
+          "figAt": {
+            "ag-5-worst": 0,
+            "ag-5-almost-best": 2,
+            "ag-5-lucky": 3
+          },
+          "figH": {
+            "ag-5-worst": "Worst-case recursion tree: T(n) = T(0) + T(n−1) + cn grows to Θ(n<sup>2</sup>)",
+            "ag-5-almost-best": "The 1/10 : 9/10 split recursion tree, level by level",
+            "ag-5-lucky": "Alternating lucky and unlucky splits still give Θ(n lg n)"
+          }
         },
         {
           "h": "Randomized Quicksort & Expected Running-Time Proof (Slides 5.34–5.47)",
           "pts": [
             "<b>Randomized Quicksort (Slide 5.34)</b>: Partition around a uniformly chosen random element in $A[p..q]$. No specific input can trigger the worst case; expected time is $\\Theta(n\\lg n)$ for all inputs.",
             "<b>Expected Running Time Derivation (Slides 5.35–5.46)</b>: Let indicator $X_k = 1$ if `PARTITION` yields a $k : (n-k-1)$ split ($E[X_k] = 1/n$). Then $E[T(n)] = \\frac{1}{n}\\sum_{k=0}^{n-1}(E[T(k)] + E[T(n-k-1)] + \\Theta(n)) = \\frac{2}{n}\\sum_{k=2}^{n-1} E[T(k)] + \\Theta(n)$. By substitution with $E[T(k)] \\le ak\\lg k$ and $\\sum_{k=2}^{n-1} k\\lg k \\le \\frac{1}{2}n^2\\lg n - \\frac{1}{8}n^2$, we obtain $E[T(n)] \\le an\\lg n - (\\frac{a}{4}n - \\Theta(n)) \\le an\\lg n = \\mathbf{\\Theta(n \\lg n)}$."
-          ]
+          ],
+          "fig": [
+            "ag-5-random",
+            "ag-5-expect"
+          ],
+          "figAt": {
+            "ag-5-random": 0,
+            "ag-5-expect": 1
+          },
+          "figH": {
+            "ag-5-random": "A random pivot gives each k : n−k−1 split probability 1/n",
+            "ag-5-expect": "Expected running time, one line of the derivation at a time"
+          }
         }
       ],
       "cards": [
@@ -7448,7 +8542,19 @@ window.COURSES.algo = {
           "h": "Decision-Tree Model & Ω(n lg n) Lower Bound (Slides 6.1–6.10)",
           "pts": [
             "<b>Decision-Tree Lower Bound Theorem (Slides 6.8–6.10)</b>: Any comparison sort on $n$ elements can be modeled as a binary decision tree where internal nodes compare $a_i : a_j$ and leaves represent sorted permutations. Since all $n!$ permutations must appear as leaves and a binary tree of height $h$ has $\\le 2^h$ leaves, $n! \\le 2^h \\implies h \\ge \\lg(n!) \\ge \\lg((n/e)^n) = n\\lg n - n\\lg e = \\mathbf{\\Omega(n \\lg n)}$. Corollary: <b>Merge Sort and Heapsort are asymptotically optimal comparison sorts</b>."
-          ]
+          ],
+          "fig": [
+            "ag-6-dtree",
+            "ag-6-lower-bound"
+          ],
+          "figAt": {
+            "ag-6-dtree": 0,
+            "ag-6-lower-bound": 0
+          },
+          "figH": {
+            "ag-6-dtree": "The decision tree for 3 elements, followed on 〈9, 4, 6〉 (or your own three numbers)",
+            "ag-6-lower-bound": "n! leaves need height h ≥ lg(n!) = Ω(n lg n)"
+          }
         },
         {
           "h": "Counting Sort & Dr. Basheer's 4-Row Exam Table (Slides 6.11–6.30)",
@@ -7514,13 +8620,43 @@ window.COURSES.algo = {
               1,
               2
             ]
+          },
+          "fig": [
+            "ag-6-csort",
+            "ag-6-stable"
+          ],
+          "figAt": {
+            "ag-6-csort": 0,
+            "ag-6-stable": 0
+          },
+          "figH": {
+            "ag-6-csort": "Counting sort loop by loop on A = 4 1 3 4 3 (also the exam table, or your own)",
+            "ag-6-stable": "Counting sort is stable: equal keys keep their input order"
           }
         },
         {
           "h": "Radix Sort & Punched Cards (Slides 6.31–6.47)",
           "pts": [
             "<b>LSD Radix Sort (Slides 6.31–6.39)</b>: Sorts from least-significant digit to most-significant digit using Counting Sort as the stable intermediate sort. For $n$ $b$-bit numbers grouped into $r$-bit digits ($d = b/r$ passes, $k = 2^r - 1$), $T(n) = \\Theta((b/r)(n + 2^r))$. Choosing $r = \\lfloor \\lg n \\rfloor$ gives $\\mathbf{T(n) = \\Theta(bn / \\lg n)}$."
-          ]
+          ],
+          "fig": [
+            "ag-6-radix",
+            "ag-6-radix-proof",
+            "ag-6-radix-r",
+            "ag-6-sorter"
+          ],
+          "figAt": {
+            "ag-6-radix": 0,
+            "ag-6-radix-proof": 0,
+            "ag-6-radix-r": 0,
+            "ag-6-sorter": 0
+          },
+          "figH": {
+            "ag-6-radix": "Radix sort, least-significant digit first, on the slide’s seven numbers (or your own)",
+            "ag-6-radix-proof": "Why radix sort is correct: induction on the digit position",
+            "ag-6-radix-r": "Choosing r: b/r passes of Θ(n + 2<sup>r</sup>) each",
+            "ag-6-sorter": "Hollerith’s card sorter: one pass of a stable sort on one column"
+          }
         }
       ],
       "cards": [
@@ -7653,13 +8789,46 @@ window.COURSES.algo = {
             "<b>`RAND-SELECT(A, p, q, i)` (Slides 7.3–7.4)</b>: Partitions $A[p..q]$ around a random pivot at $r$ with relative rank $k = r - p + 1$. If $i == k$, return $A[r]$; if $i < k$, recurse on $A[p..r-1]$ for rank $i$; if $i > k$, recurse on $A[r+1..q]$ for rank $i - k$.",
             "<b>Expected vs. Worst-Case Time (Slides 7.5–7.18)</b>: Because `RAND-SELECT` recurses on <b>only one side</b>, a $9/10$ split gives $T(n) = T(9n/10) + \\Theta(n) = \\Theta(n)$ (Master Case 3). Expected time is $\\mathbf{E[T(n)] = \\Theta(n)}$, while the unlucky worst case ($0:n-1$ split) is $\\Theta(n^2)$."
           ],
-          "code": "RAND-SELECT(A, p, q, i)\n1  if p = q then return A[p]\n2  r ← RAND-PARTITION(A, p, q)\n3  k ← r - p + 1\n4  if i = k then return A[r]\n5  if i < k\n6     then return RAND-SELECT(A, p, r - 1, i)\n7     else return RAND-SELECT(A, r + 1, q, i - k)"
+          "code": "RAND-SELECT(A, p, q, i)\n1  if p = q then return A[p]\n2  r ← RAND-PARTITION(A, p, q)\n3  k ← r - p + 1\n4  if i = k then return A[r]\n5  if i < k\n6     then return RAND-SELECT(A, p, r - 1, i)\n7     else return RAND-SELECT(A, r + 1, q, i - k)",
+          "fig": [
+            "ag-7-rank",
+            "ag-7-randsel",
+            "ag-7-lucky",
+            "ag-7-expect"
+          ],
+          "figAt": {
+            "ag-7-rank": 0,
+            "ag-7-randsel": 0,
+            "ag-7-lucky": 1,
+            "ag-7-expect": 1
+          },
+          "figH": {
+            "ag-7-rank": "Order statistics: the element of rank i, on slide 4's array",
+            "ag-7-randsel": "RAND-SELECT on the slide example (i = 7), or your own array with random pivots",
+            "ag-7-lucky": "Lucky 9 : 1 splits give Θ(n), unlucky 0 : n−1 splits give Θ(n²)",
+            "ag-7-expect": "Expected time of RAND-SELECT, line by line, with every split drawn"
+          }
         },
         {
           "h": "Worst-Case Linear-Time Selection: Median-of-Medians (Slides 7.19–7.30)",
           "pts": [
             "<b>BFPRT Deterministic `SELECT` (Slides 7.19–7.30)</b>: (1) Divide $n$ elements into $\\lfloor n/5 \\rfloor$ groups of $5$ and find each group’s median; (2) Recursively `SELECT` the median $x$ of the $\\lfloor n/5 \\rfloor$ medians in $T(n/5)$ time; (3) Partition around $x$ (guaranteed at least $3\\lfloor n/10 \\rfloor \\ge n/4$ elements $\\le x$ and $\\ge n/4$ elements $\\ge x$); (4) Recurse on at most $3n/4$ elements. Recurrence: $T(n) \\le T(n/5) + T(3n/4) + \\Theta(n) = \\mathbf{\\Theta(n)}$ in the worst case (since $1/5 + 3/4 = 19/20 < 1$)."
-          ]
+          ],
+          "fig": [
+            "ag-7-mom",
+            "ag-7-n50",
+            "ag-7-selrec"
+          ],
+          "figAt": {
+            "ag-7-mom": 0,
+            "ag-7-n50": 0,
+            "ag-7-selrec": 0
+          },
+          "figH": {
+            "ag-7-mom": "Choosing the pivot: groups of 5, their medians and the median of medians x",
+            "ag-7-n50": "For n ≥ 50, 3⌊n/10⌋ ≥ n/4: step 4 recurses on at most 3n/4 elements",
+            "ag-7-selrec": "The recurrence of SELECT, T(n) = T(n/5) + T(3n/4) + Θ(n), solved"
+          }
         }
       ],
       "cards": [
@@ -7793,7 +8962,28 @@ window.COURSES.algo = {
           "pts": [
             "<b>Direct Addressing (Slides 8.5–8.6)</b>: $h(k) = k$ stores each key at its own index in $O(1)$ worst-case search/insert/delete, but wastes massive memory when the universe of keys is large.",
             "<b>Four Hash Function Construction Methods (Slides 8.7–8.15)</b>:<ul><li><b>1. Division Method</b>: $h(k) = k \\bmod n$. Choose table size $n$ to be a <b>prime number</b> not close to a power of 2 or 10 (Slide 8.9 shows why $n=4$ maps $10, 20, 30, 40, 50$ only to slots $0$ and $2$, whereas prime $n=7$ spreads them across $3, 6, 2, 4, 1$).</li><li><b>2. Multiplication Method</b>: $h(k) = \\lfloor n (k A \\bmod 1) \\rfloor$ where $0 < A < 1$ (Knuth suggests $A \\approx (\\sqrt{5}-1)/2 \\approx 0.618033$). Slide 8.11 Example ($n=100, A=0.618033$): $h(123) = \\lfloor 100(76.018059 \\bmod 1) \\rfloor = \\lfloor 1.8059 \\rfloor = 1$; $h(150) = \\lfloor 100(92.70495 \\bmod 1) \\rfloor = 70$. Note: In binary implementation $m = 2^p$ (so for $p=7$, $m = 2^7 = 128$, Final 2 Q6).</li><li><b>3. Mid-Square Method</b>: Square $k$ ($k^2$) and extract the middle $r$ digits (e.g., $n=100 \\implies r=2$ digits).</li><li><b>4. Folding Method</b>: Partition key $K$ into parts matching the address width and add them. Slide 8.15 Example (`K = 12345678`, 2-digit address `0..99`):<ul><li><b>Fold-Shifting</b>: $12 + 34 + 56 + 78 = 180 \\implies 180 \\bmod 100 = \\mathbf{80}$.</li><li><b>Fold-Boundary</b> (reverse outer parts `12→21` and `78→87`): $21 + 34 + 56 + 87 = 198 \\implies 198 \\bmod 100 = \\mathbf{98}$.</li></ul></li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-8-direct",
+            "ag-8-mod-prime",
+            "ag-8-mult",
+            "ag-8-midsquare",
+            "ag-8-folding"
+          ],
+          "figAt": {
+            "ag-8-direct": 0,
+            "ag-8-mod-prime": 1,
+            "ag-8-mult": 1,
+            "ag-8-midsquare": 1,
+            "ag-8-folding": 1
+          },
+          "figH": {
+            "ag-8-direct": "Direct hashing h(K) = K, then the division method and its collision",
+            "ag-8-mod-prime": "Why n should be prime: 10, 20, 30, 40, 50 mod 4 and mod 7",
+            "ag-8-mult": "Multiplication method: h(123) = 1 and h(150) = 70, line by line",
+            "ag-8-midsquare": "Mid-square method: the slide's five examples",
+            "ag-8-folding": "Folding 12345678: fold-shifting gives 80, fold-boundary gives 98"
+          }
         },
         {
           "h": "Amortized Analysis of Dynamic Hash Table Doubling (Slides 8.16–8.29)",
@@ -7801,10 +8991,28 @@ window.COURSES.algo = {
             "<b>Dynamic Table Doubling Problem (Slides 8.16–8.23, Midterm 2018 Q6, Final 2019 Q2 & Final Summer Q28)</b>: Start with table capacity $1$ and double the table size ($1, 2, 4, 8, 16, \\dots$) whenever an insertion overflows the current table, copying all existing elements into the new table:<ul><li><b>1. Aggregate Method</b>: The $i$-th insertion costs $c_i = i$ if $i - 1$ is a power of 2 ($i = 1, 2, 3, 5, 9, \\dots$, where $i-1 = 2^k$ items are copied + $1$ new item inserted), and $c_i = 1$ otherwise. For $n$ insertions: $\\sum_{i=1}^n c_i \\le n + \\sum_{j=0}^{\\lfloor \\lg(n-1) \\rfloor} 2^j < n + 2n = 3n = O(n)$. Thus the amortized cost per insertion is $\\frac{3n}{n} = \\mathbf{3 = O(1)}$!</li><li><b>2. Accounting (Banker's) Method (Slides 8.24–8.26)</b>: Charge $\\hat{c}_i = \\mathbf{\\$3}$ per insertion: $\\$1$ pays for the immediate insertion, $\\$1$ is stored as credit on the newly inserted element itself, and $\\$1$ is stored as credit on one of the already-present elements in the first half of the table. When the table fills from $m/2$ to $m$, every one of the $m$ elements holds $\\$1$ credit, paying for all $m$ copies on the next doubling with bank balance never dropping below $0$!</li><li><b>3. Potential (Physicist's) Method (Slides 8.27–8.29)</b>: Define potential $\\Phi(D_i) = 2 \\cdot \\text{num}_i - \\text{size}_i$. For a non-expansion step, $\\hat{c}_i = c_i + \\Phi(D_i) - \\Phi(D_{i-1}) = 1 + 2 = 3$. For an expansion step ($\\text{size}_i = 2\\cdot\\text{size}_{i-1}, \\text{num}_{i-1} = \\text{size}_{i-1}$), $\\hat{c}_i = \\text{num}_i + (2) - (\\text{num}_i - 1) = 3 = O(1)$!</li></ul>"
           ],
           "formula": [
-            "Aggregate Method (Table Doubling 1, 2, 4, 8…): Total Cost = n + Σ_{j=0..⌊lg n⌋} 2^j < n + 2n = 3n ⇒ Amortized Cost = 3n / n = O(1)",
+            "Aggregate Method (Table Doubling 1, 2, 4, 8…): Total Cost = n + Σ (j = 0 … ⌊lg n⌋) 2ʲ < n + 2n = 3n ⇒ Amortized Cost = 3n / n = O(1)",
             "Accounting Method: Charge $3 per insert ($1 immediate write + $1 self-credit + $1 partner-credit)",
-            "Potential Method: Φ(D_i) = 2·num_i − size_i ⇒ Amortized Cost ĉ_i = c_i + Φ(D_i) − Φ(D_{i-1}) = 3 = O(1)"
-          ]
+            "Potential Method: Φ(Dᵢ) = 2·numᵢ − sizeᵢ ⇒ Amortized Cost ĉᵢ = cᵢ + Φ(Dᵢ) − Φ(Dᵢ₋₁) = 3 = O(1)"
+          ],
+          "fig": [
+            "ag-8-aggregate",
+            "ag-8-accounting",
+            "ag-8-potential",
+            "ag-8-potential-table"
+          ],
+          "figAt": {
+            "ag-8-aggregate": 0,
+            "ag-8-accounting": 0,
+            "ag-8-potential": 0,
+            "ag-8-potential-table": 0
+          },
+          "figH": {
+            "ag-8-aggregate": "Aggregate method: ten insertions into a doubling table cost at most 3n",
+            "ag-8-accounting": "Accounting method: charge $3 per insert and watch the bank",
+            "ag-8-potential": "Potential method: both cases give amortized cost 3",
+            "ag-8-potential-table": "Potential method table for 17 insertions, row by row"
+          }
         },
         {
           "h": "Separate Chaining & Open Addressing: Linear, Quadratic & Double Hashing (Slides 8.30–8.94)",
@@ -7923,7 +9131,20 @@ window.COURSES.algo = {
               "—"
             ]
           ],
-          "fig": "algo-hash-sim",
+          "fig": [
+            "algo-hash-sim",
+            "ag-8-chaining",
+            "ag-8-bst-chains",
+            "ag-8-avl",
+            "ag-8-rehash",
+            "ag-8-linear",
+            "ag-8-quadratic",
+            "ag-8-lin-quad",
+            "ag-8-secondary",
+            "ag-8-double",
+            "ag-8-probes",
+            "ag-8-cache"
+          ],
           "viz": {
             "type": "hash",
             "title": "Midterm 2022 Q1: Hash Table (m = 11) on [0, 30, 1, 55, 16, 28, 13, 9, 26]",
@@ -7967,6 +9188,32 @@ window.COURSES.algo = {
                 26
               ]
             ]
+          },
+          "figAt": {
+            "ag-8-chaining": 0,
+            "ag-8-bst-chains": 0,
+            "ag-8-avl": 0,
+            "ag-8-rehash": 0,
+            "ag-8-linear": 1,
+            "ag-8-quadratic": 1,
+            "ag-8-lin-quad": 1,
+            "ag-8-secondary": 1,
+            "ag-8-double": 1,
+            "ag-8-probes": 1,
+            "ag-8-cache": 1
+          },
+          "figH": {
+            "ag-8-chaining": "Separate chaining: load factor and the cost of search, delete and insert",
+            "ag-8-bst-chains": "A BST in every slot: worst case and best case",
+            "ag-8-avl": "AVL trees in the slots: balance factors and fixing 20, 30, 40",
+            "ag-8-rehash": "Rehashing when the load factor passes the threshold 2",
+            "ag-8-linear": "Linear probing: insert, search and delete with the Deleted marker",
+            "ag-8-quadratic": "Quadratic probing on 7, 36, 18, 62, 51",
+            "ag-8-lin-quad": "Linear against quadratic probing on the same keys",
+            "ag-8-secondary": "Secondary clustering: 62 cannot be inserted",
+            "ag-8-double": "Double hashing with hash2(k) = 7 − (k mod 7)",
+            "ag-8-probes": "Expected probes 1/(1 − α): 2 when half full, 10 when 90% full",
+            "ag-8-cache": "Cache misses per lookup: chaining against linear probing"
           }
         }
       ],
@@ -8167,7 +9414,16 @@ window.COURSES.algo = {
           "pts": [
             "<b>Balanced Search Trees (Slide 9.2)</b>: Guarantee tree height $h = O(\\lg n)$ for a dynamic set of $n$ items (unlike standard BSTs whose worst-case height is $\\Theta(n)$ on sorted input). Examples: AVL trees, 2-3 trees, 2-3-4 trees, B-trees, Red-Black trees.",
             "<b>Red-Black Properties (Slide 9.3 & Lec 10 Slide 3)</b>: A BST with one extra color bit (`RED` or `BLACK`) per node satisfying:<ul><li><b>1. Color Property</b>: Every node is either <b>red</b> or <b>black</b>.</li><li><b>2. Root & Leaf Property</b>: The <b>root</b> is black, and every <b>leaf (`NIL` sentinel)</b> is black.</li><li><b>3. Red Property (No Two Consecutive Reds)</b>: If a node is red, then its parent (and both of its children) are black.</li><li><b>4. Black-Height Property</b>: For each node $x$, all simple paths from $x$ to descendant `NIL` leaves contain the <b>same number of black nodes</b>, called the <b>black-height $bh(x)$</b> (not counting $x$ itself).</li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-9-props"
+          ],
+          "figAt": {
+            "ag-9-props": 1
+          },
+          "figH": {
+            "ag-9-props": "The slides' example tree, checked against the four red-black properties"
+          }
         },
         {
           "h": "Proof of Height Bound: h ≤ 2 lg(n + 1) (Slides 9.9–9.16)",
@@ -8180,7 +9436,16 @@ window.COURSES.algo = {
           "formula": [
             "Subtree Internal Nodes Bound: n ≥ 2^(bh(root)) − 1 ≥ 2^(h/2) − 1  ⇒  h ≤ 2 lg(n + 1) = O(lg n)"
           ],
-          "code": "TREE-MAXIMUM(x)\n1  while right[x] ≠ NIL\n2      do x ← right[x]\n3  return x\n\nTREE-PREDECESSOR(x)\n1  if left[x] ≠ NIL\n2     then return TREE-MAXIMUM(left[x])\n3  y ← p[x]\n4  while y ≠ NIL and x = left[y]\n5      do x ← y\n6         y ← p[y]\n7  return y"
+          "code": "TREE-MAXIMUM(x)\n1  while right[x] ≠ NIL\n2      do x ← right[x]\n3  return x\n\nTREE-PREDECESSOR(x)\n1  if left[x] ≠ NIL\n2     then return TREE-MAXIMUM(left[x])\n3  y ← p[x]\n4  while y ≠ NIL and x = left[y]\n5      do x ← y\n6         y ← p[y]\n7  return y",
+          "fig": [
+            "ag-9-merge"
+          ],
+          "figAt": {
+            "ag-9-merge": 1
+          },
+          "figH": {
+            "ag-9-merge": "Merging red nodes into their black parents gives a 2-3-4 tree, and h ≤ 2 lg(n + 1)"
+          }
         },
         {
           "h": "Rotations & RB-INSERT Cases 1, 2 & 3 (Slides 9.17–9.29)",
@@ -8188,7 +9453,22 @@ window.COURSES.algo = {
             "<b>Rotations (Slide 9.18)</b>: `LEFT-ROTATE(A)` and `RIGHT-ROTATE(B)` restructure pointers locally in $\\mathbf{O(1)}$ time while strictly preserving the BST inorder key ordering ($\\alpha \\le A \\le \\beta \\le B \\le \\gamma$).",
             "<b>`RB-INSERT(T, x)` Overview & Cases 1–3 (Slides 9.19–9.29)</b>: Insert $x$ using standard BST insertion and color $x$ <b>RED</b> (so Property 4 black-height is preserved, and only Property 3 ”red parent of red $x$” or Property 2 ”root is red” can be violated). While `color[p[x]] == RED`:<ul><li><b>Case 1 (Uncle $y$ is RED)</b>: Recolor parent and uncle `BLACK`, recolor grandparent `RED`, and move pointer $x$ up to grandparent (`x ← p[p[x]]`). Costs $O(1)$ per level up the tree, 0 rotations.</li><li><b>Case 2 (Uncle $y$ is BLACK and $x$ forms a zig-zag triangle with $p[x]$ and $p[p[x]]$)</b>: Rotate `p[x]` to transform the triangle into a straight line (Case 3).</li><li><b>Case 3 (Uncle $y$ is BLACK and $x$ forms a straight line with $p[x]$ and $p[p[x]]$)</b>: Recolor `p[x]` `BLACK`, grandparent `RED`, and rotate grandparent. <b>Terminates immediately!</b></li><li><b>Total Insertion Cost</b>: $O(\\lg n)$ time and <b>at most 2 rotations</b>!</li></ul>"
           ],
-          "fig": "algo-rbt-sim"
+          "fig": [
+            "algo-rbt-sim",
+            "ag-9-rotate",
+            "ag-9-insert15",
+            "ag-9-cases"
+          ],
+          "figAt": {
+            "ag-9-rotate": 0,
+            "ag-9-insert15": 1,
+            "ag-9-cases": 1
+          },
+          "figH": {
+            "ag-9-rotate": "RIGHT-ROTATE(B) and LEFT-ROTATE(A) keep the inorder order",
+            "ag-9-insert15": "Inserting x = 15 into the example tree, step by step",
+            "ag-9-cases": "RB-INSERT pseudocode and the pictures of Cases 1, 2 and 3"
+          }
         }
       ],
       "cards": [
@@ -8336,8 +9616,23 @@ window.COURSES.algo = {
           "h": "Coloring Red-Black Trees & Insertion Problem Trace (Slides 10.1–10.19)",
           "pts": [
             "<b>Coloring Exercise on `{7, 5, 9, 12}` (Slide 10.8 & Final 2019 Credit Q3)</b>: Root `7` is <b>BLACK</b>; children `5` and `9` are <b>BLACK</b> (each having black-height $1$ to `NIL`); child `12` (under `9`) must be <b>RED</b> so that every path from root `7` to `NIL` has the exact same black-height ($bh(7) = 2$, counting `5/9` and `NIL`).",
-            "<b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of black `11`, colored <b>RED</b> (valid!).</li></ul>"
-          ]
+            "<b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of red `11` (after the recoloring, `9` is red and `8`, `12` are black). Red breaks Property 3 (red `11` with a red child) and black breaks Property 4 (black-height), so <b>no color works</b>: the tree is too imbalanced and its <b>structure must change</b> (rotations) to allow recoloring, in $O(\\lg n)$ time (Slide 10.19).</li></ul>"
+          ],
+          "fig": [
+            "ag-10-bh",
+            "ag-10-color",
+            "ag-10-problem"
+          ],
+          "figAt": {
+            "ag-10-bh": 0,
+            "ag-10-color": 0,
+            "ag-10-problem": 1
+          },
+          "figH": {
+            "ag-10-bh": "Review: black-height and why h ≤ 2 lg(n + 1)",
+            "ag-10-color": "Colour this tree: tap the nodes of 7, 5, 9, 12 and check the five properties",
+            "ag-10-problem": "The problem with insertion: where do 8, 11 and 10 go, and what colour?"
+          }
         },
         {
           "h": "Pointer-Level Rotation Pseudocode & Insertion Cases 1–6 (Slides 10.20–10.32)",
@@ -8345,7 +9640,22 @@ window.COURSES.algo = {
             "<b>`rightRotate(y)` Pointer Manipulation (Slide 10.21)</b>: Let `x = y->left`. Set `y->left = x->right` (and if `x->right != NIL`, `x->right->p = y`); set `x->p = y->p` (updating `root` or `y->p`'s child pointer); finally set `x->right = y` and `y->p = x`.",
             "<b>Symmetric Insertion Cases 1–6 (Slides 10.25–10.31)</b>:<ul><li>When `x->p` is a <b>left child</b> of `x->p->p`, let uncle `y = x->p->p->right`:<ul><li><b>Case 1 (`y` is RED)</b>: Recolor `x->p` and `y` BLACK, `x->p->p` RED, set `x = x->p->p`.</li><li><b>Case 2 (`y` is BLACK, `x` is right child)</b>: Set `x = x->p`, `leftRotate(x)` $\\rightarrow$ becomes Case 3.</li><li><b>Case 3 (`y` is BLACK, `x` is left child)</b>: Recolor `x->p` BLACK, `x->p->p` RED, `rightRotate(x->p->p)`.</li></ul></li><li>When `x->p` is a <b>right child</b> of `x->p->p`, Cases 4, 5, 6 are the exact left-right mirror images!</li></ul>"
           ],
-          "code": "rbInsert(x) {\n  treeInsert(x);\n  x->color = RED;\n  while (x != root && x->p->color == RED) {\n    if (x->p == x->p->p->left) {\n      y = x->p->p->right;           // y is uncle of x\n      if (y->color == RED) {        // Case 1: uncle is RED\n        x->p->color = BLACK;\n        y->color = BLACK;\n        x->p->p->color = RED;\n        x = x->p->p;\n      } else {\n        if (x == x->p->right) {     // Case 2: zig-zag triangle\n          x = x->p;\n          leftRotate(x);\n        }\n        x->p->color = BLACK;        // Case 3: straight line\n        x->p->p->color = RED;\n        rightRotate(x->p->p);\n      }\n    } else { /* Cases 4-6: symmetric with left <-> right */ }\n  }\n  root->color = BLACK;\n}"
+          "code": "rbInsert(x) {\n  treeInsert(x);\n  x->color = RED;\n  while (x != root && x->p->color == RED) {\n    if (x->p == x->p->p->left) {\n      y = x->p->p->right;           // y is uncle of x\n      if (y->color == RED) {        // Case 1: uncle is RED\n        x->p->color = BLACK;\n        y->color = BLACK;\n        x->p->p->color = RED;\n        x = x->p->p;\n      } else {\n        if (x == x->p->right) {     // Case 2: zig-zag triangle\n          x = x->p;\n          leftRotate(x);\n        }\n        x->p->color = BLACK;        // Case 3: straight line\n        x->p->p->color = RED;\n        rightRotate(x->p->p);\n      }\n    } else { /* Cases 4-6: symmetric with left <-> right */ }\n  }\n  root->color = BLACK;\n}",
+          "fig": [
+            "ag-10-rotptr",
+            "ag-10-rotex",
+            "ag-10-cases"
+          ],
+          "figAt": {
+            "ag-10-rotptr": 0,
+            "ag-10-rotex": 0,
+            "ag-10-cases": 1
+          },
+          "figH": {
+            "ag-10-rotptr": "rightRotate(y), one pointer change at a time",
+            "ag-10-rotex": "Rotation example: rotate left about 9",
+            "ag-10-cases": "rbInsert: Cases 1, 2, 3 with the code, and the symmetric Cases 4-6"
+          }
         }
       ],
       "cards": [
@@ -8359,7 +9669,7 @@ window.COURSES.algo = {
         ],
         [
           "Coloring Red-Black Trees & Insertion Problem Trace (Slides 10.1–10.19) — Core Principle & Complexity",
-          "<b>Coloring Exercise on `{7, 5, 9, 12}` (Slide 10.8 & Final 2019 Credit Q3)</b>: Root `7` is <b>BLACK</b>; children `5` and `9` are <b>BLACK</b> (each having black-height $1$ to `NIL`); child `12` (under `9`) must be <b>RED</b> so that every path from root `7` to `NIL` has the exact same black-height ($bh(7) = 2$, counting `5/9` and `NIL`). <b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of black `11`, colored <b>RED</b> (valid!).</li></ul>"
+          "<b>Coloring Exercise on `{7, 5, 9, 12}` (Slide 10.8 & Final 2019 Credit Q3)</b>: Root `7` is <b>BLACK</b>; children `5` and `9` are <b>BLACK</b> (each having black-height $1$ to `NIL`); child `12` (under `9`) must be <b>RED</b> so that every path from root `7` to `NIL` has the exact same black-height ($bh(7) = 2$, counting `5/9` and `NIL`). <b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of red `11` (after the recoloring, `9` is red and `8`, `12` are black). Red breaks Property 3 (red `11` with a red child) and black breaks Property 4 (black-height), so <b>no color works</b>: the tree is too imbalanced and its <b>structure must change</b> (rotations) to allow recoloring, in $O(\\lg n)$ time (Slide 10.19).</li></ul>"
         ],
         [
           "Pointer-Level Rotation Pseudocode & Insertion Cases 1–6 (Slides 10.20–10.32) — Core Principle & Complexity",
@@ -8470,18 +9780,53 @@ window.COURSES.algo = {
         {
           "h": "Complete Slide & Exam Insertion Traces (Slides 11.1–11.14)",
           "pts": [
-            "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(R), 93(B)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `93` (or right of `47`/left of `71`), colored <b>RED</b>.</li><li><b>Insert `82`</b>: Placed as right child of red `65` under black `71` and red uncle `93` $\\implies$ <b>Case 1 (Uncle `93` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED.</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `65` with `NIL` (black) uncle $\\implies$ <b>Case 2 & Case 3</b>: Left-rotate `65` and right-rotate `71`, then recolor `82` BLACK and `71, 93` RED!</li></ul>",
+            "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(B), 93(R)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `71`, colored <b>RED</b> (parent black $\\implies$ valid).</li><li><b>Insert `82`</b>: Placed as left child of red `93` under black `71`, with red uncle `65` $\\implies$ <b>Case 1 (Uncle `65` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED (its parent `47` is black, so the loop stops).</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `93`, with a `NIL` (black) uncle and `87` an inner child $\\implies$ <b>Case 2 then Case 3</b>: left-rotate `82`, then recolor `87` BLACK and `93` RED and right-rotate `93`. Result: `71`(R) with children `65`(B) and `87`(B), and `87` has red children `82` and `93`.</li></ul>",
             "<b>Final Exam Workout 1: Insert `(2, 1, 4, 5, 9, 3, 6, 7)` into an Empty Red-Black Tree (Final 2016 Q4 & Final 5 Q4)</b>:<ul><li>1. <b>Insert `2`</b>: `2(B)` is root.</li><li>2. <b>Insert `1`</b>: Left child of `2`, colored `1(R)`.</li><li>3. <b>Insert `4`</b>: Right child of `2`, colored `4(R)`. Tree: `2(B)` with children `1(R), 4(R)`.</li><li>4. <b>Insert `5`</b>: Right child of `4(R)`. Uncle `1(R)` is RED (<b>Case 1</b>) $\\implies$ recolor `1(B), 4(B)`, grandparent `2` stays `2(B)` (root).</li><li>5. <b>Insert `9`</b>: Right child of `5(R)` under `4(B)` with `NIL(B)` uncle (<b>Case 3 RR line</b>) $\\implies$ left-rotate `4(B)` and recolor `5(B)` and `4(R), 9(R)`.</li><li>6. <b>Insert `3`</b>: Left child of `4(R)` under `5(B)` with red uncle `9(R)` (<b>Case 1</b>) $\\implies$ recolor `4(B), 9(B)` and `5(R)`.</li><li>7. <b>Insert `6`</b>: Left child of `9(B)`, colored `6(R)`.</li><li>8. <b>Insert `7`</b>: Right child of `6(R)` under `9(B)` with `NIL(B)` uncle (<b>Case 2 LR triangle $\\to$ Case 3</b>) $\\implies$ left-rotate `6(R)`, right-rotate `9(B)`, recolor `7(B)` and `9(R)`!</li></ul>",
             "<b>Final Exam Workout 2: Insert `(5, 1, 4, 10, 9, 20, 6, 7)` (Final 2018 I Q4, Final 2018 II Q7 & Exam Examples Q7)</b>:<ul><li>1. `5(B)` $\\to$ 2. `1(R)` left of `5` $\\to$ 3. `4(R)` right of `1(R)` (<b>Case 2+3 LR</b>: left-rotate `1`, right-rotate `5` $\\to$ root becomes `4(B)` with `1(R)` and `5(R)`!).</li><li>4. `10(R)` right of `5(R)` (<b>Case 1</b>: recolor `1(B), 5(B)`).</li><li>5. `9(R)` left of `10(R)` (<b>Case 2+3 RL</b>: right-rotate `10`, left-rotate `5` $\\to$ `9(B)` with `5(R), 10(R)`).</li><li>6. `20(R)` right of `10(R)` (<b>Case 1</b>: recolor `5(B), 10(B), 9(R)`).</li><li>7. `6(R)` right of `5(B)` $\\to$ 8. `7(R)` right of `6(R)` (<b>Case 3 RR</b>: left-rotate `5(B)` $\\to$ `6(B)` with `5(R), 7(R)`). Final root `4(B)` has $bh = 2$.</li></ul>"
           ],
-          "fig": "algo-rbt-sim"
+          "fig": [
+            "algo-rbt-sim",
+            "ag-11-ins",
+            "ag-11-lrot",
+            "ag-11-exam1",
+            "ag-11-exam2"
+          ],
+          "figAt": {
+            "ag-11-ins": 0,
+            "ag-11-lrot": 0,
+            "ag-11-exam1": 1,
+            "ag-11-exam2": 2
+          },
+          "figH": {
+            "ag-11-ins": "Insertion example: insert 65, 82, 87 into the slides' tree",
+            "ag-11-lrot": "The leftRotate code, traced on the left rotation of 82",
+            "ag-11-exam1": "rbInsert step by step: insert 2, 1, 4, 5, 9, 3, 6, 7 (or your own keys)",
+            "ag-11-exam2": "rbInsert step by step: insert 5, 1, 4, 10, 9, 20, 6, 7"
+          }
         },
         {
           "h": "Red-Black Tree Deletion & Doubly-Black Fixup (`rbTreeFix` Cases 1–4, Slides 11.15–11.39)",
           "pts": [
             "<b>Deletion Overview (Slides 11.15–11.16)</b>: Standard BST deletion reduces deleting a 2-child node to deleting its inorder successor/predecessor `y` (which has at most one real child `x`).<ul><li>If the removed node `y` was <b>RED</b>, no Red-Black properties are violated—done!</li><li>If `y` was <b>BLACK</b>, removing it reduces the black-height along paths through `y`, so we pass an <b>”extra black token”</b> to `x` (the child replacing `y`) and call `rbTreeFix(root, x)`.</li></ul>",
             "<b>Four Cases of `rbTreeFix(root, x)` (Slides 11.30–11.38)</b>: Let `y` be `x`’s sibling:<ul><li><b>Case (1): `x` is RED</b> (has a red color + extra black token): Simply color `x` <b>BLACK</b> and terminate!</li><li><b>Case (2): `x` is BLACK and sibling `y` is RED</b>: Color `y` BLACK and `x.parent` RED, rotate `x.parent` toward `x`, and update `y` to `x`’s new (now guaranteed BLACK) sibling $\\rightarrow$ falls into Case 3 or 4.</li><li><b>Case (3): `x` is BLACK, sibling `y` is BLACK, and BOTH nephews (`y.left`, `y.right`) are BLACK</b>: Color `y` RED and move the extra black token up to `x = x.parent` (loop continues, or stops if `x` is red via Case 1).</li><li><b>Case (4): `x` is BLACK, sibling `y` is BLACK, and AT LEAST ONE nephew is RED</b>:<ul><li><b>Subcase 4(i)</b> (far nephew is BLACK, near nephew is RED): Color near nephew BLACK, `y` RED, rotate `y` away from `x` $\\rightarrow$ transforms into Subcase 4(ii).</li><li><b>Subcase 4(ii)</b> (far nephew is RED): Color `y` with `x.parent`’s color, color `x.parent` BLACK, color far nephew BLACK, rotate `x.parent` toward `x`, and remove the extra black token completely (<b>terminates after at most 3 rotations total!</b>).</li></ul></li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-11-delex",
+            "ag-11-fixcases",
+            "ag-11-delsim",
+            "ag-11-eff"
+          ],
+          "figAt": {
+            "ag-11-delex": 0,
+            "ag-11-fixcases": 1,
+            "ag-11-delsim": 1
+          },
+          "figH": {
+            "ag-11-delex": "Deletion examples 1-3: delete 87, 71 and 32",
+            "ag-11-fixcases": "The four cases of rbTreeFix, with the code",
+            "ag-11-delsim": "Try your own: delete keys and watch rbTreeFix",
+            "ag-11-eff": "RB trees efficiency: sorted arrays, linked lists and RB trees compared"
+          }
         }
       ],
       "cards": [
@@ -8499,7 +9844,7 @@ window.COURSES.algo = {
         ],
         [
           "Complete Slide & Exam Insertion Traces (Slides 11.1–11.14) — Core Principle & Complexity",
-          "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(R), 93(B)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `93` (or right of `47`/left of `71`), colored <b>RED</b>.</li><li><b>Insert `82`</b>: Placed as right child of red `65` under black `71` and red uncle `93` $\\implies$ <b>Case 1 (Uncle `93` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED.</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `65` with `NIL` (black) uncle $\\implies$ <b>Case 2 & Case 3</b>: Left-rotate `65` and right-rotate `71`, then recolor `82` BLACK and `71, 93` RED!</li></ul> <b>Final Exam Workout 1: Insert `(2, 1, 4, 5, 9, 3, 6, 7)` into an Empty Red-Black Tree (Final 2016 Q4 & Final 5 Q4)</b>:<ul><li>1. <b>Insert `2`</b>: `2(B)` is root.</li><li>2. <b>Insert `1`</b>: Left child of `2`, colored `1(R)`.</li><li>3. <b>Insert `4`</b>: Right child of `2`, colored `4(R)`. Tree: `2(B)` with children `1(R), 4(R)`.</li><li>4. <b>Insert `5`</b>: Right child of `4(R)`. Uncle `1(R)` is RED (<b>Case 1</b>) $\\implies$ recolor `1(B), 4(B)`, grandparent `2` stays `2(B)` (root).</li><li>5. <b>Insert `9`</b>: Right child of `5(R)` under `4(B)` with `NIL(B)` uncle (<b>Case 3 RR line</b>) $\\implies$ left-rotate `4(B)` and recolor `5(B)` and `4(R), 9(R)`.</li><li>6. <b>Insert `3`</b>: Left child of `4(R)` under `5(B)` with red uncle `9(R)` (<b>Case 1</b>) $\\implies$ recolor `4(B), 9(B)` and `5(R)`.</li><li>7. <b>Insert `6`</b>: Left child of `9(B)`, colored `6(R)`.</li><li>8. <b>Insert `7`</b>: Right child of `6(R)` under `9(B)` with `NIL(B)` uncle (<b>Case 2 LR triangle $\\to$ Case 3</b>) $\\implies$ left-rotate `6(R)`, right-rotate `9(B)`, recolor `7(B)` and `9(R)`!</li></ul>"
+          "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(B), 93(R)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `71`, colored <b>RED</b> (parent black $\\implies$ valid).</li><li><b>Insert `82`</b>: Placed as left child of red `93` under black `71`, with red uncle `65` $\\implies$ <b>Case 1 (Uncle `65` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED (its parent `47` is black, so the loop stops).</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `93`, with a `NIL` (black) uncle and `87` an inner child $\\implies$ <b>Case 2 then Case 3</b>: left-rotate `82`, then recolor `87` BLACK and `93` RED and right-rotate `93`. Result: `71`(R) with children `65`(B) and `87`(B), and `87` has red children `82` and `93`.</li></ul> <b>Final Exam Workout 1: Insert `(2, 1, 4, 5, 9, 3, 6, 7)` into an Empty Red-Black Tree (Final 2016 Q4 & Final 5 Q4)</b>:<ul><li>1. <b>Insert `2`</b>: `2(B)` is root.</li><li>2. <b>Insert `1`</b>: Left child of `2`, colored `1(R)`.</li><li>3. <b>Insert `4`</b>: Right child of `2`, colored `4(R)`. Tree: `2(B)` with children `1(R), 4(R)`.</li><li>4. <b>Insert `5`</b>: Right child of `4(R)`. Uncle `1(R)` is RED (<b>Case 1</b>) $\\implies$ recolor `1(B), 4(B)`, grandparent `2` stays `2(B)` (root).</li><li>5. <b>Insert `9`</b>: Right child of `5(R)` under `4(B)` with `NIL(B)` uncle (<b>Case 3 RR line</b>) $\\implies$ left-rotate `4(B)` and recolor `5(B)` and `4(R), 9(R)`.</li><li>6. <b>Insert `3`</b>: Left child of `4(R)` under `5(B)` with red uncle `9(R)` (<b>Case 1</b>) $\\implies$ recolor `4(B), 9(B)` and `5(R)`.</li><li>7. <b>Insert `6`</b>: Left child of `9(B)`, colored `6(R)`.</li><li>8. <b>Insert `7`</b>: Right child of `6(R)` under `9(B)` with `NIL(B)` uncle (<b>Case 2 LR triangle $\\to$ Case 3</b>) $\\implies$ left-rotate `6(R)`, right-rotate `9(B)`, recolor `7(B)` and `9(R)`!</li></ul>"
         ],
         [
           "Red-Black Tree Deletion & Doubly-Black Fixup (`rbTreeFix` Cases 1–4, Slides 11.15–11.39) — Core Principle & Complexity",
@@ -8635,14 +9980,56 @@ window.COURSES.algo = {
             "<b>`OS-SELECT(x, i)` — Finding the $i$-th Smallest Element in $O(\\lg n)$ (Slides 12.4–12.5)</b>:<ul><li>Compute $k = \\text{size}[\\text{left}[x]] + 1$ (the relative rank of $x$ within the subtree rooted at $x$).</li><li>If $i == k$, return $x$; if $i < k$, recurse on `OS-SELECT(left[x], i)`; if $i > k$, recurse on `OS-SELECT(right[x], i - k)`.</li><li><b>Slide Trace `OS-SELECT(root, 5)` on `{M(9), C(5), P(3), A(1), F(3), D(1), H(1), N(1), Q(1)}`</b>: At `M`, $k = 5 + 1 = 6$ ($i=5 < 6 \\to$ go left to `C`); at `C`, $k = 1 + 1 = 2$ ($i=5 > 2 \\to$ go right to `F` with $i = 5 - 2 = 3$); at `F`, $k = 1 + 1 = 2$ ($i=3 > 2 \\to$ go right to `H` with $i = 3 - 2 = 1$); at `H`, $k = 0 + 1 = 1 == i \\to$ return `H`!</li></ul>",
             "<b>`OS-RANK(T, x)` — Finding the Rank of Node $x$ in $O(\\lg n)$ (Midterm 2025 Q6)</b>:<ul><li>Initialize $r = \\text{size}[\\text{left}[x]] + 1$ (rank of $x$ within its own subtree) and set $y = x$.</li><li>Climb up to the root (`while y ≠ T.root`): whenever $y$ is a <b>right child</b> of its parent (`if y == y.p.right`), add the left sibling's subtree plus the parent itself: `r = r + y.p.left.size + 1`. Set `y = y.p`.</li></ul>"
           ],
-          "code": "OS-SELECT(x, i)   // Returns ith smallest node in subtree at x\n1  k ← size[left[x]] + 1\n2  if i = k then return x\n3  if i < k\n4     then return OS-SELECT(left[x], i)\n5     else return OS-SELECT(right[x], i - k)\n\nOS-RANK(T, x)     // Returns rank of x in T (Midterm 2025 Q6)\n1  r ← x.left.size + 1\n2  y ← x\n3  while y ≠ T.root\n4      do if y = y.p.right\n5            then r ← r + y.p.left.size + 1\n6         y ← y.p\n7  return r"
+          "code": "OS-SELECT(x, i)   // Returns ith smallest node in subtree at x\n1  k ← size[left[x]] + 1\n2  if i = k then return x\n3  if i < k\n4     then return OS-SELECT(left[x], i)\n5     else return OS-SELECT(right[x], i - k)\n\nOS-RANK(T, x)     // Returns rank of x in T (Midterm 2025 Q6)\n1  r ← x.left.size + 1\n2  y ← x\n3  while y ≠ T.root\n4      do if y = y.p.right\n5            then r ← r + y.p.left.size + 1\n6         y ← y.p\n7  return r",
+          "fig": [
+            "ag-12-os-tree",
+            "ag-12-insert",
+            "ag-12-rotate-size",
+            "ag-12-select",
+            "ag-12-rank"
+          ],
+          "figAt": {
+            "ag-12-os-tree": 0,
+            "ag-12-insert": 1,
+            "ag-12-rotate-size": 1,
+            "ag-12-select": 2,
+            "ag-12-rank": 3
+          },
+          "figH": {
+            "ag-12-os-tree": "The OS-tree of the slides: every size[x] computed bottom up",
+            "ag-12-insert": "INSERT(“K”): sizes change only on the path, ranks would change everywhere",
+            "ag-12-rotate-size": "A rotation fixes subtree sizes in O(1)",
+            "ag-12-select": "OS-SELECT(root, i) step by step (the slide traces i = 5)",
+            "ag-12-rank": "OS-RANK(T, x) on the same tree: climb to the root, adding at every right turn"
+          }
         },
         {
           "h": "Data-Structure Augmentation Methodology & Interval Trees (Slides 12.9–12.25)",
           "pts": [
             "<b>4-Step Data-Structure Augmentation Methodology (Slide 12.9)</b>:<ul><li><b>1.</b> Choose an underlying data structure (e.g., Red-Black Tree).</li><li><b>2.</b> Determine additional information to store in each node (e.g., `size[x]` or `m[x]`).</li><li><b>3.</b> Verify that the information can be maintained in $O(\\lg n)$ during `RB-INSERT` and `RB-DELETE` (including $O(1)$ updates during rotations!).</li><li><b>4.</b> Develop new dynamic-set operations that use the information (e.g., `OS-SELECT`, `OS-RANK`, `INTERVAL-SEARCH`).</li></ul>",
             "<b>Interval Trees & `INTERVAL-SEARCH(i)` (Slides 12.10–12.25)</b>:<ul><li><b>1. Underlying structure</b>: Red-Black Tree keyed on the <b>low (left) endpoint</b> `low[int[x]]`.</li><li><b>2. Additional info</b>: `m[x] = max(high[int[x]], m[left[x]], m[right[x]])` (the maximum endpoint in $x$'s subtree).</li><li><b>3. Maintaining `m[x]`</b>: Updated in $O(1)$ time during rotations and $O(\\lg n)$ down the insertion/deletion path.</li><li><b>4. `INTERVAL-SEARCH(i)`</b>: Starting at `x = root`, while `x ≠ NIL` and `i` does not overlap `int[x]` (i.e., `low[i] > high[int[x]]` or `low[int[x]] > high[i]`): if `left[x] ≠ NIL` and `low[i] ≤ m[left[x]]`, go left (`x ← left[x]`), else go right (`x ← right[x]`). Runs in $O(\\lg n)$ time!</li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-12-intervals",
+            "ag-12-itree",
+            "ag-12-rotate-m",
+            "ag-12-isearch",
+            "ag-12-proof"
+          ],
+          "figAt": {
+            "ag-12-intervals": 1,
+            "ag-12-itree": 1,
+            "ag-12-rotate-m": 1,
+            "ag-12-isearch": 1,
+            "ag-12-proof": 1
+          },
+          "figH": {
+            "ag-12-intervals": "Intervals and the overlap query: move the query interval",
+            "ag-12-itree": "The slide’s interval tree: keyed on low endpoints, m[x] filled bottom up",
+            "ag-12-rotate-m": "A rotation fixes m[x] in O(1)",
+            "ag-12-isearch": "INTERVAL-SEARCH on [14,16] and [12,14] (or your own query)",
+            "ag-12-proof": "Why one child is enough: the two cases of the correctness proof"
+          }
         }
       ],
       "cards": [
@@ -8765,7 +10152,22 @@ window.COURSES.algo = {
             "<b>Skip Lists Overview (Slides 13.2–13.3)</b>: Invented by Bill Pugh (1990). A generalization of a sorted linked list with multi-level forward pointers and $-\\infty / +\\infty$ header/sentinel nodes at every level.",
             "<b>Perfect Skip Lists (Slides 13.4–13.11)</b>: Each higher level contains <i>exactly</i> $1/2$ the elements of the level below it, giving $\\lg n$ levels and $O(\\lg n)$ search time (visiting at most 2 nodes per level). <b>Drawback</b>: Like a perfect binary tree, inserting or deleting a single element can force rearranging the entire list ($\\Theta(n)$)!",
             "<b>Randomized Skip Lists (Slides 13.12–13.17)</b>:<ul><li><b>Search(k)</b>: Start at the top-left header. If $k == \\text{key}$, done! If $k \\ge \\text{next key}$, <b>go right</b>; if $k < \\text{next key}$, <b>drop down one level</b>.</li><li><b>Insert(k)</b>: Search to find the position of $k$ at level $0$, insert $k$ at level $0$, and flip a fair coin (`while FLIP() == 'heads'`): each `heads` promotes the node one level higher (`i++`) with probability $1/2$.</li><li><b>Delete(k)</b>: Find $k$ and splice it out of every level in which it appears.</li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-13-perfect",
+            "ag-13-find",
+            "ag-13-random"
+          ],
+          "figAt": {
+            "ag-13-perfect": 1,
+            "ag-13-find": 1,
+            "ag-13-random": 2
+          },
+          "figH": {
+            "ag-13-perfect": "A perfect skip list, built level by level",
+            "ag-13-find": "Find 71 and Find 96 (or any key), one comparison at a time",
+            "ag-13-random": "Randomized skip list: insert 87 with coin flips, delete 87, or try your own"
+          }
         },
         {
           "h": "Skip List vs. BST & Backwards Probabilistic Analysis (Slides 13.18–13.23)",
@@ -8775,7 +10177,16 @@ window.COURSES.algo = {
           ],
           "formula": [
             "Skip List Backwards Walk Recurrence: C(j) = 1 + 0.5·C(j−1) + 0.5·C(j)  ⇒  C(j) = 2j = 2 lg n = O(lg n)"
-          ]
+          ],
+          "fig": [
+            "ag-13-back"
+          ],
+          "figAt": {
+            "ag-13-back": 1
+          },
+          "figH": {
+            "ag-13-back": "Backwards analysis: reverse the search path, 2 steps per level"
+          }
         }
       ],
       "cards": [
@@ -8950,14 +10361,44 @@ window.COURSES.algo = {
               "15",
               "17 (Coins 1, 4, 6)"
             ]
-          ]
+          ],
+          "fig": [
+            "ag-14-fib",
+            "ag-14-coinrow",
+            "ag-14-binom"
+          ],
+          "figAt": {
+            "ag-14-fib": 0,
+            "ag-14-coinrow": 1,
+            "ag-14-binom": 2
+          },
+          "figH": {
+            "ag-14-fib": "Fibonacci: the top-down recursion tree repeats work, the bottom-up table does each value once",
+            "ag-14-coinrow": "Coin-row on 5, 1, 2, 10, 6, 2: F(0) … F(6) filled one by one, then the chosen coins",
+            "ag-14-binom": "C(6, 3) by DP: the Pascal table filled row by row"
+          }
         },
         {
           "h": "Robot Coin Collection & Longest Common Subsequence (LCS, Slides 14.16–14.30)",
           "pts": [
             "<b>3. Robot Coin Collection on an $n \\times m$ Board (Slides 14.16–14.19 & Final 2018 I Q6 / II Q9)</b>:<ul><li><b>Problem</b>: A robot starts at $(1, 1)$ and moves only <b>right</b> or <b>down</b> to $(n, m)$, collecting at most 1 coin per cell ($c_{ij} \\in \\{0, 1\\}$). Maximize total coins collected.</li><li><b>Recurrence</b>: $F[i, j] = \\max(F[i-1, j],\\; F[i, j-1]) + c_{ij}$ for $1 \\le i \\le n, 1 \\le j \\le m$, with $F[0, j] = F[i, 0] = 0$.</li><li><b>Complexity</b>: $\\mathbf{\\Theta(nm)}$ time and $\\mathbf{\\Theta(nm)}$ space! (Note from Lec 15 Slide 18: A greedy robot that just looks 1 step ahead fails because a local coin can trap the robot away from a rich row/column!)</li></ul>",
             "<b>4. Longest Common Subsequence (LCS, Slides 14.20–14.30 & Final 2016 Q5 / Final 5 Q5)</b>:<ul><li><b>Problem</b>: Given strings $A = a_1 \\dots a_m$ and $B = b_1 \\dots b_n$, find the longest subsequence present in both (not necessarily contiguous).</li><li><b>Slide Examples</b>: `\"president\"` & `\"providence\"` $\\rightarrow$ `\"priden\"` (length $6$); `\"algorithm\"` & `\"alignment\"` $\\rightarrow$ `\"algm\"` or `\"algt\"` or `\"alim\"` (length $4$).</li><li><b>Recurrence for `len[i, j]`</b>:<ul><li>If $i = 0$ or $j = 0$: $\\text{len}[i, j] = 0$.</li><li>If $a_i == b_j$: $\\text{len}[i, j] = \\text{len}[i-1, j-1] + 1$ (record arrow `↖`).</li><li>If $a_i \\ne b_j$: $\\text{len}[i, j] = \\max(\\text{len}[i-1, j],\\; \\text{len}[i, j-1])$ (record `↑` or `←`).</li></ul></li><li><b>Complexity</b>: Table construction takes $\\mathbf{O(mn)}$ time and $\\mathbf{O(mn)}$ memory; backtracing from $(m, n)$ to $(0, 0)$ takes $\\mathbf{O(m + n)}$ time.</li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-14-robot",
+            "ag-14-lcs-match",
+            "ag-14-lcs"
+          ],
+          "figAt": {
+            "ag-14-robot": 0,
+            "ag-14-lcs-match": 1,
+            "ag-14-lcs": 1
+          },
+          "figH": {
+            "ag-14-robot": "Robot coin collecting: F(i, j) on the slide's 5 × 6 board and the best path",
+            "ag-14-lcs-match": "Common subsequences drawn as non-crossing lines: president / providence and algorithm / alignment",
+            "ag-14-lcs": "LCS-Length table for president / providence with prev arrows, then Output-LCS prints priden"
+          }
         },
         {
           "h": "0/1 Knapsack by Dynamic Programming vs. Greedy (Slides 14.31–14.37)",
@@ -9021,7 +10462,18 @@ window.COURSES.algo = {
               "34 (Items 1,2,4)"
             ]
           ],
-          "fig": "algo-dp-sim"
+          "fig": [
+            "algo-dp-sim",
+            "ag-14-knap",
+            "ag-14-change"
+          ],
+          "figAt": {
+            "ag-14-knap": 0
+          },
+          "figH": {
+            "ag-14-knap": "0/1 knapsack, W = 5: V[i, j] filled cell by cell, then backtracing finds items {1, 2, 4}",
+            "ag-14-change": "Change-making by DP: c[p] (fewest coins) and s[p] (last coin) for n = 16, D = {1, 5, 12, 25}"
+          }
         }
       ],
       "cards": [
@@ -9193,14 +10645,47 @@ window.COURSES.algo = {
             "<b>Greedy Algorithms Principle (Slides 15.3 & Final 2021 Q36)</b>: A greedy algorithm works in phases, making the <b>locally optimal choice</b> at each step without regard for future consequences, hoping it leads to a <b>globally optimal solution</b>.",
             "<b>When Greedy Succeeds vs. Fails in Coin Changing (Slides 15.4–15.5 & Final 2 Q57–Q59)</b>:<ul><li><b>US Coins (`25¢, 10¢, 5¢, 1¢`)</b>: Greedy always produces the minimum number of coins (e.g., `$6.39 = $5 + $1 + 25¢ + 10¢ + 4×1¢`).</li><li><b>Slide 15.5 ”Krons” Counterexample (`1, 7, 10` krons for sum `15`)</b>: Greedy picks `10 + 1 + 1 + 1 + 1 + 1` (<b>6 coins</b>), whereas the optimal solution is `7 + 7 + 1` (<b>3 coins</b>)!</li><li><b>Final Exam Counterexample (`1, 3, 4` coins for sum `6`, Final 2 Q58)</b>: Greedy picks `4 + 1 + 1` (<b>3 coins</b>), whereas optimal is `3 + 3` (<b>2 coins</b>)! General Coin Change requires Dynamic Programming in $O(S \\cdot N)$ time (Final 2 Q59).</li></ul>",
             "<b>Multiprocessor Job Scheduling Counterexample (Slides 15.6–15.8)</b>: Given 9 jobs `[3, 5, 6, 10, 11, 14, 15, 18, 20]` on 3 processors:<ul><li><b>Longest-Job-First (LPT) Greedy</b>: Completion time = $18 + 11 + 6 = \\mathbf{35}$ min.</li><li><b>Shortest-Job-First (SPT) Greedy</b>: Completion time = $6 + 14 + 20 = \\mathbf{40}$ min.</li><li><b>Global Optimum</b> (`P1: 20+14=34`, `P2: 18+11+5=34`, `P3: 15+10+6+3=34`): Completion time = $\\mathbf{34}$ min (finding the exact optimum is NP-complete!).</li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-15-money",
+            "ag-15-sched"
+          ],
+          "figAt": {
+            "ag-15-money": 1,
+            "ag-15-sched": 2
+          },
+          "figH": {
+            "ag-15-money": "Counting money greedily: $6.39 in US money (optimal) and 15 krons with 1, 7, 10 coins (not optimal)",
+            "ag-15-sched": "Nine jobs on three processors: longest-first (35), shortest-first (40) and the optimum (34)"
+          }
         },
         {
           "h": "Where Greedy is Provably Optimal vs. Suboptimal (Slides 15.9–15.18)",
           "pts": [
             "<b>Where Greedy Succeeds (Optimal)</b>:<ul><li><b>1. Huffman Encoding (Slide 15.9)</b>: Repeatedly merge the two lowest-frequency symbols (`A:22, B:12, C:24, D:6, E:27, F:9` $\\to$ merges `D(6)+F(9)=15`, `B(12)+15=27`, `A(22)+C(24)=46`, `E(27)+27=54`, `46+54=100`, giving average length $2.42$ bits/char).</li><li><b>2. Minimum Spanning Tree (Prim's & Kruskal's, Slide 15.10)</b>: Always yields a minimum-weight spanning tree.</li><li><b>3. Dijkstra's Shortest Path on Non-Negative Weights (Slides 15.13–15.16)</b>: Always yields exact shortest paths from source $s$.</li><li><b>4. Connecting $n$ White and $n$ Black Collinear Dots (Slide 15.17)</b>: Pairing the leftmost unmatched white dot with the leftmost unmatched black dot is provably optimal.</li></ul>",
             "<b>Where Greedy Fails (Suboptimal)</b>:<ul><li><b>1. Traveling Salesman Problem (TSP, Slide 15.11)</b>: Nearest-neighbor greedy gets trapped into taking expensive return edges.</li><li><b>2. Robot Coin Collection on a Checkerboard (Slide 15.18)</b>: Looking only 1 step ahead misses richer paths further down/right (requires DP!).</li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-15-huffman",
+            "ag-15-mst",
+            "ag-15-wires",
+            "ag-15-tsp",
+            "ag-15-robots"
+          ],
+          "figAt": {
+            "ag-15-huffman": 0,
+            "ag-15-mst": 0,
+            "ag-15-wires": 0,
+            "ag-15-tsp": 1,
+            "ag-15-robots": 1
+          },
+          "figH": {
+            "ag-15-huffman": "Huffman encoding: combine the two smallest numbers until one tree is left, average 2.42 bits/char",
+            "ag-15-mst": "Minimum spanning tree: grow the tree by the cheapest edge to a new node, total 3+3+2+2+2 = 12",
+            "ag-15-wires": "Connecting white and black dots with the least wire",
+            "ag-15-tsp": "Greedy traveling salesman: nearest city first gives ABDBCE (16), the best route is ADBCE (14)",
+            "ag-15-robots": "Collecting all the coins on the checkerboard with the fewest right/down robots"
+          }
         }
       ],
       "cards": [
@@ -9346,7 +10831,16 @@ window.COURSES.algo = {
           "pts": [
             "<b>Graph Edge Bounds (Slide 16.2)</b>: In a directed or undirected graph $G = (V, E)$, $|E| = O(V^2)$. If $G$ is connected, $|E| \\ge |V| - 1$, which implies $\\lg |E| = \\Theta(\\lg V)$.",
             "<b>Adjacency Matrix vs. Adjacency List (Slides 16.3–16.7, Final 2021 Q19 & Final Summer Q11–Q12)</b>:<ul><li><b>Adjacency Matrix $A[1..n, 1..n]$</b>: Requires $\\mathbf{\\Theta(V^2)}$ storage ($n^2$ boolean/weight entries, e.g., $20^2 = 400$ entries for $|V|=20$, Final 2021 Q19). Ideal for <b>dense graphs</b>.</li><li><b>Adjacency List `Adj[v]`</b>: By the <b>Handshaking Lemma</b> ($\\sum_{v \\in V} \\deg(v) = 2|E|$ for undirected graphs; $\\sum_{v \\in V} \\text{out-deg}(v) = |E|$ for digraphs), adjacency lists use $\\mathbf{\\Theta(V + E)}$ storage. Ideal for <b>sparse graphs</b>.</li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-16-adj"
+          ],
+          "figAt": {
+            "ag-16-adj": 1
+          },
+          "figH": {
+            "ag-16-adj": "Adjacency matrix vs. adjacency lists for the slide's digraph, and the Handshaking Lemma"
+          }
         },
         {
           "h": "Minimum Spanning Trees: Optimal Substructure & Greedy-Choice Cut Property (Slides 16.8–16.25)",
@@ -9354,7 +10848,22 @@ window.COURSES.algo = {
             "<b>Minimum Spanning Tree (MST) Properties (Slides 16.8–16.9 & Final 2021 Q40)</b>: Given a connected undirected weighted graph $G = (V, E, w)$, an MST $T \\subseteq E$ is an <b>acyclic</b> subset connecting all $|V|$ vertices with minimum total weight $w(T) = \\sum_{(u,v) \\in T} w(u, v)$.<ul><li>Has <b>no cycles</b>.</li><li>Has <b>exactly $|V| - 1$ edges</b> (whereas creating a cyclic graph on $n$ vertices requires at least $n$ edges, Final 2021 Q3).</li><li>May <b>not be unique</b> if edge weights are not all distinct.</li></ul>",
             "<b>Optimal Substructure Proof (Cut-and-Paste, Slides 16.12–16.18)</b>: Removing any edge $(u, v) \\in T$ partitions $T$ into two subtrees $T_1, T_2$ over induced subgraphs $G_1, G_2$. Then $T_1$ must be an MST of $G_1$ (and $T_2$ of $G_2$), because if a lighter spanning tree $T'_1$ existed for $G_1$, then $T' = \\{(u, v)\\} \\cup T'_1 \\cup T_2$ would be a lighter spanning tree of $G$ than $T$—contradiction!",
             "<b>Greedy-Choice Property (Cut Theorem, Slides 16.20–16.25)</b>: Let $A \\subseteq V$ be any subset of vertices ($\\emptyset \\ne A \\ne V$), and let $(u, v)$ be a <b>minimum-weight (light) edge crossing the cut $(A, V - A)$</b>. Then $(u, v)$ belongs to some MST of $G$!<ul><li><b>Cut-and-Paste Proof</b>: Suppose MST $T$ does not contain $(u, v)$. Adding $(u, v)$ to $T$ creates a unique cycle that must cross the cut $(A, V - A)$ via at least one other edge $(x, y) \\in T$ with $w(u, v) \\le w(x, y)$. Removing $(x, y)$ yields a spanning tree $T' = T - \\{(x, y)\\} \\cup \\{(u, v)\\}$ with $w(T') = w(T) - w(x, y) + w(u, v) \\le w(T)$, so $T'$ is also an MST containing $(u, v)$!</li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-16-mst-example",
+            "ag-16-opt-sub",
+            "ag-16-cut-proof"
+          ],
+          "figAt": {
+            "ag-16-mst-example": 0,
+            "ag-16-opt-sub": 1,
+            "ag-16-cut-proof": 2
+          },
+          "figH": {
+            "ag-16-mst-example": "Example of an MST: the slide's graph and its minimum spanning tree, w(T) = 53",
+            "ag-16-opt-sub": "Optimal substructure: remove (u, v) from T, and each subtree must be an MST of its part (cut and paste)",
+            "ag-16-cut-proof": "Proof of the cut theorem: swap the light edge (u, v) into T along the u-to-v path"
+          }
         },
         {
           "h": "Prim's MST Algorithm & Priority Queue Complexity Analysis (Slides 16.26–16.52)",
@@ -9389,7 +10898,19 @@ window.COURSES.algo = {
             ]
           ],
           "code": "MST-PRIM(G, w, r)\n1  Q ← V[G]\n2  for each u ∈ Q\n3      do key[u] ← ∞\n4         π[u] ← NIL\n5  key[r] ← 0\n6  while Q ≠ ∅\n7      do u ← EXTRACT-MIN(Q)\n8         for each v ∈ Adj[u]\n9             do if v ∈ Q and w(u, v) < key[v]\n10                  then π[v] ← u\n11                       key[v] ← w(u, v)   // Implicit DECREASE-KEY",
-          "fig": "algo-graph-sim"
+          "fig": [
+            "algo-graph-sim",
+            "ag-16-prim",
+            "ag-16-prim-cost"
+          ],
+          "figAt": {
+            "ag-16-prim": 0,
+            "ag-16-prim-cost": 1
+          },
+          "figH": {
+            "ag-16-prim": "Prim's algorithm on the slide's graph: EXTRACT-MIN and key updates step by step (or your own weights and root)",
+            "ag-16-prim-cost": "Analysis of Prim: counting each line, then the cost with an array, a binary heap and a Fibonacci heap"
+          }
         }
       ],
       "cards": [
@@ -9563,7 +11084,25 @@ window.COURSES.algo = {
             "<b>Kruskal's MST Algorithm (Slides 17.18–17.23)</b>:<ul><li><b>Concept</b>: Maintains a <b>forest of trees</b> (initially each vertex is its own tree via `MAKE-SET(v)`). Sorts all edges in non-decreasing order of weight, and adds edge $(u, v)$ to $A$ iff `FIND-SET(u) ≠ FIND-SET(v)` (i.e., it does not form a cycle), then merges their trees via `UNION(u, v)`.</li><li><b>Complexity Breakdown (Slide 17.21)</b>: Initializing sets takes $O(V)$, sorting edges takes $O(E \\log E)$, and $O(E)$ Disjoint-Set operations take $O(E \\log V)$ (or $O(E \\alpha(V))$). Since $|E| \\le |V|^2 \\implies \\log E \\le 2 \\log V$, total running time is $\\mathbf{O(E \\log E) = O(E \\log V)}$.</li></ul>",
             "<b>Final 2021 Q17–Q18 & Final 2 Q33–Q34 Graph Trace (`A, B, C, D, E, F, G`)</b>:<ul><li>Edges: `(A,G)=1, (B,C)=1, (F,E)=1, (A,B)=2, (C,G)=4, (B,G)=3, (A,D)=3, (C,F)=3, (D,E)=5, (D,G)=5, (G,F)=6, (D,F)=4`.</li><li><b>Prim's Order starting at `A` (Q17)</b>: `(A,G)=1` $\\to$ `(A,B)=2` $\\to$ `(B,C)=1` $\\to$ `(A,D)=3` $\\to$ `(C,F)=3` $\\to$ `(F,E)=1` (<b>Choice b</b>!).</li><li><b>Kruskal's Global Sorted Edge Order (Q18)</b>: Picks all weight-1 edges first `(A,G)=1, (B,C)=1, (E,F)=1`, then weight-2 `(A,B)=2`, then weight-3 `(C,F)=3` and `(A,D)=3` (or `(D,F)=4`/`(D,E)`) (<b>Choice c</b>: `(A,G) then (B,C) then (E,F) then (A,B) then (C,F) then (D,E)`!).</li></ul>"
           ],
-          "code": "MST-KRUSKAL(G, w)\n1  A ← ∅\n2  for each vertex v ∈ V[G]\n3      do MAKE-SET(v)\n4  sort the edges of E into nondecreasing order by weight w\n5  for each edge (u, v) ∈ E, taken in nondecreasing order by weight\n6      do if FIND-SET(u) ≠ FIND-SET(v)\n7            then A ← A ∪ {(u, v)}\n8                 UNION(u, v)\n9  return A"
+          "code": "MST-KRUSKAL(G, w)\n1  A ← ∅\n2  for each vertex v ∈ V[G]\n3      do MAKE-SET(v)\n4  sort the edges of E into nondecreasing order by weight w\n5  for each edge (u, v) ∈ E, taken in nondecreasing order by weight\n6      do if FIND-SET(u) ≠ FIND-SET(v)\n7            then A ← A ∪ {(u, v)}\n8                 UNION(u, v)\n9  return A",
+          "fig": [
+            "ag-17-cut",
+            "ag-17-kruskal",
+            "ag-17-costs",
+            "ag-17-prim"
+          ],
+          "figAt": {
+            "ag-17-cut": 1,
+            "ag-17-kruskal": 1,
+            "ag-17-costs": 1,
+            "ag-17-prim": 2
+          },
+          "figH": {
+            "ag-17-cut": "Cuts and light edges: why the light edge crossing a cut that respects A is safe",
+            "ag-17-kruskal": "Kruskal's algorithm on the slide's graph: sorted edges, FIND-SET test and the growing forest (or your own graph)",
+            "ag-17-costs": "Running times of MST-KRUSKAL and PRIM, line by line",
+            "ag-17-prim": "Prim's algorithm on the same graph: keys, π and EXTRACT-MIN step by step, ending in the keys of slide 26 (or the exam graph from A)"
+          }
         },
         {
           "h": "Huffman Prefix Codes: Full Binary Tree Theorem & Optimality Proofs (Slides 17.28–17.46)",
@@ -9572,14 +11111,53 @@ window.COURSES.algo = {
             "<b>Proof of Greedy-Choice Property (Exchange Argument, Slides 17.38–17.42 & Midterm 2024 Retake Qc)</b>: Let $x, y$ be the two characters with lowest frequency, and let $a, b$ be sibling leaves of maximum depth in an arbitrary optimal tree $T$. Exchanging $a \\leftrightarrow x$ (forming $T'$) and $b \\leftrightarrow y$ (forming $T''$) gives $B(T) - B(T') = (f(a) - f(x))(d_T(a) - d_T(x)) \\ge 0$ since $f(a) \\ge f(x)$ and $d_T(a) \\ge d_T(x)$. Thus $B(T'') \\le B(T)$, so placing $x, y$ as sibling leaves at maximum depth is optimal!",
             "<b>Proof of Optimal Substructure (Slides 17.43–17.46)</b>: Merging $x, y$ into leaf $z$ with $f(z) = f(x) + f(y)$ yields tree $T'$ with $B(T) = B(T') + f(x) + f(y)$. If $T'$ were not optimal for $C' = C - \\{x, y\\} \\cup \\{z\\}$, replacing $T'$ with a better $T''$ would yield a tree for $C$ with cost $< B(T)$—contradiction!",
             "<b>Final Exam Workout (Final 2018 I Q5 & II Q8: `A=20, B=30, C=15, D=5, E=8, F=22`)</b>:<ul><li>1. Merge `D(5) + E(8) = DE(13)`.</li><li>2. Merge `DE(13) + C(15) = DEC(28)`.</li><li>3. Merge `A(20) + F(22) = AF(42)`.</li><li>4. Merge `DEC(28) + B(30) = DECB(58)`.</li><li>5. Merge `AF(42) + DECB(58) = Root(100)`.</li><li><b>Resulting Codewords</b> (`0` left, `1` right): `A = 00` (len 2), `F = 01` (len 2), `B = 11` (len 2), `C = 101` (len 3), `D = 1000` (len 4), `E = 1001` (len 4). Average bits = $(20\\cdot2 + 22\\cdot2 + 30\\cdot2 + 15\\cdot3 + 5\\cdot4 + 8\\cdot4)/100 = \\mathbf{2.41}$ bits/char!</li></ul>"
-          ]
+          ],
+          "fig": [
+            "ag-17-huffman",
+            "ag-17-full-trees",
+            "ag-17-huff-exchange",
+            "ag-17-huff-sub",
+            "ag-17-huffman-sim"
+          ],
+          "figAt": {
+            "ag-17-huffman": 0,
+            "ag-17-full-trees": 0,
+            "ag-17-huff-exchange": 1,
+            "ag-17-huff-sub": 2,
+            "ag-17-huffman-sim": 3
+          },
+          "figH": {
+            "ag-17-huffman": "Prefix codes, and the slide's Huffman tree built merge by merge",
+            "ag-17-full-trees": "Full binary trees for 1 to 5 letters: each new letter adds one leaf and one internal node",
+            "ag-17-huff-exchange": "Exchange argument: swap x and y down to the deepest sibling leaves without raising B(T)",
+            "ag-17-huff-sub": "Optimal substructure: B(T) = B(T′) + f[x] + f[y], with the numbers of the slide example",
+            "ag-17-huffman-sim": "HUFFMAN(C) step by step: the slide's alphabet, the Final 2018 alphabet, or your own"
+          }
         },
         {
           "h": "Activity Selection (Interval Scheduling, Slides 17.47–17.58)",
           "pts": [
             "<b>Activity Selection Problem (Slides 17.48–17.58)</b>: Given $n$ activities $S = \\{a_1, \\dots, a_n\\}$ with start and finish times $[s_i, f_i)$ sorted by finish time $f_1 \\le f_2 \\le \\dots \\le f_n$, find a maximum-size subset of mutually compatible activities ($f_i \\le s_j$ or $f_j \\le s_i$).",
             "<b>Greedy Choice</b>: Always pick the compatible activity $a_m$ with the <b>earliest finish time</b>! After sorting in $O(n \\log n)$, `GREEDY-ACTIVITY-SELECTOR` scans once in $\\mathbf{\\Theta(n)}$ time."
-          ]
+          ],
+          "fig": [
+            "ag-17-act-example",
+            "ag-17-act-dp",
+            "ag-17-act-proof",
+            "ag-17-act-greedy"
+          ],
+          "figAt": {
+            "ag-17-act-example": 0,
+            "ag-17-act-dp": 0,
+            "ag-17-act-proof": 1,
+            "ag-17-act-greedy": 1
+          },
+          "figH": {
+            "ag-17-act-example": "The slide's 12 activities and three different maximum compatible subsets",
+            "ag-17-act-dp": "Subproblems S<sub>ij</sub> and the recurrence c[i, j] = c[i, k] + c[k, j] + 1",
+            "ag-17-act-proof": "Why the earliest-finishing activity is safe: the exchange, and why S<sub>im</sub> is empty",
+            "ag-17-act-greedy": "GREEDY-ACTIVITY-SELECTOR on the slide's activities (or your own)"
+          }
         }
       ],
       "cards": [
@@ -9754,7 +11332,25 @@ window.COURSES.algo = {
             "<b>Optimal Substructure Theorem (Slides 18.5–18.7)</b>: <b>Every subpath of a shortest path is itself a shortest path!</b> (Proved by cut-and-paste: if a shorter subpath existed, splicing it in would produce a shorter overall path.)",
             "<b>Triangle Inequality Theorem (Slides 18.8–18.9)</b>: For all $u, v, x \\in V$, $\\delta(u, v) \\le \\delta(u, x) + \\delta(x, v)$.",
             "<b>Well-Definedness & Negative-Weight Cycles (Slides 18.10–18.11)</b>: If $G$ contains a <b>negative-weight cycle</b> reachable from $s$, then shortest paths are not well-defined ($\\delta(s, v) = -\\infty$ by traversing the negative cycle arbitrarily many times). <b>Dijkstra's algorithm requires all edge weights $w(u, v) \\ge 0$</b> and cannot detect negative-weight cycles (unlike Bellman-Ford and Floyd-Warshall, Final 2021 Q16 & Final 2022 Q32)."
-          ]
+          ],
+          "fig": [
+            "ag-18-path-weight",
+            "ag-18-cut-paste",
+            "ag-18-triangle",
+            "ag-18-neg-cycle"
+          ],
+          "figAt": {
+            "ag-18-path-weight": 0,
+            "ag-18-cut-paste": 1,
+            "ag-18-triangle": 2,
+            "ag-18-neg-cycle": 3
+          },
+          "figH": {
+            "ag-18-path-weight": "Weight of a path: w(p) = 4 + (−2) + (−5) + 1 = −2",
+            "ag-18-cut-paste": "Optimal substructure: the cut-and-paste proof",
+            "ag-18-triangle": "Triangle inequality: δ(u, v) ≤ δ(u, x) + δ(x, v)",
+            "ag-18-neg-cycle": "A negative-weight cycle makes δ(u, v) = −∞"
+          }
         },
         {
           "h": "Dijkstra's Algorithm, Slide Trace & 3-Part Correctness Proof (Slides 18.13–18.42)",
@@ -9770,6 +11366,27 @@ window.COURSES.algo = {
             "type": "dijkstra",
             "title": "Lecture 18 Slide 18.16: Dijkstra's Algorithm on {A, B, C, D, E}",
             "preset": "lec18"
+          },
+          "fig": [
+            "ag-18-dijkstra",
+            "ag-18-lemmas",
+            "ag-18-proof",
+            "ag-18-analysis",
+            "ag-18-bfs"
+          ],
+          "figAt": {
+            "ag-18-dijkstra": 1,
+            "ag-18-lemmas": 2,
+            "ag-18-proof": 2,
+            "ag-18-analysis": 3,
+            "ag-18-bfs": 4
+          },
+          "figH": {
+            "ag-18-dijkstra": "Dijkstra on the slide graph: EXTRACT-MIN and relaxation step by step",
+            "ag-18-lemmas": "Correctness parts I and II: the two lemmas",
+            "ag-18-proof": "Correctness part III: why u cannot be the first wrong vertex",
+            "ag-18-analysis": "Analysis: |V| EXTRACT-MINs, Θ(E) DECREASE-KEYs, and the three queues",
+            "ag-18-bfs": "Breadth-first search on the slide graph with a FIFO queue"
           }
         }
       ],
@@ -10069,11 +11686,23 @@ window.COURSES.algo = {
               ""
             ]
           ],
-          "fig": "algo-graph-sim",
+          "fig": [
+            "algo-graph-sim",
+            "ag-19-table",
+            "ag-19-paths"
+          ],
           "viz": {
             "type": "dijkstra",
             "title": "Lecture 19 & Final 2019 Q7: Dijkstra Table Trace on {A, B, C, D, E, F, G}",
             "preset": "lec19"
+          },
+          "figAt": {
+            "ag-19-table": 2,
+            "ag-19-paths": 3
+          },
+          "figH": {
+            "ag-19-table": "The exam table filled row by row: one EXTRACT-MIN per row, PARENT on top",
+            "ag-19-paths": "Reading the shortest paths back through PARENT"
           }
         }
       ],
@@ -10231,7 +11860,28 @@ window.COURSES.algo = {
               "3.04 × 10⁶⁴ / 9.33 × 10¹⁵⁷",
               "Physically impossible"
             ]
-          ]
+          ],
+          "fig": [
+            "ag-20-bounds",
+            "ag-20-growth",
+            "ag-20-isprime",
+            "ag-20-tsp",
+            "ag-20-clique"
+          ],
+          "figAt": {
+            "ag-20-bounds": 0,
+            "ag-20-growth": 1,
+            "ag-20-isprime": 1,
+            "ag-20-tsp": 2,
+            "ag-20-clique": 2
+          },
+          "figH": {
+            "ag-20-bounds": "Big-O, Big-Omega and Theta: where c·g(n) bounds f(n) from n<sub>0</sub> on",
+            "ag-20-growth": "Complexity vs input length: polynomial against exponential growth",
+            "ag-20-isprime": "IsPrime(12) ⇒ No and IsPrime(1009) ⇒ Yes by trial division",
+            "ag-20-tsp": "TSP: the three tours of the slide's 4-city graph (OPT = 13) and the N! search space",
+            "ag-20-clique": "CLIQUE on the slide's graph: cliques of size 4 and 5, verifying a set, brute force over k-subsets"
+          }
         },
         {
           "h": "NP-Hard, NP-Complete, Reductions & 3-CNF SAT → CLIQUE (Slides 20.21–20.36)",
@@ -10240,7 +11890,25 @@ window.COURSES.algo = {
             "<b>Polynomial-Time Reduction $R \\le_P Q$ (Slides 20.25–20.26)</b>: Problem $R$ reduces to $Q$ if any instance of $R$ can be transformed in polynomial time into an instance of $Q$ whose solution gives the solution to $R$ (meaning $R$ is ”no harder than” $Q$). Elementary example: $\\text{LCM}(m, n) = \\frac{m \\cdot n}{\\text{GCD}(m, n)}$ reduces LCM to GCD.",
             "<b>SAT & Reducing `3-CNF SAT` to `CLIQUE` (Slides 20.27–20.36)</b>:<ul><li><b>SAT (Cook-Levin Theorem)</b>: First known NP-complete problem! Determines whether the variables of a Boolean formula can be assigned `TRUE`/`FALSE` to make the formula evaluate to `TRUE`.<ul><li>Slide 20.28 Example: $(a \\lor b) \\land (a \\lor \\neg b)$ is satisfiable by setting $a = \\text{TRUE}$.</li></ul></li><li><b>Polynomial-Time Reduction Construction (`3-CNF SAT` with $k$ clauses $\\le_P$ `k-CLIQUE`, Slides 20.30–20.36)</b>:<ul><li><b>1. Vertices</b>: For each of the $k$ clauses, create one vertex for each literal in that clause ($3k$ vertices total, partitioned into $k$ groups/triples).</li><li><b>2. Edges</b>: Connect two vertices $(u, v)$ by an edge <b>if and only if</b> (a) they belong to <b>different clauses</b>, AND (b) their literals are <b>consistent (not negations of each other)</b>, i.e., $u \\ne \\neg v$ (since $x_i$ and $\\neg x_i$ cannot both be true!).</li><li><b>3. Correctness</b>: The formula is satisfiable $\\iff$ each clause has at least one `TRUE` literal $\\iff$ the $k$ chosen `TRUE` literals (one per clause) have no contradictions and are all mutually connected, forming a <b>Clique of size $k$</b>!</li></ul></li></ul>"
           ],
-          "fig": "algo-np-sim"
+          "fig": [
+            "algo-np-sim",
+            "ag-20-classes",
+            "ag-20-reduce",
+            "ag-20-sat",
+            "ag-20-cnf-clique"
+          ],
+          "figAt": {
+            "ag-20-classes": 0,
+            "ag-20-reduce": 1,
+            "ag-20-sat": 2,
+            "ag-20-cnf-clique": 2
+          },
+          "figH": {
+            "ag-20-classes": "P vs NP, NP-hard and NP-complete as region diagrams, and the summary table",
+            "ag-20-reduce": "Reduction: LCM(m, n) solved through GCD(m, n), and linear to quadratic",
+            "ag-20-sat": "SAT: the slides' formulas with their truth tables, set the variables yourself",
+            "ag-20-cnf-clique": "3-CNF SAT to CLIQUE: build the graph for the slide's formula, a 3-clique gives a satisfying assignment"
+          }
         }
       ],
       "cards": [

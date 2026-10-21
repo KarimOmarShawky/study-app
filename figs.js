@@ -15,9 +15,9 @@
 .fig-cap .ar{ display:block; direction:rtl; text-align:right; color:var(--graphite); margin-top:4px; font-family:"IBM Plex Sans Arabic", var(--body); }
 .fig-bar{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:0 14px 12px; }
 .fig-bar .grow{ flex:1; }
-.fig-dots{ display:flex; gap:6px; } .fig-dots i{ width:8px; height:8px; border-radius:50%; background:var(--line); } .fig-dots i.on{ background:var(--k-hci); }
+.fig-dots{ display:flex; gap:6px; } .fig-dots i{ width:8px; height:8px; border-radius:50%; background:var(--line); } .fig-dots i.on{ background:var(--fig-k, var(--k-hci)); }
 .fig-btn{ font:inherit; font-size:.88rem; padding:6px 12px; border-radius:99px; border:1px solid var(--line); background:var(--paper); color:var(--ink); cursor:pointer; min-height:32px; }
-.fig-btn:hover{ border-color:var(--k-hci); } .fig-btn.solid{ background:var(--s-hci); color:#fff; border-color:transparent; }
+.fig-btn:hover{ border-color:var(--fig-k, var(--k-hci)); } .fig-btn.solid{ background:var(--fig-s, var(--s-hci)); color:#fff; border-color:transparent; }
 .fig .pop{ transition:opacity .5s ease, transform .5s ease; } .fig .pop.off{ opacity:0; transform:translateY(6px); }
 .fig .fade{ transition:opacity .9s ease; }
 .fig .flow{ stroke-dasharray:6 7; animation:figflow 1.1s linear infinite; }
@@ -847,7 +847,21 @@
   window.STUDY_SIM = { buildSortTrace, parseSortInput, buildRbtSnapshots, solveCpu, solvePages, solveMemory, solveDisk };
   // Embedded figures reuse the same concept models as the standalone laboratory.
   const concept = id => () => html`<${window.TOPICS.Embed} id=${id}/>`;
-  window.FIGS = {
+  // a timer for timed activities, and a ref that shrinks its element's text until it fits the width (wide tables on phones)
+  function useClock() {
+    const [t0, setT0] = useState(null), [now, setNow] = useState(0);
+    useEffect(() => { if (t0 == null) return; const id = setInterval(() => setNow(performance.now()), 100); return () => clearInterval(id); }, [t0]);
+    return { start: () => { const t = performance.now(); setT0(t); setNow(t); }, stop: () => { const s = (performance.now() - t0) / 1000; setT0(null); return s; }, running: t0 != null, secs: t0 == null ? 0 : (now - t0) / 1000 };
+  }
+  const sec = x => x.toFixed(1) + ' s';
+  function useFit(dep) {
+    const ref = useRef(null);
+    React.useLayoutEffect(() => { const el = ref.current; if (!el) return; el.style.fontSize = ''; let fs = parseFloat(getComputedStyle(el).fontSize); while (el.scrollWidth > el.clientWidth + 1 && fs > 7) { fs -= .5; el.style.fontSize = fs + 'px'; } }, [dep]);
+    return ref;
+  }
+  // the toolkit the per-course visuals files (figs-ag.js) build on
+  window.FIGKIT = { html, useSteps, Cap, Bar, pop, calm, useClock, useFit, sec };
+  window.FIGS = Object.assign(window.FIGS || {}, {
     'hci-parts': HciParts, 'invisible-interface': Invisible, elevator: Elevator,
     vending: Vending, truckers: Truckers, 'id-umbrella': Umbrella,
     'os-rag': OsRag, 'os-mem-fit': OsMemoryFit, 'os-disk-arm': OsDiskArm,
@@ -857,5 +871,5 @@
     'algo-dp-sim': concept('dp'), 'algo-graph-sim': concept('paths'),
     'algo-np-sim': concept('reduction'), 'algo-bit-sim': concept('bits'),
     'algo-studio': () => html`<${window.TOPICS.Studio}/>`
-  };
+  });
 })();

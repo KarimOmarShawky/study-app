@@ -134,7 +134,7 @@ function start() {
   }
 
   /* ── data helpers ── */
-  const strip = s => String(s == null ? '' : s).replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+  const strip = s => String(s == null ? '' : s).replace(/<\/?(?:i|b|sub|sup|span|code|em|strong)\b[^>]*>/g, '').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
   const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const isExam = q => !!q.src && /^(exam|midterm)\b/i.test(q.src);
   const memo = {};
@@ -1020,19 +1020,37 @@ function start() {
     return html`<${window.VIZ.Viz} spec=${spec} ar=${ar} onAnswer=${onAnswer} />`;
   }
   // a lecture's own picture as an animation or a small hands-on version (figs.js, copied to data/, fetched when first needed)
+  // a section's points split into runs, each followed by the visuals that s.figAt places after its last point (name → point index)
+  function figRuns(s) {
+    const at = s.figAt || {}, runs = [{ pts: [], figs: [] }];
+    s.pts.forEach((_, j) => {
+      const figs = [].concat(s.fig || []).filter(n => at[n] === j);
+      runs[runs.length - 1].pts.push(j);
+      if (figs.length) { runs[runs.length - 1].figs = figs; if (j < s.pts.length - 1) runs.push({ pts: [], figs: [] }); }
+    });
+    return runs;
+  }
+  // a visual with the headline its section gives it in s.figH
+  const figWithHead = (s, n, ar) => html`<${React.Fragment} key=${n}>
+    ${s.figH && s.figH[n] && html`<p className="fighead" dangerouslySetInnerHTML=${{ __html: s.figH[n] }}></p>`}
+    <${FigBlock} name=${n} ar=${ar} /></${React.Fragment}>`;
   function FigBlock({ name, ar }) {
     const needsTopics = /^(algo-|os-cpu-sim$|os-page-sim$)/.test(name);
-    const [ready, setReady] = useState(() => !!window.FIGS && (!needsTopics || !!window.TOPICS));
+    // names like 'ag-…' live in figs-ag.js, which builds on figs.js (window.FIGKIT)
+    const extra = /^([a-z]+)-/.exec(name), file = extra && ['ag'].includes(extra[1]) ? 'figs-' + extra[1] : null;
+    const files = ['figs'].concat(needsTopics ? ['topics'] : [], file ? [file] : []);
+    const [ready, setReady] = useState(() => !!(window.FIGS && window.FIGS[name]) && (!needsTopics || !!window.TOPICS));
     const [failed, setFailed] = useState(false);
     useEffect(() => {
+      if (ready) return;
       let live = true;
-      const files = needsTopics ? ['figs', 'topics'] : ['figs'];
-      Promise.all(files.map(f => loadScript(dataUrl(f)))).then(() => { if (live) setReady(true); }, () => { if (live) setFailed(true); });
+      // figs.js first: the per-course files use the FIGKIT it defines
+      loadScript(dataUrl('figs')).then(() => Promise.all(files.slice(1).map(f => loadScript(dataUrl(f))))).then(() => { if (live) setReady(true); }, () => { if (live) setFailed(true); });
       return () => { live = false; };
     }, [name]);
     if (failed) return html`<p className="muted small">The visual didn't load. Check your connection and refresh.</p>`;
     if (!ready || !window.FIGS || (needsTopics && !window.TOPICS)) return html`<div className="vz vz-wait" style=${{ height: '200px' }} aria-hidden="true"></div>`;
-    const F = window.FIGS[name]; return F ? html`<${F} ar=${ar} />` : html`<p className="vz-errmsg" role="alert">The visual “${name}” is not available.</p>`;
+    const F = window.FIGS[name]; return F ? html`<div data-fig=${name}><${F} ar=${ar} /></div>` : html`<p className="vz-errmsg" role="alert">The visual “${name}” is not available.</p>`;
   }
   // past papers: a trace question can be worked through as a diagram, before or after revealing the model answer
   function WatchSolved({ spec, ar, k }) {
@@ -1070,9 +1088,11 @@ function start() {
             </table></div>`}
             ${s.code && html`<pre className="code" data-hl="" dangerouslySetInnerHTML=${{ __html: codeHtml(Array.isArray(s.code) ? s.code.join('\n') : s.code) }}></pre>`}
             ${s.callout && html`<div className="callout" dangerouslySetInnerHTML=${{ __html: s.callout }}></div>`}
-            ${s.pts && html`<ul>${s.pts.map((p, j) => html`<li key=${j}><span dangerouslySetInnerHTML=${{ __html: p }}></span><${Ar} t=${an && an.pts && an.pts[j]} /></li>`)}</ul>`}
+            ${s.pts && figRuns(s).map((r, ri) => html`<${React.Fragment} key=${ri}>
+              <ul>${r.pts.map(j => html`<li key=${j}><span dangerouslySetInnerHTML=${{ __html: s.pts[j] }}></span><${Ar} t=${an && an.pts && an.pts[j]} /></li>`)}</ul>
+              ${r.figs.map(n => figWithHead(s, n, !!arL))}</${React.Fragment}>`)}
             ${s.viz && html`<${VizBlock} spec=${s.viz} ar=${!!arL} k=${k} />`}
-            ${s.fig && html`<${FigBlock} name=${s.fig} ar=${!!arL} />`}
+            ${[].concat(s.fig || []).filter(n => !s.pts || !(s.figAt && s.figAt[n] < s.pts.length)).map(n => figWithHead(s, n, !!arL))}
           </section>`; }), [lec, arL]);
     const toggleRead = () => setRead(r => r.includes(lec.n) ? r.filter(x => x !== lec.n) : r.concat(lec.n));
     const setPref = patch => setPrefs(p => Object.assign({}, p, patch));
@@ -1449,6 +1469,8 @@ function start() {
   }
 
   /* ════════════ Q&A ════════════ */
+  // Q&A text written with HTML tags (and the math tex.mjs makes) is shown as HTML; plain text stays text, so a "<" in it is safe
+  const Rich = ({ t }) => /<\/?[a-z][^<>]*>/i.test(t || '') ? html`<span dangerouslySetInnerHTML=${{ __html: t }}></span>` : t;
   function Ask({ k, startLec }) {
     const c = C[k];
     const [lec, setLec] = useState(startLec || 'all');
@@ -1470,9 +1492,9 @@ function start() {
           ${lecs.map(l => html`<section key=${l.n} className="askgroup">
             <h3><span className="sec">L${l.n}</span>${l.title}</h3>
             ${l.qa.map((x, i) => { const id = l.n + '-' + i; return html`<div key=${id} className="askitem">
-              <div className="askq"><span className="qn">Q${i + 1}</span><p>${x[0]}${x[2] && html` <span className="srcbadge summary" title=${x[2]}>Student summary</span>`}</p>
+              <div className="askq"><span className="qn">Q${i + 1}</span><p><${Rich} t=${x[0]} />${x[2] && html` <span className="srcbadge summary" title=${x[2]}>Student summary</span>`}</p>
                 <button className="linkbtn" aria-expanded=${String(!!open[id])} onClick=${() => setOpen(o => Object.assign({}, o, { [id]: !o[id] }))}>${open[id] ? 'Hide' : 'Show answer'}</button></div>
-              ${open[id] && html`<div className="askans">${x[1]}<${Ar} t=${(arLec(k, l.n) || {}).qa && arLec(k, l.n).qa[i]} /></div>`}
+              ${open[id] && html`<div className="askans"><${Rich} t=${x[1]} /><${Ar} t=${(arLec(k, l.n) || {}).qa && arLec(k, l.n).qa[i]} /></div>`}
             </div>`; })}
           </section>`)}
         </div>

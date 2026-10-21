@@ -103,3 +103,21 @@ node tests/browser-smoke.cjs
 
 Set `CHROMIUM_EXECUTABLE` to use an existing Chromium binary. Test packages and
 build outputs are not part of the deployed source.
+
+## Slide visuals (Algorithms)
+
+`figs-ag.js` holds 180 visuals for the 20 Algorithms lectures (names `ag-<lecture>-…`), each redrawing a figure or
+working through an example from Dr. Basheer's slides: step-throughs with Back/Next and a caption per step, and
+simulators with "Example from the slides" plus "Try your own". It builds on `window.FIGKIT` from `figs.js`;
+`build.mjs` copies it to `data/` and `app.js` loads it only when a lecture that uses it is opened.
+
+A note section lists its visuals in `fig` (a name or a list), places each under a point with
+`figAt: { name: pointIndex }` (missing = end of the section), and gives it a headline with `figH: { name: 'headline' }`.
+Where a slide has a mistake, the visual shows the correct value and its caption says what the slide printed.
+
+## Math in the notes
+
+The Algorithms course is written with LaTeX math (`$\Theta(n^2)$`, `$$…$$` for display, `\$` for a dollar sign) and
+Markdown `code` spans. `build.mjs` turns them into plain HTML with `tex.mjs` (Θ, ≤, sub/superscripts, stacked
+fractions, matrices), so the page needs no math library. It runs only for the courses listed in `TEX` in `build.mjs`
+(not OS, where `$` is a shell prompt) and skips `code` and `formula` fields. Unknown commands are reported by the build.

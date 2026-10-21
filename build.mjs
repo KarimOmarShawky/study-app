@@ -4,6 +4,7 @@
 // Run: node build.mjs
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs';
 import vm from 'node:vm';
+import { texCourse, texUnknown } from './tex.mjs';
 
 const BASE_SOURCES = ['os', 'algo', 'swe', 'files', 'sad', 'dbms'];
 const extraInCourses = existsSync('courses')
@@ -137,6 +138,12 @@ function trackSummary(sessions, meta = {}) {
 }
 
 mkdirSync('data', { recursive: true });
+// courses written with LaTeX math ($…$) and Markdown `code`: turned into plain HTML here, so the page shows Θ(n²) instead of $\\Theta(n^2)$
+// (not the OS course, where $ is a shell prompt)
+const TEX = ['algo'];
+for (const id of TEX) if (COURSES[id]) texCourse(COURSES[id]);
+if (texUnknown.size) console.warn('tex.mjs: unknown LaTeX commands left as text:', [...texUnknown].join(', '));
+
 const manifest = {};
 for (const [id, c] of Object.entries(COURSES)) {
   const json = JSON.stringify(c);
@@ -173,7 +180,7 @@ for (const id of Object.keys(COURSES)) {
   manifest[id].ar = 1;
   console.log(`data/ar-${id}.js`.padEnd(20), (json.length / 1024).toFixed(0).padStart(5), 'KB');
 }
-for (const aux of ['viz', 'figs', 'topics']) {
+for (const aux of ['viz', 'figs', 'topics', 'figs-ag']) {
   if (!existsSync(`${aux}.js`)) continue;
   const src = readFileSync(`${aux}.js`, 'utf8');
   writeFileSync(`data/${aux}.js`, src);

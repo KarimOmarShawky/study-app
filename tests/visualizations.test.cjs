@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const ctx = { console, React: {}, htm: { bind: () => () => null }, document: { getElementById: () => true } };
 ctx.window = ctx;
 vm.createContext(ctx);
-for (const f of ['figs.js', 'viz.js']) vm.runInContext(fs.readFileSync(f, 'utf8'), ctx, { filename: f });
+for (const f of ['figs.js', 'figs-ag.js', 'viz.js']) vm.runInContext(fs.readFileSync(f, 'utf8'), ctx, { filename: f });
 const { buildSortTrace, solveMemory, solveDisk } = ctx.STUDY_SIM;
 const clean = a => JSON.parse(JSON.stringify(a));
 const values = f => f.items.filter(i => i.k === 'val').sort((a, b) => a.x - b.x).map(i => +i.t);
@@ -15,7 +15,9 @@ test('every declared figure is registered, including previously missing OS labs'
   const files = ['app.js', ...fs.readdirSync('courses').map(f => 'courses/' + f)];
   const names = new Set();
   for (const f of files) for (const m of fs.readFileSync(f, 'utf8').matchAll(/(?:["']?fig["']?:\s*|name=)["']([a-z0-9-]+)["']/g)) names.add(m[1]);
-  for (const name of names) if (/^(os-|algo-|hci-|invisible-|elevator|vending|truckers|id-)/.test(name)) assert.equal(typeof ctx.FIGS[name], 'function', name);
+  // a section can also list several visuals: "fig": ["algo-sort-sim", "ag-1-…"]
+  for (const f of files) for (const m of fs.readFileSync(f, 'utf8').matchAll(/["']?fig["']?:\s*\[([^\]]*)\]/g)) for (const n of m[1].matchAll(/["']([a-z0-9-]+)["']/g)) names.add(n[1]);
+  for (const name of names) if (/^(os-|algo-|ag-|hci-|invisible-|elevator|vending|truckers|id-)/.test(name)) assert.equal(typeof ctx.FIGS[name], 'function', name);
 });
 
 test('sorting engines agree with numeric sort for signed, repeated and singleton keys', () => {

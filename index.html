@@ -481,6 +481,21 @@ code, pre, kbd, .formula{ font-variant-ligatures:none; font-feature-settings:"li
 /* animated diagrams (viz.js): stage, caption, controls */
 .vz{ text-align:left; margin:14px 0 20px; border:1px solid var(--line); border-radius:var(--radius-sm); background:var(--paper); overflow:hidden; }
 .vz-wait{ height:240px; background:var(--paper-2); }
+/* math from the courses' LaTeX (tex.mjs): italic variables, stacked fractions, matrices */
+.m{ white-space:normal; } .m i{ font-family:"Cambria Math","STIX Two Math","Times New Roman",serif; font-size:1.08em; padding-right:.04em; }
+.m .m-fn, .m .m-tx{ font-style:normal; }
+.m sub, .m sup{ font-size:.72em; line-height:0; }
+.m-fr{ display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; font-size:.88em; line-height:1.2; margin:0 .12em; }
+.m-fr > span:first-child{ border-bottom:1px solid currentColor; padding:0 .15em .05em; } .m-fr > span:last-child{ padding:.05em .15em 0; }
+.m-bn > span:first-child{ border-bottom:0; }
+.m-sq{ border-top:1px solid currentColor; padding:0 .1em; }
+.m-ov{ border-top:1px solid currentColor; }
+.m-op{ display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; line-height:1; margin:0 .1em; } .m-op .m-ol{ font-size:.7em; } .m-op .m-ob{ font-size:1.15em; }
+.m-mx{ display:inline-grid; vertical-align:middle; column-gap:.7em; row-gap:.1em; padding:.1em .45em; margin:0 .15em; text-align:center; line-height:1.25; border-left:1.5px solid currentColor; border-right:1.5px solid currentColor; }
+.m-pm{ border-radius:.7em; } .m-bm{ border-radius:2px; } .m-vm{ border-radius:0; }
+.m-cs{ border-right:0; border-radius:.6em 0 0 .6em; text-align:left; }
+.m-d{ display:block; text-align:center; margin:.6em 0; }
+.fighead{ margin:20px 0 8px; font-weight:700; font-size:1rem; line-height:1.4; color:var(--ink); }
 .vz-stage{ padding:14px 10px 8px; background:var(--paper-2); overflow-x:auto; }
 .vz-stage svg{ width:100%; height:auto; display:block; margin:0 auto; font-family:var(--mono); font-size:15px; font-variant-ligatures:none; }
 .vz text{ fill:var(--ink); } .vz text.muted{ fill:var(--faint); font-size:12px; }
