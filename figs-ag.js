@@ -3118,7 +3118,7 @@
     let cap;
     if (i === 0) cap = mode === 'slide' ? 'If data is random it does not matter which table size we pick. But when data is not random, strange things happen. Keys 10, 20, 30, 40, 50 into a table of size 4 and a table of the prime size 7.' : `Your keys into a table of size ${S.a} and one of size ${S.b}. Press Next to place them one by one.`;
     else if (i <= S.keys.length) { const k = S.keys[i - 1]; cap = `${k} mod ${S.a} = <b>${k % S.a}</b> and ${k} mod ${S.b} = <b>${k % S.b}</b>.`; }
-    else cap = mode === 'slide' ? 'With mod 4, of the possible values 0, 1, 2, 3 only <b>0 and 2</b> are used, so they collide: that is bad. With the prime 7 the keys land in 3, 6, 2, 4, 1: <b>no collisions</b>.' : `Size ${S.a}${isP(S.a) ? ' (prime)' : ''} uses ${used(S.a)} of ${S.a} slots; size ${S.b}${isP(S.b) ? ' (prime)' : ''} uses ${used(S.b)} of ${S.b} slots for ${S.keys.length} keys.`;
+    else cap = mode === 'slide' ? 'With mod 4, of the possible values 0, 1, 2, 3 only <b>0 and 2</b> are used, so they collide: that is bad. With the prime 7 the keys land in 3, 6, 2, 5, 1: <b>no collisions</b> (the slide shows 4 for 40, but 40 mod 7 = 5).' : `Size ${S.a}${isP(S.a) ? ' (prime)' : ''} uses ${used(S.a)} of ${S.a} slots; size ${S.b}${isP(S.b) ? ' (prime)' : ''} uses ${used(S.b)} of ${S.b} slots for ${S.keys.length} keys.`;
     const marks = m => { if (i < 1 || i > S.keys.length) return {}; const k = S.keys[i - 1], j = k % m, T = tbl(m); return { [j]: { labs: [], st: '', cls: T[j] && T[j].includes(',') ? 'bad' : 'ok' } }; };
     return Fig(html`<${Tabs} opts=${[['slide', 'Example from the slides'], ['own', 'Try your own']]} v=${mode} set=${setMode} />
       ${mode === 'own' ? html`<div className="a8-form"><label>Keys <input className="w" value=${kt} onInput=${e => setKt(e.target.value)} aria-label="Keys" /></label><label>n₁ <input className="n" type="number" min="2" max="12" value=${at} onInput=${e => setAt(e.target.value)} aria-label="First table size" /></label><label>n₂ <input className="n" type="number" min="2" max="12" value=${bt} onInput=${e => setBt(e.target.value)} aria-label="Second table size" /></label></div>${err ? html`<div className="a8-err">${err}</div>` : null}` : null}
@@ -7334,4 +7334,638 @@
   }
 
   window.FIGS = Object.assign(window.FIGS || {}, { 'ag-13-perfect': Perfect, 'ag-13-find': Find, 'ag-13-random': Randomized, 'ag-13-back': Backwards });
+})();
+/* ── part L8b ── */
+// Algorithms visuals, Lecture 8 (Hashing), prerequisite visuals for the rebuilt notes:
+// from a key to a slot (string key -> number -> k mod m, a collision, pigeonhole) and the cost of every insertion into a doubling table (slides 20-23) as bars.
+(function () {
+  const { useState, useEffect, useRef, useMemo } = React;
+  const { html, useSteps, Cap, Bar, pop, calm, useClock, useFit, sec } = window.FIGKIT;
+  const CSS = `
+.a8b .fig-stage sub, .a8b .fig-stage sup{ font-size:max(.8em, 12px); line-height:0; }
+.a8b-tbl{ display:grid; grid-template-columns:repeat(6, minmax(0,1fr)); gap:4px; max-width:360px; margin:6px auto 0; }
+.a8b-cell{ border:1px solid var(--line); border-radius:4px; background:var(--paper); min-height:44px; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:2px 0; font-size:13px; color:var(--ink); transition:background .4s, box-shadow .4s; }
+.a8b-cell i{ font-style:normal; color:var(--graphite); font-size:12px; }
+.a8b-cell b{ font-size:13px; line-height:1.25; }
+.a8b-cell.on{ background:color-mix(in srgb, var(--fig-k) 22%, var(--paper)); }
+.a8b-cell.hit{ box-shadow:0 0 0 2px var(--fig-k); }
+.a8b-cell.bad{ box-shadow:0 0 0 2px var(--pen); }
+.a8b-calc{ text-align:center; font-size:14px; color:var(--ink); margin:4px 0 8px; line-height:1.6; min-height:46px; }
+.a8b-calc .a8b-ch{ display:inline-block; border:1px solid var(--line); border-radius:4px; padding:0 5px; margin:0 2px; background:var(--paper-2); }
+.a8b-chart{ width:100%; max-width:380px; display:block; margin:0 auto; }
+.a8b-chart text{ fill:var(--ink); font-size:16px; }
+.a8b-chart .a8b-ax{ stroke:var(--line); stroke-width:1.5; }
+.a8b-chart .a8b-bar{ fill:color-mix(in srgb, var(--fig-k) 35%, var(--paper)); stroke:var(--fig-k); stroke-width:1; transition:opacity .3s; }
+.a8b-chart .a8b-bar.cp{ fill:color-mix(in srgb, var(--pen) 30%, var(--paper)); stroke:var(--pen); }
+.a8b-chart .a8b-bar.cur{ stroke-width:3; }
+.a8b-chart .a8b-dim{ fill:var(--graphite); font-size:16px; }
+.a8b-stat{ display:flex; flex-wrap:wrap; gap:4px 14px; justify-content:center; font-size:14px; color:var(--ink); margin:6px 0 0; }
+.a8b-stat span b{ color:var(--fig-k); }
+.a8b-leg{ display:flex; flex-wrap:wrap; gap:4px 14px; justify-content:center; font-size:14px; color:var(--graphite); margin:4px 0 0; }
+.a8b-leg i{ display:inline-block; width:13px; height:11px; border-radius:2px; vertical-align:-1px; margin-right:4px; border:1px solid var(--fig-k); background:color-mix(in srgb, var(--fig-k) 35%, var(--paper)); }
+.a8b-leg i.cp{ border-color:var(--pen); background:color-mix(in srgb, var(--pen) 30%, var(--paper)); }
+`;
+  if (!document.getElementById('a8b-css')) { const s = document.createElement('style'); s.id = 'a8b-css'; s.textContent = CSS; document.head.appendChild(s); }
+  const Fig = (kids, cap, bar, label) => html`<figure className="fig a8b"><div className="fig-stage" role="group" aria-label=${label || ''}>${kids}</div><${Cap} en=${cap} />${bar}</figure>`;
+
+  /* ── background: from a key to a slot, and why collisions are unavoidable ── */
+  const codes = w => w.split('').map(c => c.charCodeAt(0));
+  function KeySlot() {
+    const M = 11, words = ['CAT', 'DOG', 'ACT'];
+    const num = w => codes(w).reduce((a, b) => a + b, 0);
+    const steps = [
+      { put: 0, calc: 'T[0..10]: 11 slots', cap: 'A hash table is an array <b>T[0..m−1]</b>; here m = 11 slots. A key is stored in the slot whose index the hash function gives. Keys must first become <b>numbers</b>.' },
+      { put: 0, w: 0, part: 1, cap: 'A string key becomes a number from its character codes (ASCII): C = 67, A = 65, T = 84. One simple way is to add them: 67 + 65 + 84 = <b>216</b>.' },
+      { put: 1, w: 0, part: 2, cap: 'Division method: 216 mod 11. 216 = 19 × 11 + 7, so the remainder is <b>7</b>: "CAT" goes to slot 7.' },
+      { put: 2, w: 1, part: 2, cap: '"DOG": 68 + 79 + 71 = 218, and 218 = 19 × 11 + 9, so 218 mod 11 = <b>9</b>: slot 9.' },
+      { put: 3, w: 2, part: 2, bad: true, cap: '"ACT" has the same letters as "CAT": 65 + 67 + 84 = 216 again, so it also wants slot 7. Two different keys, one slot: a <b>collision</b>.' },
+      { put: 3, end: true, cap: '<b>Pigeonhole principle</b>: with more possible keys than slots, some slot must receive two keys (12 keys into 11 slots: at least one slot holds 2). So collisions cannot be avoided, only handled: chaining or open addressing.' }
+    ];
+    const [i, ctl] = useSteps(steps.length, 2300);
+    const s = steps[i];
+    const T = Array.from({ length: M }, () => []);
+    words.slice(0, s.put).forEach(w => T[num(w) % M].push(w));
+    const hit = s.w != null && s.part === 2 ? num(words[s.w]) % M : -1;
+    let calc = s.calc || '';
+    if (s.w != null) { const w = words[s.w], cs = codes(w); calc = html`<span>${w.split('').map((c, j) => html`<span key=${j} className="a8b-ch">${c} ${cs[j]}</span>`)}</span><br />${cs.join(' + ')} = <b>${num(w)}</b>${s.part === 2 ? html`, ${num(w)} mod 11 = <b>${num(w) % M}</b>` : null}`; }
+    if (s.end) calc = '12 keys, 11 slots ⇒ some slot gets ≥ 2 keys';
+    return Fig(html`<div className="a8b-calc">${calc}</div>
+      <div className="a8b-tbl" aria-label="hash table with 11 slots">${T.map((c, j) => html`<div key=${j} className=${'a8b-cell' + (c.length ? ' on' : '') + (j === hit ? (s.bad ? ' bad' : ' hit') : '')}><i>${j}</i>${c.map(w => html`<b key=${w}>${w}</b>`)}</div>`)}</div>`,
+      s.cap, html`<${Bar} steps=${steps} i=${i} ctl=${ctl} />`, 'From a key to a slot');
+  }
+
+  /* ── slides 20-23: the cost of each insertion into a doubling table, as bars ── */
+  const pow2 = x => x > 0 && (x & (x - 1)) === 0;
+  const costOf = i => pow2(i - 1) ? i : 1;
+  const sizeOf = i => { let s = 1; while (s < i) s *= 2; return s; };
+  function CostBars() {
+    const N = 17, rows = []; let tot = 0;
+    for (let i = 1; i <= N; i++) { tot += costOf(i); rows.push({ i, c: costOf(i), s: sizeOf(i), tot }); }
+    const steps = [{ k: 0, cap: 'Each bar will be the true cost c<sub>i</sub> of the i-th insertion into a table that starts with size 1 and doubles when full. $1 = 1 unit of work: writing one item or copying one item.' }];
+    rows.forEach(r => steps.push({ k: r.i, cap: r.c > 1
+      ? `Insert ${r.i}: the table of size ${r.i - 1} is full (i − 1 = ${r.i - 1} is a power of 2), so it doubles to ${r.s}: copy ${r.i - 1} + write 1 = <b>c<sub>${r.i}</sub> = ${r.c}</b>. Total so far ${r.tot} ≤ 3i = ${3 * r.i}.`
+      : `Insert ${r.i}: there is space (size ${r.s}), so just write it: <b>c<sub>${r.i}</sub> = 1</b>. Total so far ${r.tot} ≤ 3i = ${3 * r.i}.` }));
+    steps.push({ k: N, cap: 'Ones: 17 (one write per insert, n). Copies: 1 + 2 + 4 + 8 + 16 = 31, a geometric sum, less than 2n = 34. Total 48 ≤ 3n = 51, so the amortized cost per insertion is at most <b>3 = O(1)</b>, even though insert 17 alone costs 17.' });
+    const [i, ctl] = useSteps(steps.length, 1500);
+    const k = steps[i].k, W = 300, H = 222, x0 = 28, y0 = 180, bw = (W - x0 - 8) / N, sc = (y0 - 20) / 17;
+    const cur = k ? rows[k - 1] : null;
+    return Fig(html`<svg className="a8b-chart" viewBox=${`0 0 ${W} ${H}`} role="img" aria-label="cost of each insertion">
+        <line className="a8b-ax" x1=${x0} y1=${y0} x2=${W - 4} y2=${y0} /><line className="a8b-ax" x1=${x0} y1=${y0} x2=${x0} y2=${12} />
+        ${[1, 5, 9, 17].map(v => html`<text key=${'y' + v} className="a8b-dim" x=${x0 - 6} y=${y0 - v * sc + 5} textAnchor="end">${v}</text>`)}
+        ${rows.map((r, j) => { const x = x0 + j * bw + 2, w = bw - 4, show = r.i <= k; return html`<g key=${r.i} style=${{ opacity: show ? 1 : 0 }}>
+          <rect className=${'a8b-bar' + (r.c > 1 ? ' cp' : '') + (r.i === k ? ' cur' : '')} x=${x} y=${y0 - r.c * sc} width=${w} height=${r.c * sc} rx="2" />
+          ${r.c > 1 ? html`<text x=${x + w / 2} y=${y0 - r.c * sc - 5} textAnchor="middle">${r.c}</text>` : null}</g>`; })}
+        ${[1, 2, 3, 5, 9, 17].map(v => html`<text key=${'x' + v} className="a8b-dim" x=${x0 + (v - 1) * bw + bw / 2} y=${y0 + 20} textAnchor="middle">${v}</text>`)}
+        <text className="a8b-dim" x=${W - 6} y=${H - 2} textAnchor="end">i (insert number)</text>
+      </svg>
+      <div className="a8b-stat"><span>i = <b>${k}</b></span><span>size = <b>${cur ? cur.s : 0}</b></span><span>Σ c<sub>i</sub> = <b>${cur ? cur.tot : 0}</b></span><span>3i = <b>${3 * k}</b></span></div>
+      <div className="a8b-leg"><span><i></i>c<sub>i</sub> = 1 (write only)</span><span><i className="cp"></i>c<sub>i</sub> = i (copy i − 1, write 1)</span></div>`,
+      steps[i].cap, html`<${Bar} steps=${steps} i=${i} ctl=${ctl} />`, 'Cost of each insertion into a doubling table');
+  }
+
+  window.FIGS = Object.assign(window.FIGS || {}, { 'ag-8-keyslot': KeySlot, 'ag-8-costbars': CostBars });
+})();
+/* ── part L9b ── */
+// Algorithms visuals, Lecture 9, background the red-black slides assume: binary-tree vocabulary and NIL leaves, inorder traversal, the BST walks (SEARCH, INSERT, MIN, MAX, SUCCESSOR, PREDECESSOR), why sorted input ruins a plain BST, 2-3-4 tree nodes, and the induction lemma on the slides' example tree (slides 9.4-9.15).
+(function () {
+  const { useState, useMemo } = React;
+  const { html, useSteps, Cap, Bar, calm } = window.FIGKIT;
+  const RBK = '#1f2328', RRD = '#d23c3c', MOVE = calm() ? 'none' : 'transform .5s ease';
+  const CSS = `
+.a9b-svg{ display:block; width:100%; height:auto; max-width:460px; margin:0 auto; }
+.a9b-of{ font-size:.85rem; color:var(--graphite); }
+.a9b-tabs{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; }
+.a9b-tabs .fig-btn[aria-pressed="true"]{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a9b-out{ display:flex; flex-wrap:wrap; gap:4px; justify-content:center; align-items:center; margin:8px 0 0; font-size:.9rem; color:var(--graphite); }
+.a9b-out span.k{ min-width:30px; text-align:center; padding:2px 6px; border-radius:6px; border:1px solid var(--line); color:var(--ink); font-weight:700; }
+.a9b-out span.k.new{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a9b-row{ text-align:center; font-size:.9rem; color:var(--ink); margin:8px 0 0; line-height:1.5; }
+.a9b-code{ font:12px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:var(--paper); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px 6px; margin:10px auto 0; max-width:460px; white-space:pre-wrap; overflow-wrap:anywhere; text-align:left; }
+.a9b-code span{ display:block; padding:0 4px; border-radius:4px; }
+.a9b-code span.on{ background:color-mix(in srgb, var(--fig-k) 24%, transparent); font-weight:700; }
+`;
+  if (!document.getElementById('a9b-css')) { const s = document.createElement('style'); s.id = 'a9b-css'; s.textContent = CSS; document.head.appendChild(s); }
+
+  // a plain BST built by insertion: { root, n: { key: { k, l, r, p } } } (keys are unique, so the key is the id)
+  function bst(keys) { const t = { root: null, n: {} }; keys.forEach(k => addKey(t, k)); return t; }
+  function addKey(t, k) { let y = null, x = t.root; while (x != null) { y = x; x = k < x ? t.n[x].l : t.n[x].r; } t.n[k] = { k, l: null, r: null, p: y }; if (y == null) t.root = k; else if (k < y) t.n[y].l = k; else t.n[y].r = k; }
+  const copy = t => ({ root: t.root, n: Object.fromEntries(Object.entries(t.n).map(([k, v]) => [k, { ...v }])) });
+  const heightE = (t, x = t.root) => x == null ? -1 : 1 + Math.max(heightE(t, t.n[x].l), heightE(t, t.n[x].r));
+
+  // drawing: x by inorder position, y by depth; nodes keyed by key so they keep their place between steps
+  // mark: { key: 'cur' | 'path' | 'on' | 'dim' }, tag: { key: text }, nil: draw NIL leaves, col: { key: 'R'|'B' } for red-black colouring
+  function BT({ t, mark = {}, tag = {}, nil = false, col = null, slots = 0, lv = 58, label, side = null, sub = {}, padR = 0, sl = 42 }) {
+    const pos = {}; let s = 0, dmax = 0;
+    const walk = (x, d) => { if (x == null) return; walk(t.n[x].l, d + 1); pos[x] = [s++, d]; dmax = Math.max(dmax, d); walk(t.n[x].r, d + 1); };
+    walk(t.root, 0);
+    const SL = sl, n = Math.max(slots, s), W = n * SL + 24 + (side ? 34 : 0) + padR, ox = 12 + (side ? 34 : 0) + (n - s) * SL / 2 + SL / 2, R = 17;
+    const P = k => [ox + pos[k][0] * SL, 28 + pos[k][1] * lv];
+    const H = 28 + dmax * lv + (nil ? 58 : 30) + (Object.keys(sub).length ? 20 : 0);
+    const keys = Object.keys(t.n).map(Number).filter(k => pos[k]);
+    const edges = keys.filter(k => t.n[k].p != null).map(k => { const [x1, y1] = P(t.n[k].p), [x2, y2] = P(k), on = mark[k] === 'path' || mark[k] === 'cur' ? (mark[t.n[k].p] === 'path' || mark[t.n[k].p] === 'cur') : false;
+      return html`<line key=${'e' + k} x1=${x1} y1=${y1} x2=${x2} y2=${y2} stroke=${on ? 'var(--fig-k)' : 'var(--graphite)'} strokeWidth=${on ? 3.5 : 2} />`; });
+    const nils = nil ? keys.flatMap(k => ['l', 'r'].filter(sd => t.n[k][sd] == null).map(sd => { const [x, y] = P(k), nx = x + (sd === 'l' ? -13 : 13), ny = y + 40;
+      return html`<g key=${'nil' + k + sd}><line x1=${x} y1=${y} x2=${nx} y2=${ny} stroke="var(--graphite)" strokeWidth="1.6" /><rect x=${nx - 6} y=${ny - 6} width="12" height="12" fill=${RBK} stroke="var(--ink)" strokeWidth="1" /></g>`; })) : null;
+    const nodes = keys.map(k => {
+      const [x, y] = P(k), m = mark[k], c = col && col[k];
+      const fill = c === 'R' ? RRD : c === 'B' ? RBK : m === 'cur' ? 'var(--fig-s)' : m === 'on' ? 'color-mix(in srgb, var(--fig-k) 30%, var(--paper))' : 'var(--paper)';
+      const tc = c || m === 'cur' ? '#fff' : 'var(--ink)';
+      return html`<g key=${'n' + k} style=${{ transform: `translate(${x}px,${y}px)`, transition: MOVE, opacity: m === 'dim' ? .35 : 1 }}>
+        ${(m === 'path' || (c && (m === 'cur' || m === 'on'))) ? html`<circle r=${R + 5} fill="none" stroke="var(--fig-k)" strokeWidth="3" />` : null}
+        <circle r=${R} fill=${fill} stroke=${m === 'cur' && !c ? 'var(--fig-s)' : 'var(--ink)'} strokeWidth="1.6" />
+        <text textAnchor="middle" dy=".35em" fontSize="17" fontWeight="700" style=${{ fill: tc }}>${k}</text>
+        ${tag[k] ? html`<text x=${R + 3} y=${-R + 2} fontSize="16.5" fontWeight="700" style=${{ fill: 'var(--fig-k)' }}>${tag[k]}</text>` : null}
+        ${sub[k] ? html`<text y=${R + 17} textAnchor="middle" fontSize="16.5" fontWeight="700" style=${{ fill: 'var(--pen)' }}>${sub[k]}</text>` : null}
+      </g>`;
+    });
+    const sideL = side ? Array.from({ length: dmax + 1 }, (_, d) => html`<text key=${'d' + d} x="4" y=${28 + d * lv + 5} fontSize="16.5" style=${{ fill: 'var(--graphite)' }}>${side(d)}</text>`) : null;
+    return html`<svg className="a9b-svg" viewBox=${`0 0 ${W} ${H}`} role="img" aria-label=${label}>${sideL}${edges}${nils}${nodes}</svg>`;
+  }
+  const SBar = ({ steps, i, ctl }) => steps.length <= 11 ? html`<${Bar} steps=${steps} i=${i} ctl=${ctl} />` : html`<div className="fig-bar">
+    <span className="a9b-of">step ${i + 1} of ${steps.length}</span><span className="grow"></span>
+    <button className="fig-btn" onClick=${() => ctl.go(Math.max(0, i - 1))} disabled=${i === 0} aria-label="Previous step">‹ Back</button>
+    <button className="fig-btn" onClick=${() => ctl.go(Math.min(steps.length - 1, i + 1))} disabled=${i === steps.length - 1} aria-label="Next step">Next ›</button>
+    <button className="fig-btn" onClick=${ctl.replay}>↻ Replay</button></div>`;
+  const Tabs = ({ opts, v, set }) => html`<div className="a9b-tabs" role="group">${opts.map(([k, t]) => html`<button key=${k} className="fig-btn" aria-pressed=${String(v === k)} onClick=${() => set(k)}>${t}</button>`)}</div>`;
+  const K7 = [8, 4, 12, 2, 6, 10, 14];
+
+  // background: the vocabulary of a binary tree on a 7-key BST
+  function Anatomy() {
+    const t = useMemo(() => bst(K7), []), all = k => Object.fromEntries(k.map(x => [x, 'on']));
+    const steps = [
+      { en: 'A binary tree with 7 keys (inserted in the order 8, 4, 12, 2, 6, 10, 14). Each node holds a <b>key</b> and three pointers: <code>left</code>, <code>right</code> and <code>p</code> (parent).', m: {} },
+      { en: 'The <b>root</b> is the top node, 8: the only node with no parent (p[8] = NIL).', m: { 8: 'cur' }, tg: { 8: 'root' } },
+      { en: '<b>Parent and children</b>: 4 is the parent of 2 and 6; 2 is its <b>left child</b> and 6 its <b>right child</b>. Every node has at most 2 children.', m: { 4: 'cur', 2: 'on', 6: 'on' }, tg: { 4: 'parent' } },
+      { en: '<b>Siblings</b> share a parent: 2 and 6 are siblings, and so are 4 and 12, and 10 and 14.', m: { 2: 'on', 6: 'on' }, tg: { 2: 'sib', 6: 'sib' } },
+      { en: 'For node 6: its <b>grandparent</b> is the parent of its parent, 8; its <b>uncle</b> is the sibling of its parent, 12. RB-INSERT decides its case by looking at the uncle.', m: { 6: 'cur', 4: 'on', 8: 'on', 12: 'on' }, tg: { 6: 'x', 4: 'p', 8: 'gp', 12: 'uncle' } },
+      { en: 'A <b>leaf</b> has no children: 2, 6, 10, 14. The others (8, 4, 12) are <b>internal nodes</b>.', m: all([2, 6, 10, 14]), tg: { 2: 'leaf', 6: 'leaf', 10: 'leaf', 14: 'leaf' } },
+      { en: '<b>Depth</b> of a node = number of edges from the root down to it: depth(8) = 0, depth(4) = depth(12) = 1, depth(2) = depth(6) = 2.', m: {}, side: d => 'd ' + d },
+      { en: '<b>Height</b> of a node = edges on the longest path down to a leaf: height(2) = 0, height(4) = 1, height(8) = 2. The height of the tree is the height of its root: <b>h = 2</b>.', m: { 8: 'path', 12: 'path', 14: 'path' }, tg: { 8: 'h=2', 12: 'h=1', 14: 'h=0' } },
+      { en: 'The <b>subtree</b> rooted at 12 is 12 with all its descendants: {12, 10, 14}. Every node is the root of its own subtree.', m: { 4: 'dim', 2: 'dim', 6: 'dim', 8: 'dim', 12: 'cur', 10: 'on', 14: 'on' } },
+      { en: '<b>NIL leaves</b>: red-black trees draw every empty child pointer as a black leaf NIL. 7 keys give <b>8 = n + 1</b> NILs, all 7 keys become internal, and the height counted down to the NILs is 3. In code one shared <b>sentinel</b> node T.nil stands for all of them.', m: {}, nil: true }
+    ];
+    const [i, ctl] = useSteps(steps.length, 2800), st = steps[i];
+    return html`<figure className="fig"><div className="fig-stage">
+      <${BT} t=${t} mark=${st.m} tag=${st.tg || {}} nil=${st.nil} side=${st.side} label="Binary search tree with keys 8, 4, 12, 2, 6, 10, 14" /></div>
+      <${Cap} en=${st.en} /><${SBar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  // background: inorder traversal prints a BST in sorted order
+  function Inorder() {
+    const t = useMemo(() => bst(K7), []), order = [2, 4, 6, 8, 10, 12, 14];
+    const why = { 2: 'INORDER(8) goes left to 4, INORDER(4) goes left to 2; 2 has no left subtree, so <b>print 2</b>, then its (empty) right subtree.', 4: 'Back in 4: its left subtree is done, so <b>print 4</b>, then go right to 6.', 6: '6 has no left subtree: <b>print 6</b>. The whole subtree of 4 is finished.', 8: 'Back at the root: its left subtree {2, 4, 6} is done, so <b>print 8</b>, then go right to 12 and down left to 10.', 10: '10 has no left subtree: <b>print 10</b>.', 12: 'Back in 12: <b>print 12</b>, then go right to 14.', 14: '<b>Print 14</b>. Output 2 4 6 8 10 12 14 is <b>sorted</b>: each node prints after everything smaller (its left side) and before everything larger. Each node is visited once: <b>Θ(n)</b>.' };
+    const steps = [{ en: 'INORDER(x): if x ≠ NIL, then INORDER(left[x]), print key[x], INORDER(right[x]). Left subtree, then the node, then the right subtree.', k: null, out: 0 },
+      ...order.map((k, j) => ({ en: why[k], k, out: j + 1 }))];
+    const [i, ctl] = useSteps(steps.length, 2400), st = steps[i];
+    const mark = {}; order.slice(0, st.out).forEach(k => { mark[k] = 'on'; }); if (st.k != null) mark[st.k] = 'cur';
+    return html`<figure className="fig"><div className="fig-stage">
+      <${BT} t=${t} mark=${mark} label="Inorder traversal of the BST 8, 4, 12, 2, 6, 10, 14" />
+      <div className="a9b-out"><span>output:</span>${order.map((k, j) => j < st.out ? html`<span key=${k} className=${'k' + (j === st.out - 1 ? ' new' : '')}>${k}</span>` : null)}</div></div>
+      <${Cap} en=${st.en} /><${SBar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  // background: the BST walks, each one path down (or up) the tree, O(h)
+  const CODES = {
+    search: ['TREE-SEARCH(x, k)', ' while x ≠ NIL and k ≠ key[x]', '  do if k < key[x]', '   then x ← left[x]', '   else x ← right[x]', ' return x'],
+    insert: ['TREE-INSERT(T, z)', ' y ← NIL; x ← root[T]', ' while x ≠ NIL', '  do y ← x', '   if key[z] < key[x] then x ← left[x]', '   else x ← right[x]', ' p[z] ← y', ' if y = NIL then root[T] ← z', ' else if key[z] < key[y] then left[y] ← z', ' else right[y] ← z'],
+    minmax: ['TREE-MINIMUM(x)', ' while left[x] ≠ NIL', '  do x ← left[x]', ' return x', 'TREE-MAXIMUM(x)', ' while right[x] ≠ NIL', '  do x ← right[x]', ' return x'],
+    succ: ['TREE-SUCCESSOR(x)', ' if right[x] ≠ NIL', '  then return TREE-MINIMUM(right[x])', ' y ← p[x]', ' while y ≠ NIL and x = right[y]', '  do x ← y', '   y ← p[y]', ' return y'],
+    pred: ['TREE-PREDECESSOR(x)', ' if left[x] ≠ NIL', '  then return TREE-MAXIMUM(left[x])', ' y ← p[x]', ' while y ≠ NIL and x = left[y]', '  do x ← y', '   y ← p[y]', ' return y']
+  };
+  const Code = ({ lines, on = [] }) => html`<pre className="a9b-code" aria-label="Pseudocode">${lines.map((l, k) => { const ind = l.length - l.trimStart().length; return html`<span key=${k} className=${on.includes(k) ? 'on' : ''} style=${{ paddingLeft: (ind * .6 + 1.4) + 'em', textIndent: '-1.2em' }}>${l.trimStart()}</span>`; })}</pre>`;
+  function opSteps(op) {
+    const t = bst(K7), P = ks => Object.fromEntries(ks.map((k, j) => [k, j === ks.length - 1 ? 'cur' : 'path']));
+    if (op === 's6') return { code: 'search', steps: [
+      { en: '<b>SEARCH for 6</b>: start at the root. 6 < 8, so the key can only be in the <b>left</b> subtree: go left.', m: P([8]), on: [1, 2, 3] },
+      { en: 'At 4: 6 > 4, so go <b>right</b>.', m: P([8, 4]), on: [1, 4] },
+      { en: 'At 6: k = key[x], <b>found</b>. 3 nodes compared = one path from the root, at most h + 1 nodes.', m: P([8, 4, 6]), on: [5] }] };
+    if (op === 's9') return { code: 'search', steps: [
+      { en: '<b>SEARCH for 9</b>: 9 > 8, go right.', m: P([8]), on: [1, 4] },
+      { en: 'At 12: 9 < 12, go left.', m: P([8, 12]), on: [1, 2, 3] },
+      { en: 'At 10: 9 < 10, go left, but left[10] = <b>NIL</b>: the loop stops and returns NIL, <b>not found</b>. Still only one path.', m: P([8, 12, 10]), on: [5] }] };
+    if (op === 'i9') { const t2 = copy(t); addKey(t2, 9); return { code: 'insert', steps: [
+      { en: '<b>INSERT 9</b> walks exactly like a search for 9: 8 → 12 → 10, keeping y = the last node seen.', m: P([8, 12, 10]), on: [2, 3, 4, 5] },
+      { en: 'x became NIL under 10, so y = 10 and 9 < 10: 9 becomes the <b>left child</b> of 10. A new key is always added as a new <b>leaf</b>; nothing else moves.', m: { 8: 'path', 12: 'path', 10: 'path', 9: 'cur' }, on: [6, 8], t: t2 }] }; }
+    if (op === 'mm') return { code: 'minmax', steps: [
+      { en: '<b>MINIMUM</b>: the smallest key is as far left as possible. Follow left pointers: 8 → 4 → 2; left[2] = NIL, so the minimum is <b>2</b>. No key is compared.', m: P([8, 4, 2]), on: [1, 2, 3] },
+      { en: '<b>MAXIMUM</b>: follow right pointers: 8 → 12 → 14; right[14] = NIL, so the maximum is <b>14</b>. Both walks are one path: O(h).', m: P([8, 12, 14]), on: [5, 6, 7] }] };
+    if (op === 'su6') return { code: 'succ', steps: [
+      { en: '<b>SUCCESSOR(6)</b> = the next larger key. 6 has no right subtree, so the answer is above it.', m: { 6: 'cur' }, on: [1, 3] },
+      { en: 'y = p[6] = 4, and 6 is the <b>right</b> child of 4 (4 < 6, not the answer): climb, x ← 4, y ← p[4] = 8.', m: { 6: 'path', 4: 'cur' }, on: [4, 5, 6] },
+      { en: '4 is the <b>left</b> child of 8, so the loop stops: SUCCESSOR(6) = <b>8</b>, the first ancestor reached from its left side.', m: { 6: 'path', 4: 'path', 8: 'cur' }, on: [7] }] };
+    if (op === 'su8') return { code: 'succ', steps: [
+      { en: '<b>SUCCESSOR(8)</b>: 8 has a right subtree, so the next larger key is the <b>minimum of that subtree</b>.', m: { 8: 'cur', 12: 'on', 10: 'on', 14: 'on' }, on: [1, 2] },
+      { en: 'TREE-MINIMUM(12): go left to 10, left[10] = NIL: SUCCESSOR(8) = <b>10</b>.', m: P([8, 12, 10]), on: [2] }] };
+    return { code: 'pred', steps: [
+      { en: '<b>PREDECESSOR(10)</b> = the next smaller key. 10 has no left subtree, so climb (mirror of SUCCESSOR).', m: { 10: 'cur' }, on: [1, 3] },
+      { en: 'y = p[10] = 12 and 10 is the <b>left</b> child of 12: climb, x ← 12, y ← 8.', m: { 10: 'path', 12: 'cur' }, on: [4, 5, 6] },
+      { en: '12 is the <b>right</b> child of 8, so stop: PREDECESSOR(10) = <b>8</b>. (PREDECESSOR(8) = TREE-MAXIMUM(4) = 6.)', m: { 10: 'path', 12: 'path', 8: 'cur' }, on: [7] }] };
+  }
+  function OpRun({ op }) {
+    const { code, steps } = useMemo(() => opSteps(op), [op]), base = useMemo(() => bst(K7), []);
+    const [i, ctl] = useSteps(steps.length, 2600), st = steps[i];
+    return html`<div><${BT} t=${st.t || base} mark=${st.m} slots=${8} label="BST walk on keys 8, 4, 12, 2, 6, 10, 14" /><${Code} lines=${CODES[code]} on=${st.on} />
+      <${Cap} en=${st.en} /><${SBar} steps=${steps} i=${i} ctl=${ctl} /></div>`;
+  }
+  function BstOps() {
+    const [op, setOp] = useState('s6');
+    return html`<figure className="fig"><div className="fig-stage">
+      <${Tabs} v=${op} set=${setOp} opts=${[['s6', 'search 6'], ['s9', 'search 9'], ['i9', 'insert 9'], ['mm', 'min / max'], ['su6', 'succ(6)'], ['su8', 'succ(8)'], ['pr10', 'pred(10)']]} /></div>
+      <${OpRun} key=${op} op=${op} /></figure>`;
+  }
+
+  // background: the same 7 keys, sorted insertion order (a chain) versus a good order (height 2)
+  function Degrade() {
+    const [ord, setOrd] = useState('sorted');
+    return html`<figure className="fig"><div className="fig-stage">
+      <${Tabs} v=${ord} set=${setOrd} opts=${[['sorted', 'insert 1, 2, …, 7'], ['good', 'insert 4, 2, 6, 1, 3, 5, 7']]} /></div>
+      <${DegRun} key=${ord} keys=${ord === 'sorted' ? [1, 2, 3, 4, 5, 6, 7] : [4, 2, 6, 1, 3, 5, 7]} /></figure>`;
+  }
+  function DegRun({ keys }) {
+    const steps = useMemo(() => { const t = { root: null, n: {} }, S = [];
+      keys.forEach((k, j) => { addKey(t, k); const h = heightE(t); S.push({ t: copy(t), k, h, en: j === 0 ? `Insert ${k} into the empty tree: it becomes the root. Height 0.` : `Insert ${k}: it walks one path down and becomes a leaf. Height now <b>${h}</b>.` }); });
+      const last = S[S.length - 1]; last.en += keys[1] === 2 ? ' Sorted input makes every key the <b>right child</b> of the previous one: a chain of height <b>n − 1 = 6</b>, so a search can visit all n nodes: <b>Θ(n)</b>.' : ' Same 7 keys, height <b>2</b> = ⌊lg 7⌋: the smallest possible. Balanced trees guarantee O(lg n) height whatever the order.';
+      return S; }, [keys]);
+    const [i, ctl] = useSteps(steps.length, 1500), st = steps[i];
+    return html`<div><${BT} t=${st.t} mark=${{ [st.k]: 'cur' }} slots=${7} lv=${keys[1] === 2 ? 44 : 58} label="BST built from the keys in this order" />
+      <p className="a9b-row">n = ${Object.keys(st.t.n).length}, height h = <b>${st.h}</b></p>
+      <${Cap} en=${st.en} /><${SBar} steps=${steps} i=${i} ctl=${ctl} /></div>`;
+  }
+
+  // background: 2-node, 3-node, 4-node and the 2-3-4 tree of slide 9.14
+  function Nodes234() {
+    const box = (x, y, ks, key) => { const w = ks.length * 32 + 8; return html`<g key=${key}><rect x=${x - w / 2} y=${y - 16} width=${w} height="32" rx="10" fill="color-mix(in srgb, var(--fig-k) 16%, var(--paper))" stroke="var(--fig-k)" strokeWidth="2" />
+      ${ks.map((k, j) => html`<text key=${j} x=${x - w / 2 + 20 + j * 32} y=${y + 6} textAnchor="middle" fontSize="16" fontWeight="700" style=${{ fill: 'var(--ink)' }}>${k}</text>`)}</g>`; };
+    const kids = (x, y, ks, labels) => { const w = ks.length * 32 + 8, m = ks.length + 1, sp = m === 4 ? 66 : m === 3 ? 78 : 96;
+      return Array.from({ length: m }, (_, j) => { const cx = x + (j - (m - 1) / 2) * sp, sx = x - w / 2 + 4 + j * 32;
+        return html`<g key=${'c' + j}><line x1=${sx} y1=${y + 16} x2=${cx} y2=${y + 58} stroke="var(--graphite)" strokeWidth="2" /><text x=${cx} y=${y + 78} textAnchor="middle" fontSize="15" style=${{ fill: 'var(--graphite)' }}>${labels[j]}</text></g>`; }); };
+    const single = [
+      { ks: [10], lab: ['< 10', '> 10'], en: 'A <b>2-node</b>: 1 key, 2 children. Like a BST node: keys smaller than 10 go left, larger go right.' },
+      { ks: [10, 20], lab: ['< 10', '10..20', '> 20'], en: 'A <b>3-node</b>: 2 sorted keys, 3 children. The middle child holds the keys between 10 and 20.' },
+      { ks: [10, 20, 30], lab: ['< 10', '10..20', '20..30', '> 30'], en: 'A <b>4-node</b>: 3 sorted keys, 4 children. A 2-3-4 tree uses only these three kinds of node.' }];
+    const steps = [...single, { tree: 1, en: 'A <b>2-3-4 tree</b> (the one slide 9.14 gets from the example red-black tree): every node has 2, 3 or 4 children and <b>all leaves are at the same depth</b> h′ = 2. Here there are 9 leaves.' },
+      { tree: 1, en: 'Every node has <b>at least 2</b> children, so level d has at least 2<sup>d</sup> nodes: a 2-3-4 tree with all leaves at depth h′ has <b>at least 2<sup>h′</sup> leaves</b> (and at most 4<sup>h′</sup>). Here 9 ≥ 2<sup>2</sup> = 4. Slide 9.15 uses exactly this.', bound: 1 }];
+    const [i, ctl] = useSteps(steps.length, 2800), st = steps[i];
+    let body;
+    if (!st.tree) body = html`<svg className="a9b-svg" viewBox="0 0 300 130" role="img" aria-label="A 2-3-4 tree node and the key ranges of its children">${kids(150, 30, st.ks, st.lab)}${box(150, 30, st.ks, 'b')}</svg>`;
+    else {
+      const top = [150, 28], mids = [[44, 104, [3]], [150, 104, [8, 10, 11]], [258, 104, [22, 26]]], leafY = 166;
+      const leafX = [[28, 60], [104, 132, 168, 196], [232, 258, 284]];
+      body = html`<svg className="a9b-svg" viewBox="0 0 300 ${st.bound ? 214 : 186}" role="img" aria-label="2-3-4 tree with root 7, 18 and children 3; 8, 10, 11; 22, 26">
+        ${mids.map(([x, y], j) => html`<line key=${'t' + j} x1=${top[0] - 32 + j * 32} y1=${top[1] + 16} x2=${x} y2=${y - 16} stroke="var(--graphite)" strokeWidth="2" />`)}
+        ${mids.flatMap(([x, y, ks], j) => leafX[j].map((lx, q) => html`<g key=${'l' + j + q}><line x1=${x - (ks.length * 32 + 8) / 2 + 4 + q * 32} y1=${y + 16} x2=${lx} y2=${leafY - 6} stroke="var(--graphite)" strokeWidth="1.6" /><rect x=${lx - 6} y=${leafY - 6} width="12" height="12" fill=${RBK} stroke="var(--ink)" strokeWidth="1" /></g>`))}
+        ${box(top[0], top[1], [7, 18], 'top')}${mids.map(([x, y, ks], j) => box(x, y, ks, 'm' + j))}
+        ${st.bound ? html`<text x="150" y="204" textAnchor="middle" fontSize="16" fontWeight="700" style=${{ fill: 'var(--fig-k)' }}>9 leaves ≥ 2^h′ = 4</text>` : null}
+      </svg>`;
+    }
+    return html`<figure className="fig"><div className="fig-stage">${body}</div><${Cap} en=${st.en} /><${SBar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  // the book's induction (slide 9.9 says "the book uses induction"): every subtree with root x has ≥ 2^bh(x) − 1 internal nodes, checked on the slides' example tree
+  function Induct() {
+    const t = useMemo(() => bst([7, 3, 18, 10, 22, 8, 11, 26]), []);
+    const col = { 7: 'B', 3: 'B', 18: 'R', 10: 'B', 8: 'R', 11: 'R', 22: 'B', 26: 'R' };
+    const bh = { 3: 1, 8: 1, 11: 1, 26: 1, 10: 1, 22: 1, 18: 2, 7: 2 }, cnt = { 3: 1, 8: 1, 11: 1, 26: 1, 10: 3, 22: 2, 18: 6, 7: 8 };
+    const order = [[8, 11, 26, 3], [10, 22], [18], [7]];
+    const steps = [
+      { en: '<b>Claim</b>: the subtree rooted at any node x contains at least <b>2<sup>bh(x)</sup> − 1</b> internal nodes (keys). Proved by induction on the height of x. <b>Base</b>: x = NIL, bh = 0, and 2<sup>0</sup> − 1 = 0 ≤ 0 keys.', done: 0 },
+      { en: 'Height-1 nodes 8, 11, 26, 3: each has bh = 1 and holds 1 key: 1 ≥ 2<sup>1</sup> − 1 = 1.', done: 1 },
+      { en: '10 and 22: bh = 1, they hold 3 and 2 keys ≥ 1. <b>Step</b>: a child of x has black-height bh(x) if the child is red, or bh(x) − 1 if it is black, so <b>at least bh(x) − 1</b>.', done: 2 },
+      { en: '18 (bh 2): its children 10 and 22 are black, bh = 1 = bh(18) − 1. By the hypothesis each child subtree has ≥ 2<sup>1</sup> − 1 keys, so 18 has ≥ 2(2<sup>1</sup> − 1) + 1 = <b>3</b>; it really has 6.', done: 3 },
+      { en: 'Root 7 (bh 2): children 3 (black, bh 1) and 18 (red, bh 2), both ≥ bh(7) − 1 = 1. So ≥ 2(2<sup>2−1</sup> − 1) + 1 = 2<sup>2</sup> − 1 = <b>3</b> keys; it has n = 8. In general: <b>2(2<sup>bh(x)−1</sup> − 1) + 1 = 2<sup>bh(x)</sup> − 1</b>.', done: 4 },
+      { en: '<b>Finish</b>: property 3 makes at least half the nodes on any root-to-leaf path black, so bh(root) ≥ h/2. Then n ≥ 2<sup>h/2</sup> − 1, so lg(n + 1) ≥ h/2, so <b>h ≤ 2 lg(n + 1)</b>. Here: 8 ≥ 2<sup>2</sup> − 1 and 4 ≤ 2 lg 9 ≈ 6.34.', done: 4 }];
+    const [i, ctl] = useSteps(steps.length, 3200), st = steps[i];
+    const shown = order.slice(0, st.done).flat(), last = st.done ? order[st.done - 1] : [];
+    const tag = Object.fromEntries(shown.map(k => [k, 'bh=' + bh[k]]));
+    const mark = Object.fromEntries(last.map(k => [k, 'on']));
+    return html`<figure className="fig"><div className="fig-stage">
+      <${BT} t=${t} col=${col} mark=${mark} tag=${tag} lv=${62} padR=${36} sl=${36} label="Slides' example red-black tree with black-heights" />
+      <div className="a9b-out"><span>keys in subtree ≥ 2<sup>bh</sup> − 1:</span>${shown.map(k => html`<span key=${k} className=${'k' + (last.includes(k) ? ' new' : '')}>${k}: ${cnt[k]} ≥ ${2 ** bh[k] - 1}</span>`)}</div></div>
+      <${Cap} en=${st.en} /><${SBar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  window.FIGS = Object.assign(window.FIGS || {}, { 'ag-9-anatomy': Anatomy, 'ag-9-inorder': Inorder, 'ag-9-bstops': BstOps, 'ag-9-degrade': Degrade, 'ag-9-nodes234': Nodes234, 'ag-9-induct': Induct });
+})();
+/* ── part L10b ── */
+// Algorithms visuals, Lecture 10 (rebuild): a method to colour a given tree (slides 10.4, 10.8, 10.16, 10.19), reading pointer code like x->p->p->right with parent links and the T.nil sentinel (tree of slide 10.16), and the slides' rbInsert run on the keys 7, 5, 9, 12, 8, 11, 10 (slides 10.8-10.31) with "try your own". Every number comes from the slides or from the slides' rbInsert code.
+(function () {
+  const { useState, useMemo } = React;
+  const { html, useSteps, Cap, Bar } = window.FIGKIT;
+  const CSS = `
+.a10b-tabs{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; }
+.a10b-tabs .fig-btn{ font-size:.82rem; padding:4px 10px; min-height:30px; }
+.a10b-tabs .fig-btn.on{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a10b-svg{ max-width:420px !important; }
+.a10b-paths{ margin:8px auto 0; max-width:420px; font-size:.86rem; line-height:1.45; color:var(--ink); }
+.a10b-paths div{ display:flex; gap:8px; justify-content:space-between; padding:2px 6px; border-radius:5px; }
+.a10b-paths div.on{ background:color-mix(in srgb, var(--fig-k) 20%, transparent); font-weight:700; }
+.a10b-paths span:last-child{ white-space:nowrap; color:var(--graphite); }
+.a10b-chain{ margin:8px auto 0; max-width:420px; font:12.5px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:6px 8px; overflow-wrap:anywhere; }
+.a10b-chain .on{ background:color-mix(in srgb, var(--fig-k) 24%, transparent); font-weight:700; border-radius:4px; padding:0 2px; }
+.a10b-card{ margin:8px auto 0; max-width:300px; border-collapse:collapse; font-size:.86rem; color:var(--ink); }
+.a10b-card td{ border:1px solid var(--line); padding:3px 8px; background:var(--paper); }
+.a10b-card td:first-child{ font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:var(--graphite); }
+.a10b-card tr.on td{ background:color-mix(in srgb, var(--fig-k) 22%, var(--paper)); font-weight:700; }
+.a10b-run{ margin:8px auto 0; max-width:420px; font:12px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:var(--ink); background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:6px 8px; white-space:pre-wrap; overflow-wrap:anywhere; min-height:3em; }
+.a10b-badge{ display:inline-block; font-size:.8rem; font-weight:700; padding:2px 8px; border-radius:99px; background:var(--fig-s); color:#fff; margin-right:6px; }
+.a10b-in{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:0 14px 12px; font-size:.86rem; color:var(--ink); }
+.a10b-in input{ flex:1; min-width:140px; font:inherit; padding:5px 8px; border-radius:8px; border:1px solid var(--line); background:var(--paper); color:var(--ink); }
+.a10b-err{ color:#d23c3c; font-size:.84rem; padding:0 14px 10px; }
+`;
+  if (!document.getElementById('a10b-css')) { const s = document.createElement('style'); s.id = 'a10b-css'; s.textContent = CSS; document.head.appendChild(s); }
+
+  const RBK = '#1f2328', RRD = '#d23c3c';
+  // nested spec [key, left, right] -> {k, l, r}
+  const mk = s => s ? { k: s[0], l: mk(s[1]), r: mk(s[2]) } : null;
+  const keysIn = n => n ? [...keysIn(n.l), n.k, ...keysIn(n.r)] : [];
+  // every root-to-NIL path as its list of real keys (paths ending at two NILs of the same node are listed once)
+  const paths = n => { if (!n) return [[]]; if (!n.l && !n.r) return [[n.k]]; const o = []; for (const c of [n.l, n.r]) for (const p of paths(c)) o.push([n.k, ...p]); return o.filter((p, i) => o.findIndex(q => q.join() === p.join()) === i); };
+
+  // ── tree drawing: x by inorder rank, y by depth; colours from map col {key: 'B'|'R'|'?'} ──
+  function Tree({ t, col = {}, hl = [], tags = {}, nil = true, label }) {
+    const ns = [], E = [], S = [];
+    let i = 0; const walk = (n, d) => { if (!n) return; walk(n.l, d + 1); ns.push({ n, r: i++, d }); walk(n.r, d + 1); };
+    walk(t, 0);
+    const cols = Math.max(ns.length, 1), cw = Math.min(50, 330 / cols), off = (360 - cw * cols) / 2;
+    const P = {}; ns.forEach(o => { P[o.n.k] = [off + cw * (o.r + 0.5), 30 + o.d * 54]; });
+    const maxD = Math.max(0, ...ns.map(o => o.d));
+    ns.forEach(o => { const [x, y] = P[o.n.k]; [[o.n.l, -1], [o.n.r, 1]].forEach(([c, s]) => { if (c) E.push([x, y, ...P[c.k]]); else if (nil) S.push([x, y, x + s * 15, y + 34]); }); });
+    const H = 30 + maxD * 54 + (nil ? 50 : 24);
+    return html`<svg className="a10b-svg" viewBox=${`0 0 360 ${H}`} role="img" aria-label=${label}>
+      ${E.map(([a, b, c, d], j) => html`<line key=${'e' + j} x1=${a} y1=${b} x2=${c} y2=${d} stroke="var(--graphite)" strokeWidth="2" />`)}
+      ${S.map(([a, b, c, d], j) => html`<g key=${'s' + j}><line x1=${a} y1=${b} x2=${c} y2=${d} stroke="var(--graphite)" strokeWidth="1.5" /><rect x=${c - 6} y=${d - 4} width="12" height="10" rx="2" fill=${RBK} stroke="var(--ink)" strokeWidth="1" /></g>`)}
+      ${ns.map(({ n }) => { const [x, y] = P[n.k], c = col[n.k] || '?', on = hl.includes(n.k), tg = tags[n.k], right = x < 290;
+        return html`<g key=${'n' + n.k}>
+          ${on ? html`<circle cx=${x} cy=${y} r="21" fill="none" stroke="var(--fig-k)" strokeWidth="3.5" />` : null}
+          <circle cx=${x} cy=${y} r="16" fill=${c === 'B' ? RBK : c === 'R' ? RRD : 'var(--paper)'} stroke=${c === 'R' ? RRD : 'var(--ink)'} strokeWidth="2" strokeDasharray=${c === '?' ? '4 3' : ''} />
+          <text x=${x} y=${y} dy=".35em" textAnchor="middle" fontSize="17" fontWeight="700" style=${{ fill: c === '?' ? 'var(--ink)' : '#fff' }}>${n.k}</text>
+          ${tg ? html`<text x=${right ? x + 20 : x - 20} y=${y - 15} textAnchor=${right ? 'start' : 'end'} fontSize="17" fontWeight="700" style=${{ fill: 'var(--fig-k)', stroke: 'var(--paper-2)', strokeWidth: 5, paintOrder: 'stroke', strokeLinejoin: 'round' }}>${tg}</text>` : null}</g>`; })}
+    </svg>`;
+  }
+  const Tabs = ({ names, at, set }) => html`<div className="a10b-tabs">${names.map((nm, j) => html`<button key=${j} className=${'fig-btn' + (j === at ? ' on' : '')} onClick=${() => set(j)}>${nm}</button>`)}</div>`;
+
+  // ── 1. a method to colour a given tree (the slides' trees) ──
+  const B = 'B', R = 'R';
+  const PAINT = [
+    { name: 'Slide 10.8', t: [7, [5], [9, null, [12]]], steps: [
+      { c: {}, on: [], en: '<b>Step 1</b>: list every path from the root down to a NIL and count its real nodes. Shortest: 7 → 5 and 7 → 9 (2 nodes). Longest: 7 → 9 → 12 (3 nodes). Check: longest 3 ≤ 2 × shortest = 4, so a colouring may exist.' },
+      { c: { 7: B }, on: [], en: '<b>Step 2</b>: the root is black (#5) and every NIL is black (#2).' },
+      { c: { 7: B, 5: B, 9: B }, on: [0, 1], en: '<b>Step 3</b>: make a shortest path all black. 7 → 5 has 2 real nodes, so every path must have exactly <b>2 black real nodes</b> (plus its NIL). 7 → 9 is also a shortest path, so 9 is black too.' },
+      { c: { 7: B, 5: B, 9: B, 12: R }, on: [2], en: '<b>Step 4</b>: 7 → 9 → 12 has 3 nodes, one too many, so exactly one of them is red. 7 and 9 are already black, so <b>12 is red</b>. Its children are NILs (black), so #3 holds.' },
+      { c: { 7: B, 5: B, 9: B, 12: R }, on: [], tags: { 7: 'bh 2', 5: 'bh 1', 9: 'bh 1', 12: 'bh 1' }, en: '<b>Step 5</b>: check #4 at every node, not only the root: bh(12) = 1, bh(9) = 1, bh(5) = 1, bh(7) = 2. Valid, and it is the only valid colouring (the answer of slide 10.8).' }
+    ] },
+    { name: 'Slide 10.4', t: [7, [3], [18, [10, [8], [11]], [22, null, [26]]]], steps: [
+      { c: {}, on: [], en: '<b>Step 1</b>: paths: 7 → 3 has 2 nodes (shortest); 7 → 18 → 22 has 3; 7 → 18 → 10 → 8, 7 → 18 → 10 → 11 and 7 → 18 → 22 → 26 have 4 (longest). 4 ≤ 2 × 2, so try it.' },
+      { c: { 7: B, 3: B }, on: [0], en: '<b>Step 2</b>: root 7 black; the shortest path 7 → 3 all black, so every path has exactly <b>2 black real nodes</b>.' },
+      { c: { 7: B, 3: B, 18: R, 10: B, 8: R, 11: R }, on: [1, 2], en: '<b>Step 3</b>: 7 → 18 → 10 → 8 has 4 nodes, so 2 are red, and no two reds may touch. Below black 7 the only choice is <b>18 red, 10 black, 8 red</b>; the same path through 11 makes <b>11 red</b>.' },
+      { c: { 7: B, 3: B, 18: R, 10: B, 8: R, 11: R, 22: B, 26: R }, on: [3, 4], en: '<b>Step 4</b>: 18 is red, so its child 22 is black (#3). 7 → 18 → 22 then has 2 blacks (7, 22): good. 7 → 18 → 22 → 26 needs a second red: <b>26 red</b>.' },
+      { c: { 7: B, 3: B, 18: R, 10: B, 8: R, 11: R, 22: B, 26: R }, on: [], tags: { 7: 'bh 2', 18: 'bh 2', 10: 'bh 1', 22: 'bh 1' }, en: '<b>Step 5</b>: check: bh(7) = 2, bh(3) = 1, bh(18) = 2, bh(10) = 1, bh(22) = 1, every red node has bh 1. This is exactly the colouring on slide 10.4, and the only valid one.' }
+    ] },
+    { name: 'Slide 10.16', t: [7, [5], [9, [8], [12, [11]]]], steps: [
+      { c: {}, on: [], en: '<b>Step 1</b>: the tree after inserting 8 and 11. Shortest path 7 → 5 (2 nodes), longest 7 → 9 → 12 → 11 (4 nodes). 4 ≤ 2 × 2, so try it.' },
+      { c: { 7: B, 5: B }, on: [0], en: '<b>Step 2</b>: root 7 black, shortest path 7 → 5 black: every path needs exactly <b>2 black real nodes</b>.' },
+      { c: { 7: B, 5: B, 9: R, 12: B, 11: R }, on: [3], en: '<b>Step 3</b>: 7 → 9 → 12 → 11 has 4 nodes, so 2 reds that do not touch: <b>9 red, 12 black, 11 red</b>.' },
+      { c: { 7: B, 5: B, 9: R, 12: B, 11: R, 8: B }, on: [1, 2], en: '<b>Step 4</b>: 9 is red, so its child 8 is black. 7 → 9 → 8 and 7 → 9 → 12 now have 2 blacks each. This is the recoloured tree of slide 10.16.' }
+    ] },
+    { name: 'Slide 10.19', t: [7, [5], [9, [8], [12, [11, [10]]]]], steps: [
+      { c: {}, on: [0, 4], en: '<b>Step 1</b>: the tree after putting 10 in. Shortest path 7 → 5: 2 nodes. Longest 7 → 9 → 12 → 11 → 10: <b>5 nodes</b>.' },
+      { c: { 7: B, 5: B }, on: [0], en: '<b>Step 2</b>: a path can have at most as many blacks as nodes, so every path has at most <b>2</b> black real nodes (the path 7 → 5).' },
+      { c: { 7: B, 5: B }, on: [4], en: '<b>Step 3</b>: on the 5-node path, no two reds may touch, so at most 2 of the 4 nodes below 7 are red: it has at least <b>3</b> blacks. 3 > 2: <b>no colouring exists</b>. Rule: longest path ≤ 2 × shortest (5 > 4). This is slide 10.19: "no color! Tree is too imbalanced".' }
+    ] }
+  ];
+  function PaintTree({ ex }) {
+    const t = useMemo(() => mk(ex.t), [ex]), ps = useMemo(() => paths(t), [t]);
+    const [i, ctl] = useSteps(ex.steps.length, 3600), st = ex.steps[i];
+    const cnt = p => { const b = p.filter(k => st.c[k] === 'B').length, u = p.filter(k => !st.c[k]).length; return u ? `${b} black + ${u} ?` : `${b} black`; };
+    return html`<div>
+      <${Tree} t=${t} col=${st.c} tags=${st.tags || {}} hl=${[].concat(...st.on.map(j => ps[j] || []))} label=${'Tree of ' + ex.name + ' to colour'} />
+      <div className="a10b-paths">${ps.map((p, j) => html`<div key=${j} className=${st.on.includes(j) ? 'on' : ''}><span>${p.join(' → ')} → NIL (${p.length} nodes)</span><span>${cnt(p)}</span></div>`)}</div>
+      <${Cap} en=${st.en} /><${Bar} steps=${ex.steps} i=${i} ctl=${ctl} /></div>`;
+  }
+  function Paint() {
+    const [at, setAt] = useState(0);
+    return html`<figure className="fig"><div className="fig-stage" style=${{ paddingBottom: 0 }}>
+      <${Tabs} names=${PAINT.map(e => e.name)} at=${at} set=${setAt} /></div>
+      <${PaintTree} key=${at} ex=${PAINT[at]} /></figure>`;
+  }
+
+  // ── 2. reading x->p->p->right: fields, parent links, T.nil (tree of slide 10.16, x = 11) ──
+  function Ptrs() {
+    const t = useMemo(() => mk([7, [5], [9, [8], [12, [11]]]]), []);
+    const col = { 7: B, 5: B, 9: R, 8: B, 12: B, 11: R };
+    const chain = ['x', 'x->p', 'x->p->p', 'x->p->p->right', 'x->p->p->left'];
+    const vals = ['11', '12', '9', '12', '8'];
+    const steps = [
+      { hl: [12], tags: {}, row: [0, 1, 2, 3, 4], ch: -1, en: 'A node is a record with 5 fields: <code>key</code>, <code>left</code>, <code>right</code>, <code>p</code> (parent) and <code>color</code>. Here node 12 of slide 10.16: left → 11, right → NIL, p → 9, color BLACK.' },
+      { hl: [9, 12], tags: { 9: '9->right', 12: '12->p' }, row: [2, 3], ch: -1, en: 'Every link is stored <b>twice</b>: down as the parent\'s <code>left</code>/<code>right</code> (9->right = 12) and up as the child\'s <code>p</code> (12->p = 9). Code that moves a node must fix both pointers.' },
+      { hl: [11], tags: { 11: 'x' }, row: [], ch: 0, en: '<code>x</code> is a pointer to a node: here the node 11 just inserted (slide 10.13). <code>a->f</code> means "go to the node a points to and read its field f".' },
+      { hl: [12], tags: { 11: 'x', 12: 'x->p' }, row: [], ch: 1, en: '<code>x->p</code>: follow x\'s parent pointer once, to <b>12</b>, the parent.' },
+      { hl: [9], tags: { 11: 'x', 12: 'x->p', 9: 'x->p->p' }, row: [], ch: 2, en: '<code>x->p->p</code>: follow p again, to <b>9</b>, the grandparent. Read the arrows left to right, one hop each.' },
+      { hl: [12], tags: { 11: 'x', 9: 'x->p->p', 12: '->right' }, row: [], ch: 3, en: '<code>x->p->p->right</code> is <b>12</b>: that is x\'s parent itself, not the uncle! It is the uncle only when x->p is a left child. That is why rbInsert first tests <code>if (x->p == x->p->p->left)</code>: 12 == 9->left = 8? No.' },
+      { hl: [8], tags: { 11: 'x', 9: 'x->p->p', 8: 'uncle y' }, row: [], ch: 4, en: 'So the else branch runs (cases 4-6), and the uncle is the other child: <code>y = x->p->p->left</code> = <b>8</b>.' },
+      { hl: [], tags: {}, row: [], ch: -1, en: '<b>T.nil sentinel</b>: every NIL square (the children of 5, 8 and 11, the right of 12) and the root\'s parent point to ONE shared dummy node T.nil whose color is BLACK. So <code>y->color</code> is safe even when the uncle is NIL: it reads BLACK.' }
+    ];
+    const [i, ctl] = useSteps(steps.length, 3600), st = steps[i];
+    const card = [['key', '12'], ['left', '→ 11'], ['right', '→ NIL (T.nil)'], ['p', '→ 9'], ['color', 'BLACK']];
+    return html`<figure className="fig"><div className="fig-stage">
+      <${Tree} t=${t} col=${col} hl=${st.hl} tags=${st.tags} label="Tree of slide 10.16 with pointers from x = 11" />
+      ${i < 2 ? html`<table className="a10b-card"><tbody>${card.map(([f, v], j) => html`<tr key=${f} className=${st.row.includes(j) && i === 1 ? 'on' : ''}><td>12->${f}</td><td>${v}</td></tr>`)}</tbody></table>`
+        : html`<div className="a10b-chain">${chain.map((c, j) => html`<div key=${c}><span className=${j === st.ch ? 'on' : ''}>${c} = ${j <= st.ch || st.ch < 0 && i === steps.length - 1 ? vals[j] : '?'}</span></div>`)}</div>`}</div>
+      <${Cap} en=${st.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  // ── 3. the slides' rbInsert, run key by key (slides 10.25-10.31), plus root->color = BLACK ──
+  const snap = n => n ? { k: n.k, c: n.c, l: snap(n.l), r: snap(n.r) } : null;
+  const colsOf = (n, o = {}) => { if (n) { o[n.k] = n.c; colsOf(n.l, o); colsOf(n.r, o); } return o; };
+  function trace(keys) {
+    const T = { root: null }, out = [], cl = n => n ? n.c : 'B';
+    const rotL = x => { const y = x.r; x.r = y.l; if (y.l) y.l.p = x; y.p = x.p; if (!x.p) T.root = y; else if (x === x.p.l) x.p.l = y; else x.p.r = y; y.l = x; x.p = y; };
+    const rotR = y => { const x = y.l; y.l = x.r; if (x.r) x.r.p = y; x.p = y.p; if (!y.p) T.root = x; else if (y === y.p.l) y.p.l = x; else y.p.r = x; x.r = y; y.p = x; };
+    const push = (badge, en, code, x, extra = {}) => out.push({ t: snap(T.root), c: colsOf(T.root), badge, en, code, hl: x ? [x.k] : [], tags: Object.assign(x ? { [x.k]: 'x' } : {}, extra) });
+    for (const k of keys) {
+      let y = null, z = T.root; const walk = [];
+      while (z) { y = z; walk.push(k < z.k ? `${k} &lt; ${z.k}: left` : `${k} > ${z.k}: right`); z = k < z.k ? z.l : z.r; }
+      const x0 = { k, c: 'R', l: null, r: null, p: y }; if (!y) T.root = x0; else if (k < y.k) y.l = x0; else y.r = x0;
+      let x = x0;
+      push('insert ' + k, y ? `<b>treeInsert(${k})</b>: ${walk.join(', ')}. It becomes the ${k < y.k ? 'left' : 'right'} child of ${y.k}, coloured <b>red</b>.` : `<b>treeInsert(${k})</b>: the tree is empty, so ${k} becomes the root, coloured red.`, 'treeInsert(x);\nx->color = RED;', x);
+      while (x !== T.root && x.p.c === 'R') {
+        const g = x.p.p, left = x.p === g.l, u = left ? g.r : g.l, uk = u ? u.k : 'NIL', side = left ? 'left' : 'right';
+        if (cl(u) === 'R') {
+          const n = left ? 1 : 4, p = x.p; p.c = 'B'; u.c = 'B'; g.c = 'R';
+          push('Case ' + n, `x = ${x.k}, parent ${p.k} is red and is the ${side} child of ${g.k}; uncle y = ${g.k}->${left ? 'right' : 'left'} = ${uk} is <b>red</b>: Case ${n}${n === 4 ? ' (mirror of Case 1)' : ''}. ${p.k} and ${uk} black, ${g.k} red, x moves up to ${g.k}.`, `x->p->color = BLACK;  y->color = BLACK;\nx->p->p->color = RED;  x = x->p->p;`, g, { [u.k]: 'y' });
+          x = g;
+        } else {
+          if (left ? x === x.p.r : x === x.p.l) {
+            const n = left ? 2 : 5, p = x.p, xk = x.k; x = p; left ? rotL(x) : rotR(x);
+            push('Case ' + n, `x = ${xk} is a <b>${left ? 'right' : 'left'}</b> child of ${p.k}, which is the ${side} child of ${g.k}; uncle ${uk} is <b>black</b>: Case ${n}${n === 5 ? ' (mirror of Case 2)' : ''}. x = x->p = ${p.k}, then ${left ? 'leftRotate' : 'rightRotate'}(${p.k}): ${xk} moves up and ${p.k} becomes its ${side} child. Now x = ${p.k}, ready for Case ${n + 1}.`, `x = x->p;\n${left ? 'leftRotate' : 'rightRotate'}(x);`, x);
+          }
+          const n = left ? 3 : 6, p = x.p, gg = p.p; p.c = 'B'; gg.c = 'R'; left ? rotR(gg) : rotL(gg);
+          push('Case ' + n, `x = ${x.k} is a ${side} child of the ${side} child ${p.k}, uncle ${uk} <b>black</b>: Case ${n}${n === 6 ? ' (mirror of Case 3)' : ''}. ${p.k} black, ${gg.k} red, ${left ? 'rightRotate' : 'leftRotate'}(${gg.k}). ${p.k} is now black on top, so the loop ends.`, `x->p->color = BLACK;\nx->p->p->color = RED;\n${left ? 'rightRotate' : 'leftRotate'}(x->p->p);`, x);
+        }
+      }
+      if (T.root.c === 'R') { T.root.c = 'B'; push('root', `The loop stops because x is the root, but the root ${T.root.k} is <b>red</b>. The final line <code>root->color = BLACK</code> (in CLRS; missing from the slide's code) fixes #5.`, 'root->color = BLACK;', T.root); }
+      else push('done', x === T.root ? `The loop stops: x is the root. All five properties hold.` : `The loop stops: x = ${x.k} and its parent ${x.p.k} is <b>black</b>, so no red node has a red child. All five properties hold.`, 'while (x!=root && x->p->color == RED)  // false', x);
+    }
+    return out;
+  }
+  function RunInner({ keys }) {
+    const steps = useMemo(() => trace(keys), [keys]);
+    const [i, ctl] = useSteps(steps.length, 3200), st = steps[i];
+    return html`<div><div className="fig-stage">
+      <${Tree} t=${st.t} col=${st.c} hl=${st.hl} tags=${st.tags} label=${'Red-black tree after: ' + st.badge} />
+      <div className="a10b-run"><span className="a10b-badge">${st.badge}</span>${st.code}</div></div>
+      <${Cap} en=${st.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></div>`;
+  }
+  const SLIDE = [7, 5, 9, 12, 8, 11, 10];
+  function Run() {
+    const [keys, setKeys] = useState(SLIDE), [txt, setTxt] = useState(SLIDE.join(' ')), [err, setErr] = useState('');
+    const go = () => { const a = txt.split(/[\s,]+/).filter(Boolean).map(Number);
+      if (!a.length || a.some(v => !Number.isInteger(v) || v < 1 || v > 99)) return setErr('Use whole numbers from 1 to 99.');
+      if (new Set(a).size !== a.length) return setErr('Keys must be distinct.');
+      if (a.length > 10) return setErr('At most 10 keys, so the tree fits a phone.');
+      setErr(''); setKeys(a); };
+    return html`<figure className="fig">
+      <${RunInner} key=${keys.join(',')} keys=${keys} />
+      <div className="a10b-in"><span>Keys:</span><input value=${txt} onInput=${e => setTxt(e.target.value)} aria-label="Keys to insert, in order" />
+        <button className="fig-btn solid" onClick=${go}>Run</button><button className="fig-btn" onClick=${() => { setTxt(SLIDE.join(' ')); setErr(''); setKeys(SLIDE); }}>Slides' keys</button></div>
+      ${err ? html`<div className="a10b-err">${err}</div>` : null}</figure>`;
+  }
+
+  window.FIGS = Object.assign(window.FIGS || {}, { 'ag-10-paint': Paint, 'ag-10-ptrs': Ptrs, 'ag-10-run': Run });
+})();
+/* ── part L11b ── */
+// Algorithms visuals, Lecture 11 (rebuilt notes): background for deletion. Plain BST deletion, the three cases (ag-11-bstdel);
+// black nodes counted on every path to see why removing a black node breaks property 4 and what the extra black token does (ag-11-bhpath, slide tree of slides 11.17-11.24).
+(function () {
+  const { useState, useMemo } = React;
+  const { html, useSteps, Cap, Bar, calm } = window.FIGKIT;
+  const CSS = `
+.a11b-svg{ display:block; width:100%; height:auto; max-width:460px; margin:0 auto; }
+.a11b-tabs{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; }
+.a11b-tabs .fig-btn[aria-pressed="true"]{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a11b-row{ text-align:center; font-size:.9rem; color:var(--ink); margin:8px 0 0; line-height:1.5; }
+.a11b-row b{ color:var(--fig-k); }
+.a11b-leg{ display:flex; flex-wrap:wrap; gap:4px 14px; justify-content:center; font-size:.85rem; color:var(--graphite); padding:0 12px 10px; }
+`;
+  if (!document.getElementById('a11b-css')) { const s = document.createElement('style'); s.id = 'a11b-css'; s.textContent = CSS; document.head.appendChild(s); }
+  const RBK = '#1f2328', RRD = '#d23c3c', MOVE = calm() ? 'none' : 'transform .6s ease, opacity .4s ease';
+  const Tabs = ({ opts, v, set }) => html`<div className="a11b-tabs" role="group">${opts.map(([k, t]) => html`<button key=${k} className="fig-btn" aria-pressed=${String(v === k)} onClick=${() => set(k)}>${t}</button>`)}</div>`;
+
+  // tree spec: [id, label, colour ('R' | 'B' | '' for a plain BST), left, right]; layout: x by inorder slot, y by depth
+  function lay(spec, nil) {
+    const out = [], edges = [], nils = []; let slot = 0, dmax = 0;
+    const walk = (s, d, pid, side) => {
+      if (!s) { if (nil && pid) { nils.push({ id: pid + side, pid, sx: slot++, d }); dmax = Math.max(dmax, d); } return; }
+      dmax = Math.max(dmax, d);
+      if (s[1] === null) { nils.push({ id: s[0], pid, sx: slot++, d, pre: 1 }); return; }
+      walk(s[3], d + 1, s[0], 'L'); out.push({ id: s[0], label: s[1], c: s[2], sx: slot++, d, tag: s[5] }); walk(s[4], d + 1, s[0], 'R');
+      if (pid) edges.push([pid, s[0]]);
+    };
+    walk(spec, 0, null, '');
+    return { out, edges, nils, slots: slot, dmax };
+  }
+  function Tree({ spec, nil = false, counts = null, hot = {}, tok = null, label }) {
+    const L = lay(spec, nil), SL = nil ? 20 : 36, LV = nil ? 46 : 56, W = Math.max(L.slots * SL + 24, 300), ox = (W - L.slots * SL) / 2 + SL / 2;
+    const P = {}; L.out.forEach(o => { P[o.id] = [ox + o.sx * SL, 24 + o.d * LV]; }); L.nils.forEach(o => { P[o.id] = [ox + o.sx * SL, 24 + o.d * LV - 8]; });
+    const H = 24 + L.dmax * LV + (counts ? 34 : 24), R = nil ? 14 : 17;
+    return html`<svg className="a11b-svg" viewBox=${`0 0 ${W} ${H}`} role="img" aria-label=${label}>
+      ${L.edges.map(([a, b]) => html`<line key=${'e' + b} x1=${P[a][0]} y1=${P[a][1]} x2=${P[b][0]} y2=${P[b][1]} stroke="var(--graphite)" strokeWidth="2" />`)}
+      ${L.nils.map(o => html`<g key=${o.id}>${hot[o.id] ? html`<circle cx=${P[o.id][0]} cy=${P[o.id][1]} r="11" fill="none" stroke="var(--fig-k)" strokeWidth="3" />` : null}
+        ${hot[o.id] && hot[o.id] !== 1 ? html`<text x=${P[o.id][0] + 12} y=${P[o.id][1] - 8} fontSize="15" fontWeight="700" style=${{ fill: 'var(--fig-k)' }}>${hot[o.id]}</text>` : null}
+        ${tok === o.id ? html`<rect x=${P[o.id][0] - 26} y=${P[o.id][1] - 5} width="10" height="10" fill="var(--ink)" />` : null}<line x1=${P[o.pid][0]} y1=${P[o.pid][1]} x2=${P[o.id][0]} y2=${P[o.id][1]} stroke="var(--graphite)" strokeWidth="1.5" />
+        <rect x=${P[o.id][0] - 5} y=${P[o.id][1] - 5} width="10" height="10" fill=${RBK} stroke="var(--ink)" strokeWidth="1" />
+        ${counts ? html`<text x=${P[o.id][0]} y=${P[o.id][1] + 26} textAnchor="middle" fontSize="18" fontWeight="700" style=${{ fill: counts[o.id] === counts.ok ? 'var(--ok)' : 'var(--pen)' }}>${counts[o.id]}</text>` : null}</g>`)}
+      ${L.out.map(o => { const [x, y] = P[o.id], h = hot[o.id], fill = o.c === 'R' ? RRD : o.c === 'B' ? RBK : 'var(--paper)';
+        return html`<g key=${o.id} style=${{ transform: `translate(${x}px,${y}px)`, transition: MOVE }}>
+          ${h ? html`<circle r=${R + 5} fill="none" stroke="var(--fig-k)" strokeWidth="3" />` : null}
+          ${html`<circle r=${R} fill=${fill} stroke="var(--ink)" strokeWidth=${o.c ? 1.2 : 2} /><text textAnchor="middle" dy=".35em" fontSize="16" fontWeight="700" style=${{ fill: o.c ? '#fff' : 'var(--ink)' }}>${o.label}</text>`}
+          ${h && h !== 1 ? html`<text x=${R + 2} y=${-R + 2} fontSize="15" fontWeight="700" style=${{ fill: 'var(--fig-k)' }}>${h}</text>` : null}
+          ${tok === o.id ? html`<rect x=${-R - 15} y=${-R} width="10" height="10" fill="var(--ink)" />` : null}</g>`; })}
+    </svg>`;
+  }
+
+  // ── Before you start: plain BST deletion, the three cases (predecessor rule, as the slides' examples use) ──
+  const B0 = ['n50', 50, '', ['n30', 30, '', ['n20', 20, ''], ['n40', 40, '', ['n35', 35, '']]], ['n70', 70, '', ['n60', 60, ''], ['n80', 80, '']]];
+  const io = s => s ? [...io(s[3]), s[1], ...io(s[4])] : [];
+  const BST = {
+    leaf: [
+      { s: B0, en: 'A plain BST (no colours). Inorder: 20, 30, 35, 40, 50, 60, 70, 80. <b>Delete 60</b>: search 60 > 50 go right, 60 < 70 go left: found.', hot: { n60: 'z' } },
+      { s: B0, en: '<b>Case 1, a leaf</b>: 60 has no children. Nothing hangs below it, so it can simply be cut off.', hot: { n60: 'z' } },
+      { s: ['n50', 50, '', B0[3], ['n70', 70, '', null, ['n80', 80, '']]], en: 'Set 70\'s left pointer to NIL. Inorder is still sorted: 20, 30, 35, 40, 50, 70, 80.', hot: { n70: 1 } }],
+    one: [
+      { s: B0, en: '<b>Delete 40</b>: 40 < 50 go left, 40 > 30 go right: found. 40 has <b>one child</b>, 35.', hot: { n40: 'z', n35: 'x' } },
+      { s: B0, en: '<b>Case 2, one child</b>: splice 40 out. Its child x = 35 takes 40\'s place (TRANSPLANT): 30\'s right pointer → 35 and 35\'s parent → 30.', hot: { n40: 'z', n35: 'x' } },
+      { s: ['n50', 50, '', ['n30', 30, '', ['n20', 20, ''], ['n35', 35, '']], B0[4]], en: 'Done. 35 was in 30\'s right subtree, so 35 > 30 and 35 < 50: the BST order still holds. Inorder: 20, 30, 35, 50, 60, 70, 80.', hot: { n35: 'x' } }],
+    two: [
+      { s: B0, en: '<b>Delete 50</b>, the root. It has <b>two children</b>, so it cannot just be cut out: two subtrees would need one parent pointer.', hot: { n50: 'z' } },
+      { s: B0, en: '<b>Case 3, two children</b>: find the <b>predecessor</b>, the largest key in the left subtree: go left once (30), then right as far as possible (40). 40 has no right child.', hot: { n50: 'z', n30: 1, n40: 'y' } },
+      { s: ['n50', 40, '', B0[3], B0[4]], en: 'Copy 40 into the node of 50. The node stays where it is (in an RB tree it keeps its colour); only the key changes. Now there are two 40s.', hot: { n50: 'z', n40: 'y' } },
+      { s: ['n50', 40, '', B0[3], B0[4]], en: 'Remove the old node y = 40. It has at most one child (a predecessor never has a right child), so this is case 1 or 2: here case 2, and its child x = 35 takes its place.', hot: { n40: 'y', n35: 'x' } },
+      { s: ['n50', 40, '', ['n30', 30, '', ['n20', 20, ''], ['n35', 35, '']], B0[4]], en: 'Done: inorder 20, 30, 35, 40, 60, 70, 80, still sorted. With the <b>successor</b> (smallest key in the right subtree, 60) the root would become 60 instead; the slides\' examples use the predecessor.', hot: { n50: 1, n35: 'x' } }]
+  };
+  function BstDel() {
+    const [c, setC] = useState('leaf');
+    return html`<figure className="fig"><div className="fig-stage" style=${{ paddingBottom: '4px' }}>
+      <${Tabs} opts=${[['leaf', 'Leaf: delete 60'], ['one', 'One child: delete 40'], ['two', 'Two children: delete 50']]} v=${c} set=${setC} /></div>
+      <${BstRun} key=${c} steps=${BST[c]} /></figure>`;
+  }
+  function BstRun({ steps }) {
+    const [i, ctl] = useSteps(steps.length, 3000), st = steps[i];
+    return html`<div className="fig-stage" style=${{ paddingTop: '4px' }}><${Tree} spec=${st.s} hot=${st.hot} label="Binary search tree deletion" />
+      <p className="a11b-row">Inorder: ${io(st.s).join(', ')}</p></div>
+      <${Cap} en=${st.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} />`;
+  }
+
+  // ── black nodes per root-to-NIL path, on the slides' deletion tree (slides 11.17-11.24) ──
+  function counts(spec) {
+    const c = { };
+    const walk = (s, b, pid, side) => { if (!s) { c[pid + side] = b + 1; return; } if (s[1] === null) { c[s[0]] = b + 1 + (s[6] || 0); return; } const nb = b + (s[2] === 'B' ? 1 : 0) + (s[6] || 0); walk(s[3], nb, s[0], 'L'); walk(s[4], nb, s[0], 'R'); };
+    walk(spec, 0, null, '');
+    const v = Object.values(c), f = {}; v.forEach(x => { f[x] = (f[x] || 0) + 1; }); c.ok = +Object.keys(f).sort((a, b) => f[b] - f[a])[0];
+    return c;
+  }
+  const DT = ['k47', 47, 'B', ['k32', 32, 'B'], ['k71', 71, 'R', ['k65', 65, 'B'], ['k87', 87, 'B', ['k82', 82, 'R'], ['k93', 93, 'R']]]];
+  const DT2 = ['k47', 47, 'B', ['k32', 32, 'B'], ['k71', 71, 'R', ['k65', 65, 'B', ['k51', 51, 'R']], ['k87', 87, 'B', ['k82', 82, 'R'], ['k93', 93, 'R']]]];
+  const BH = {
+    red: [
+      { s: DT, en: 'The slides\' deletion tree. The number under each NIL square counts the black nodes on the path from the root down to it (NIL included). Every path has <b>3</b>: property 4 holds.' },
+      { s: DT, en: 'Remove the <b>red</b> leaf 82 (this is what happens to the predecessor in deletion example 1).', hot: { k82: 'y' } },
+      { s: ['k47', 47, 'B', ['k32', 32, 'B'], ['k71', 71, 'R', ['k65', 65, 'B'], ['k87', 87, 'B', null, ['k93', 93, 'R']]]], en: 'Every path still has 3 black nodes: a red node is never counted, so removing it changes no count. No red-red pair can appear either. <b>Nothing to fix.</b>' }],
+    black: [
+      { s: DT, en: 'Same tree, every path has <b>3</b> black nodes. Now remove the <b>black</b> leaf 32 (deletion example 3).', hot: { k32: 'y' } },
+      { s: ['k47', 47, 'B', ['kx', null, 'B', null, null, 'x'], DT[4]], en: 'A pretend NIL node x takes 32\'s place. The path 47 → x now has only <b>2</b> black nodes, the others 3: <b>property 4 is broken</b>.', hot: { kx: 'x' } },
+      { s: ['k47', 47, 'B', ['kx', null, 'B', null, null, 'x', 1], DT[4]], en: 'Give x an <b>extra black token</b> ■ and count it twice: back to 3 on every path, so property 4 holds again. But x is now <b>doubly black</b>, which breaks property 1 (a node is red <i>or</i> black). rbTreeFix must push the token away.', hot: { kx: 'x' }, tok: 'kx' }],
+    child: [
+      { s: DT2, en: 'Deletion example 2\'s tree: 65 now has a red left child 51. Every path has <b>3</b> black nodes.' },
+      { s: ['k47', 47, 'B', ['k32', 32, 'B'], ['k71', 65, 'R', ['k65', 65, 'B', ['k51', 51, 'R']], DT2[4][4]]], en: 'Delete 71: copy its predecessor 65 into its node (which stays red). Then the old node y = 65 (<b>black</b>) is removed.', hot: { k65: 'y', k51: 'x' } },
+      { s: ['k47', 47, 'B', ['k32', 32, 'B'], ['k71', 65, 'R', ['k51', 51, 'R', null, null, 'x', 1], DT2[4][4]]], en: 'x = 51 takes its place: the paths through 51 have only <b>2</b> black nodes, so x gets the token ■. x is <b>red</b> with a token ("red and black").', hot: { k51: 'x' }, tok: 'k51' },
+      { s: ['k47', 47, 'B', ['k32', 32, 'B'], ['k71', 65, 'R', ['k51', 51, 'B'], DT2[4][4]]], en: '<b>rbTreeFix case (1)</b>: x is red, so colour it black and drop the token. Every path has 3 again. Done.', hot: { k51: 'x' } }]
+  };
+  function BhPath() {
+    const [c, setC] = useState('red');
+    return html`<figure className="fig"><div className="fig-stage" style=${{ paddingBottom: '4px' }}>
+      <${Tabs} opts=${[['red', 'Remove a red node'], ['black', 'Remove a black leaf'], ['child', 'Black node, red child']]} v=${c} set=${setC} /></div>
+      <${BhRun} key=${c} steps=${BH[c]} />
+      <div className="a11b-leg"><span>■ next to a node = extra black token</span><span>numbers = black nodes on each path</span></div></figure>`;
+  }
+  function BhRun({ steps }) {
+    const [i, ctl] = useSteps(steps.length, 3200), st = steps[i], cn = useMemo(() => counts(st.s), [i]);
+    return html`<div className="fig-stage" style=${{ paddingTop: '4px' }}><${Tree} spec=${st.s} nil=${true} counts=${cn} hot=${st.hot || {}} tok=${st.tok} label="Black nodes counted on every root-to-NIL path" /></div>
+      <${Cap} en=${st.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} />`;
+  }
+
+  // slides 11.22-11.29: deletion example 3, delete 32, with the black count of every path
+  const R87 = DT[4][4], X = t => ['kx', null, 'B', null, null, 'x', t];
+  const EX3 = [
+    { s: DT, en: 'Slide 11.22: <b>delete 32</b>, a black node with no real children. Every path has 3 black nodes.', hot: { k32: 'y' } },
+    { s: ['k47', 47, 'B', X(1), DT[4]], en: 'Slides 11.23-11.24: 32 is removed and a black pretend node x takes its place. Without the token its path would have 2; x carries the token ■ (counts 3 again) and is doubly black: call rbTreeFix(x).', hot: { kx: 'x' }, tok: 'kx' },
+    { s: ['k47', 47, 'B', X(1), DT[4]], en: 'Slide 11.27: x is a left child and its sibling y = 71 is <b>red</b>: <b>case (2)</b>.', hot: { kx: 'x', k71: 'y' }, tok: 'kx' },
+    { s: ['k71', 71, 'B', ['k47', 47, 'R', X(1), ['k65', 65, 'B']], R87], en: 'Case (2): 71 black, 47 red, left-rotate 47 (slide 11.28). x\'s new sibling y = 65 is black, with two NIL (black) children.', hot: { kx: 'x', k65: 'y' }, tok: 'kx' },
+    { s: ['k71', 71, 'B', ['k47', 47, 'R', X(0), ['k65', 65, 'R'], null, 1], R87], en: '<b>Case (3)</b>: both nephews are black, so colour 65 red and pass the token up: x = 47.', hot: { k47: 'x' }, tok: 'k47' },
+    { s: ['k71', 71, 'B', ['k47', 47, 'B', null, ['k65', 65, 'R']], R87], en: 'Slide 11.29: x = 47 is red, so the loop stops and x.setColor(black) colours it black (case (1)); the pretend node is detached. Every path has 3 black nodes again.', hot: { k47: 1 } }];
+  function Ex3() {
+    return html`<figure className="fig"><${BhRun} steps=${EX3} /><div className="a11b-leg"><span>■ next to a node = extra black token</span><span>numbers = black nodes on each path</span></div></figure>`;
+  }
+
+  window.FIGS = Object.assign(window.FIGS || {}, { 'ag-11-bstdel': BstDel, 'ag-11-bhpath': BhPath, 'ag-11-ex3': Ex3 });
 })();

@@ -2651,7 +2651,7 @@ window.COURSES.algo = {
         {
           "n": 8,
           "code": "Lec 8",
-          "title": "Lecture 8: Hashing — Hash Functions, Amortized Analysis of Dynamic Tables, Separate Chaining & Open Addressing",
+          "title": "Lecture 8: Hash Functions, Amortized Table Doubling, Separate Chaining and Open Addressing",
           "videos": [
             {
               "id": "JZHBa-rLrBA",
@@ -2704,78 +2704,510 @@ window.COURSES.algo = {
           ],
           "notes": [
             {
-              "h": "Direct Addressing & Four Hash Function Methods (Slides 8.1–8.15)",
+              "h": "Before you start: dictionaries, keys and table slots",
               "pts": [
-                "<b>Direct Addressing (Slides 8.5–8.6)</b>: $h(k) = k$ stores each key at its own index in $O(1)$ worst-case search/insert/delete, but wastes massive memory when the universe of keys is large.",
-                "<b>Four Hash Function Construction Methods (Slides 8.7–8.15)</b>:<ul><li><b>1. Division Method</b>: $h(k) = k \\bmod n$. Choose table size $n$ to be a <b>prime number</b> not close to a power of 2 or 10 (Slide 8.9 shows why $n=4$ maps $10, 20, 30, 40, 50$ only to slots $0$ and $2$, whereas prime $n=7$ spreads them across $3, 6, 2, 4, 1$).</li><li><b>2. Multiplication Method</b>: $h(k) = \\lfloor n (k A \\bmod 1) \\rfloor$ where $0 < A < 1$ (Knuth suggests $A \\approx (\\sqrt{5}-1)/2 \\approx 0.618033$). Slide 8.11 Example ($n=100, A=0.618033$): $h(123) = \\lfloor 100(76.018059 \\bmod 1) \\rfloor = \\lfloor 1.8059 \\rfloor = 1$; $h(150) = \\lfloor 100(92.70495 \\bmod 1) \\rfloor = 70$. Note: In binary implementation $m = 2^p$ (so for $p=7$, $m = 2^7 = 128$, Final 2 Q6).</li><li><b>3. Mid-Square Method</b>: Square $k$ ($k^2$) and extract the middle $r$ digits (e.g., $n=100 \\implies r=2$ digits).</li><li><b>4. Folding Method</b>: Partition key $K$ into parts matching the address width and add them. Slide 8.15 Example (`K = 12345678`, 2-digit address `0..99`):<ul><li><b>Fold-Shifting</b>: $12 + 34 + 56 + 78 = 180 \\implies 180 \\bmod 100 = \\mathbf{80}$.</li><li><b>Fold-Boundary</b> (reverse outer parts `12→21` and `78→87`): $21 + 34 + 56 + 87 = 198 \\implies 198 \\bmod 100 = \\mathbf{98}$.</li></ul></li></ul>"
+                "A <b>dictionary</b> (also called a dynamic set) stores items, each with a key, and supports three operations: <code>INSERT(x)</code>, <code>SEARCH(k)</code> (find the item whose key is k, or report that it is not there) and <code>DELETE(x)</code>.",
+                "Example: a phone book. The key is the name; the phone number is extra data that travels with the key. We always search <i>by the key</i>.",
+                "Search in an unsorted list (array) of n items must check the items one by one: up to n comparisons, O(n). Finding 100 in 10, 20, 30, …, 100 takes 10 comparisons.",
+                "Search in a balanced <b>binary search tree</b> (BST) is O(lg n): at each node you compare and go left (smaller keys) or right (larger keys), so you walk one root-to-leaf path. Slide 8.3's tree with root 27 holds 7 keys; every search needs at most 3 comparisons (lg 8 = 3).",
+                "Hashing aims for O(1) on average: compute <i>where</i> the key lives directly, instead of searching for it.",
+                "A <b>table slot</b> is one cell of an array T[0..m−1]. m is the table size, and a slot index is a whole number from 0 to m−1. A <b>hash function</b> h maps every key to a slot: h(k) ∈ {0, 1, …, m−1}.",
+                "Keys must be <b>integers</b> so we can do arithmetic on them. A string becomes a number through its character codes: in ASCII C = 67, A = 65, T = 84. Adding them gives 67 + 65 + 84 = 216.",
+                "Plain sums give anagrams the same number (\"CAT\" and \"ACT\" are both 216), so they would always collide. Better: weight each position like digits in base 128: \"CAT\" = 67·128² + 65·128 + 84 = 1,106,132.",
+                "The <b>universe</b> U is the set of all possible keys (for example all 9-digit student IDs: 10⁹ of them), while only n keys are stored (say 300 students). The table size m is chosen close to n, not close to |U|."
+              ],
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "fig": [
+                "ag-8-keyslot"
+              ],
+              "figAt": {
+                "ag-8-keyslot": 7
+              },
+              "figH": {
+                "ag-8-keyslot": "From a key to a slot: \"CAT\" becomes 216, 216 mod 11 = 7, and \"ACT\" collides with it"
+              }
+            },
+            {
+              "h": "Before you start: mod, floor, digits, primes and gcd",
+              "pts": [
+                "<b>k mod m</b> is the remainder when k is divided by m. It is always between 0 and m−1, which is exactly the range of slot indices. 17 mod 7 = 3, because 17 = 2·7 + 3.",
+                "More with the slides' numbers: 172 mod 157 = 15 (172 = 1·157 + 15); 30 mod 4 = 2 (30 = 7·4 + 2); 62 mod 11 = 7 (62 = 5·11 + 7). A key smaller than m stays as it is: 7 mod 11 = 7.",
+                "Adding and then taking mod wraps around the end of the table: (7 + 4) mod 11 = 11 mod 11 = 0, so a probe past slot 10 continues at slot 0.",
+                "In code, <code>%</code> is the mod operator: <code>180 % 100</code> = 80. Taking % 100 keeps the last two digits; % 10 keeps the last digit.",
+                "The <b>floor</b> ⌊x⌋ is the largest integer ≤ x: ⌊1.8059⌋ = 1, ⌊70.495⌋ = 70, ⌊3⌋ = 3. It throws away the fraction.",
+                "<b>x mod 1</b> is the fractional part of x, that is x − ⌊x⌋: 76.018059 mod 1 = 0.018059 and 92.70495 mod 1 = 0.70495. It is always ≥ 0 and < 1.",
+                "Because the fractional part is in [0, 1), the value ⌊n · fraction⌋ is one of 0, 1, …, n−1: a valid slot. That is why the multiplication method multiplies by n and then takes the floor.",
+                "Digit operations used by the slides: the middle 3 digits of 1522756 are 227; reversing the part 12 gives 21; splitting 12345678 into 2-digit parts gives 12, 34, 56, 78.",
+                "A <b>prime</b> number has no divisors except 1 and itself: 2, 3, 5, 7, 11, 13, 157 are prime; 4, 10, 16, 100 are not.",
+                "<b>gcd(a, b)</b> is the greatest common divisor of a and b. They are <b>relatively prime</b> when gcd(a, b) = 1. Examples: gcd(5, 10) = 5, gcd(4, 10) = 2, gcd(3, 10) = 1, gcd(1, 11) = 1.",
+                "Why gcd matters for probing: stepping by 5 around a table of 10 starting at slot 5 visits 5, 0, 5, 0, … (only 10 / gcd(5, 10) = 2 slots). Stepping by 3 visits 5, 8, 1, 4, 7, 0, 3, 6, 9, 2: all 10 slots, since gcd(3, 10) = 1."
+              ],
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
+            },
+            {
+              "h": "Before you start: collisions, probability and load factor",
+              "pts": [
+                "A <b>collision</b> happens when two different keys get the same slot: h(k₁) = h(k₂) with k₁ ≠ k₂. With h(k) = k mod 10, keys 0 and 30 both give slot 0 (Slide 8.7).",
+                "<b>Pigeonhole principle</b>: if more than m items are put into m boxes, some box gets at least two. With n = 12 keys and m = 11 slots, at least one slot holds 2 keys, whatever the hash function is.",
+                "The universe U is far bigger than m, so many possible keys share every slot: collisions cannot be avoided, only handled. The lecture handles them with separate chaining (Slides 8.30–8.48) and open addressing (Slides 8.49–8.94).",
+                "<b>Probability</b> of an event = favourable outcomes / all outcomes, when the outcomes are equally likely. If a key is equally likely to go to any of m = 3 slots, the chance that it goes to slot 2 is 1/3.",
+                "<b>Expected value</b> = Σ (value × its probability), the long-run average. A fair die: (1 + 2 + 3 + 4 + 5 + 6) · 1/6 = 3.5.",
+                "The expected value of a sum is the sum of the expected values. Each of the n keys falls into a given slot with probability 1/m, so the expected number of keys in that slot is n · (1/m) = n/m.",
+                "<b>Simple uniform hashing</b> (Slide 8.33): the assumption that each key is equally likely to be hashed to any slot of the table, independently of where the other keys went.",
+                "<b>Load factor</b> α = n/m (number of keys stored / number of slots). Under simple uniform hashing it is the expected length of a chain. Slide 8.33: n = 3, m = 3 gives α = 1; n = 6, m = 3 gives α = 2.",
+                "With chaining α may be larger than 1 (chains just get longer). With open addressing every key needs its own slot, so there α ≤ 1.",
+                "Repeated trials: if each try succeeds with probability p, the expected number of tries until the first success is 1/p. In open addressing a probe finds an empty slot with probability about 1 − α, which is where the 1/(1 − α) of Slide 8.90 comes from."
+              ],
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
+            },
+            {
+              "h": "Before you start: growing arrays and geometric sums",
+              "pts": [
+                "An array has a fixed size, chosen when it is allocated. To make it bigger you must allocate a new larger array, <b>copy</b> every old item into it, then free the old one: exactly the three steps of Slide 8.18.",
+                "Cost model of the slides: writing one item costs 1 and copying one item costs 1 (\"1 dollar pays for 1 unit of work\", Slide 8.25). Growing a full table of s items therefore costs s copies plus 1 for the new item.",
+                "Example (Slide 8.20, c₅ = 5): the table of size 4 is full with 4 items; inserting the 5th allocates size 8, copies 4 items and writes 1, cost 4 + 1 = 5.",
+                "Doubling makes copying rare: the sizes go 1, 2, 4, 8, 16, …, so a copy happens only when the number of items passes a power of 2.",
+                "<b>Geometric sum</b>: 1 + 2 + 4 + … + 2ᵏ = 2ᵏ⁺¹ − 1. Example: 1 + 2 + 4 + 8 = 15 = 16 − 1. Each term is bigger than all the earlier terms together.",
+                "So the copies made during n insertions add up to 1 + 2 + … + 2ᵏ with 2ᵏ < n, which is less than 2 · 2ᵏ < 2n. Example n = 17: copies 1 + 2 + 4 + 8 + 16 = 31 < 34.",
+                "Summation notation: Σᵢ₌₁ⁿ cᵢ means c₁ + c₂ + … + cₙ. \"Σ cᵢ ≤ Σ ĉᵢ\" says that the true total cost is at most the total amount charged.",
+                "One expensive operation versus a whole sequence: a single insert can cost n (a big copy), but n inserts together never cost n · n. Bounding the total and dividing by n is the idea of <b>amortized analysis</b> (Slides 8.16–8.29)."
+              ],
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
+            },
+            {
+              "h": "What hashing is, and direct hashing (Slides 8.1–8.6)",
+              "pts": [
+                "Lecture outline (Slide 8.2): hashing definition, hashing methods (hash functions), amortized analysis, separate chaining, open addressing.",
+                "Slide 8.3 recalls that search in a list is O(n) and in a binary search tree O(lg n), and asks: is it possible to search in less time? Hashing answers yes, on average.",
+                "<b>Hashing</b> (Slide 8.4): a data structure that uses a special function, the <b>hash function</b>, to map a given key to a position for faster access. How well it works depends on how good the hash function is.",
+                "Costs (Slide 8.4): best case O(1), average case O(1), worst case O(n), when many keys collide into the same place. A hash table maps keys to values, and keys competing for the same bucket are a collision (Final Q1 & Q2).",
+                "<b>Direct hashing</b> (Slide 8.5): the key <i>is</i> the address, with no algorithmic manipulation: h(K) = K. Keys 1, 4, 7, 9, 0, 8 go to slots 1, 4, 7, 9, 0, 8 of the table 0..9.",
+                "The slide's key space also contains 30. It needs slot 30, but the table only has slots 0 to 9: to store 7 keys the array would need 31 cells.",
+                "Advantages (Slide 8.6): searching, insertion and deletion are all O(1), one array access each; every key has its own cell, so there are no collisions. Direct addressing gives O(1) search (Final Q9 & Q10).",
+                "Disadvantages (Slide 8.6): memory consuming. The address space (the array) must be as large as the largest key value, which is wasteful when keys are large but few: 300 student IDs of 9 digits would need 10⁹ cells ‡."
               ],
               "fig": [
-                "ag-8-direct",
-                "ag-8-mod-prime",
+                "ag-8-direct"
+              ],
+              "figAt": {
+                "ag-8-direct": 5
+              },
+              "figH": {
+                "ag-8-direct": "Direct hashing h(K) = K, then the division method and its collision"
+              }
+            },
+            {
+              "h": "Division method, and why the table size should be prime (Slides 8.7–8.9)",
+              "pts": [
+                "<b>Division method</b> (Slide 8.7): h(k) = k mod n, where n is the size of the hash table. The hash value is the remainder of k divided by n.",
+                "Slide 8.7's example, n = 10: keys 1, 4, 7, 9, 0, 8 land in their own slots, 35 mod 10 = 5 goes to slot 5, and 30 mod 10 = 0 wants slot 0, which key 0 already holds: a <b>collision</b>.",
+                "Advantage (Slide 8.8): fast, it needs only one operation.",
+                "Disadvantage (Slide 8.8): certain values of n are bad, namely non-prime numbers and powers of 2 (2ᵖ). Why? Because they may cause a lot of collisions, so it is better to use a prime n.",
+                "Why powers of 2 are bad ‡: k mod 2ᵖ is just the last p bits of k, so keys that differ only in their higher bits always collide. With n = 16, keys 5, 21 and 37 all give 5.",
+                "Slide 8.9: with random data any size works, but real data often has a pattern. Keys 10, 20, 30, 40, 50 with mod 4 give 2, 0, 2, 0, 2: of the four possible values 0, 1, 2, 3 only 0 and 2 are used, and they collide (the slide says \"3 possible values\").",
+                "With the prime 7: 10 mod 7 = 3, 20 mod 7 = 6, 30 mod 7 = 2, 40 mod 7 = 5, 50 mod 7 = 1. Five keys, five different slots, no collisions. (The slide shows 40 mod 7 = 4; since 40 = 5·7 + 5 it is 5.)",
+                "Why the prime helps ‡: all the keys are multiples of 10, and gcd(10, 4) = 2, so they can only reach every second slot of a table of 4. Since 7 shares no factor with 10, multiples of 10 reach every slot of a table of 7.",
+                "Exam rule: h(k) = k mod m with m a prime not close to an exact power of 2 (Final Q3 & Q4). With m = 157, key 172 goes to 172 mod 157 = 15 (Final Q5)."
+              ],
+              "fig": [
+                "ag-8-mod-prime"
+              ],
+              "figAt": {
+                "ag-8-mod-prime": 6
+              },
+              "figH": {
+                "ag-8-mod-prime": "Why n should be prime: 10, 20, 30, 40, 50 mod 4 and mod 7"
+              }
+            },
+            {
+              "h": "Multiplication, mid-square and folding methods (Slides 8.10–8.15)",
+              "pts": [
+                "<b>Multiplication method</b> (Slide 8.10): h(k) = ⌊n (kA mod 1)⌋, where A is a constant between 0 and 1. Multiply k by A, keep only the fractional part, multiply it by n, and take the floor.",
+                "Advantage: the value of n is not critical (it need not be prime). Disadvantage: slower than the division method (a multiplication, a fraction and a floor instead of one mod).",
+                "Slide 8.11, k = 123, n = 100, A = 0.618033: 123 × 0.618033 = 76.018059; mod 1 gives 0.018059; × 100 gives 1.8059; the floor gives <b>h(123) = 1</b>.",
+                "Slide 8.11, k = 150: 150 × 0.618033 = 92.70495; mod 1 gives 0.70495; × 100 gives 70.495; the floor gives <b>h(150) = 70</b>.",
+                "A = 0.618033 ≈ (√5 − 1)/2 is the value Knuth suggests ‡. In the binary implementation the table size is a power of 2, m = 2ᵖ ‡: p = 7 gives m = 2⁷ = 128 (Final Q6).",
+                "<b>Mid-square method</b> (Slide 8.12): square the key and take the middle r digits as the hash value. r depends on the table size n: n = 10 → r = 1, n = 100 → r = 2, n = 1000 → r = 3 (the slide writes \"bits\"; it means decimal digits).",
+                "Advantage: far fewer collisions, because the middle digits of k² depend on every digit of k. Disadvantage: the square of a large key is hard to compute (it has twice as many digits).",
+                "Slide 8.13's examples:<ul><li>k = 120, n = 10: k² = 14400, middle digit 4, h(120) = 4.</li><li>k = 50, n = 100: k² = 2500, middle two digits 50, h(50) = 50.</li><li>k = 1234, n = 1000 (range 0 to 999; the slide shows 0→199): k² = 1522756, middle three 227, h(1234) = 227.</li><li>k = 110, n = 200 (range 0 to 199): k² = 12100, middle three 210 is out of range, so 210 % 200 = 10, h(110) = 10 (the slide writes h(50)).</li><li>k = 5642, n = 1000: k² = 31832164 has 8 digits, the middle four are 8321, and 8321 % 1000 = 321, h(5642) = 321.</li></ul>",
+                "When the middle digits are too large for the table (the last two examples), take them mod n to bring them into the range.",
+                "<b>Folding method</b> (Slide 8.14): partition the key K into parts K1, K2, …, then add the parts together. The part size depends on the address size: key 12345678 with 3-digit addresses splits into 123, 456, 78; with 4-digit addresses into 1234, 5678.",
+                "<b>Fold-shifting</b> (Slide 8.15): add the parts as they are. Key 12345678, two-digit addresses (0 to 99): 12 + 34 + 56 + 78 = 180, and 180 % 100 = <b>80</b> is the location.",
+                "<b>Fold-boundary</b> (Slide 8.15): reverse the outer parts (first and last) before adding: 12 becomes 21 and 78 becomes 87, so 21 + 34 + 56 + 87 = 198, and 198 % 100 = <b>98</b> is the location.",
+                "The final % 100 keeps the sum inside the address range 0 to 99 (it drops the carry digit 1 of 180 and 198)."
+              ],
+              "fig": [
                 "ag-8-mult",
                 "ag-8-midsquare",
                 "ag-8-folding"
               ],
               "figAt": {
-                "ag-8-direct": 0,
-                "ag-8-mod-prime": 1,
-                "ag-8-mult": 1,
-                "ag-8-midsquare": 1,
-                "ag-8-folding": 1
+                "ag-8-mult": 3,
+                "ag-8-midsquare": 7,
+                "ag-8-folding": 11
               },
               "figH": {
-                "ag-8-direct": "Direct hashing h(K) = K, then the division method and its collision",
-                "ag-8-mod-prime": "Why n should be prime: 10, 20, 30, 40, 50 mod 4 and mod 7",
                 "ag-8-mult": "Multiplication method: h(123) = 1 and h(150) = 70, line by line",
                 "ag-8-midsquare": "Mid-square method: the slide's five examples",
                 "ag-8-folding": "Folding 12345678: fold-shifting gives 80, fold-boundary gives 98"
               }
             },
             {
-              "h": "Amortized Analysis of Dynamic Hash Table Doubling (Slides 8.16–8.29)",
+              "h": "Amortized analysis and the aggregate method (Slides 8.16–8.23)",
               "pts": [
-                "<b>Dynamic Table Doubling Problem (Slides 8.16–8.23, Midterm 2018 Q6, Final 2019 Q2 & Final Summer Q28)</b>: Start with table capacity $1$ and double the table size ($1, 2, 4, 8, 16, \\dots$) whenever an insertion overflows the current table, copying all existing elements into the new table:<ul><li><b>1. Aggregate Method</b>: The $i$-th insertion costs $c_i = i$ if $i - 1$ is a power of 2 ($i = 1, 2, 3, 5, 9, \\dots$, where $i-1 = 2^k$ items are copied + $1$ new item inserted), and $c_i = 1$ otherwise. For $n$ insertions: $\\sum_{i=1}^n c_i \\le n + \\sum_{j=0}^{\\lfloor \\lg(n-1) \\rfloor} 2^j < n + 2n = 3n = O(n)$. Thus the amortized cost per insertion is $\\frac{3n}{n} = \\mathbf{3 = O(1)}$!</li><li><b>2. Accounting (Banker's) Method (Slides 8.24–8.26)</b>: Charge $\\hat{c}_i = \\mathbf{\\$3}$ per insertion: $\\$1$ pays for the immediate insertion, $\\$1$ is stored as credit on the newly inserted element itself, and $\\$1$ is stored as credit on one of the already-present elements in the first half of the table. When the table fills from $m/2$ to $m$, every one of the $m$ elements holds $\\$1$ credit, paying for all $m$ copies on the next doubling with bank balance never dropping below $0$!</li><li><b>3. Potential (Physicist's) Method (Slides 8.27–8.29)</b>: Define potential $\\Phi(D_i) = 2 \\cdot \\text{num}_i - \\text{size}_i$. For a non-expansion step, $\\hat{c}_i = c_i + \\Phi(D_i) - \\Phi(D_{i-1}) = 1 + 2 = 3$. For an expansion step ($\\text{size}_i = 2\\cdot\\text{size}_{i-1}, \\text{num}_{i-1} = \\text{size}_{i-1}$), $\\hat{c}_i = \\text{num}_i + (2) - (\\text{num}_i - 1) = 3 = O(1)$!</li></ul>"
-              ],
-              "formula": [
-                "Aggregate Method (Table Doubling 1, 2, 4, 8…): Total Cost = n + Σ (j = 0 … ⌊lg n⌋) 2ʲ < n + 2n = 3n ⇒ Amortized Cost = 3n / n = O(1)",
-                "Accounting Method: Charge $3 per insert ($1 immediate write + $1 self-credit + $1 partner-credit)",
-                "Potential Method: Φ(Dᵢ) = 2·numᵢ − sizeᵢ ⇒ Amortized Cost ĉᵢ = cᵢ + Φ(Dᵢ) − Φ(Dᵢ₋₁) = 3 = O(1)"
+                "<b>Amortized analysis</b> (Slide 8.16) is for algorithms where an occasional operation is very slow but most operations are fast. We analyze a whole sequence of operations and guarantee a worst-case average time per operation, lower than the worst case of the one expensive operation.",
+                "No probability is involved ‡: it is a guaranteed bound on the total cost of any sequence, divided by the number of operations. A structure should not be labelled costly just because a rarely performed operation is costly.",
+                "Three common methods (Slide 8.16): the aggregate method, the accounting method and the potential method.",
+                "<b>Aggregate method</b> (Slide 8.17): find the total cost of n operations, then divide by n: amortized cost = Cost(n operations) / n = [Cost(normal operations) + Cost(expensive operations)] / n.",
+                "The example (Slide 8.18) is hash table insertions. A big table makes search fast but needs a lot of space; a small one fills up. The solution is a <b>dynamic array</b>: when the table is full, (1) allocate a table of twice the size, (2) copy the old contents into it, (3) free the old table. If there is space, just insert.",
+                "Slide 8.18's picture starts from an empty table of size 0. Item 1 gives size 1, item 2 size 2, item 3 size 4, item 5 size 8; the slide marks items 1, 2 and 4 \"Overflow\" because after them the table is full. The next overflow happens when we insert 9: the size becomes 16.",
+                "Simple analysis (Slide 8.19): one insertion costs O(n) in the worst case (copy everything), so n insertions cost n · O(n) = O(n²). That is a correct upper bound, but far from tight.",
+                "A deeper look (Slide 8.20): let cᵢ be the cost of the i-th insertion. cᵢ = i if i − 1 is an exact power of 2 (copy the i − 1 old items, write 1), and cᵢ = 1 otherwise.",
+                "Slide 8.20's table for i = 1..10: sizeᵢ = 1, 2, 4, 4, 8, 8, 8, 8, 16, 16 and cᵢ = 1, 2, 3, 1, 5, 1, 1, 1, 9, 1. Doublings happen at i = 2, 3, 5, 9 (i − 1 = 1, 2, 4, 8). At i = 1, i − 1 = 0 is not a power of 2, so c₁ = 1.",
+                "Slide 8.21 splits each cost into 1 (the write every insertion pays) plus the copies of the doubling insertions: 1, 2, 4, 8.",
+                "Slide 8.22: Cost = (1 + 1 + 1 + … , n terms) + (1 + 2 + 4 + …) ≤ n + 2n, because the copies form a geometric series smaller than 2n. So n insertions cost O(3n) = O(n).",
+                "Written exactly ‡: Σ cᵢ (i = 1 to n) ≤ n + (2⁰ + 2¹ + … + 2ᵏ) with k = ⌊lg(n−1)⌋, and that sum is 2ᵏ⁺¹ − 1 < 2n, so the total is < n + 2n = 3n.",
+                "Slide 8.23: amortized cost = (1 + 2 + 3 + 1 + 5 + 1 + 1 + 1 + 9 + 1 + …) / n ≤ (n + 2n) / n = 3, so the amortized cost of one insertion is <b>O(1)</b>.",
+                "Check ‡: for n = 10 the costs add up to 25 ≤ 30 = 3n; for n = 17 they add up to 48 ≤ 51, although insertion 17 alone costs 17.",
+                "Exam: the aggregate proof is asked in Midterm 2018 Q6 and Final 2019 Q2; Final Summer Q28 asks for the result (O(n) total, O(1) per insertion)."
               ],
               "fig": [
                 "ag-8-aggregate",
+                "ag-8-costbars"
+              ],
+              "figAt": {
+                "ag-8-aggregate": 12,
+                "ag-8-costbars": 13
+              },
+              "figH": {
+                "ag-8-aggregate": "Aggregate method: ten insertions into a doubling table cost at most 3n",
+                "ag-8-costbars": "Cost of every insertion as a bar: rare tall bars, total never above 3n"
+              },
+              "formula": [
+                "Aggregate Method (Table Doubling 1, 2, 4, 8…): Total Cost = n + Σ (j = 0 … ⌊lg n⌋) 2ʲ < n + 2n = 3n ⇒ Amortized Cost = 3n / n = O(1)"
+              ]
+            },
+            {
+              "h": "Accounting and potential methods (Slides 8.24–8.29)",
+              "pts": [
+                "<b>Accounting method</b> (Slide 8.24): charge the i-th operation an amortized cost ĉᵢ, where 1 dollar pays for 1 unit of work. The fee pays for the operation, and any amount not consumed is stored in the <b>bank</b> for later operations.",
+                "The bank balance must never go negative. That is the condition Σᵢ₌₁ⁿ cᵢ ≤ Σᵢ₌₁ⁿ ĉᵢ for every n: the money charged always covers the true work.",
+                "Slide 8.25 asks how much to charge each APPEND so that all future costs can be paid for. Answer: charging 3 dollars upon each APPEND is enough for every cost in the sequence.",
+                "Why 3 dollars is enough ‡: 1 dollar writes the new item now, 1 dollar is saved to copy this item at the next doubling, and 1 dollar is saved to copy one older item whose savings were spent at the last doubling.",
+                "Following the money: right after doubling to size 8 the bank holds 3 (b₅ = 3). Inserts 6, 7, 8 each cost 1 and add 2, so the bank reaches 9; insert 9 costs 8 copies + 1 write = 9 and leaves 9 + 3 − 9 = 3.",
+                "Key invariant (Slide 8.26): the bank balance never drops below 0, so the sum of the amortized costs (3n) is an upper bound on the sum of the true costs.",
+                "Slide 8.26's table, with ĉᵢ = 3 always and bᵢ = bᵢ₋₁ + 3 − cᵢ: cᵢ = 1, 2, 3, 1, 5, 1, 1, 1, 9, 1 and bᵢ = 2, 3, 3, 5, 3, 5, 7, 9, 3, 5. (The slide shows b₁₀ = 4; it is 3 + 3 − 1 = 5.)",
+                "<b>Potential method</b> (Slide 8.27): the prepaid work is stored as a <b>potential</b> Φ of the whole data structure instead of as credit on single items. The accounting and potential methods are closely related.",
+                "Potential of the dynamic array: Φ(hᵢ) = 2i − sizeᵢ, where i is the number of items after the i-th insertion. Amortized cost of the i-th insertion: ĉᵢ = cᵢ + Φ(hᵢ) − Φ(hᵢ₋₁).",
+                "Why this Φ ‡: right after a doubling the table is half full plus one, so Φ = 2; just before the next doubling it is full (i = size), so Φ = size, exactly enough to pay for copying size items. Φ₀ = 0 and Φ never goes negative because the table is always at least half full.",
+                "Case 1 (Slide 8.28), normal insert, no expansion (the size stays the same): ĉᵢ = 1 + (2i − size) − (2(i−1) − size) = 1 + 2i − size − 2i + 2 + size = <b>3</b>.",
+                "Case 2 (Slide 8.28), expansion: the table held i − 1 = size items, the new size is 2(i − 1), and cᵢ = i (copy i − 1, write 1). ĉᵢ = i + (2i − 2(i−1)) − (2(i−1) − (i−1)) = i + 2 − (i − 1) = <b>3</b>.",
+                "The slide writes case 2 with i items already in the table (cost i + 1, size i → 2i), and its middle lines use 2i − 2i = 0 and 2(i−1) − i for the two potentials; both are 2 too small, the errors cancel and it still ends at 3.",
+                "Slide 8.29's table for 17 insertions: Φ = 1, 2, 2, 4, 2, 4, 6, 8, 2, 4, 6, 8, 10, 12, 14, 16, 2. The amortized cost is 3 every time, except the first: 1 + (1 − 0) = 2.",
+                "Rows to check: i = 9: size 16, true cost 9, Φ₉ = 2·9 − 16 = 2, Φ₈ = 8, so ĉ₉ = 9 + (2 − 8) = 3. i = 17: size 32, true cost 17, Φ₁₇ = 34 − 32 = 2, Φ₁₆ = 16, so ĉ₁₇ = 17 + (2 − 16) = 3.",
+                "Conclusion: the total amortized cost of n insertions is at most 3n, and since Φₙ ≥ 0 = Φ₀ the true total is at most that too. All three methods give O(1) per insertion."
+              ],
+              "fig": [
                 "ag-8-accounting",
                 "ag-8-potential",
                 "ag-8-potential-table"
               ],
               "figAt": {
-                "ag-8-aggregate": 0,
-                "ag-8-accounting": 0,
-                "ag-8-potential": 0,
-                "ag-8-potential-table": 0
+                "ag-8-accounting": 6,
+                "ag-8-potential": 12,
+                "ag-8-potential-table": 14
               },
               "figH": {
-                "ag-8-aggregate": "Aggregate method: ten insertions into a doubling table cost at most 3n",
-                "ag-8-accounting": "Accounting method: charge $3 per insert and watch the bank",
+                "ag-8-accounting": "Accounting method: charge 3 dollars per insert and watch the bank",
                 "ag-8-potential": "Potential method: both cases give amortized cost 3",
                 "ag-8-potential-table": "Potential method table for 17 insertions, row by row"
+              },
+              "formula": [
+                "Accounting Method: Charge $3 per insert ($1 immediate write + $1 self-credit + $1 partner-credit)",
+                "Potential Method: Φ(Dᵢ) = 2·numᵢ − sizeᵢ ⇒ Amortized Cost ĉᵢ = cᵢ + Φ(Dᵢ) − Φ(Dᵢ₋₁) = 3 = O(1)"
+              ]
+            },
+            {
+              "h": "Separate chaining and its analysis (Slides 8.30–8.37)",
+              "pts": [
+                "Outline of this part (Slide 8.30): how separate chaining works, analysis, the extended technique, rehashing.",
+                "<b>Separate chaining</b> (open hashing, Slide 8.31): if hash(k1) = i = hash(k2) for two different keys, the entries e1 and e2 are arranged into a chain, implemented as a linked list, and that list is stored in slot A[i] of the table A of size m.",
+                "A <b>linked list</b> is a chain of nodes; each node holds one item and a pointer to the next node. The slot stores a pointer to the first node, and an empty slot stores NIL (no list) ‡.",
+                "Advantages (Slide 8.32): simple to implement; the table never fills up (we can always add to a chain); less sensitive to the hash function or load factor; mostly used when it is unknown how many keys will be inserted or deleted, and how often.",
+                "Disadvantages (Slide 8.32): poor cache performance (list nodes are scattered in memory); wasted space (some slots are never used); a long chain makes search O(n) in the worst case; extra space for the links.",
+                "Expected chain length (Slide 8.33): under simple uniform hashing each key lands in a given slot with probability 1/m, so the expected length of any chain is n/m = α, called the <b>load factor</b> of the table. n = 3, m = 3 gives α = 1; n = 6, m = 3 gives α = 2.",
+                "Searching (Slide 8.34) for e_w, with Hash(key(e_w)) = 2: computing the hash and jumping to slot 2 costs O(1); walking the chain costs its length, expected α. Expected time to search = <b>O(1 + α)</b>. On the slide every chain has 3 items, so α = 9/3 = 3.",
+                "Deleting (Slide 8.35): first search for e_w, O(1 + α), then unlink its node, O(1). Expected time to delete = O(1 + α).",
+                "Inserting (Slide 8.36): hash the key (1) and link the new node into the chain (1). Expected time to insert = 1 + 1, that is <b>O(1)</b>. Linking at the head of the list is O(1) whatever the chain length ‡.",
+                "If the table grows with the data, n = O(m), then α = O(1) and all three operations take O(1) on average. The load factor is the average chain length, simple uniform hashing means every slot is equally likely, and chains are linked lists (Final Q13–Q15).",
+                "Worst case (Slide 8.37): all n elements are stored in one chain of length n. Expected time to search = O(1 + n) = O(n), and the same for delete. All keys in one slot give Θ(n) retrieval (Final Q7)."
+              ],
+              "fig": [
+                "ag-8-chaining"
+              ],
+              "figAt": {
+                "ag-8-chaining": 8
+              },
+              "figH": {
+                "ag-8-chaining": "Separate chaining: load factor and the cost of search, delete and insert"
               }
             },
             {
-              "h": "Separate Chaining & Open Addressing: Linear, Quadratic & Double Hashing (Slides 8.30–8.94)",
+              "h": "Extended technique: BST and AVL chains, then rehashing (Slides 8.38–8.48)",
               "pts": [
-                "<b>Separate Chaining (Open Hashing, Slides 8.31–8.46)</b>: Each slot points to a linked list (or balanced BST) of keys hashing to that slot. With $n$ keys and $m$ slots, the <b>load factor</b> is $\\alpha = n/m$ (average chain length).<ul><li><b>Worst-case search</b>: $\\Theta(n)$ (all $n$ keys hash to one chain; improves to $O(\\lg n)$ if chains are balanced BSTs).</li><li><b>Average-case search</b> under Simple Uniform Hashing: $\\Theta(1 + \\alpha)$ ($O(1)$ when $\\alpha = O(1)$).</li></ul>",
-                "<b>Open Addressing (Closed Hashing, Slides 8.49–8.94)</b>: All elements are stored directly inside the table array ($\u0007lpha \\le 1$). Deletion requires a special <b>DELETED (tombstone)</b> marker so subsequent searches do not stop prematurely!<ul><li><b>1. Linear Probing</b>: $h(k, i) = (h(k) + i) \\bmod m$ ($i = 0, 1, 2, \\dots$). Suffers from <b>primary clustering</b> (long contiguous runs of occupied slots grow longer).</li><li><b>2. Quadratic Probing</b>: $h(k, i) = (h(k) + i^2) \\bmod m$. Eliminates primary clustering, but suffers from milder <b>secondary clustering</b> (keys with the same initial $h(k)$ follow the exact same probe sequence). Guaranteed to find an empty slot if $m$ is prime and load factor $\\alpha < 0.5$.</li><li><b>3. Double Hashing</b>: $h(k, i) = (h_1(k) + i \\cdot h_2(k)) \\bmod m$, where $h_2(k) = R - (k \\bmod R)$ (for prime $R < m$) must <b>never evaluate to $0$</b> and should be relatively prime to $m$. Eliminates both primary and secondary clustering!</li></ul>",
-                "<b>Midterm 2021 ($m = 10, h_2(k) = 5 - (k \\bmod 5)$) vs. Midterm 2022 ($m = 11, h_2(k) = 7 - (k \\bmod 7)$) on Keys `[0, 30, 1, 55, 16, 28, 13, 9, 26]`</b>:<ul><li>In <b>Midterm 2021 ($m=10$)</b>, when inserting `55` under Double Hashing: $h_1(55) = 55 \\bmod 10 = 5$, and $h_2(55) = 5 - (55 \\bmod 5) = 5$. Because $\\gcd(h_2(55), 10) = \\gcd(5, 10) = 5 \\ne 1$, the probe sequence only visits $(5 + 5i) \\bmod 10 \\in \\{5, 0\\}$ (where slot `0` has `0` and slot `5` has `30`), so <b>`55` CANNOT BE INSERTED</b>!</li><li>In <b>Midterm 2022 ($m=11$, prime!)</b>, $h_1(k) = k \\bmod 11$ and $h_2(k) = 7 - (k \\bmod 7)$ places every key cleanly!</li></ul>"
+                "Limitations of separate chaining (Slide 8.38): deletion and search take O(n) in the worst case, and data inserted in unsorted order takes longer to search than sorted data.",
+                "Extended technique (Slide 8.38): each slot of the hash table holds a <b>binary search tree</b> (BST) instead of a linked list; the BST grows as data is inserted.",
+                "BST in short: for every node, keys in its left subtree are smaller and keys in its right subtree are larger. A search compares and goes left or right, walking one path, so it costs the tree's <b>height</b> (the longest root-to-leaf path).",
+                "Slide 8.38's picture: slot 0 holds the BST 50 with children 30 and 80, and 30 has children 10 and 40; slot 5 holds 55 with children 35 and 85, and 35 has right child 45. Searching 40 in slot 0: 50 (go left), 30 (go right), 40: 3 comparisons ‡.",
+                "Worst case (Slides 8.39–8.41): all n keys collide into one slot. Case 1, keys arrive sorted (10, 20, 30, 40, …): each new key goes to the same side, the tree becomes a path of n nodes (skewed), and operations take <b>O(n)</b>.",
+                "Case 2, keys arrive unsorted (for example 50, 30, 10, 40, …): the tree stays bushy with near-minimum height, about lg n, so operations take <b>O(lg n)</b>.",
+                "Best case (Slides 8.42–8.43): the keys are equally distributed, so each BST holds about n/m keys. Case 1, sorted keys (skewed trees): expected height n/m, <b>O(n/m)</b>. Case 2, unsorted keys: <b>O(lg(n/m))</b>.",
+                "Slide 8.44: so BST chains improve every case except Case 1 of the worst case (the skewed tree). The fix is an <b>AVL tree</b>: a self-balancing BST in which, for every node, the heights of the left and right subtrees differ by at most one.",
+                "BalanceFactor = height(left subtree) − height(right subtree), and AVL keeps it at −1, 0 or 1. Slide 8.44: the root 40 has left height 2 and right height 3: |2 − 3| = 1, allowed. Slide 8.45: node 70 has left height 0 and right height 1 (its child 80): |0 − 1| = 1.",
+                "Slide 8.46: inserting 20, 30, 40 into one slot in that order gives the path 20 → 30 → 40, unbalanced (20 has balance factor 0 − 2 = −2). A <b>rotation</b> lifts the middle key 30 to the root with children 20 and 40: balanced.",
+                "So with AVL trees every operation is O(lg n), where n is the number of elements (Slide 8.46), even when all keys collide.",
+                "<b>Rehashing</b> (Slide 8.47): as long as the load factor does not become too large, the average time stays O(1). In separate chaining α can rise above 1 without hurting much; in the other schemes the cost grows once α reaches 0.75 or 0.5.",
+                "So the array size is doubled and all the values are hashed again, with a new hash function, into the new larger array. Steps: for every new entry check the load factor; if it is greater than the threshold, start rehashing: make a larger array, copy (rehash) all elements into it, and make it the new bucket array.",
+                "Slide 8.47's example, threshold 2, m = 3, h(k) = k mod 3: 12 → 0, 10 → 1, 7 → 1, 14 → 2, 5 → 2. Insert 11 → slot 2: α = 6/3 = 2, not greater than 2. Insert 22: α = 7/3 = 2.33 > 2, so rehashing starts.",
+                "Slide 8.48: new size m = 6, h(k) = k mod 6: 12 → 0, 7 → 1, 14 → 2, 10 → 4, 22 → 4, 11 → 5, 5 → 5. New load factor 7/6 = 1.17, below the threshold. (The slide shows 1.67.)",
+                "A rehash costs O(n) once, but like table doubling it happens rarely, so its amortized cost per insertion is O(1) ‡."
+              ],
+              "fig": [
+                "ag-8-bst-chains",
+                "ag-8-avl",
+                "ag-8-rehash"
+              ],
+              "figAt": {
+                "ag-8-bst-chains": 6,
+                "ag-8-avl": 10,
+                "ag-8-rehash": 14
+              },
+              "figH": {
+                "ag-8-bst-chains": "A BST in every slot: worst case and best case",
+                "ag-8-avl": "AVL trees in the slots: balance factors and fixing 20, 30, 40",
+                "ag-8-rehash": "Rehashing when the load factor passes the threshold 2"
+              }
+            },
+            {
+              "h": "Open addressing: probing, insert, search and delete (Slides 8.49–8.55)",
+              "pts": [
+                "<b>Open addressing</b> (closed hashing, Slide 8.50): another way to handle collisions. There is no chaining and there are no pointers: all items are stored in the hash table itself, one item per slot, so at any time the table size ≥ the number of keys (α ≤ 1).",
+                "<b>Probing</b> (Slide 8.51): a collision is resolved by searching through alternate slots of the array, the <b>probe sequence</b>, until the target is reached. The hash function takes both the key and the probe number: h : U × {0, 1, …, m−1} → {0, 1, …, m−1} (universe of keys × trial count → slot in table).",
+                "h(k, 0) is the first slot tried, h(k, 1) the second, and so on. The probe sequence ⟨h(k, 0), h(k, 1), …, h(k, m−1)⟩ should be a permutation of {0, 1, …, m−1}: every slot is tried once, so an insert fails only when the table is really full.",
+                "Insert (Slide 8.52): compute h(k, i) for i = 0, 1, 2, … and keep probing until an empty slot (NIL) is found; put k there and return its index. If all m probes hit full slots, report \"Hash Table Overflow\".",
+                "Search (Slide 8.53): follow the same probe sequence; return j when T[j] = k; stop with \"not found\" (NIL) at an empty slot or after m probes. An empty slot proves k is absent: if k had been inserted, its insert would have stopped at that empty slot.",
+                "Delete (Slide 8.54): the key is first searched and then deleted. But if we simply empty its slot, a later search may stop there and miss keys that had probed past it. So deleted slots are marked specially as \"<b>deleted</b>\" (a tombstone).",
+                "Rules for the mark (Slide 8.54): insert can put a new item into a deleted slot; search does not stop at a deleted slot, it keeps probing. NIL means \"empty, never used\".",
+                "Three ways to probe (Slide 8.55): linear probing, quadratic probing, double hashing. All have the form h(k, i) = (h′(k) + f(i)) mod m: an ordinary hash function h′(k), an iteration term f(i) for the i-th probe, and mod the table size m."
+              ],
+              "code": "HASH-INSERT(T, k)\n1 i = 0\n2 repeat\n3     j = h(k, i)\n4     if T[j] == NIL\n5         T[j] = k\n6         return j\n7     else i = i + 1\n8 until i == m\n9 error \"Hash Table Overflow\"\n\nHASH-SEARCH(T, k)\n1 i = 0\n2 repeat\n3     j = h(k, i)\n4     if T[j] == k\n5         return j\n6     i = i + 1\n7 until T[j] == NIL or i == m\n8 return NIL"
+            },
+            {
+              "h": "Linear probing (Slides 8.56–8.66)",
+              "pts": [
+                "<b>Linear probing</b> (Slide 8.56): when a collision occurs, try the next bucket, and keep going until an empty bucket is found. f(i) = i, so h(k, i) = (h′(k) + i) mod m.",
+                "Probe sequence (Slide 8.57): 0th probe h(k) mod m, 1st (h(k) + 1) mod m, 2nd (h(k) + 2) mod m, …, i-th (h(k) + i) mod m. The mod wraps from slot m − 1 back to slot 0.",
+                "Slides 8.58–8.60, h(k) = k mod 11, keys 7, 36, 18, 62:<ul><li>7: h₀ = 7, empty, slot 7.</li><li>36: h₀ = 36 mod 11 = 3, slot 3.</li><li>18: h₀ = 7 is taken (collision), h₁ = 19 mod 11 = 8, slot 8.</li><li>62: h₀ = 7 and h₁ = 8 are taken, h₂ = 64 mod 11 = 9, slot 9.</li></ul>",
+                "Search 18 (Slide 8.61): h₀ = 7 holds 7, not matching; h₁ = 8 holds 18: matched, found after 2 probes.",
+                "Delete 18, then search 62 (Slide 8.62): if slot 8 were simply emptied, the search for 62 would try 7 (not matching), then 8, find it empty and stop: \"not found\", although 62 sits in slot 9. An empty slot breaks the search.",
+                "So (Slide 8.63) the item is replaced with the special flag \"Deleted\", which insert treats as empty (None) but search does not: search 62 now probes 7, 8 (Deleted, keep going), 9: found.",
+                "Insert 51 (Slide 8.64): h₀ = 51 mod 11 = 7 is taken, h₁ = 8 is marked Deleted, so insert reuses it: 51 goes to slot 8.",
+                "Time (Slide 8.65): the worst-case search in linear probing is O(table size). Even if only one element is present and all others were deleted, the \"deleted\" markers force the search through the whole table.",
+                "Advantages (Slide 8.66): easy to compute; best cache performance (the probes are neighbouring cells in memory); no extra memory, it uses the free space inside the table.",
+                "Disadvantage (Slide 8.66): <b>primary clustering</b>. Occupied slots form long runs; any key whose home slot falls in a run must walk to the end of it, and then makes it one longer. A free cell is always found if the table is big enough, but the time to find it can get large. In the slide's picture, a key with initial probe 52 walks over 52 to 56 before reaching the empty slot 57.",
+                "Exam (Final Q16): size 10, h(k) = k mod 10, linear probing, slots 2..7 hold 42, 23, 34, 52, 46, 33. The valid order is 46, 34, 42, 23, 52, 33: 52 probes 2, 3, 4 and lands in 5; 33 probes 3, 4, 5, 6 and lands in 7. Check any order by replaying the probes."
+              ],
+              "fig": [
+                "ag-8-linear"
+              ],
+              "figAt": {
+                "ag-8-linear": 6
+              },
+              "figH": {
+                "ag-8-linear": "Linear probing: insert, search and delete with the Deleted marker"
+              }
+            },
+            {
+              "h": "Quadratic probing and secondary clustering (Slides 8.67–8.79)",
+              "pts": [
+                "<b>Quadratic probing</b> (Slide 8.67): when a collision occurs, in the i-th iteration try the bucket i² after the home slot. f(i) = i², so h(k, i) = (h′(k) + i²) mod m. (The slide calls f \"a linear function of i\"; i² is quadratic.)",
+                "Probe sequence (Slide 8.68): h(k), h(k) + 1·1, h(k) + 2·2, h(k) + 3·3, …, h(k) + i·i, all mod m. The jumps between probes grow (1, 3, 5, 7, …), so a key quickly leaves a crowded region.",
+                "Slides 8.69–8.72, h(k) = k mod 11, keys 7, 36, 18, 62, 51:<ul><li>7 → slot 7; 36 → slot 3.</li><li>18: h₀ = 7 taken, h₁ = (18 + 1) mod 11 = 8, slot 8.</li><li>62: h₀ = 7 and h₁ = 8 taken, h₂ = (62 + 4) mod 11 = 66 mod 11 = 0, slot 0.</li><li>51: h₀ = 7, h₁ = 8, h₂ = 0 taken, h₃ = (51 + 9) mod 11 = 60 mod 11 = 5, slot 5.</li></ul>",
+                "Linear vs quadratic on the same keys (Slide 8.73): linear probing ends with 36 in slot 3 and one run 7, 18, 62, 51 in slots 7, 8, 9, 10; quadratic probing spreads them out: 62 in 0, 36 in 3, 51 in 5, 7 in 7, 18 in 8.",
+                "Advantages (Slide 8.74): average cache performance (between linear probing and double hashing); less clustering than linear probing (no primary clustering).",
+                "Disadvantage (Slide 8.74): two keys with the same initial probe position have the same probe sequence, since h(k1, 0) = h(k2, 0) implies h(k1, i) = h(k2, i). This milder form of clustering is called <b>secondary clustering</b>. Also, an element may be impossible to add because the computed index is never empty.",
+                "Secondary clustering example (Slides 8.75–8.77), h(k) = k mod 10, keys 2, 12, 22, 32, 42, 52, all with home slot 2:<ul><li>2 → slot 2.</li><li>12: h₀ = 2 occupied, h₁ = 13 mod 10 = 3, slot 3.</li><li>22: 2 and 3 taken, h₂ = 26 mod 10 = 6, slot 6.</li><li>32: 2, 3, 6 taken, h₃ = 41 mod 10 = 1, slot 1.</li><li>42: 2, 3, 6, 1 taken, h₄ = 58 mod 10 = 8, slot 8.</li><li>52: 2, 3, 6, 1, 8 taken, h₅ = 77 mod 10 = 7, slot 7.</li></ul>",
+                "Insert 62 (Slide 8.78): after 2, 3, 6, 1, 8, 7 come h₆ = 98 mod 10 = 8, h₇ = 111 mod 10 = 1, h₈ = 126 mod 10 = 6, h₉ = 143 mod 10 = 3: all taken. Unable to insert, although slots 0, 4, 5, 9 are empty.",
+                "Why ‡: i² mod 10 only takes the values 0, 1, 4, 9, 6, 5, so starting from slot 2 the probes can only reach 2, 3, 6, 1, 8, 7: exactly the six full slots.",
+                "Rule (Slide 8.79): with quadratic probing the table should be at most half full and its size must be prime; otherwise insertion may fail (there is always a collision). With m prime and α ≤ 1/2 an empty slot is always found ‡, because the first ⌈m/2⌉ probes all go to different slots."
+              ],
+              "fig": [
+                "ag-8-quadratic",
+                "ag-8-lin-quad",
+                "ag-8-secondary"
+              ],
+              "figAt": {
+                "ag-8-quadratic": 2,
+                "ag-8-lin-quad": 3,
+                "ag-8-secondary": 7
+              },
+              "figH": {
+                "ag-8-quadratic": "Quadratic probing on 7, 36, 18, 62, 51",
+                "ag-8-lin-quad": "Linear against quadratic probing on the same keys",
+                "ag-8-secondary": "Secondary clustering: 62 cannot be inserted"
+              }
+            },
+            {
+              "h": "Double hashing, and the three probing methods compared (Slides 8.80–8.88)",
+              "pts": [
+                "<b>Double hashing</b> (Slide 8.80): use a second hash function hash2(x) and in the i-th rotation look i·hash2(x) slots past the home slot. f(i) = i·hash2(k), so h(k, i) = (hash1(k) + i·hash2(k)) mod m. It needs more computation, since two hash functions are computed.",
+                "Probe sequence (Slide 8.81): hash1(k), hash1(k) + 1·hash2(k), hash1(k) + 2·hash2(k), …, hash1(k) + i·hash2(k), all mod m; i increases at each collision. The step size depends on the key, so keys with the same home slot usually take different paths.",
+                "Usual choice (Slide 8.82): hash1(key) = key % TABLE_SIZE, and hash2(key) = PRIME − (key % PRIME), where PRIME is a prime smaller than TABLE_SIZE. Since key % PRIME is 0 to PRIME − 1, hash2 is 1 to PRIME: never 0.",
+                "A good hash2 (Slide 8.82) must never evaluate to zero (a step of 0 would probe the same slot forever) and must make sure all cells can be probed: the step must be relatively prime to m, which is automatic when m is prime ‡.",
+                "Slides 8.83–8.86, hash1 = key mod 10, hash2(k) = 7 − (k % 7), keys 37, 90, 45, 22, 17, 49, 55:<ul><li>37 → 7; 90 → 0; 45 → 5; 22 → 2 (no collisions, hash2 not needed).</li><li>17: h₀ = 7 taken; hash2 = 7 − (17 % 7) = 7 − 3 = 4; h₁ = (7 + 4) mod 10 = 1, slot 1.</li><li>49 → 9.</li><li>55: h₀ = 5 taken; hash2 = 7 − (55 % 7) = 7 − 6 = 1; h₁ = (5 + 1) mod 10 = 6, slot 6.</li></ul>",
+                "Final table: 0: 90, 1: 17, 2: 22, 5: 45, 6: 55, 7: 37, 9: 49; slots 3, 4 and 8 are empty.",
+                "Advantages (Slide 8.87): no clustering. When m is prime or a power of 2, double hashing uses Θ(m²) probe sequences instead of Θ(m), since each pair (h1(k), h2(k)) gives its own sequence; its performance is very close to the ideal scheme of uniform hashing.",
+                "Why only m sequences for linear and quadratic probing ‡: there the whole sequence is fixed by the first slot, and there are only m first slots. Double hashing chooses a first slot and a step: about m · m pairs.",
+                "Disadvantages (Slide 8.87): poor cache performance (the probes jump around memory); more computation time, since two hash functions are computed.",
+                "Comparison (Slide 8.88): see the table. The slide leaves the probe-sequence cell of double hashing blank; from Slide 8.87 it is m². The slide also marks linear probing \"Yes\" for secondary clustering: keys with the same home slot share their sequence there too."
+              ],
+              "table": [
+                [
+                  "",
+                  "Linear probing",
+                  "Quadratic probing",
+                  "Double hashing"
+                ],
+                [
+                  "Primary clustering",
+                  "Yes",
+                  "No",
+                  "No"
+                ],
+                [
+                  "Secondary clustering",
+                  "Yes",
+                  "Yes",
+                  "No"
+                ],
+                [
+                  "Number of probe sequences (m = table size)",
+                  "m",
+                  "m",
+                  "m² (blank on the slide)"
+                ],
+                [
+                  "Cache performance",
+                  "Best",
+                  "Between the two",
+                  "Poor"
+                ]
+              ],
+              "fig": [
+                "ag-8-double"
+              ],
+              "figAt": {
+                "ag-8-double": 5
+              },
+              "figH": {
+                "ag-8-double": "Double hashing with hash2(k) = 7 − (k mod 7)"
+              }
+            },
+            {
+              "h": "Analysis of open addressing, rehashing, chaining vs open addressing (Slides 8.89–8.94)",
+              "pts": [
+                "Slide 8.89's formula is an unreadable image. The theorem it states (CLRS Theorem 11.6) ‡: with load factor α = n/m < 1 and uniform hashing, the expected number of probes in an unsuccessful search is at most <b>1/(1 − α)</b>.",
+                "Intuition ‡: the first probe always happens; it hits an occupied slot with probability α, so a second probe is needed; that one is occupied with probability about α again, and so on: 1 + α + α² + … = 1/(1 − α), a geometric sum.",
+                "Implications (Slide 8.90): if α is a constant, accessing an open-addressed hash table takes constant time. Half full: 1/(1 − 0.5) = 2 expected probes. 90% full: 1/(1 − 0.9) = 10 expected probes.",
+                "An insert costs the same as an unsuccessful search (it probes until an empty slot). A successful search needs at most (1/α) ln(1/(1 − α)) probes, about 1.39 at α = 0.5 ‡.",
+                "Rehashing for open addressing (Slide 8.91): when the table is too full, create a new table whose size is the prime closest to 2m (m = old size): compute the new table size, apply it to the hash function, compute the new hash value of each element, and insert it into the new table.",
+                "When to rehash (Slide 8.91): when the table is half full (λ = 0.5; λ is another name for the load factor), when an insertion fails, or when a chosen load factor is reached. Example ‡: m = 11 becomes the prime closest to 22, which is 23.",
+                "Separate chaining vs open addressing (Slide 8.92): see the table. In short, chaining is simpler, never fills up and deletes easily; open addressing has better cache performance and no links, but can fill up and needs care with clustering and load factor.",
+                "Cache misses (Slide 8.93): average cache misses per lookup against the load factor. Chaining stays at about 2 to 3 for every α; linear probing stays near 1 for small α but shoots up as α approaches 1 (above about 0.8 it is worse than chaining).",
+                "Recommendations (Slide 8.94):<ul><li>If open addressing is used, double hashing is preferred over quadratic probing.</li><li>If plenty of memory is available and the data won't expand, linear probing is simpler to implement.</li><li>If the number of items to insert is not known, separate chaining is preferable.</li><li>If deletion is required, use separate chaining.</li><li>When in doubt, use separate chaining.</li></ul>"
+              ],
+              "table": [
+                [
+                  "",
+                  "Separate chaining",
+                  "Open addressing"
+                ],
+                [
+                  "1",
+                  "Simpler to implement",
+                  "Requires more computation"
+                ],
+                [
+                  "2",
+                  "Table never fills up; we can always add to a chain",
+                  "The table may become full"
+                ],
+                [
+                  "3",
+                  "Less sensitive to the hash function or load factor",
+                  "Needs extra care to avoid clustering and to watch the load factor"
+                ],
+                [
+                  "4",
+                  "Used when it is unknown how many keys, and how often, will be inserted or deleted",
+                  "Used when the frequency and number of keys is known"
+                ],
+                [
+                  "5",
+                  "Poor cache performance (linked lists)",
+                  "Better cache performance (everything in one table)"
+                ],
+                [
+                  "6",
+                  "Wasted space (some slots are never used)",
+                  "A slot can be used even if no input maps to it"
+                ],
+                [
+                  "7",
+                  "Deletion is easier",
+                  "Deletion is difficult"
+                ],
+                [
+                  "8",
+                  "Extra space for links",
+                  "No links"
+                ]
+              ],
+              "fig": [
+                "ag-8-probes",
+                "ag-8-cache"
+              ],
+              "figAt": {
+                "ag-8-probes": 2,
+                "ag-8-cache": 7
+              },
+              "figH": {
+                "ag-8-probes": "Expected probes 1/(1 − α): 2 when half full, 10 when 90% full",
+                "ag-8-cache": "Cache misses per lookup: chaining against linear probing"
+              }
+            },
+            {
+              "h": "Exam workout: Midterm 2021 Q1 and Midterm 2022 Q1 (methods of Slides 8.56–8.86)",
+              "pts": [
+                "Both questions insert 0, 30, 1, 55, 16, 28, 13, 9, 26 with linear probing, quadratic probing, double hashing and chaining. Midterm 2021 uses m = 10 with h₂(k) = 5 − (k mod 5); Midterm 2022 uses m = 11 with h₂(k) = 7 − (k mod 7).",
+                "Home slots: mod 10 gives 0, 0, 1, 5, 6, 8, 3, 9, 6; mod 11 gives 0, 8, 1, 0, 5, 6, 2, 9, 4.",
+                "2021 linear: 30 finds 0 taken and goes to 1; 1 finds 1 taken and goes to 2; 26 finds 6 taken and goes to 7. Quadratic gives the same table here, because every collision is solved at i = 1, where both add 1.",
+                "2021 double hashing: 30: h₂ = 5 − 0 = 5, so 0 + 5 = 5. 26: h₂ = 5 − 1 = 4, probes 6, 10 mod 10 = 0 (taken), 14 mod 10 = 4: slot 4.",
+                "2021 double hashing, key 55: h₁ = 5 is taken by 30, h₂ = 5 − (55 mod 5) = 5, so the probes (5 + 5i) mod 10 alternate 5, 0, 5, 0, … and both are full: <b>55 cannot be inserted</b>. The step 5 shares the factor 5 with m = 10, so only 10/5 = 2 slots are reachable.",
+                "2022 linear: 55 finds 0 and 1 taken and goes to 2; 13 finds 2 taken and goes to 3. 2022 quadratic: 55 tries 0, 1, then 0 + 4 = 4; 13 goes straight to 2; 26 tries 4, 5, 8, 13 mod 11 = 2, 20 mod 11 = 9 (all taken), then 29 mod 11 = 7.",
+                "2022 double hashing: 55: h₂ = 7 − (55 mod 7) = 7 − 6 = 1, probes 0, 1, 2: slot 2. 13: h₂ = 7 − 6 = 1, probes 2, 3: slot 3. 26 goes straight to 4. Same table as linear probing here.",
+                "Chaining, m = 10: 0: [0, 30], 1: [1], 3: [13], 5: [55], 6: [16, 26], 8: [28], 9: [9]. m = 11: 0: [0, 55], 1: [1], 2: [13], 4: [26], 5: [16], 6: [28], 8: [30], 9: [9].",
+                "Lesson: 11 is prime, so every step h₂ = 1..7 is relatively prime to it and double hashing always reaches an empty slot; 10 is one of the \"bad\" non-prime sizes of Slide 8.8."
               ],
               "table": [
                 [
                   "Slot",
-                  "Midterm 2021 (m=10) Linear",
-                  "Midterm 2021 (m=10) Quadratic",
-                  "Midterm 2021 (m=10) Double (55 fails!)",
-                  "Midterm 2022 (m=11) Linear",
-                  "Midterm 2022 (m=11) Quadratic",
-                  "Midterm 2022 (m=11) Double"
+                  "2021 linear (m = 10)",
+                  "2021 quadratic",
+                  "2021 double (55 fails)",
+                  "2022 linear (m = 11)",
+                  "2022 quadratic",
+                  "2022 double"
                 ],
                 [
                   "0",
@@ -2799,7 +3231,7 @@ window.COURSES.algo = {
                   "2",
                   "1",
                   "1",
-                  "—",
+                  "empty",
                   "55",
                   "13",
                   "55"
@@ -2810,13 +3242,13 @@ window.COURSES.algo = {
                   "13",
                   "13",
                   "13",
-                  "—",
+                  "empty",
                   "13"
                 ],
                 [
                   "4",
-                  "—",
-                  "—",
+                  "empty",
+                  "empty",
                   "26",
                   "26",
                   "55",
@@ -2844,10 +3276,10 @@ window.COURSES.algo = {
                   "7",
                   "26",
                   "26",
-                  "—",
-                  "—",
+                  "empty",
+                  "empty",
                   "26",
-                  "—"
+                  "empty"
                 ],
                 [
                   "8",
@@ -2869,28 +3301,20 @@ window.COURSES.algo = {
                 ],
                 [
                   "10",
-                  "N/A",
-                  "N/A",
-                  "N/A",
-                  "—",
-                  "—",
-                  "—"
+                  "n/a",
+                  "n/a",
+                  "n/a",
+                  "empty",
+                  "empty",
+                  "empty"
                 ]
               ],
               "fig": [
-                "algo-hash-sim",
-                "ag-8-chaining",
-                "ag-8-bst-chains",
-                "ag-8-avl",
-                "ag-8-rehash",
-                "ag-8-linear",
-                "ag-8-quadratic",
-                "ag-8-lin-quad",
-                "ag-8-secondary",
-                "ag-8-double",
-                "ag-8-probes",
-                "ag-8-cache"
+                "algo-hash-sim"
               ],
+              "figAt": {
+                "algo-hash-sim": 8
+              },
               "viz": {
                 "type": "hash",
                 "title": "Midterm 2022 Q1: Hash Table (m = 11) on [0, 30, 1, 55, 16, 28, 13, 9, 26]",
@@ -2934,70 +3358,230 @@ window.COURSES.algo = {
                     26
                   ]
                 ]
-              },
-              "figAt": {
-                "ag-8-chaining": 0,
-                "ag-8-bst-chains": 0,
-                "ag-8-avl": 0,
-                "ag-8-rehash": 0,
-                "ag-8-linear": 1,
-                "ag-8-quadratic": 1,
-                "ag-8-lin-quad": 1,
-                "ag-8-secondary": 1,
-                "ag-8-double": 1,
-                "ag-8-probes": 1,
-                "ag-8-cache": 1
-              },
-              "figH": {
-                "ag-8-chaining": "Separate chaining: load factor and the cost of search, delete and insert",
-                "ag-8-bst-chains": "A BST in every slot: worst case and best case",
-                "ag-8-avl": "AVL trees in the slots: balance factors and fixing 20, 30, 40",
-                "ag-8-rehash": "Rehashing when the load factor passes the threshold 2",
-                "ag-8-linear": "Linear probing: insert, search and delete with the Deleted marker",
-                "ag-8-quadratic": "Quadratic probing on 7, 36, 18, 62, 51",
-                "ag-8-lin-quad": "Linear against quadratic probing on the same keys",
-                "ag-8-secondary": "Secondary clustering: 62 cannot be inserted",
-                "ag-8-double": "Double hashing with hash2(k) = 7 − (k mod 7)",
-                "ag-8-probes": "Expected probes 1/(1 − α): 2 when half full, 10 when 90% full",
-                "ag-8-cache": "Cache misses per lookup: chaining against linear probing"
               }
             }
           ],
           "cards": [
             [
               "Division & Multiplication Hash Functions",
-              "Division: h(k) = k mod m (choose m prime). Multiplication: h(k) = ⌊m(kA mod 1)⌋ with 0 < A < 1 (A ≈ 0.618033)."
+              "Division: h(k) = k mod m, m prime, not near a power of 2. Multiplication: h(k) = ⌊m (kA mod 1)⌋ with 0 < A < 1 (slides: A = 0.618033); m is not critical."
             ],
             [
               "Fold-Shifting vs. Fold-Boundary",
-              "Both partition the key into address-sized chunks and add them; Fold-Boundary reverses the digits of the outer boundary chunks before adding."
+              "Both split the key into address-sized parts and add them. Fold-boundary first reverses the outer parts. 12345678, 2 digits: shifting 12+34+56+78 = 180 → 80; boundary 21+34+56+87 = 198 → 98."
             ],
             [
               "Dynamic Table Doubling Amortized Cost",
-              "Expanding table size as 1, 2, 4, 8… costs < n + 2n = 3n total for n insertions → O(1) amortized per insertion (Aggregate, Accounting $3, Potential Φ = 2·num − size)."
+              "Sizes 1, 2, 4, 8, …: n insertions cost ≤ n + 2n = 3n in total, so O(1) amortized per insertion (aggregate; accounting 3 dollars each; potential Φ = 2i − size)."
             ],
             [
               "Primary vs. Secondary Clustering",
-              "Primary clustering occurs in Linear Probing (any key landing in a cluster extends it). Secondary clustering occurs in Quadratic Probing (only keys with the exact same initial h(k) follow the same probe path)."
+              "Primary (linear probing): long runs of full slots; any key landing in a run extends it. Secondary (quadratic probing): keys with the same home slot follow the same probe sequence."
             ],
             [
               "Why Key 55 Cannot Be Inserted in Midterm 2021 Double Hashing",
-              "With m = 10 and h₂(55) = 5 − (55 mod 5) = 5, probes only alternate between slots 5 and 0 ((5 + 5i) mod 10), which are already occupied by 30 and 0!"
+              "m = 10, h₁(55) = 5 (taken), h₂(55) = 5 − (55 mod 5) = 5. Probes (5 + 5i) mod 10 = 5, 0, 5, 0, … both full; gcd(5, 10) = 5, so only 2 slots are reachable."
             ],
             [
-              "Direct Addressing & Four Hash Function Methods (Slides 8.1–8.15) — Core Principle & Complexity",
-              "<b>Direct Addressing (Slides 8.5–8.6)</b>: $h(k) = k$ stores each key at its own index in $O(1)$ worst-case search/insert/delete, but wastes massive memory when the universe of keys is large. <b>Four Hash Function Construction Methods (Slides 8.7–8.15)</b>:<ul><li><b>1. Division Method</b>: $h(k) = k \\bmod n$. Choose table size $n$ to be a <b>prime number</b> not close to a power of 2 or 10 (Slide 8.9 shows why $n=4$ maps $10, 20, 30, 40, 50$ only to slots $0$ and $2$, whereas prime $n=7$ spreads them across $3, 6, 2, 4, 1$).</li><li><b>2. Multiplication Method</b>: $h(k) = \\lfloor n (k A \\bmod 1) \\rfloor$ where $0 < A < 1$ (Knuth suggests $A \\approx (\\sqrt{5}-1)/2 \\approx 0.618033$). Slide 8.11 Example ($n=100, A=0.618033$): $h(123) = \\lfloor 100(76.018059 \\bmod 1) \\rfloor = \\lfloor 1.8059 \\rfloor = 1$; $h(150) = \\lfloor 100(92.70495 \\bmod 1) \\rfloor = 70$. Note: In binary implementation $m = 2^p$ (so for $p=7$, $m = 2^7 = 128$, Final 2 Q6).</li><li><b>3. Mid-Square Method</b>: Square $k$ ($k^2$) and extract the middle $r$ digits (e.g., $n=100 \\implies r=2$ digits).</li><li><b>4. Folding Method</b>: Partition key $K$ into parts matching the address width and add them. Slide 8.15 Example (`K = 12345678`, 2-digit address `0..99`):<ul><li><b>Fold-Shifting</b>: $12 + 34 + 56 + 78 = 180 \\implies 180 \\bmod 100 = \\mathbf{80}$.</li><li><b>Fold-Boundary</b> (reverse outer parts `12→21` and `78→87`): $21 + 34 + 56 + 87 = 198 \\implies 198 \\bmod 100 = \\mathbf{98}$.</li></ul></li></ul>"
+              "Direct addressing and the hash function methods (Slides 8.1–8.15): main result",
+              "Direct hashing h(K) = K gives O(1) search, insert, delete but needs an array as large as the biggest key. Hash functions (division, multiplication, mid-square, folding) map big keys into a table of size n."
             ],
             [
-              "Separate Chaining & Open Addressing: Linear, Quadratic & Double Hashing (Slides 8.30–8.94) — Core Principle & Complexity",
-              "<b>Separate Chaining (Open Hashing, Slides 8.31–8.46)</b>: Each slot points to a linked list (or balanced BST) of keys hashing to that slot. With $n$ keys and $m$ slots, the <b>load factor</b> is $\\alpha = n/m$ (average chain length).<ul><li><b>Worst-case search</b>: $\\Theta(n)$ (all $n$ keys hash to one chain; improves to $O(\\lg n)$ if chains are balanced BSTs).</li><li><b>Average-case search</b> under Simple Uniform Hashing: $\\Theta(1 + \\alpha)$ ($O(1)$ when $\\alpha = O(1)$).</li></ul> <b>Open Addressing (Closed Hashing, Slides 8.49–8.94)</b>: All elements are stored directly inside the table array ($\u0007lpha \\le 1$). Deletion requires a special <b>DELETED (tombstone)</b> marker so subsequent searches do not stop prematurely!<ul><li><b>1. Linear Probing</b>: $h(k, i) = (h(k) + i) \\bmod m$ ($i = 0, 1, 2, \\dots$). Suffers from <b>primary clustering</b> (long contiguous runs of occupied slots grow longer).</li><li><b>2. Quadratic Probing</b>: $h(k, i) = (h(k) + i^2) \\bmod m$. Eliminates primary clustering, but suffers from milder <b>secondary clustering</b> (keys with the same initial $h(k)$ follow the exact same probe sequence). Guaranteed to find an empty slot if $m$ is prime and load factor $\\alpha < 0.5$.</li><li><b>3. Double Hashing</b>: $h(k, i) = (h_1(k) + i \\cdot h_2(k)) \\bmod m$, where $h_2(k) = R - (k \\bmod R)$ (for prime $R < m$) must <b>never evaluate to $0$</b> and should be relatively prime to $m$. Eliminates both primary and secondary clustering!</li></ul>"
+              "Separate chaining and open addressing (Slides 8.30–8.94): main result",
+              "Chaining: average search Θ(1 + α), insert O(1), worst case O(n). Open addressing (α < 1): expected probes ≤ 1/(1 − α), with a Deleted marker for deletion."
+            ],
+            [
+              "What three operations does a dictionary support?",
+              "INSERT, SEARCH (by key) and DELETE."
+            ],
+            [
+              "Search cost: list, BST, hashing (Slides 8.3–8.4)",
+              "List O(n); balanced BST O(lg n); hashing O(1) best and average, O(n) worst."
+            ],
+            [
+              "Direct hashing: advantages and disadvantage",
+              "Search, insert, delete O(1). Memory consuming: the array must be as large as the largest key."
+            ],
+            [
+              "Collision",
+              "Two different keys hashed to the same slot: h(k₁) = h(k₂), k₁ ≠ k₂. Unavoidable when there are more possible keys than slots (pigeonhole)."
+            ],
+            [
+              "Why should the division-method table size be prime?",
+              "Non-primes and powers of 2 cause many collisions on patterned keys: 10, 20, 30, 40, 50 mod 4 use only slots 0 and 2; mod 7 they use 3, 6, 2, 5, 1."
+            ],
+            [
+              "h(172) with m = 157 (division)",
+              "172 mod 157 = 15."
+            ],
+            [
+              "Multiplication method: h(123) and h(150), n = 100, A = 0.618033",
+              "h(123) = ⌊100 · 0.018059⌋ = 1; h(150) = ⌊100 · 0.70495⌋ = 70."
+            ],
+            [
+              "Mid-square method",
+              "Square the key and take the middle r digits (r = 1, 2, 3 for n = 10, 100, 1000); take mod n if too big. 1234² = 1522756 → 227."
+            ],
+            [
+              "Amortized analysis",
+              "Bound the total cost of a whole sequence of operations and divide by their number: a guaranteed worst-case average per operation, no probability."
+            ],
+            [
+              "Cost cᵢ of the i-th insertion into a doubling table",
+              "cᵢ = i if i − 1 is an exact power of 2 (copy i − 1, write 1), else 1. c₁..c₁₀ = 1, 2, 3, 1, 5, 1, 1, 1, 9, 1."
+            ],
+            [
+              "Naive vs real bound for n insertions with doubling",
+              "Naive: n · O(n) = O(n²). Real (aggregate): Σ cᵢ ≤ n + 2n = 3n = O(n)."
+            ],
+            [
+              "Accounting method rule",
+              "Charge ĉᵢ (1 dollar = 1 unit of work); unused money goes to the bank; the bank must never be negative: Σ cᵢ ≤ Σ ĉᵢ. For table doubling ĉᵢ = 3 dollars."
+            ],
+            [
+              "Bank balances b₁..b₁₀ with 3 dollars per insertion",
+              "2, 3, 3, 5, 3, 5, 7, 9, 3, 5 (the slide prints b₁₀ = 4)."
+            ],
+            [
+              "Potential function of the dynamic array",
+              "Φ(hᵢ) = 2i − sizeᵢ; ĉᵢ = cᵢ + Φ(hᵢ) − Φ(hᵢ₋₁) = 3 in both cases (no expansion, expansion)."
+            ],
+            [
+              "Simple uniform hashing",
+              "Each key is equally likely to hash to any of the m slots (probability 1/m), independently of the others."
+            ],
+            [
+              "Load factor α",
+              "α = n/m = expected chain length. n = 6, m = 3 → α = 2. Chaining allows α > 1; open addressing needs α ≤ 1."
+            ],
+            [
+              "Expected times in separate chaining",
+              "Search O(1 + α), delete O(1 + α), insert O(1). Worst case (one chain of n): O(n)."
+            ],
+            [
+              "BST chains: four cases (Slides 8.39–8.43)",
+              "All keys in one slot: sorted O(n), unsorted O(lg n). Keys spread: sorted O(n/m), unsorted O(lg(n/m)). AVL trees make it O(lg n) always."
+            ],
+            [
+              "AVL balance factor",
+              "height(left subtree) − height(right subtree); AVL keeps it in {−1, 0, 1} at every node."
+            ],
+            [
+              "Rehashing (Slides 8.47–8.48 example)",
+              "When α > threshold, double the table and rehash all keys. m = 3, 7 keys: α = 2.33 > 2 → m = 6, α = 7/6 = 1.17."
+            ],
+            [
+              "Open addressing",
+              "All items stored in the table itself, one per slot, no pointers; probe h(k, 0), h(k, 1), … (a permutation of 0..m−1) until a free slot."
+            ],
+            [
+              "Why mark deleted slots \"Deleted\" instead of emptying them?",
+              "An empty slot stops a search, so keys stored past it would be lost. Insert may reuse a Deleted slot; search continues through it."
+            ],
+            [
+              "Linear, quadratic, double hashing: probe formulas",
+              "(h(k) + i) mod m; (h(k) + i²) mod m; (hash1(k) + i·hash2(k)) mod m."
+            ],
+            [
+              "Good second hash function",
+              "hash2(key) = PRIME − (key % PRIME), PRIME < table size: never 0, and all cells can be probed."
+            ],
+            [
+              "Quadratic probing condition (Slide 8.79)",
+              "Table at most half full and table size prime; otherwise an insert may fail (2, 12, …, 52 mod 10: 62 cannot be inserted)."
+            ],
+            [
+              "Probe sequences: linear / quadratic / double",
+              "m / m / Θ(m²). Cache: best / between / poor."
+            ],
+            [
+              "Expected probes in open addressing",
+              "≤ 1/(1 − α): 2 when half full, 10 when 90% full."
+            ],
+            [
+              "Open-addressing rehash size (Slide 8.91)",
+              "The prime closest to 2m; rehash when half full (λ = 0.5), when an insertion fails, or at a set load factor."
+            ],
+            [
+              "When in doubt (Slide 8.94)",
+              "Use separate chaining (also when deletion is needed or the number of items is unknown). For open addressing prefer double hashing."
             ]
           ],
           "qa": [
             [
               "Show the amortized analysis for a dynamic hash table that starts at size 1 and doubles at powers of 2 (1, 2, 4, 8, …) using the Aggregate Method.",
-              "Let $c_i$ be the cost of the $i$-th insertion. If the table is not full, $c_i = 1$. When $i - 1$ is a power of 2 ($i = 2, 3, 5, 9, \\dots, 2^k + 1$), the table doubles and copies all $i - 1 = 2^k$ existing items plus inserts the new item, costing $c_i = 2^k + 1$. Summing over $n$ insertions:<br>$$\\text{Total Cost} = \\sum_{i=1}^n c_i \\le n + \\sum_{k=0}^{\\lfloor \\lg(n-1) \\rfloor} 2^k = n + (2^{\\lfloor \\lg(n-1) \\rfloor + 1} - 1) < n + 2n = 3n.$$<br>Therefore, the <b>amortized cost per operation</b> is $\\frac{\\text{Total Cost}}{n} < \\frac{3n}{n} = 3 = \\mathbf{O(1)}$.",
+              "Let cᵢ be the cost of the i-th insertion (1 dollar per write or copy). If the table has space, cᵢ = 1. If the table is full, which happens when i − 1 is an exact power of 2 (i = 2, 3, 5, 9, …), it doubles: copy the i − 1 items and write the new one, so cᵢ = i.<br>Table: i = 1..10, size = 1, 2, 4, 4, 8, 8, 8, 8, 16, 16, cᵢ = 1, 2, 3, 1, 5, 1, 1, 1, 9, 1.<br>Total = (1 + 1 + … + 1, n terms) + (1 + 2 + 4 + … + 2ᵏ) with 2ᵏ ≤ n − 1. The geometric sum is 2ᵏ⁺¹ − 1 < 2n, so Total < n + 2n = 3n.<br>Amortized cost per insertion = Total / n < 3n / n = 3 = <b>O(1)</b> (check: n = 10 gives 25 ≤ 30).",
               "Midterm 2018 Q6, Final 2019 Q2 & Lecture 8 · Slides 8.17–8.22"
+            ],
+            [
+              "Slide 8.3: search costs O(n) in a list and O(lg n) in a BST. Is it possible to search in less time?",
+              "Yes, with hashing. A hash function computes the slot of a key directly, so search, insert and delete take O(1) in the best and average case (Slide 8.4). The worst case is still O(n), when many keys collide into one place, so a good hash function and a small load factor matter.",
+              "Lecture 8 · Slides 8.3–8.4"
+            ],
+            [
+              "Slide 8.8: certain values of n are bad for the division method. Why? Show with keys 10, 20, 30, 40, 50.",
+              "Non-prime sizes (and powers of 2) share factors with patterned keys, so the keys reach only some slots and collide. mod 4: 10 → 2, 20 → 0, 30 → 2, 40 → 0, 50 → 2: only slots 0 and 2 of 0..3 are used. mod 7 (prime): 3, 6, 2, 5, 1: five different slots, no collisions. (The slide prints 40 mod 7 = 4; it is 5.) So choose n prime, not close to a power of 2.",
+              "Lecture 8 · Slides 8.8–8.9"
+            ],
+            [
+              "Compute the multiplication-method hash of k = 123 and k = 150 with n = 100 and A = 0.618033.",
+              "h(k) = ⌊n (kA mod 1)⌋.<br>k = 123: 123 · 0.618033 = 76.018059 → fraction 0.018059 → · 100 = 1.8059 → h = 1.<br>k = 150: 150 · 0.618033 = 92.70495 → fraction 0.70495 → · 100 = 70.495 → h = 70.",
+              "Lecture 8 · Slide 8.11"
+            ],
+            [
+              "Hash key 12345678 into a two-digit address (0..99) with fold-shifting and with fold-boundary.",
+              "Split into 2-digit parts: 12, 34, 56, 78.<br>Fold-shifting adds them as they are: 12 + 34 + 56 + 78 = 180; 180 % 100 = <b>80</b>.<br>Fold-boundary reverses the outer parts first (12 → 21, 78 → 87): 21 + 34 + 56 + 87 = 198; 198 % 100 = <b>98</b>.",
+              "Lecture 8 · Slide 8.15"
+            ],
+            [
+              "Slide 8.19: what is the time complexity of n insertions into a table that doubles when full? Is the O(n²) answer correct?",
+              "Simple analysis: one insertion may copy the whole table, O(n), so n insertions cost n · O(n) = O(n²). That bound is true but not tight, because copying only happens when i − 1 is a power of 2. Summing the real costs gives at most n writes plus 1 + 2 + 4 + … < 2n copies, so n insertions cost < 3n = O(n), O(1) amortized each.",
+              "Lecture 8 · Slides 8.19–8.23"
+            ],
+            [
+              "Slide 8.25: how much must each APPEND be charged in the accounting method so that all future costs are paid? Show the bank for 10 insertions.",
+              "Charge 3 dollars per APPEND (1 dollar = one write or copy): 1 dollar pays for writing the item, 1 dollar is saved for copying it at the next doubling, 1 dollar is saved for copying an older item.<br>bᵢ = bᵢ₋₁ + 3 − cᵢ with cᵢ = 1, 2, 3, 1, 5, 1, 1, 1, 9, 1 gives b = 2, 3, 3, 5, 3, 5, 7, 9, 3, 5 (the slide prints 4 for b₁₀). The bank never goes below 0, so Σ cᵢ ≤ 3n: O(1) per APPEND.",
+              "Lecture 8 · Slides 8.24–8.26"
+            ],
+            [
+              "Use the potential function Φ(hᵢ) = 2i − sizeᵢ to show that each insertion into a doubling table has amortized cost 3.",
+              "ĉᵢ = cᵢ + Φ(hᵢ) − Φ(hᵢ₋₁).<br>Case 1, no expansion (size unchanged, cᵢ = 1): ĉᵢ = 1 + (2i − size) − (2(i − 1) − size) = 1 + 2 = 3.<br>Case 2, expansion (the table held i − 1 = size items, new size 2(i − 1), cᵢ = i): ĉᵢ = i + (2i − 2(i − 1)) − (2(i − 1) − (i − 1)) = i + 2 − (i − 1) = 3.<br>Φ₀ = 0 and Φ ≥ 0 (the table is at least half full), so the true total ≤ 3n.",
+              "Lecture 8 · Slides 8.27–8.29"
+            ],
+            [
+              "Slide 8.33: how do we obtain the expected length of any chain in a hash table with chaining? Give the expected times of search, delete and insert.",
+              "Under simple uniform hashing each of the n keys lands in a given slot with probability 1/m, so the expected number of keys in a slot (its chain length) is n · 1/m = n/m = α, the load factor (n = 6, m = 3 → α = 2).<br>Search: O(1) to hash and reach the slot + α to scan the chain = O(1 + α). Delete: search, then unlink: O(1 + α). Insert: hash + link at the head: O(1). Worst case (all n keys in one chain): O(n).",
+              "Lecture 8 · Slides 8.33–8.37"
+            ],
+            [
+              "Slides 8.47–8.48: a chained table of size 3 (h(k) = k mod 3, threshold 2) holds 12, 10, 7, 14, 5. Insert 11 and 22 and rehash when needed.",
+              "12 → 0, 10 → 1, 7 → 1, 14 → 2, 5 → 2. Insert 11 → 2: α = 6/3 = 2, not greater than 2. Insert 22 → 1: α = 7/3 = 2.33 > 2, so rehash into m = 6 with k mod 6: 12 → 0, 7 → 1, 14 → 2, 10 → 4, 22 → 4, 11 → 5, 5 → 5. New α = 7/6 = 1.17 (the slide prints 1.67).",
+              "Lecture 8 · Slides 8.47–8.48"
+            ],
+            [
+              "Slide 8.54: why must open addressing mark deleted slots specially? Show it with keys 7, 36, 18, 62 (mod 11, linear probing).",
+              "Insert: 7 → 7, 36 → 3, 18 → 7 taken → 8, 62 → 7, 8 taken → 9. If delete 18 just empties slot 8, search 62 probes 7 (no), 8 (empty) and stops: \"not found\", although 62 is in slot 9. So slot 8 is marked \"Deleted\": search skips over it (7, 8, 9: found), while insert may reuse it (insert 51: 7 taken, 8 Deleted → 51 goes to 8).",
+              "Lecture 8 · Slides 8.58–8.64"
+            ],
+            [
+              "Slides 8.75–8.78: with quadratic probing, h(k) = k mod 10, insert 2, 12, 22, 32, 42, 52 and then 62. What happens and why?",
+              "All keys have home slot 2. 2 → 2; 12 → 3 (2 + 1); 22 → 6 (2 + 4); 32 → 1 (32 + 9 = 41); 42 → 8 (42 + 16 = 58); 52 → 7 (52 + 25 = 77). 62 probes 2, 3, 6, 1, 8, 7, 8, 1, 6, 3 (h₆ to h₉ = 98, 111, 126, 143 mod 10): all full, so it cannot be inserted although 0, 4, 5, 9 are empty. Reason: secondary clustering (same home slot, same sequence) and i² mod 10 ∈ {0, 1, 4, 9, 6, 5} reaches only 6 slots. Hence: table at most half full and prime size.",
+              "Lecture 8 · Slides 8.74–8.79"
+            ],
+            [
+              "Slides 8.83–8.86: insert 37, 90, 45, 22, 17, 49, 55 with double hashing, hash1 = key mod 10, hash2 = 7 − (key % 7).",
+              "37 → 7, 90 → 0, 45 → 5, 22 → 2 (no collisions). 17: home 7 taken; hash2 = 7 − 3 = 4; (7 + 4) mod 10 = 1 → slot 1. 49 → 9. 55: home 5 taken; hash2 = 7 − 6 = 1; (5 + 1) mod 10 = 6 → slot 6. Table: 0: 90, 1: 17, 2: 22, 5: 45, 6: 55, 7: 37, 9: 49.",
+              "Lecture 8 · Slides 8.83–8.86"
+            ],
+            [
+              "Midterm 2021 Q1: hash table of size 10. Add 0, 30, 1, 55, 16, 28, 13, 9, 26 using (1) linear probing h(k) = k mod 10, (2) quadratic probing, (3) double hashing h₁(k) = k mod 10, h₂(k) = 5 − (k mod 5), (4) chaining.",
+              "(1) Linear: 30 → 0 taken → 1; 1 → 1 taken → 2; 26 → 6 taken → 7. Table [0: 0, 1: 30, 2: 1, 3: 13, 4: −, 5: 55, 6: 16, 7: 26, 8: 28, 9: 9].<br>(2) Quadratic: the same table (every collision is solved at i = 1, +1).<br>(3) Double: 30: h₂ = 5 → slot 5. 55: h₁ = 5 taken, h₂ = 5, probes 5, 0, 5, 0, … all full: <b>55 cannot be inserted</b> (gcd(5, 10) = 5). 26: h₂ = 4, probes 6, 0, 4 → 4. Table [0: 0, 1: 1, 2: −, 3: 13, 4: 26, 5: 30, 6: 16, 7: −, 8: 28, 9: 9].<br>(4) Chaining: 0: [0, 30], 1: [1], 3: [13], 5: [55], 6: [16, 26], 8: [28], 9: [9].",
+              "Midterm 2021 Q1"
+            ],
+            [
+              "Midterm 2022 Q1: hash table of size 11. Add 0, 30, 1, 55, 16, 28, 13, 9, 26 using (1) linear probing h(k) = k mod 11, (2) quadratic probing, (3) double hashing h₁(k) = k mod 11, h₂(k) = 7 − (k mod 7), (4) chaining.",
+              "Home slots: 0, 8, 1, 0, 5, 6, 2, 9, 4.<br>(1) Linear: 55 → 0, 1 taken → 2; 13 → 2 taken → 3. Table [0: 0, 1: 1, 2: 55, 3: 13, 4: 26, 5: 16, 6: 28, 7: −, 8: 30, 9: 9, 10: −].<br>(2) Quadratic: 55 → 0, 1 taken, 0 + 4 = 4; 13 → 2; 26 → 4, 5, 8, 2, 9 taken, 4 + 25 = 29 mod 11 = 7. Table [0: 0, 1: 1, 2: 13, 3: −, 4: 55, 5: 16, 6: 28, 7: 26, 8: 30, 9: 9, 10: −].<br>(3) Double: 55: h₂ = 7 − 6 = 1 → 0, 1 taken → 2; 13: h₂ = 1 → 3; 26 → 4. Same table as linear.<br>(4) Chaining: 0: [0, 55], 1: [1], 2: [13], 4: [26], 5: [16], 6: [28], 8: [30], 9: [9].",
+              "Midterm 2022 Q1"
             ]
           ],
           "quiz": [
@@ -3006,19 +3590,19 @@ window.COURSES.algo = {
               "o": [
                 [
                   "19",
-                  "172 − 157 = 15, not 19."
+                  "Wrong: 172 − 157 = 15, not 19. 19 would come from a subtraction slip; the remainder of 172 divided by 157 is 15."
                 ],
                 [
                   "72",
-                  "That is 172 mod 100."
+                  "Wrong: 72 is 172 mod 100 (the last two digits). The division method divides by the table size m = 157, not by 100."
                 ],
                 [
                   "15",
-                  "Correct! h(172) = 172 mod 157 = 15."
+                  "Right: h(k) = k mod m, and 172 = 1 · 157 + 15, so h(172) = 15 (Slide 8.7, Final Q5)."
                 ],
                 [
                   "17",
-                  "Incorrect."
+                  "Wrong: 17 is just the first two digits of 172. The division method takes the remainder 172 mod 157 = 15."
                 ]
               ],
               "a": 2,
@@ -3029,19 +3613,19 @@ window.COURSES.algo = {
               "o": [
                 [
                   "14",
-                  "2 × 7 = 14, not 2^7."
+                  "Wrong: 14 is 2 × 7. In the binary implementation the table size is a power of 2, m = 2ᵖ, so p = 7 gives 2⁷."
                 ],
                 [
                   "128",
-                  "Correct! In the multiplication method, the table size is chosen as a power of 2, m = 2^p = 2^7 = 128."
+                  "Right: the binary multiplication method uses a table of size m = 2ᵖ (it is not critical for the method, Slide 8.10), so p = 7 gives 2⁷ = 128."
                 ],
                 [
                   "49",
-                  "7² = 49."
+                  "Wrong: 49 is 7², the square of p. The table size is 2 raised to p, 2⁷ = 128."
                 ],
                 [
                   "127",
-                  "2^7 − 1 = 127."
+                  "Wrong: 127 is 2⁷ − 1, the largest index of the table, not its size. The size is m = 2⁷ = 128."
                 ]
               ],
               "a": 1,
@@ -3052,19 +3636,19 @@ window.COURSES.algo = {
               "o": [
                 [
                   "46, 42, 34, 52, 23, 33",
-                  "If 46 is inserted before 52, then 52 (h=2) would only probe to 5, which works, BUT 23 (h=3) inserted after 34 (at 4) and 52 (at 5) works; wait: if 34 is inserted before 23, 52 (h=2) sees 42 at 2, 3 is EMPTY so 52 would land at slot 3 instead of slot 5!"
+                  "Wrong: 52 (home 2) arrives while slot 3 is still empty, so it lands in 3; then 23 is pushed to 5 and 33 to 7. Slot 3 would hold 52, not 23."
                 ],
                 [
                   "34, 42, 23, 52, 33, 46",
-                  "If 33 (h=3) is inserted before 46 (h=6), 33 probes 3(23), 4(34), 5(52), and lands at empty slot 6 instead of slot 7!"
+                  "Wrong: 33 (home 3) arrives before 46 and probes 3, 4, 5, then finds slot 6 empty, so 33 lands in 6 and 46 is pushed to 7."
                 ],
                 [
                   "46, 34, 42, 23, 52, 33",
-                  "Correct! 46→slot 6; 34→slot 4; 42→slot 2; 23→slot 3; then 52 (h=2) probes 2, 3, 4 and lands at slot 5; finally 33 (h=3) probes 3, 4, 5, 6 and lands at slot 7!"
+                  "Right: 46 → 6, 34 → 4, 42 → 2, 23 → 3; then 52 probes 2, 3, 4 and lands in 5; 33 probes 3, 4, 5, 6 and lands in 7. Exactly the given table."
                 ],
                 [
                   "42, 46, 33, 23, 34, 52",
-                  "If 33 is inserted when slot 3 is empty, 33 lands at slot 3 instead of slot 7."
+                  "Wrong: 33 arrives while slot 3 is empty and takes it, so 23 goes to 4, 34 to 5 and 52 to 7. Slot 3 would hold 33, not 23."
                 ]
               ],
               "a": 2,
@@ -3075,44 +3659,1072 @@ window.COURSES.algo = {
               "o": [
                 [
                   "O(n) total for n insertions (O(1) per insertion)",
-                  "Correct! Final Summer Q28 & Slide 8.22: Total cost for n insertions is < 3n = O(n), which is O(1) amortized per insertion."
+                  "Right: the n writes cost n and the copies 1 + 2 + 4 + … form a geometric series below 2n, so the total is < 3n = O(n), O(1) amortized per insertion (Slides 8.22–8.23)."
                 ],
                 [
                   "O(n²) total",
-                  "Doubling only occurs at powers of 2, so the geometric series sums to < 2n, not Θ(n²)."
+                  "Wrong: n² comes from the naive bound of Slide 8.19 (n insertions × O(n) each). Copies happen only at powers of 2, so the real total is < 3n."
                 ],
                 [
                   "O(n lg n) total",
-                  "The sum of powers of 2 up to n is 2n − 1 = O(n), not O(n lg n)."
+                  "Wrong: it would hold if each of the lg n doublings copied n items, but they copy 1, 2, 4, …, so the copies add up to less than 2n."
                 ],
                 [
                   "O(2ⁿ) total",
-                  "Incorrect."
+                  "Wrong: nothing grows exponentially in n; the table size doubles only about lg n times, and the total work is linear, < 3n."
                 ]
               ],
               "a": 0,
               "src": "Exam · Final Summer Q28 & Exam Examples Q28"
+            },
+            {
+              "q": "<b>Q1 & Q2</b>: What is a hash table, and what is it called when several elements compete for the same bucket?",
+              "o": [
+                [
+                  "A structure that maps keys to values; Collision",
+                  "Right: the hash function maps a key to a position holding its value (Slide 8.4), and two keys wanting the same slot is a collision (Slide 8.7)."
+                ],
+                [
+                  "A structure that maps values to keys; Diffusion",
+                  "Wrong: the direction is reversed (we look up by key, not by value) and \"diffusion\" is not the term; competing keys cause a collision."
+                ],
+                [
+                  "A structure used to implement stack; Replication",
+                  "Wrong: a hash table implements a dictionary (insert, search, delete by key), not a stack; replication is not about two keys sharing a slot."
+                ],
+                [
+                  "A tree structure; Duplication",
+                  "Wrong: a hash table is an array of slots (trees appear only inside slots in the extended technique), and two keys in one slot is a collision."
+                ]
+              ],
+              "a": 0,
+              "src": "Exam · Final Q1 & Q2"
+            },
+            {
+              "q": "<b>Q3, Q4 & Q5</b>: In the division method, what is the hash function, what is the best choice for $m$, and where is key $172$ placed when $m = 157$?",
+              "o": [
+                [
+                  "h(k) = k mod m; Any prime number not close to a power of 2; Position 15",
+                  "Right: the division method takes the remainder k mod m (Slide 8.7), m should be prime (Slide 8.8), and 172 mod 157 = 15."
+                ],
+                [
+                  "h(k) = k / m; Any even number; Position 19",
+                  "Wrong: the hash is the remainder, not the quotient; even sizes share the factor 2 with many keys (bad, Slide 8.9); and 172 mod 157 is 15."
+                ],
+                [
+                  "h(k) = m mod k; 2^p; Position 72",
+                  "Wrong: the operands are swapped (key mod size), powers of 2 are the bad sizes of Slide 8.8, and 72 is 172 mod 100."
+                ],
+                [
+                  "h(k) = m / k; 2^p − 1; Position 17",
+                  "Wrong: a division m / k is not a slot index, 2ᵖ − 1 is not the recommended choice, and 17 is not the remainder 172 mod 157 = 15."
+                ]
+              ],
+              "a": 0,
+              "src": "Exam · Final Q3, Q4 & Q5"
+            },
+            {
+              "q": "<b>Q7, Q9 & Q10</b>: What is the average retrieval time when all $n$ keys hash to the same slot, and what is the search complexity in direct addressing?",
+              "o": [
+                [
+                  "Θ(n) when all n keys hash to one slot; O(1) in direct addressing (with a distinct array position for every possible key)",
+                  "Right: one chain of n keys must be scanned, Θ(n) (Slide 8.37), while direct hashing h(K) = K reaches the key in one access (Slide 8.6)."
+                ],
+                [
+                  "Θ(n²) when all n keys hash to one slot; O(log n) in direct addressing",
+                  "Wrong: scanning one chain of n items is linear, not quadratic, and direct addressing needs no search at all: O(1), not O(log n)."
+                ],
+                [
+                  "Θ(n log n); O(n)",
+                  "Wrong: n log n is a sorting cost, not a chain scan (Θ(n)); and direct addressing is O(1) because the key is the address."
+                ],
+                [
+                  "O(1); O(n log n)",
+                  "Wrong: O(1) is the average with keys spread out, not with all n keys in one slot (that is Θ(n)), and direct addressing is O(1)."
+                ]
+              ],
+              "a": 0,
+              "src": "Exam · Final Q7, Q9 & Q10"
+            },
+            {
+              "q": "<b>Q13, Q14 & Q15</b>: In separate chaining, what is the load factor $\\alpha$, what is Simple Uniform Hashing, and what data structure is used for chains?",
+              "o": [
+                [
+                  "Average chain length (n/m); Every element has equal probability of hashing into any slot; Doubly/Singly linked list",
+                  "Right: α = n/m is the expected chain length (Slide 8.33), simple uniform hashing gives probability 1/m per slot, and chains are linked lists (Slide 8.31)."
+                ],
+                [
+                  "Average array size; Weighted probability; Stack",
+                  "Wrong: α counts keys per slot, not array size; the probabilities are equal, not weighted; and chains are linked lists, not stacks."
+                ],
+                [
+                  "Average key size; Priority hashing; Binary heap",
+                  "Wrong: α is n/m, unrelated to how big a key is; \"priority hashing\" is not the assumption; chains are linked lists, not heaps."
+                ],
+                [
+                  "Average table length; Sequential hashing; Array",
+                  "Wrong: α is the average chain length, the assumption is uniform (not sequential) hashing, and a chain is a linked list (it grows without reallocation)."
+                ]
+              ],
+              "a": 0,
+              "src": "Exam · Final Q13, Q14 & Q15"
+            },
+            {
+              "q": "Direct hashing (h(K) = K) gives O(1) search, insert and delete. What is its disadvantage?",
+              "o": [
+                [
+                  "It needs an array as large as the largest key, so it consumes memory",
+                  "Right: Slide 8.6, the address space must be as large as the key values; key 30 alone needs a 31-cell array."
+                ],
+                [
+                  "It causes many collisions",
+                  "Wrong: every key has its own cell in direct hashing, so two different keys can never collide; that is the problem of hash functions."
+                ],
+                [
+                  "Search is O(n) in the worst case",
+                  "Wrong: search is one array access, O(1), always; O(n) worst-case search belongs to hashing with collisions."
+                ],
+                [
+                  "It only works for prime table sizes",
+                  "Wrong: the prime-size rule belongs to the division method (Slide 8.8); direct hashing does no arithmetic on the key at all."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.6"
+            },
+            {
+              "q": "Keys 10, 20, 30, 40, 50 are hashed with h(k) = k mod 7. Into which slot does 40 go?",
+              "o": [
+                [
+                  "5",
+                  "Right: 40 = 5 · 7 + 5, so 40 mod 7 = 5. (Slide 8.9 prints 4, a slip; the five keys still get five different slots: 3, 6, 2, 5, 1.)"
+                ],
+                [
+                  "4",
+                  "Wrong: this is the value printed on Slide 8.9, but 5 · 7 = 35 and 40 − 35 = 5, so the remainder is 5."
+                ],
+                [
+                  "0",
+                  "Wrong: 0 is 40 mod 4 (Slide 8.9's bad table size). With the prime 7 the remainder is 5."
+                ],
+                [
+                  "2",
+                  "Wrong: 2 is 30 mod 7, the slot of key 30. For 40 the remainder is 40 − 35 = 5."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.9"
+            },
+            {
+              "q": "Multiplication method with n = 100 and A = 0.618033: what is h(150)?",
+              "o": [
+                [
+                  "70",
+                  "Right: 150 · 0.618033 = 92.70495, the fractional part is 0.70495, times 100 is 70.495, and the floor is 70 (Slide 8.11)."
+                ],
+                [
+                  "92",
+                  "Wrong: 92 is the integer part of kA; the method keeps the fractional part (kA mod 1) and throws the integer part away."
+                ],
+                [
+                  "71",
+                  "Wrong: 71 rounds 70.495 up; the method takes the floor ⌊70.495⌋ = 70, never rounding up."
+                ],
+                [
+                  "50",
+                  "Wrong: 50 is 150 mod 100, the division method. The multiplication method gives ⌊100 · 0.70495⌋ = 70."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.11"
+            },
+            {
+              "q": "Mid-square method with n = 1000 (3 middle digits): what is h(1234)?",
+              "o": [
+                [
+                  "227",
+                  "Right: 1234² = 1522756 (7 digits); the middle three digits, positions 3 to 5, are 227 (Slide 8.13)."
+                ],
+                [
+                  "756",
+                  "Wrong: 756 are the last three digits of 1522756 (that would be k² mod 1000), not the middle ones."
+                ],
+                [
+                  "152",
+                  "Wrong: 152 are the first three digits of the square; the method takes the middle digits, which depend on all digits of k."
+                ],
+                [
+                  "234",
+                  "Wrong: 234 are the last digits of the key itself; the method squares the key first: 1522756 → 227."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.13"
+            },
+            {
+              "q": "Folding key 12345678 into a two-digit address (0..99) with fold-boundary gives:",
+              "o": [
+                [
+                  "98",
+                  "Right: reverse the outer parts (12 → 21, 78 → 87): 21 + 34 + 56 + 87 = 198, and 198 % 100 = 98 (Slide 8.15)."
+                ],
+                [
+                  "80",
+                  "Wrong: 80 is fold-shifting (12 + 34 + 56 + 78 = 180 → 80), which adds the parts without reversing the outer ones."
+                ],
+                [
+                  "198",
+                  "Wrong: 198 is the sum before reducing it into the address range; 198 % 100 = 98."
+                ],
+                [
+                  "78",
+                  "Wrong: 78 is just the last part of the key; folding adds all the parts (after reversing the outer ones)."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.15"
+            },
+            {
+              "q": "In the doubling table of Slide 8.20, what is c₉, the cost of the 9th insertion?",
+              "o": [
+                [
+                  "9",
+                  "Right: i − 1 = 8 is a power of 2, so the full table of 8 doubles to 16: 8 copies + 1 write = 9."
+                ],
+                [
+                  "1",
+                  "Wrong: cᵢ = 1 only when there is space; after 8 items the table of size 8 is full, so insert 9 must copy."
+                ],
+                [
+                  "8",
+                  "Wrong: 8 counts only the copies; the new item must also be written, so c₉ = 8 + 1 = 9."
+                ],
+                [
+                  "16",
+                  "Wrong: 16 is the new table size, not the work. Only the 8 existing items are copied, plus 1 write."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.20"
+            },
+            {
+              "q": "In the accounting method for table doubling, how much is each APPEND charged so that the bank never goes negative?",
+              "o": [
+                [
+                  "3 dollars",
+                  "Right: Slide 8.25, 3 dollars per APPEND pays for every cost in the sequence: 1 dollar writes the item, 2 dollars are saved for future copies."
+                ],
+                [
+                  "1 dollar",
+                  "Wrong: 1 dollar pays only the write; nothing is saved, so the first doubling (copying items) would drive the bank negative."
+                ],
+                [
+                  "2 dollars",
+                  "Wrong: with 2 dollars the bank is 1, 1, 0, 1, −2 after five inserts: insert 5 costs 5 and the bank goes negative."
+                ],
+                [
+                  "n dollars",
+                  "Wrong: charging n per operation is the naive O(n²) bound; the point of amortization is a constant charge, 3 dollars."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.25"
+            },
+            {
+              "q": "With 3 dollars per insertion, what is the bank balance b₅ after the 5th insertion (Slide 8.26)?",
+              "o": [
+                [
+                  "3",
+                  "Right: b₄ = 5 and c₅ = 5 (4 copies + 1 write), so b₅ = 5 + 3 − 5 = 3."
+                ],
+                [
+                  "5",
+                  "Wrong: 5 is b₄ (before insert 5) and also c₅. After paying 5 out of 5 + 3 the bank holds 3."
+                ],
+                [
+                  "0",
+                  "Wrong: the bank never empties in this example; after each doubling it falls back to 3, not to 0."
+                ],
+                [
+                  "7",
+                  "Wrong: 7 is b₇. At i = 5 the expensive doubling has just been paid: 5 + 3 − 5 = 3."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.26"
+            },
+            {
+              "q": "Potential method, Φ(hᵢ) = 2i − sizeᵢ. After 12 insertions into the doubling table, what is Φ?",
+              "o": [
+                [
+                  "8",
+                  "Right: after 12 inserts the size is 16, so Φ = 2 · 12 − 16 = 8 (Slide 8.29's table, row 12)."
+                ],
+                [
+                  "3",
+                  "Wrong: 3 is the amortized cost ĉ₁₂, not the potential. Φ = 2i − size = 24 − 16 = 8."
+                ],
+                [
+                  "12",
+                  "Wrong: 12 is the number of items; the potential subtracts the size: 2 · 12 − 16 = 8."
+                ],
+                [
+                  "−4",
+                  "Wrong: that uses size 28 or forgets the factor 2 (12 − 16). Φ = 2 · 12 − 16 = 8, and it is never negative here."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.29"
+            },
+            {
+              "q": "Using the potential method, what is the amortized cost ĉ₁₇ of the 17th insertion?",
+              "o": [
+                [
+                  "3",
+                  "Right: c₁₇ = 17 (16 copies + 1), Φ₁₇ = 34 − 32 = 2, Φ₁₆ = 32 − 16 = 16, so ĉ = 17 + 2 − 16 = 3 (Slide 8.29)."
+                ],
+                [
+                  "17",
+                  "Wrong: 17 is the true cost cᵢ. The potential drop from 16 to 2 pays for the copying: 17 − 14 = 3."
+                ],
+                [
+                  "2",
+                  "Wrong: 2 is Φ₁₇ (and the amortized cost of the very first insertion only). Here ĉ₁₇ = 17 + 2 − 16 = 3."
+                ],
+                [
+                  "19",
+                  "Wrong: it adds Φ₁₇ but forgets to subtract Φ₁₆; ĉ = c + Φ(after) − Φ(before) = 17 + 2 − 16 = 3."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.29"
+            },
+            {
+              "q": "A chained hash table has n = 6 keys in m = 3 slots. Under simple uniform hashing, what is the expected length of a chain?",
+              "o": [
+                [
+                  "2",
+                  "Right: the expected chain length is the load factor α = n/m = 6/3 = 2 (Slide 8.33)."
+                ],
+                [
+                  "6",
+                  "Wrong: 6 is the worst case, all keys in one chain; on average the keys are spread, n/m = 2 per chain."
+                ],
+                [
+                  "3",
+                  "Wrong: 3 is the number of slots m. The expected length is keys per slot, n/m = 6/3 = 2."
+                ],
+                [
+                  "0.5",
+                  "Wrong: that is m/n, upside down. The load factor is n/m = 2."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.33"
+            },
+            {
+              "q": "Under simple uniform hashing, the expected time to search a separately chained table is:",
+              "o": [
+                [
+                  "O(1 + α)",
+                  "Right: O(1) to compute the hash and reach the slot, plus the expected chain length α to scan it (Slide 8.34)."
+                ],
+                [
+                  "O(α) only",
+                  "Wrong: even an empty chain costs the hash computation and slot access, which is the 1 in 1 + α; with α near 0 the cost is not 0."
+                ],
+                [
+                  "O(1) always",
+                  "Wrong: O(1) is the insert time (Slide 8.36). A search must scan the chain, expected α items, so O(1 + α)."
+                ],
+                [
+                  "O(lg n)",
+                  "Wrong: O(lg n) is search in a balanced BST (or AVL chains, Slide 8.46); a linked-list chain costs O(1 + α)."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.34"
+            },
+            {
+              "q": "Separate chaining with a BST in each slot: all n keys hash to one slot and arrive in sorted order. The search cost is:",
+              "o": [
+                [
+                  "O(n)",
+                  "Right: sorted keys always go to the same side, so the BST is a path of n nodes (skewed tree), Slide 8.39 case 1."
+                ],
+                [
+                  "O(lg n)",
+                  "Wrong: O(lg n) is case 2 (unsorted keys, minimum height); sorted input makes the tree a chain."
+                ],
+                [
+                  "O(n/m)",
+                  "Wrong: n/m is the best case, keys spread over all m slots; here all n keys are in one slot."
+                ],
+                [
+                  "O(1)",
+                  "Wrong: O(1) would need short chains; one skewed tree with n nodes must be walked from top to bottom."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.39"
+            },
+            {
+              "q": "Rehashing example (Slide 8.47): m = 3, threshold 2, the table holds 7 keys after inserting 22. What happens?",
+              "o": [
+                [
+                  "α = 7/3 = 2.33 > 2, so the table is rehashed into a table of size 6",
+                  "Right: the load factor passes the threshold, so a double-size array (6) is built and every key is hashed again with k mod 6."
+                ],
+                [
+                  "α = 7/3 = 2.33, but chaining never needs rehashing",
+                  "Wrong: chaining tolerates α > 1, but the slides still rehash it once α passes the chosen threshold, here 2, to keep searches O(1)."
+                ],
+                [
+                  "α = 3/7, below the threshold, nothing happens",
+                  "Wrong: that is m/n upside down. α = n/m = 7/3 = 2.33, which is greater than 2."
+                ],
+                [
+                  "The table is rehashed into the prime 7",
+                  "Wrong: the closest-prime rule is the open-addressing rehash of Slide 8.91; the chaining example doubles 3 to 6."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.47"
+            },
+            {
+              "q": "True or false: in open addressing, a search stops when it reaches a slot marked \"Deleted\".",
+              "o": [
+                [
+                  "True",
+                  "Wrong: if the search stopped there, keys that probed past the deleted key would be lost (search 62 after deleting 18 would fail)."
+                ],
+                [
+                  "False",
+                  "Right: Slide 8.54, the search does not stop at a deleted slot, it keeps probing; only an empty (NIL) slot or m probes stop it."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 8 · Slide 8.54"
+            },
+            {
+              "q": "Linear probing, h(k) = k mod 11, keys 7, 36, 18, 62 inserted in this order. Where does 62 go?",
+              "o": [
+                [
+                  "Slot 9",
+                  "Right: 62 mod 11 = 7 (taken by 7), then 8 (taken by 18), then 9 is empty (Slide 8.60)."
+                ],
+                [
+                  "Slot 7",
+                  "Wrong: 7 is 62's home slot, but key 7 is already there, so linear probing moves on to 8 and 9."
+                ],
+                [
+                  "Slot 8",
+                  "Wrong: slot 8 was taken by 18 (whose home 7 was also full); 62 continues to 9."
+                ],
+                [
+                  "Slot 0",
+                  "Wrong: slot 0 is where quadratic probing puts 62 (7 + 4 = 11 → 0, Slide 8.71); linear probing steps by 1."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.60"
+            },
+            {
+              "q": "After deleting 18 (slot 8 marked Deleted) from the table 36: 3, 7: 7, 62: 9 (mod 11, linear probing), where does insert 51 put the key?",
+              "o": [
+                [
+                  "Slot 8",
+                  "Right: 51 mod 11 = 7 is taken; slot 8 is marked Deleted, and insert treats a deleted slot as free (Slide 8.64)."
+                ],
+                [
+                  "Slot 10",
+                  "Wrong: that skips the Deleted slot as if it were full; insert may reuse it. (Slot 10 is where 51 goes without the deletion, Slide 8.73.)"
+                ],
+                [
+                  "Slot 7",
+                  "Wrong: slot 7 holds key 7, a real item; 51 must probe on to slot 8."
+                ],
+                [
+                  "It cannot be inserted",
+                  "Wrong: most slots are empty and the very next probe (slot 8) is reusable; linear probing always finds a free cell while one exists."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.64"
+            },
+            {
+              "q": "Quadratic probing, h(k) = k mod 11, with 7, 36, 18, 62 already in slots 7, 3, 8, 0. Where does 51 go?",
+              "o": [
+                [
+                  "Slot 5",
+                  "Right: probes 7, 8, 0 are taken (51 + 0, + 1, + 4), then h₃ = (51 + 9) mod 11 = 60 mod 11 = 5 (Slide 8.72)."
+                ],
+                [
+                  "Slot 9",
+                  "Wrong: 9 is the next linear step after 7 and 8; quadratic probing jumps by i², so after 7, 8 it tries 0, then 5."
+                ],
+                [
+                  "Slot 0",
+                  "Wrong: slot 0 already holds 62 (placed by h₂), so 51 needs a fourth probe, h₃ = 5."
+                ],
+                [
+                  "Slot 10",
+                  "Wrong: 10 is where linear probing puts 51 (Slide 8.73). Quadratic: 7, 8, 0, then 60 mod 11 = 5."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.72"
+            },
+            {
+              "q": "Quadratic probing with h(k) = k mod 10 holds 2, 12, 22, 32, 42, 52 in slots 2, 3, 6, 1, 8, 7. What happens when 62 is inserted?",
+              "o": [
+                [
+                  "It cannot be inserted: every probe lands on a full slot",
+                  "Right: from slot 2 the offsets i² mod 10 ∈ {0, 1, 4, 9, 6, 5} reach only 2, 3, 6, 1, 8, 7, all full (Slide 8.78)."
+                ],
+                [
+                  "It goes to slot 0",
+                  "Wrong: slot 0 is empty, but 2 + i² mod 10 never equals 0, so quadratic probing never looks there."
+                ],
+                [
+                  "It goes to slot 4",
+                  "Wrong: that would need i² ≡ 2 (mod 10), which never happens; slot 4 is unreachable from home slot 2."
+                ],
+                [
+                  "It goes to slot 9",
+                  "Wrong: that would need i² ≡ 7 (mod 10), impossible; this is secondary clustering, not a free slot found."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.78"
+            },
+            {
+              "q": "According to Slide 8.79, quadratic probing should be used when:",
+              "o": [
+                [
+                  "The table is at most half full and its size is prime",
+                  "Right: otherwise an insertion may fail (always a collision), as the mod 10 example with 62 shows."
+                ],
+                [
+                  "The table is at least 90% full",
+                  "Wrong: a nearly full table is the worst case (10 expected probes at α = 0.9) and makes failures likely."
+                ],
+                [
+                  "The table size is a power of 2",
+                  "Wrong: powers of 2 are the bad sizes (Slide 8.8); with quadratic probing they also leave slots unreachable."
+                ],
+                [
+                  "Keys arrive in sorted order",
+                  "Wrong: key order matters for BST chains (Slide 8.39), not for whether quadratic probing finds a free slot."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.79"
+            },
+            {
+              "q": "Which property must a good second hash function hash2 have (Slide 8.82)?",
+              "o": [
+                [
+                  "It must never evaluate to zero, and all cells must be probeable",
+                  "Right: a step of 0 repeats the same slot forever, and the step must let the sequence visit every cell."
+                ],
+                [
+                  "It must equal hash1",
+                  "Wrong: then two keys with the same home slot would still share sequences; the point is a second, different function."
+                ],
+                [
+                  "It must be a power of 2",
+                  "Wrong: with an even table size an even step reaches only part of the table (step 5 in m = 10 reaches 2 slots)."
+                ],
+                [
+                  "It must be larger than the table size",
+                  "Wrong: hash2 = PRIME − (key % PRIME) with PRIME smaller than TABLE_SIZE, so it is 1..PRIME, below m."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.82"
+            },
+            {
+              "q": "Double hashing, hash1 = key mod 10, hash2 = 7 − (key % 7), slot 7 holds 37. Where does 17 go?",
+              "o": [
+                [
+                  "Slot 1",
+                  "Right: home 7 is taken; hash2(17) = 7 − 3 = 4; (7 + 4) mod 10 = 1 (Slide 8.85)."
+                ],
+                [
+                  "Slot 8",
+                  "Wrong: 8 is the linear-probing step (+1). Double hashing steps by hash2(17) = 4."
+                ],
+                [
+                  "Slot 4",
+                  "Wrong: 4 is the step hash2(17) itself; the probe is (hash1 + 1 · hash2) mod 10 = 11 mod 10 = 1."
+                ],
+                [
+                  "Slot 3",
+                  "Wrong: 3 is 17 % 7. hash2 is 7 − 3 = 4, and the probe is (7 + 4) mod 10 = 1."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.85"
+            },
+            {
+              "q": "Same double hashing example: where does 55 go when slot 5 holds 45?",
+              "o": [
+                [
+                  "Slot 6",
+                  "Right: hash2(55) = 7 − (55 % 7) = 7 − 6 = 1, so h₁ = (5 + 1) mod 10 = 6 (Slide 8.86)."
+                ],
+                [
+                  "Slot 1",
+                  "Wrong: that adds 6 (55 % 7) instead of hash2 = 7 − 6 = 1; (5 + 6) mod 10 = 1 is a misuse of the formula."
+                ],
+                [
+                  "Slot 2",
+                  "Wrong: slot 2 holds 22 and is not on 55's sequence; its first step goes to 5 + 1 = 6, which is free."
+                ],
+                [
+                  "It cannot be inserted",
+                  "Wrong: the step 1 is relatively prime to 10, and the very first step finds the empty slot 6."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.86"
+            },
+            {
+              "q": "Which open-addressing technique has neither primary nor secondary clustering (Slide 8.88)?",
+              "o": [
+                [
+                  "Double hashing",
+                  "Right: the step depends on the key, so keys with the same home slot take different paths; Θ(m²) probe sequences."
+                ],
+                [
+                  "Linear probing",
+                  "Wrong: linear probing has primary clustering (long runs) and, per the slide's table, secondary clustering too."
+                ],
+                [
+                  "Quadratic probing",
+                  "Wrong: it removes primary clustering but keeps secondary clustering: same home slot, same sequence."
+                ],
+                [
+                  "Separate chaining",
+                  "Wrong: chaining is not an open-addressing probe method at all; it stores collisions in lists outside the table cells."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.88"
+            },
+            {
+              "q": "An open-addressed table is 90% full. What is the expected number of probes (Slide 8.90)?",
+              "o": [
+                [
+                  "10",
+                  "Right: the expected number of probes is 1/(1 − α) = 1/(1 − 0.9) = 1/0.1 = 10."
+                ],
+                [
+                  "2",
+                  "Wrong: 2 is the half-full case, 1/(1 − 0.5). At 90% the cost grows to 10."
+                ],
+                [
+                  "0.9",
+                  "Wrong: 0.9 is the load factor itself; the expected probe count is 1/(1 − α)."
+                ],
+                [
+                  "1.11",
+                  "Wrong: that is 1/0.9 = 1/α, the formula inverted; the bound is 1/(1 − α) = 10."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.90"
+            },
+            {
+              "q": "When an open-addressed table of size m is too full, the slides rehash into a table of size:",
+              "o": [
+                [
+                  "The prime closest to 2m",
+                  "Right: Slide 8.91, compute the new size (the closest prime to 2m), then rehash every element into the new table."
+                ],
+                [
+                  "m + 1",
+                  "Wrong: growing by one slot would need a full rehash at almost every insert, an O(n²) total."
+                ],
+                [
+                  "m²",
+                  "Wrong: squaring wastes huge amounts of memory; doubling (to a nearby prime) keeps the amortized cost O(1)."
+                ],
+                [
+                  "Exactly 2m",
+                  "Wrong: 2m is even, a bad size for the division method; the slide picks the prime closest to 2m."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.91"
+            },
+            {
+              "q": "True or false: deletion is easier in separate chaining than in open addressing.",
+              "o": [
+                [
+                  "True",
+                  "Right: Slide 8.92 row 7, a chain node is simply unlinked, while open addressing needs \"Deleted\" markers to keep searches correct."
+                ],
+                [
+                  "False",
+                  "Wrong: Slide 8.92 lists deletion as easier in chaining and difficult in open addressing, which is why Slide 8.94 recommends chaining when deletes are needed."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.92"
+            },
+            {
+              "q": "According to Slide 8.94, which method should you use \"when in doubt\"?",
+              "o": [
+                [
+                  "Separate chaining",
+                  "Right: it never fills up, tolerates high load factors and supports deletion, so it is the safe default."
+                ],
+                [
+                  "Linear probing",
+                  "Wrong: linear probing is recommended only when memory is plentiful and the data won't expand."
+                ],
+                [
+                  "Quadratic probing",
+                  "Wrong: within open addressing the slides prefer double hashing over quadratic probing."
+                ],
+                [
+                  "Double hashing",
+                  "Wrong: double hashing is the best open-addressing choice, but the default when in doubt is separate chaining."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 8 · Slide 8.94"
             }
           ],
           "extra": [
             {
-              "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 8?",
+              "q": "A string key is turned into a number by adding its ASCII codes (C = 67, A = 65, T = 84). Where does \"CAT\" go with h(k) = k mod 11?",
               "o": [
                 [
-                  "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-                  "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
+                  "Slot 7",
+                  "Right: 67 + 65 + 84 = 216, and 216 = 19 · 11 + 7, so 216 mod 11 = 7."
                 ],
                 [
-                  "The algorithm requires O(2ⁿ) exponential space in the best case",
-                  "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
+                  "Slot 19",
+                  "Wrong: 19 is the quotient 216 / 11; the hash is the remainder, and 19 is not even a slot of a table of size 11."
                 ],
                 [
-                  "The algorithm only works when n ≤ 10",
-                  "False — Asymptotic analysis applies as n → ∞."
+                  "Slot 6",
+                  "Wrong: that comes from 216 − 210; 11 · 19 = 209, so the remainder is 216 − 209 = 7."
                 ],
                 [
-                  "Correctness does not depend on loop invariants or optimal substructure",
-                  "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
+                  "Slot 216",
+                  "Wrong: 216 is the key as a number; it must be reduced mod 11 to give a slot in 0..10."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Pigeonhole: 12 keys are stored in a hash table with 11 slots. What can be guaranteed for every hash function?",
+              "o": [
+                [
+                  "At least one slot receives at least 2 keys",
+                  "Right: 12 items into 11 boxes means some box gets two or more, so a collision is unavoidable."
+                ],
+                [
+                  "Every slot receives at least 1 key",
+                  "Wrong: a bad hash function can send all 12 keys to one slot; nothing forces every slot to be used."
+                ],
+                [
+                  "No collision happens if m is prime",
+                  "Wrong: a prime size spreads patterned keys better, but 12 keys still cannot fit in 11 slots without sharing."
+                ],
+                [
+                  "Exactly one slot receives 2 keys",
+                  "Wrong: only \"at least one\" is guaranteed; many slots could get 2 or more keys."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Multiplication method with n = 100 and A = 0.618033. What is h(45)?",
+              "o": [
+                [
+                  "81",
+                  "Right: 45 · 0.618033 = 27.811485, the fractional part is 0.811485, × 100 = 81.1485, floor = 81."
+                ],
+                [
+                  "27",
+                  "Wrong: 27 is the integer part of kA, which the method discards (kA mod 1 keeps only the fraction)."
+                ],
+                [
+                  "82",
+                  "Wrong: 82 rounds 81.1485 up; the method takes the floor, 81."
+                ],
+                [
+                  "45",
+                  "Wrong: 45 is the division method with n = 100 (45 mod 100). The multiplication method gives 81."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Mid-square method with n = 100 (two middle digits). What is h(77)?",
+              "o": [
+                [
+                  "92",
+                  "Right: 77² = 5929 (4 digits); the middle two are 9 and 2, so h(77) = 92."
+                ],
+                [
+                  "29",
+                  "Wrong: 29 are the last two digits of 5929, which is k² mod 100, not the middle digits."
+                ],
+                [
+                  "59",
+                  "Wrong: 59 are the first two digits of the square; the method takes the middle two."
+                ],
+                [
+                  "77",
+                  "Wrong: that is the key itself; the method squares the key first and then takes the middle digits."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Key 87654321 is folded into a two-digit address (0..99). Fold-shifting and fold-boundary give:",
+              "o": [
+                [
+                  "16 and 98",
+                  "Right: shifting 87 + 65 + 43 + 21 = 216 → 16; boundary reverses the outer parts: 78 + 65 + 43 + 12 = 198 → 98."
+                ],
+                [
+                  "16 and 16",
+                  "Wrong: fold-boundary reverses the first and last parts (87 → 78, 21 → 12), which changes the sum to 198."
+                ],
+                [
+                  "216 and 198",
+                  "Wrong: those are the sums; each must still be taken % 100 to fit the address range: 16 and 98."
+                ],
+                [
+                  "98 and 16",
+                  "Wrong: the two results are swapped; fold-shifting (no reversal) gives 216 → 16."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Doubling table starting at size 1 (Slide 8.20 rule). What is the total true cost of the first 16 insertions?",
+              "o": [
+                [
+                  "31",
+                  "Right: 16 writes + copies 1 + 2 + 4 + 8 = 15 (at i = 2, 3, 5, 9), total 31 ≤ 3 · 16 = 48."
+                ],
+                [
+                  "48",
+                  "Wrong: 48 = 3n is the upper bound from the aggregate method, not the exact total, which is 31."
+                ],
+                [
+                  "47",
+                  "Wrong: that adds the copy of 16 items, which only happens at insertion 17 (i − 1 = 16)."
+                ],
+                [
+                  "256",
+                  "Wrong: that is the naive n² bound (16 · 16); the real total is linear."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "With 3 dollars charged per insertion into the doubling table, what is the bank balance after the 12th insertion?",
+              "o": [
+                [
+                  "9",
+                  "Right: b₉ = 3, then inserts 10, 11, 12 each cost 1 and add 2: 5, 7, 9."
+                ],
+                [
+                  "36",
+                  "Wrong: 36 = 3 · 12 is the total charged; the true costs (27 so far) must be paid out of it: 36 − 27 = 9."
+                ],
+                [
+                  "3",
+                  "Wrong: the bank is 3 right after a doubling (i = 9); three cheap inserts later it has grown to 9."
+                ],
+                [
+                  "8",
+                  "Wrong: 8 is Φ₁₂ = 2 · 12 − 16 from the potential method; the bank in the accounting method is 9 (b = Φ + 1 here)."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Potential method, Φ = 2i − size. What is the amortized cost of the 5th insertion (size 4 → 8)?",
+              "o": [
+                [
+                  "3",
+                  "Right: c₅ = 5 (4 copies + 1), Φ₅ = 10 − 8 = 2, Φ₄ = 8 − 4 = 4, so ĉ₅ = 5 + 2 − 4 = 3."
+                ],
+                [
+                  "5",
+                  "Wrong: 5 is the true cost; the drop in potential (4 → 2) pays for part of it: 5 − 2 = 3."
+                ],
+                [
+                  "7",
+                  "Wrong: that adds the change the wrong way round (5 + 4 − 2); ĉ = c + Φ(after) − Φ(before)."
+                ],
+                [
+                  "1",
+                  "Wrong: 1 is the cost of a normal insert; at i = 5 the table doubles, and amortized costs are 3, not 1."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "A chained table has m = 8 slots and n = 20 keys. Under simple uniform hashing, what are α and the expected search cost 1 + α?",
+              "o": [
+                [
+                  "α = 2.5, expected search 3.5",
+                  "Right: α = n/m = 20/8 = 2.5, and searching costs 1 (hash and slot) + α (scan) = 3.5."
+                ],
+                [
+                  "α = 0.4, expected search 1.4",
+                  "Wrong: 0.4 is m/n = 8/20, upside down. The load factor is keys per slot, 2.5."
+                ],
+                [
+                  "α = 2.5, expected search 2.5",
+                  "Wrong: that forgets the 1 for computing the hash and reaching the slot; it is Θ(1 + α)."
+                ],
+                [
+                  "α = 20, expected search 21",
+                  "Wrong: 20 is the worst case, one chain with every key; the expected chain length is n/m."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Linear probing with m = 7 and h(k) = k mod 7: insert 10, 3, 17, 24. Where does 24 go?",
+              "o": [
+                [
+                  "Slot 6",
+                  "Right: all four keys have home slot 3. 10 → 3, 3 → 4, 17 → 5, and 24 probes 3, 4, 5 and lands in 6."
+                ],
+                [
+                  "Slot 3",
+                  "Wrong: 3 is 24's home slot (24 = 3 · 7 + 3), but key 10 already sits there."
+                ],
+                [
+                  "Slot 5",
+                  "Wrong: slot 5 was taken by 17 just before; 24 has to walk one step further, to 6 (primary clustering)."
+                ],
+                [
+                  "Slot 0",
+                  "Wrong: slot 0 is where quadratic probing would send 17 (3 + 4 = 7 → 0); linear probing steps by 1."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Quadratic probing with m = 7 and h(k) = k mod 7: insert 10, 3, 17, 24. Where does 24 go?",
+              "o": [
+                [
+                  "Slot 5",
+                  "Right: 10 → 3, 3 → 4, 17 → 3, 4, then 3 + 4 = 7 → 0; 24 probes 3, 4, 0 (taken), then 3 + 9 = 12 mod 7 = 5."
+                ],
+                [
+                  "Slot 6",
+                  "Wrong: 6 is the linear-probing answer; quadratic offsets are 0, 1, 4, 9 → slots 3, 4, 0, 5."
+                ],
+                [
+                  "Slot 0",
+                  "Wrong: slot 0 was already filled by 17 (same home slot, same sequence: secondary clustering), so 24 goes one probe further."
+                ],
+                [
+                  "Slot 2",
+                  "Wrong: that would need i² ≡ 6 (mod 7), which never happens; the next free probe for 24 is 5."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Double hashing with m = 10, hash1(k) = k mod 10 and hash2(k) = 5. Which slots can a key with home slot 5 ever probe?",
+              "o": [
+                [
+                  "Only 5 and 0",
+                  "Right: (5 + 5i) mod 10 = 5, 0, 5, 0, …; gcd(5, 10) = 5, so only 10/5 = 2 slots are reachable (Midterm 2021, key 55)."
+                ],
+                [
+                  "All 10 slots",
+                  "Wrong: that needs the step relatively prime to m; 5 and 10 share the factor 5."
+                ],
+                [
+                  "5, 6, 7, 8, 9",
+                  "Wrong: that is a linear walk with step 1; here the step is 5, which jumps straight back and forth."
+                ],
+                [
+                  "Only slot 5",
+                  "Wrong: that happens only when hash2 = 0 (or a multiple of 10); step 5 alternates between 5 and 0."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Double hashing with m = 13, hash1(k) = k mod 13, hash2(k) = 7 − (k mod 7). Keys 14 and 27 are in slots 1 and 2. Where does 40 go?",
+              "o": [
+                [
+                  "Slot 3",
+                  "Right: 40 mod 13 = 1 (taken); hash2(40) = 7 − 5 = 2; (1 + 2) mod 13 = 3, empty."
+                ],
+                [
+                  "Slot 2",
+                  "Wrong: slot 2 holds 27 (whose step was 1); 40's step is 2, so it goes from 1 straight to 3."
+                ],
+                [
+                  "Slot 6",
+                  "Wrong: 6 would use the step 5 (40 mod 7) instead of hash2 = 7 − 5 = 2."
+                ],
+                [
+                  "Slot 1",
+                  "Wrong: slot 1 is 40's home slot, but 14 already occupies it, so a second probe is needed."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "An open-addressed table has α = 0.75. What is the bound on the expected number of probes for an unsuccessful search?",
+              "o": [
+                [
+                  "4",
+                  "Right: 1/(1 − α) = 1/(1 − 0.75) = 1/0.25 = 4."
+                ],
+                [
+                  "1.33",
+                  "Wrong: that is 1/α = 1/0.75, the formula inverted; the bound is 1/(1 − α)."
+                ],
+                [
+                  "0.25",
+                  "Wrong: 0.25 is 1 − α, the chance that a probe hits an empty slot; the expected count is its inverse, 4."
+                ],
+                [
+                  "2",
+                  "Wrong: 2 is the half-full case (α = 0.5); at α = 0.75 it doubles to 4."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "An open-addressed table of size 7 is rehashed using the rule of Slide 8.91. What is the new size?",
+              "o": [
+                [
+                  "13",
+                  "Right: 2m = 14 and the closest prime to 14 is 13 (15 and 16 are not prime; 17 is three away)."
+                ],
+                [
+                  "14",
+                  "Wrong: 14 = 2m is even, not prime; the slide takes the prime closest to 2m."
+                ],
+                [
+                  "17",
+                  "Wrong: 17 is prime, but 13 is closer to 14 (distance 1 against 3)."
+                ],
+                [
+                  "49",
+                  "Wrong: 49 = m², and it is not even prime (7 · 7)."
                 ]
               ],
               "a": 0
@@ -3122,7 +4734,7 @@ window.COURSES.algo = {
         {
           "n": 9,
           "code": "Lec 9",
-          "title": "Lecture 9: Balanced Search Trees — Red-Black Tree Properties, Height Bound Proof (h ≤ 2 lg(n+1)), Rotations & Insertion",
+          "title": "Lecture 9: Balanced Search Trees, Red-Black Tree Properties, Height Bound h ≤ 2 lg(n + 1), Rotations and Insertion",
           "videos": [
             {
               "id": "O3hI9FdxFOM",
@@ -3156,33 +4768,226 @@ window.COURSES.algo = {
           ],
           "notes": [
             {
-              "h": "Red-Black Tree Properties & Black-Height (Slides 9.1–9.8)",
+              "h": "Before you start: binary-tree vocabulary, NIL leaves and the sentinel",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
               "pts": [
-                "<b>Balanced Search Trees (Slide 9.2)</b>: Guarantee tree height $h = O(\\lg n)$ for a dynamic set of $n$ items (unlike standard BSTs whose worst-case height is $\\Theta(n)$ on sorted input). Examples: AVL trees, 2-3 trees, 2-3-4 trees, B-trees, Red-Black trees.",
-                "<b>Red-Black Properties (Slide 9.3 & Lec 10 Slide 3)</b>: A BST with one extra color bit (`RED` or `BLACK`) per node satisfying:<ul><li><b>1. Color Property</b>: Every node is either <b>red</b> or <b>black</b>.</li><li><b>2. Root & Leaf Property</b>: The <b>root</b> is black, and every <b>leaf (`NIL` sentinel)</b> is black.</li><li><b>3. Red Property (No Two Consecutive Reds)</b>: If a node is red, then its parent (and both of its children) are black.</li><li><b>4. Black-Height Property</b>: For each node $x$, all simple paths from $x$ to descendant `NIL` leaves contain the <b>same number of black nodes</b>, called the <b>black-height $bh(x)$</b> (not counting $x$ itself).</li></ul>"
+                "Running example: the 7 keys 8, 4, 12, 2, 6, 10, 14 inserted in this order into an empty binary search tree. 8 is on top, 4 and 12 below it, then 2, 6 under 4 and 10, 14 under 12.",
+                "A <b>binary tree</b> is made of nodes; each node has at most two children, a left child and a right child. Each node stores a key and three pointers: <code>left[x]</code>, <code>right[x]</code> and <code>p[x]</code> (its parent). The slides write fields this way; newer books write <code>x.left</code>.",
+                "The <b>root</b> is the one node with no parent: 8, so <code>p[8] = NIL</code>. <code>NIL</code> means \"no node here\".",
+                "Family words, all used by RB-INSERT:<ul><li><b>parent</b> of 6 = 4; <b>children</b> of 4 = 2 (left) and 6 (right)</li><li><b>sibling</b> = same parent: 2 and 6, also 4 and 12</li><li><b>grandparent</b> of 6 = parent of its parent = 8, written <code>p[p[x]]</code></li><li><b>uncle</b> (or aunt) of 6 = the sibling of its parent = 12</li></ul>",
+                "A <b>leaf</b> is a node with no children (2, 6, 10, 14); every other node is an <b>internal node</b> (8, 4, 12).",
+                "<b>Depth</b> of a node = number of edges from the root down to it: depth(8) = 0, depth(12) = 1, depth(6) = 2.",
+                "<b>Height</b> of a node = number of edges on the longest downward path to a leaf: height(2) = 0, height(4) = 1, height(8) = 2. The <b>height of the tree</b> h is the height of its root, here 2.",
+                "A <b>complete binary tree</b> has every level full except possibly the last, which is filled from the left. Example: a 6-node heap has levels of 1, 2 and 3 nodes. Our 7-key tree is complete and even <b>perfect</b> (every level full). A binary heap is a complete binary tree (Final 2022 Q25).",
+                "The <b>subtree rooted at x</b> is x with everything below it (its descendants). Subtree of 12 = {12, 10, 14}. A descendant of x is any node in that subtree; x is an ancestor of each of them.",
+                "A <b>simple path</b> visits no node twice. \"A path from x to a descendant leaf\" (slide 9.3) means: start at x and keep stepping down to a child until you fall off the tree.",
+                "<b>NIL leaves</b>: red-black trees draw every empty child pointer as a small black leaf called NIL. The keys are then all internal nodes and the NILs are the only leaves. Our 7 keys get 8 NILs.",
+                "Why n keys always give <b>n + 1</b> NIL leaves: n nodes have 2n child pointers; n − 1 of them point to real nodes (every node except the root has one parent), so 2n − (n − 1) = n + 1 point to NIL. Slide 9.15 uses this.",
+                "With NIL leaves drawn, heights are counted down to the NILs: our tree has height 3 instead of 2. Slide 9.4 counts this way (it gives h = 4 for its example).",
+                "In code (CLRS) all NILs are one shared <b>sentinel</b> node <code>T.nil</code>: an ordinary black node, also used as the parent of the root. It lets the code read <code>color[left[x]]</code> without first testing for \"no node\", and costs one node of memory, not n + 1."
+              ],
+              "fig": [
+                "ag-9-anatomy"
+              ],
+              "figAt": {
+                "ag-9-anatomy": 0
+              },
+              "figH": {
+                "ag-9-anatomy": "Root, parent, sibling, uncle, leaf, depth, height, subtree and NIL leaves on a 7-key tree"
+              }
+            },
+            {
+              "h": "Before you start: the BST property and inorder order",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "pts": [
+                "A <b>binary search tree</b> (BST) keeps this rule at every node x: every key in the left subtree of x is ≤ key[x], and every key in the right subtree is ≥ key[x].",
+                "Check on the example: left of 8 is {4, 2, 6}, all ≤ 8; right of 8 is {12, 10, 14}, all ≥ 8; left of 12 is {10} ≤ 12, right of 12 is {14} ≥ 12. It holds everywhere.",
+                "The rule is about whole subtrees, not just children. Putting 9 as the right child of 6 would look fine locally (9 > 6) but breaks the rule at 8: 9 would sit in 8's left subtree although 9 > 8.",
+                "Red-black trees are BSTs: every red-black tree satisfies this rule, and the colours are an extra on top. So searching a red-black tree is ordinary BST searching.",
+                "<b>Inorder traversal</b>: <code>INORDER(x)</code> = if x ≠ NIL then INORDER(left[x]), print key[x], INORDER(right[x]). Left subtree, then the node, then the right subtree.",
+                "On the example it prints <b>2 4 6 8 10 12 14</b>: sorted. That is the BST rule seen from outside: each key is printed after all smaller keys (its left side) and before all larger ones.",
+                "Inorder visits every node once, so it takes <b>Θ(n)</b>, even in a balanced tree. Final Summer TF 5 says \"printing every node in a balanced BST takes Θ(lg n)\": <b>False</b>.",
+                "Why it matters here: a <b>rotation</b> (slide 9.18) is allowed only because it keeps the inorder order, which is the same as keeping the BST property."
+              ],
+              "fig": [
+                "ag-9-inorder"
+              ],
+              "figAt": {
+                "ag-9-inorder": 4
+              },
+              "figH": {
+                "ag-9-inorder": "Inorder traversal prints the keys 2 4 6 8 10 12 14 in sorted order"
+              }
+            },
+            {
+              "h": "Before you start: BST SEARCH, INSERT, MINIMUM, MAXIMUM, SUCCESSOR, PREDECESSOR",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "code": "TREE-SEARCH(x, k)\n1  while x ≠ NIL and k ≠ key[x]\n2      do if k < key[x]\n3            then x ← left[x]\n4            else x ← right[x]\n5  return x\n\nTREE-MINIMUM(x)\n1  while left[x] ≠ NIL\n2      do x ← left[x]\n3  return x\n\nTREE-SUCCESSOR(x)\n1  if right[x] ≠ NIL\n2     then return TREE-MINIMUM(right[x])\n3  y ← p[x]\n4  while y ≠ NIL and x = right[y]\n5      do x ← y\n6         y ← p[y]\n7  return y",
+              "pts": [
+                "A <b>dynamic set</b> is a set of keys that changes over time. Its operations: SEARCH, INSERT, DELETE (changing) and MINIMUM, MAXIMUM, SUCCESSOR, PREDECESSOR (queries). A BST implements all of them.",
+                "<b>SEARCH(k)</b>: start at the root; if k < key go left, if k > key go right, stop when equal or at NIL. Search 6: 8 → 4 → 6, found. Search 9: 8 → 12 → 10 → NIL, not found.",
+                "<b>INSERT(z)</b>: walk down exactly as a search for key[z], remembering the last node y; hang z under y as a new leaf. Insert 9: 8 → 12 → 10, then 9 becomes the left child of 10. Nothing else moves.",
+                "<b>MINIMUM</b>: follow left pointers until left is NIL: 8 → 4 → 2, minimum 2. <b>MAXIMUM</b>: follow right pointers: 8 → 12 → 14, maximum 14.",
+                "MIN and MAX compare no keys at all: they only test pointers for NIL. Final Summer TF 13 (\"no key comparisons are needed to find the min or max of a BST\"): <b>True</b>.",
+                "<b>SUCCESSOR(x)</b> = the next larger key (the next one in inorder):<ul><li>if x has a right subtree: the minimum of that subtree. SUCCESSOR(8) = MIN{12, 10, 14} = 10</li><li>else climb until you arrive from a <b>left</b> child. SUCCESSOR(6): 6 is the right child of 4, climb; 4 is the left child of 8, so the answer is 8</li></ul>",
+                "If the climb reaches the top without arriving from a left child, there is no successor (x is the maximum): SUCCESSOR(14) climbs 12, 8, then NIL.",
+                "<b>PREDECESSOR(x)</b> is the mirror: the maximum of the left subtree if there is one, else climb until you arrive from a <b>right</b> child. PREDECESSOR(8) = MAX{4, 2, 6} = 6; PREDECESSOR(10): 10 is the left child of 12, climb; 12 is the right child of 8, so 8.",
+                "Every one of these walks moves one level down (or up) per step and never turns back, so it visits at most h + 1 nodes: each costs <b>O(h)</b>, where h is the height of the tree.",
+                "So the speed of a BST is decided by its height. The whole lecture is about keeping h small: <b>O(lg n)</b>. (BST deletion is explained with Lecture 11.)"
+              ],
+              "fig": [
+                "ag-9-bstops"
+              ],
+              "figAt": {
+                "ag-9-bstops": 1
+              },
+              "figH": {
+                "ag-9-bstops": "The BST walks step by step: search, insert, min, max, successor, predecessor"
+              }
+            },
+            {
+              "h": "Before you start: why height matters, lg n and powers of 2",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "pts": [
+                "The shape of a BST depends on the <b>insertion order</b>. Insert 1, 2, 3, 4, 5, 6, 7 (sorted): each key is larger than all before it, so it goes right every time. The tree is a <b>chain</b> of height n − 1 = 6.",
+                "In that chain a search for 7 visits all 7 nodes: operations cost <b>Θ(n)</b>, no better than a linked list. Final 2022 Q26: the access time of an unbalanced BST may degrade up to <b>O(n)</b>.",
+                "The same 7 keys inserted as 4, 2, 6, 1, 3, 5, 7 give a perfect tree of height <b>2</b>, the smallest possible for 7 keys.",
+                "A search tree is <b>balanced</b> when its height is guaranteed to be <b>O(lg n)</b> no matter in which order keys are inserted and deleted (slide 9.2). It must repair its shape after each change; red-black trees do it with recolouring and rotations.",
+                "<b>lg n</b> means log base 2: the number of times you can halve n before reaching 1. lg 8 = 3, lg 1024 = 10, lg 1,000,000 ≈ 19.93. It grows very slowly.",
+                "Rules used in the proof: lg(2<sup>k</sup>) = k; lg is increasing, so a ≥ b implies lg a ≥ lg b; if 2<sup>h/2</sup> ≤ n + 1 then h/2 ≤ lg(n + 1).",
+                "Level d of a binary tree holds at most 2<sup>d</sup> nodes, so a tree of height h has at most 1 + 2 + … + 2<sup>h</sup> = <b>2<sup>h+1</sup> − 1</b> nodes. Height 1 holds at most 2<sup>2</sup> − 1 = 3 nodes and height 2 at most 7, so 7 keys need height ≥ 2 (exactly 2 for the perfect tree).",
+                "In the table the BST column counts edges between keys (add 1 to count down to the NILs), while the red-black bound, like the theorem of slide 9.9, counts down to the NIL leaves.",
+                "Flip it around: n keys need height at least about lg n. So O(lg n) height is the best any binary search tree can do; balanced trees promise it up to a constant factor."
+              ],
+              "table": [
+                [
+                  "n keys",
+                  "lg n",
+                  "sorted-insert BST height (edges between keys)",
+                  "red-black bound 2 lg(n + 1) (counted to the NILs)"
+                ],
+                [
+                  "7",
+                  "2.81",
+                  "6",
+                  "6"
+                ],
+                [
+                  "1,000",
+                  "9.97",
+                  "999",
+                  "19.93"
+                ],
+                [
+                  "1,000,000",
+                  "19.93",
+                  "999,999",
+                  "39.86"
+                ]
+              ],
+              "fig": [
+                "ag-9-degrade"
+              ],
+              "figAt": {
+                "ag-9-degrade": 0
+              },
+              "figH": {
+                "ag-9-degrade": "Sorted input builds a chain of height 6; a good order of the same keys gives height 2"
+              }
+            },
+            {
+              "h": "Before you start: 2-3-4 trees",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "pts": [
+                "The slides' height proof (slides 9.9–9.15) turns a red-black tree into a <b>2-3-4 tree</b>, so you need to know what that is.",
+                "A 2-3-4 tree is a search tree whose nodes hold <b>1, 2 or 3 keys</b>, in sorted order, and have one more child than keys:<ul><li><b>2-node</b>: 1 key, 2 children</li><li><b>3-node</b>: 2 keys, 3 children</li><li><b>4-node</b>: 3 keys, 4 children</li></ul>",
+                "The children split the key range. For a 3-node {10, 20}: the first child holds keys < 10, the middle child keys between 10 and 20, the last child keys > 20. A 2-node is just a BST node.",
+                "The defining property: <b>all leaves are at the same depth</b> (uniform depth). The tree is perfectly level at the bottom, even though nodes have different widths.",
+                "Example (slide 9.14): root {7, 18} with children {3}, {8, 10, 11}, {22, 26}; every leaf is at depth 2. Its nodes have 3, 2, 4 and 3 children.",
+                "Leaf count: every node has <b>at least 2</b> children, so level d has at least 2<sup>d</sup> nodes, and a 2-3-4 tree with all leaves at depth h′ has <b>at least 2<sup>h′</sup> leaves</b> (at most 4<sup>h′</sup>). The example: 9 leaves ≥ 2<sup>2</sup> = 4.",
+                "Slide 9.2 lists 2-3-4 trees as a balanced search tree of their own. In this lecture they are only a thinking tool: red-black trees are a way to store a 2-3-4 tree as a binary tree."
+              ],
+              "fig": [
+                "ag-9-nodes234"
+              ],
+              "figAt": {
+                "ag-9-nodes234": 1
+              },
+              "figH": {
+                "ag-9-nodes234": "2-nodes, 3-nodes, 4-nodes and the 2-3-4 tree of slide 9.14"
+              }
+            },
+            {
+              "h": "Before you start: proof by induction",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "pts": [
+                "Slide 9.9 says \"the book uses induction. Read carefully\", and Midterm 2025 Q3 asks for that proof. Induction proves a statement P(k) for every k = 0, 1, 2, …",
+                "Two parts:<ul><li><b>Base case</b>: show P(0) directly</li><li><b>Inductive step</b>: assume P is true for all smaller values (the <b>inductive hypothesis</b>) and use that to show P(k)</li></ul>Then P holds for every k: P(0) gives P(1), which gives P(2), and so on.",
+                "On trees we induct on the <b>height</b> of a node: a node's children have smaller height, so the hypothesis may be used for the children's subtrees.",
+                "Tiny example: \"a perfect binary tree of height h has 2<sup>h+1</sup> − 1 nodes\". Base h = 0: one node, 2<sup>1</sup> − 1 = 1. Step: the root plus two subtrees of height h − 1 give 1 + 2(2<sup>h</sup> − 1) = 2<sup>h+1</sup> − 1.",
+                "The red-black proof has exactly this shape: count the root, add twice what the hypothesis gives for each child, and simplify. Keep this template in mind for \"The book's proof by induction\" below."
+              ]
+            },
+            {
+              "h": "Balanced search trees and the red-black properties (Slides 9.1–9.3)",
+              "pts": [
+                "Slide 9.1 is the outline: red-black trees, the height of a red-black tree, rotations, insertion. (The slides are MIT 6.046J Lecture 10 by Erik Demaine, so their footers say L7.x.)",
+                "<b>Balanced search tree</b> (slide 9.2): a search-tree data structure for which a height of <b>O(lg n)</b> is guaranteed when implementing a dynamic set of n items.",
+                "Examples on slide 9.2: AVL trees, 2-3 trees, 2-3-4 trees, B-trees, red-black trees. A plain BST is not on the list: its height can reach n − 1.",
+                "A <b>red-black tree</b> (slide 9.3) is a BST with one extra <b>one-bit colour field</b> in each node: red or black. One bit is enough because there are only two colours.",
+                "The four red-black properties of slide 9.3:<ul><li>1. Every node is either red or black.</li><li>2. The root and the leaves (NILs) are black.</li><li>3. If a node is red, then its parent is black.</li><li>4. All simple paths from any node x to a descendant leaf have the same number of black nodes = <b>black-height(x)</b>.</li></ul>",
+                "Property 3 means <b>no two reds in a row</b> on any path. Saying it as \"a red node has black children\" (CLRS) is the same rule, since NIL leaves are black anyway.",
+                "A black node may have children of any colour (red, black, or one of each). Final Summer TF 6 (\"a black node must have only red children\"): <b>False</b>.",
+                "<b>Black-height bh(x)</b>: the number of black nodes on a path from x down to a leaf, <b>not counting x itself</b> but counting the black NIL at the end. Property 4 says every such path gives the same number, so bh(x) is well defined. bh(NIL) = 0.",
+                "CLRS lists five properties: it splits property 2 into \"the root is black\" and \"every leaf (NIL) is black\". Same content as the slides' four.",
+                "Why these rules give balance: property 4 makes all paths equally long in black nodes, and property 3 lets red nodes at most double a path. So no path is more than twice as long as another (proved on slides 9.9–9.15)."
+              ]
+            },
+            {
+              "h": "The slides' example tree and black-height (Slides 9.4–9.8)",
+              "pts": [
+                "The example tree has 8 keys. Black: 7 (root), 3, 10, 22. Red: 18, 8, 11, 26.<ul><li>7 has children 3 and 18</li><li>18 has children 10 and 22</li><li>10 has children 8 and 11</li><li>22 has only a right child, 26</li></ul>Every missing child is a black NIL: 9 NILs = n + 1.",
+                "Its height is <b>h = 4</b> (slide 9.4): the longest path 7 → 18 → 10 → 8 → NIL has 4 edges. The slides count height down to the NIL leaves.",
+                "It is a BST: inorder gives 3, 7, 8, 10, 11, 18, 22, 26.",
+                "<b>Property 1</b> (slide 9.5): each of the 8 nodes is red or black.",
+                "<b>Property 2</b> (slide 9.6): the root 7 is black, and all 9 NIL leaves are black.",
+                "<b>Property 3</b> (slide 9.7): the red nodes 18, 8, 11, 26 have the black parents 7, 10, 10, 22. No red node has a red parent.",
+                "<b>Property 4</b> (slide 9.8), from 7: 7 → 3 → NIL meets the blacks 3, NIL; 7 → 18 → 10 → 8 → NIL meets 10, NIL; 7 → 18 → 22 → 26 → NIL meets 22, NIL. Always 2 blacks: <b>bh(7) = 2</b>.",
+                "The other values on slide 9.8: <b>bh(18) = 2</b> (paths meet 10 or 22, then a NIL), bh(10) = 1, bh(8) = 1 (only the NIL below it), and bh(NIL) = 0.",
+                "A red node has the same black-height as its parent here (bh(18) = bh(7) = 2) because x itself is never counted: the colour of x does not change bh(x), only the colours below it.",
+                "Unlisted values worked the same way ‡: bh(3) = bh(22) = bh(11) = bh(26) = 1."
               ],
               "fig": [
                 "ag-9-props"
               ],
               "figAt": {
-                "ag-9-props": 1
+                "ag-9-props": 4
               },
               "figH": {
                 "ag-9-props": "The slides' example tree, checked against the four red-black properties"
               }
             },
             {
-              "h": "Proof of Height Bound: h ≤ 2 lg(n + 1) (Slides 9.9–9.16)",
-              "pts": [
-                "<b>Theorem (Slide 9.9 & Midterm 2025 Q3)</b>: A red-black tree with $n$ internal keys has height $h \\le 2 \\lg(n + 1)$.",
-                "<b>Proof via 2-3-4 Tree Merging (Slides 9.9–9.15)</b>:<ul><li>Merge every red node into its black parent to form a <b>2-3-4 tree</b> where every internal node has $2, 3,$ or $4$ children and all leaves have the exact same depth $h' = bh(\\text{root})$.</li><li>Because Property 3 forbids two consecutive red nodes on any path, at most half the nodes on any root-to-leaf path are red, so $h' \\ge h/2$.</li><li>A tree with $n$ internal nodes has exactly $n + 1$ `NIL` leaves, and a 2-3-4 tree of uniform depth $h'$ has at least $2^{h'}$ leaves: $n + 1 \\ge 2^{h'} \\ge 2^{h/2}$.</li><li>Taking $\\lg$ of both sides: $\\lg(n + 1) \\ge h/2 \\implies \\mathbf{h \\le 2 \\lg(n + 1) = O(\\lg n)}$.</li></ul>",
-                "<b>Proof by Mathematical Induction (CLRS & Lec 10 Slide 5–6)</b>:<ul><li>Prove by induction on height that the subtree rooted at any node $x$ contains at least $2^{bh(x)} - 1$ internal nodes.</li><li><b>Base case ($h=0$)</b>: $x$ is `NIL`, $bh(x)=0$, and $2^0 - 1 = 0$ internal nodes.</li><li><b>Inductive step</b>: Each child of $x$ has black-height at least $bh(x) - 1$, so by the inductive hypothesis each child's subtree has $\\ge 2^{bh(x)-1} - 1$ internal nodes. Total internal nodes in $x$'s subtree $\\ge 2(2^{bh(x)-1} - 1) + 1 = 2^{bh(x)} - 1$. At the root, $bh(\\text{root}) \\ge h/2 \\implies n \\ge 2^{h/2} - 1 \\implies h \\le 2\\lg(n+1)$.</li></ul>",
-                "<b>Corollary (Slide 9.16 & Midterm 2019 Q4 / 2020 Q4)</b>: All dynamic-set queries (`SEARCH`, `MINIMUM`, `MAXIMUM`, `SUCCESSOR`, `PREDECESSOR`) run in $O(h) = \\mathbf{O(\\lg n)}$ worst-case time!<ul><li>`TREE-MAXIMUM(x)`: `while right[x] ≠ NIL do x ← right[x]; return x`.</li><li>`TREE-PREDECESSOR(x)`: If `left[x] ≠ NIL`, return `TREE-MAXIMUM(left[x])`; else climb up `y ← p[x]` while `y ≠ NIL and x = left[y]`, then return `y`.</li></ul>"
-              ],
+              "h": "Height of a red-black tree: the 2-3-4 intuition (Slides 9.9–9.15)",
               "formula": [
-                "Subtree Internal Nodes Bound: n ≥ 2^(bh(root)) − 1 ≥ 2^(h/2) − 1  ⇒  h ≤ 2 lg(n + 1) = O(lg n)"
+                "h′ ≥ h/2      (≤ half red)",
+                "n + 1 ≥ 2^h′  (leaves)",
+                "⇒ lg(n + 1) ≥ h′ ≥ h/2",
+                "⇒ h ≤ 2 lg(n + 1)"
               ],
-              "code": "TREE-MAXIMUM(x)\n1  while right[x] ≠ NIL\n2      do x ← right[x]\n3  return x\n\nTREE-PREDECESSOR(x)\n1  if left[x] ≠ NIL\n2     then return TREE-MAXIMUM(left[x])\n3  y ← p[x]\n4  while y ≠ NIL and x = left[y]\n5      do x ← y\n6         y ← p[y]\n7  return y",
+              "pts": [
+                "<b>Theorem</b> (slide 9.9): a red-black tree with n keys has height <b>h ≤ 2 lg(n + 1)</b>. So h = O(lg n): red-black trees are balanced. Asked in Midterm 2025 Q3.",
+                "The slides give the <b>intuition</b>; the book's induction proof is the next section. Intuition: <b>merge every red node into its black parent</b> (slides 9.9–9.13 do it step by step).",
+                "Merging is always possible: by property 3 a red node's parent is black, so every red node has a black node to join. Each black node absorbs 0, 1 or 2 red children.",
+                "In the example: red 18 merges into 7, giving the node {7, 18}; reds 8 and 11 merge into 10, giving {8, 10, 11}; red 26 merges into 22, giving {22, 26}; 3 stays alone.",
+                "This produces a tree in which each node has <b>2, 3, or 4 children</b> (slide 9.14): a black node with no red children keeps 2, with one red child it has 3, with two it has 4. Example: {3} has 2, {22, 26} has 3, {8, 10, 11} has 4, {7, 18} has 3.",
+                "The <b>2-3-4 tree has uniform depth h′</b> of leaves (slide 9.14): each level of the new tree is one black node of the old one, and property 4 gives every path the same number of blacks, so all leaves end at depth <b>h′ = bh(root)</b>. Example: h′ = 2.",
+                "<b>h′ ≥ h/2</b> (slide 9.15): no two reds are adjacent, so at most half the nodes on any root-to-leaf path are red; removing them (merging) leaves at least half the length. Example: h′ = 2 ≥ 4/2.",
+                "The slide says \"at most half the <i>leaves</i> on any path are red\": it means <b>nodes</b>. Leaves are NILs and always black (property 2).",
+                "Leaf count: merging only moves red nodes, so the leaves are still the <b>n + 1</b> NILs (slide 9.15). A 2-3-4 tree of depth h′ has at least 2<sup>h′</sup> leaves, so <b>n + 1 ≥ 2<sup>h′</sup></b>. Example: 9 ≥ 4.",
+                "Take lg of both sides: lg(n + 1) ≥ h′ ≥ h/2, so <b>h ≤ 2 lg(n + 1)</b>. Example: 4 ≤ 2 lg 9 ≈ 6.34.",
+                "Size check: with n = 1,000,000 keys a red-black tree has height at most 2 lg(1,000,001) ≈ 39.9, so h ≤ 39 counted down to the NILs, against 1,000,000 for a plain BST built from sorted keys (999,999 edges between keys, plus the edge to a NIL) ‡."
+              ],
               "fig": [
                 "ag-9-merge"
               ],
@@ -3194,25 +4999,160 @@ window.COURSES.algo = {
               }
             },
             {
-              "h": "Rotations & RB-INSERT Cases 1, 2 & 3 (Slides 9.17–9.29)",
+              "h": "The book's proof by induction (Slide 9.9, Midterm 2025 Q3)",
+              "formula": [
+                "keys under x ≥ 2^bh(x) − 1",
+                "base: bh(NIL) = 0, 2^0 − 1 = 0",
+                "step: 2(2^(bh(x)−1) − 1) + 1",
+                "      = 2^bh(x) − 1",
+                "bh(root) ≥ h/2",
+                "⇒ n ≥ 2^(h/2) − 1",
+                "⇒ h ≤ 2 lg(n + 1)"
+              ],
               "pts": [
-                "<b>Rotations (Slide 9.18)</b>: `LEFT-ROTATE(A)` and `RIGHT-ROTATE(B)` restructure pointers locally in $\\mathbf{O(1)}$ time while strictly preserving the BST inorder key ordering ($\\alpha \\le A \\le \\beta \\le B \\le \\gamma$).",
-                "<b>`RB-INSERT(T, x)` Overview & Cases 1–3 (Slides 9.19–9.29)</b>: Insert $x$ using standard BST insertion and color $x$ <b>RED</b> (so Property 4 black-height is preserved, and only Property 3 ”red parent of red $x$” or Property 2 ”root is red” can be violated). While `color[p[x]] == RED`:<ul><li><b>Case 1 (Uncle $y$ is RED)</b>: Recolor parent and uncle `BLACK`, recolor grandparent `RED`, and move pointer $x$ up to grandparent (`x ← p[p[x]]`). Costs $O(1)$ per level up the tree, 0 rotations.</li><li><b>Case 2 (Uncle $y$ is BLACK and $x$ forms a zig-zag triangle with $p[x]$ and $p[p[x]]$)</b>: Rotate `p[x]` to transform the triangle into a straight line (Case 3).</li><li><b>Case 3 (Uncle $y$ is BLACK and $x$ forms a straight line with $p[x]$ and $p[p[x]]$)</b>: Recolor `p[x]` `BLACK`, grandparent `RED`, and rotate grandparent. <b>Terminates immediately!</b></li><li><b>Total Insertion Cost</b>: $O(\\lg n)$ time and <b>at most 2 rotations</b>!</li></ul>"
+                "Slide 9.9 says \"The book uses induction. Read carefully.\" This is that proof (CLRS Lemma 13.1) ‡. It is the full answer to Midterm 2025 Q3 (5 points).",
+                "<b>Lemma</b>: the subtree rooted at any node x contains at least <b>2<sup>bh(x)</sup> − 1</b> internal nodes (keys). Proof by induction on the height of x.",
+                "<b>Base case</b>: height 0 means x is a NIL leaf. Then bh(x) = 0 and 2<sup>0</sup> − 1 = 0, and the subtree indeed has 0 internal nodes.",
+                "<b>Child fact</b>: an internal node x has two children. A child c has bh(c) = bh(x) if c is red, or bh(c) = bh(x) − 1 if c is black (c itself is then one of the blacks counted in bh(x)). Either way <b>bh(c) ≥ bh(x) − 1</b>.",
+                "<b>Inductive step</b>: each child has smaller height, so by the hypothesis its subtree has at least 2<sup>bh(x)−1</sup> − 1 internal nodes. With x itself: at least 2(2<sup>bh(x)−1</sup> − 1) + 1 = 2<sup>bh(x)</sup> − 1. Lemma proved.",
+                "On the example ‡: bh(18) = 2 and its subtree has 6 keys ≥ 2<sup>2</sup> − 1 = 3; bh(10) = 1 and it has 3 keys ≥ 1; the root has 8 keys ≥ 3.",
+                "<b>Black-height vs height</b>: on any path from the root to a leaf, property 3 forbids two reds in a row, so at least half of the nodes after the root are black. Hence bh(root) ≥ h/2.",
+                "<b>Conclusion</b>: apply the lemma at the root: n ≥ 2<sup>bh(root)</sup> − 1 ≥ 2<sup>h/2</sup> − 1. Add 1: n + 1 ≥ 2<sup>h/2</sup>. Take lg: lg(n + 1) ≥ h/2, so <b>h ≤ 2 lg(n + 1)</b>.",
+                "The two proofs match: the 2-3-4 depth h′ is exactly bh(root), and \"n + 1 ≥ 2<sup>h′</sup> leaves\" is the lemma at the root written with leaves instead of internal nodes."
               ],
               "fig": [
-                "algo-rbt-sim",
-                "ag-9-rotate",
-                "ag-9-insert15",
-                "ag-9-cases"
+                "ag-9-induct"
               ],
               "figAt": {
-                "ag-9-rotate": 0,
-                "ag-9-insert15": 1,
-                "ag-9-cases": 1
+                "ag-9-induct": 4
               },
               "figH": {
-                "ag-9-rotate": "RIGHT-ROTATE(B) and LEFT-ROTATE(A) keep the inorder order",
-                "ag-9-insert15": "Inserting x = 15 into the example tree, step by step",
+                "ag-9-induct": "The induction lemma checked on the slides' tree: keys under x ≥ 2<sup>bh(x)</sup> − 1"
+              }
+            },
+            {
+              "h": "Query operations in O(lg n) (Slide 9.16)",
+              "code": "TREE-MAXIMUM(x)\n1  while right[x] ≠ NIL\n2      do x ← right[x]\n3  return x\n\nTREE-PREDECESSOR(x)\n1  if left[x] ≠ NIL\n2     then return TREE-MAXIMUM(left[x])\n3  y ← p[x]\n4  while y ≠ NIL and x = left[y]\n5      do x ← y\n6         y ← p[y]\n7  return y",
+              "pts": [
+                "<b>Corollary</b> (slide 9.16): the queries SEARCH, MIN, MAX, SUCCESSOR and PREDECESSOR all run in <b>O(lg n)</b> time on a red-black tree with n nodes.",
+                "Why: they are the ordinary BST walks (they never look at colours), each costs O(h), and the theorem gives h ≤ 2 lg(n + 1) = O(lg n).",
+                "Worst case, not average: the bound holds for every red-black tree, whatever the insertion order.",
+                "<b>MAXIMUM</b> on the example tree: 7 → 18 → 22 → 26, right[26] = NIL, so the maximum is 26 ‡. Minimum: 7 → 3 ‡.",
+                "<b>PREDECESSOR</b> on the example ‡: PREDECESSOR(18) = MAX of its left subtree {10, 8, 11} = 11. PREDECESSOR(8): 8 is the left child of 10, climb; 10 is the left child of 18, climb; 18 is the right child of 7, stop: 7.",
+                "Midterm 2019 Q4 / 2020 Q4 ask for the red-black properties plus pseudocode for the maximum and the predecessor: the two routines in the code box.",
+                "Ordered queries are why red-black trees are often preferred over hash tables (Final 2021 Q23, Final 2022 Q37): a hash table has no key order (no min, max, successor, predecessor) and needs costly resizing; a red-black tree answers all of them in O(lg n) worst case."
+              ]
+            },
+            {
+              "h": "Modifying operations and rotations (Slides 9.17–9.18)",
+              "pts": [
+                "INSERT and DELETE change the tree (slide 9.17) in three ways:<ul><li>the operation itself (the BST insert or delete)</li><li><b>colour changes</b></li><li>restructuring the links of the tree via <b>rotations</b></li></ul>",
+                "A <b>rotation</b> (slide 9.18) turns an edge between a node and its child the other way. Picture: B with left child A; A has subtrees α and β; B's right subtree is γ.",
+                "<b>RIGHT-ROTATE(B)</b>: A moves up into B's place, B becomes A's right child, and β moves from A's right to B's left. α stays under A, γ stays under B.",
+                "<b>LEFT-ROTATE(A)</b> is the inverse: it turns A over B back into B over A.",
+                "Rotations maintain the <b>inorder ordering</b> of keys: for a ∈ α, b ∈ β, c ∈ γ, <b>a ≤ A ≤ b ≤ B ≤ c</b> in both pictures. Read either tree left to right and you get α, A, β, B, γ. So the BST property survives.",
+                "Why β must move: β holds keys between A and B. After the rotation those keys must be right of A and left of B, which is exactly B's free left slot.",
+                "A rotation can be performed in <b>O(1)</b> time (slide 9.18): only a constant number of pointers change (B's link from its parent, the A–B link, and β's parent), whatever the size of the subtrees. Lecture 10 gives the pointer-level code ‡.",
+                "A rotation changes the depths: after RIGHT-ROTATE(B), α moves up one level and γ moves down one level. That is how rotations shorten long paths.",
+                "Final 2021 Q37 and Final Summer Q16: the basic restructuring operation that keeps red-black trees balanced is the <b>rotation</b>."
+              ],
+              "fig": [
+                "ag-9-rotate"
+              ],
+              "figAt": {
+                "ag-9-rotate": 2
+              },
+              "figH": {
+                "ag-9-rotate": "RIGHT-ROTATE(B) and LEFT-ROTATE(A) keep the inorder order"
+              }
+            },
+            {
+              "h": "Insertion idea and the example: insert x = 15 (Slides 9.19–9.23)",
+              "pts": [
+                "<b>IDEA</b> (slide 9.19): insert x in the tree (ordinary BST insert). Colour x <b>red</b>. Only red-black property 3 might be violated. Move the violation up the tree by recolouring until it can be fixed with rotations and recolouring.",
+                "Why <b>red</b>: a red node adds no black to any path, so every black-height stays the same and property 4 holds. A black x would add one black to the paths through x only, breaking property 4 everywhere above it.",
+                "What can break: property 3 if x's parent is red (two reds in a row). And property 2 if x is the new root of an empty tree; the last line of RB-INSERT fixes that.",
+                "Slide 9.19 starts from the example tree of slide 9.4 (7, 3, 18, 10, 8, 11, 22, 26).",
+                "<b>Insert x = 15</b> (slide 9.20): BST walk 7 → 18 (15 > 7) → 10 (15 < 18) → 11 (15 > 10) → right of 11 (15 > 11). 15 becomes the right child of 11, coloured red. Slide 9.20 shows this tree, before any fixing.",
+                "Violation: 15 and its parent 11 are both red. The uncle of 15 (the other child of 10) is 8, which is <b>red</b>: this is <b>Case 1</b>.",
+                "<b>Recolour</b> (shown on slide 9.21): 11 and 8 become black, 10 becomes red. Black-heights do not change: paths through 10 used to meet black 10, now they meet black 8 or 11 instead. The violation moves up: x ← 10.",
+                "Now 10 and its parent 18 are both red. The uncle of 10 (the other child of 7) is 3, which is black. 10 is a left child while 18 is a right child: a zig-zag, so <b>Case 2</b> (mirror side, because 18 is a right child).",
+                "<b>RIGHT-ROTATE(18)</b> (slide 9.21; result on slide 9.22): 10 moves up under 7, 18 becomes 10's right child, and 10's old right subtree (11 with 15) becomes 18's left subtree. 10 keeps 8 on its left. Now 18 (x) is a right child of 10, which is a right child of 7: a straight line, <b>Case 3</b>.",
+                "<b>LEFT-ROTATE(7) and recolour</b> (slide 9.22; result on slide 9.23): 10 becomes the root and is coloured black; 7 becomes its left child and is coloured red. 7 keeps 3 and takes 8 as its right child.",
+                "Final tree (slide 9.23): root 10 (black); 7 (red) with 3 and 8 (black); 18 (red) with 11 and 22 (black); 15 (red) right of 11; 26 (red) right of 22. All properties hold, bh(10) = 2, height still 4.",
+                "Count for this insert: one Case 1 (recolouring only), then Case 2 and Case 3: <b>2 rotations</b> in total.",
+                "Mirror cases: the pseudocode is written for \"p[x] is a left child\"; in this example p[x] was a right child twice, so left and right are swapped (RIGHT-ROTATE in Case 2, LEFT-ROTATE in Case 3). Lecture 10 numbers these mirror cases 4–6."
+              ],
+              "fig": [
+                "ag-9-insert15"
+              ],
+              "figAt": {
+                "ag-9-insert15": 4
+              },
+              "figH": {
+                "ag-9-insert15": "Inserting x = 15 into the example tree, step by step"
+              }
+            },
+            {
+              "h": "RB-INSERT pseudocode, Cases 1–3 and analysis (Slides 9.24–9.29)",
+              "table": [
+                [
+                  "uncle y",
+                  "shape",
+                  "case",
+                  "action",
+                  "rotations"
+                ],
+                [
+                  "red",
+                  "any",
+                  "Case 1",
+                  "recolour, x ← p[p[x]]",
+                  "0"
+                ],
+                [
+                  "black",
+                  "zig-zag (x inside)",
+                  "Case 2 → Case 3",
+                  "rotate p[x], then rotate p[p[x]] and recolour",
+                  "2"
+                ],
+                [
+                  "black",
+                  "straight line (x outside)",
+                  "Case 3",
+                  "recolour, rotate p[p[x]]",
+                  "1"
+                ]
+              ],
+              "code": "RB-INSERT(T, x)\n  TREE-INSERT(T, x)\n  color[x] ← RED   ⊳ only RB property 3 can be violated\n  while x ≠ root[T] and color[p[x]] = RED\n      do if p[x] = left[p[p[x]]]\n          then y ← right[p[p[x]]]   ⊳ y = aunt/uncle of x\n               if color[y] = RED\n                 then 〈Case 1〉\n                 else if x = right[p[x]]\n                        then 〈Case 2〉   ⊳ Case 2 falls into Case 3\n                      〈Case 3〉\n          else 〈\"then\" clause with \"left\" and \"right\" swapped〉\n  color[root[T]] ← BLACK",
+              "pts": [
+                "<b>Pseudocode</b> (slide 9.24): TREE-INSERT, colour x red, then loop <b>while x is not the root and p[x] is red</b>. The loop body chooses a case by looking at the uncle y = the other child of the grandparent p[p[x]].",
+                "p[p[x]] always exists inside the loop: p[x] is red, and the root is black, so p[x] is not the root and has a parent.",
+                "The code is written for <b>p[x] a left child</b> (then y = right[p[p[x]]]). If p[x] is a right child, the \"else\" runs the same code with left and right swapped (the x = 15 example).",
+                "<b>Graphical notation</b> (slide 9.25): a triangle denotes a subtree with a black root, and all the triangles have the same black-height. So the pictures stay correct for any tree size.",
+                "<b>Case 1</b> (slide 9.26): the uncle y is <b>red</b>. Picture: C black with red children A and D = y; x = B is a red child of A. (Or the children of A are swapped: x left of A is handled the same way.)",
+                "Case 1 action: <b>recolour</b>: A and D black, C red. \"Push C's black onto A and D.\" No rotation.",
+                "Why Case 1 is safe: every path through C met exactly one black among C and A (or D) before, and still does after, so black-heights are unchanged and property 3 holds below C.",
+                "Then <b>recurse with new x = C</b>, since C's parent may be red. x moves up 2 levels per Case 1.",
+                "<b>Case 2</b> (slide 9.27): the uncle y is black and x = B is the right child of A, while A is a left child (a zig-zag). Action: LEFT-ROTATE(A); A becomes the left child of B and the new x.",
+                "Why Case 2 is safe: it rotates between two red nodes A and B, so no black node moves onto or off any path; black-heights stay the same. It does not fix anything: it <b>transforms to Case 3</b>. In the code x ← p[x] before the rotation, and Case 3 always runs right after (\"Case 2 falls into Case 3\").",
+                "<b>Case 3</b> (slide 9.28): the uncle y is black and x = A is the left child of B, which is a left child of C (a straight line). Action: RIGHT-ROTATE(C) and recolour: B black, C red.",
+                "After Case 3, B is black on top with red children A and C, over four black-rooted triangles: black-heights are as before and no red has a red parent. <b>Done!</b> No more violations of property 3 are possible, and the loop stops because p[x] = B is black.",
+                "Which case applies is summed up in the table of this section: the uncle's colour decides first, then the shape of x, p[x], p[p[x]].",
+                "Last line: <code>color[root[T]] ← BLACK</code>. Case 1 can colour the root red (when C is the root); this restores property 2 and adds 1 to every path, so property 4 still holds.",
+                "<b>Analysis</b> (slide 9.29): go up the tree performing Case 1, which only recolours nodes, O(1) each, at most O(h) = O(lg n) times. If Case 2 or Case 3 occurs, perform 1 or 2 rotations and terminate.",
+                "Running time: <b>O(lg n) with O(1) rotations</b> (at most 2). Midterm 2016 Q3 / 2017 Q5 / 2018 Q3: red-black tree search, insert and delete are O(lg n) worst case.",
+                "<b>RB-DELETE</b> has the same asymptotic running time and number of rotations as RB-INSERT (slide 9.29, see textbook): O(lg n), at most 3 rotations in CLRS ‡. It is Lecture 11."
+              ],
+              "fig": [
+                "ag-9-cases",
+                "algo-rbt-sim"
+              ],
+              "figAt": {
+                "ag-9-cases": 3
+              },
+              "figH": {
                 "ag-9-cases": "RB-INSERT pseudocode and the pictures of Cases 1, 2 and 3"
               }
             }
@@ -3220,43 +5160,187 @@ window.COURSES.algo = {
           "cards": [
             [
               "Red-Black Tree 5 Properties",
-              "1. Nodes are red or black; 2. Root is black; 3. NIL leaves are black; 4. Red node has black children (no two consecutive reds); 5. All paths from x to NIL leaves have the same black-height bh(x)."
+              "Slides (4): 1. every node red or black; 2. root and NIL leaves black; 3. a red node has a black parent (no two reds in a row); 4. all paths from x down to a leaf have the same number of blacks, bh(x). CLRS counts 5 by splitting property 2 (root black, leaves black)."
             ],
             [
               "Red-Black Tree Height Bound",
-              "h ≤ 2 lg(n + 1) because n ≥ 2^(bh(root)) − 1 and bh(root) ≥ h/2."
+              "h ≤ 2 lg(n + 1), because n ≥ 2<sup>bh(root)</sup> − 1 and bh(root) ≥ h/2. So h = O(lg n)."
             ],
             [
               "RB-INSERT Rotations Bound",
-              "RB-INSERT takes O(lg n) time and performs at most 2 rotations (Case 2 + Case 3)."
+              "O(lg n) time and at most 2 rotations (Case 2 + Case 3); Case 1 only recolours."
             ],
             [
               "Why Red-Black Trees Are Preferred Over Hash Tables (Final Q23)",
-              "Because hash tables suffer from expensive O(n) resizing spikes and cannot support ordered operations (min, max, predecessor, successor, range queries), whereas RB-trees guarantee O(lg n) worst-case ordered operations."
+              "Hash tables need costly resizing and keep no key order; red-black trees give min, max, successor, predecessor (ordered queries) in O(lg n) worst case."
             ],
             [
-              "Red-Black Tree Properties & Black-Height (Slides 9.1–9.8) — Core Principle & Complexity",
-              "<b>Balanced Search Trees (Slide 9.2)</b>: Guarantee tree height $h = O(\\lg n)$ for a dynamic set of $n$ items (unlike standard BSTs whose worst-case height is $\\Theta(n)$ on sorted input). Examples: AVL trees, 2-3 trees, 2-3-4 trees, B-trees, Red-Black trees. <b>Red-Black Properties (Slide 9.3 & Lec 10 Slide 3)</b>: A BST with one extra color bit (`RED` or `BLACK`) per node satisfying:<ul><li><b>1. Color Property</b>: Every node is either <b>red</b> or <b>black</b>.</li><li><b>2. Root & Leaf Property</b>: The <b>root</b> is black, and every <b>leaf (`NIL` sentinel)</b> is black.</li><li><b>3. Red Property (No Two Consecutive Reds)</b>: If a node is red, then its parent (and both of its children) are black.</li><li><b>4. Black-Height Property</b>: For each node $x$, all simple paths from $x$ to descendant `NIL` leaves contain the <b>same number of black nodes</b>, called the <b>black-height $bh(x)$</b> (not counting $x$ itself).</li></ul>"
+              "Red-Black Tree Properties & Black-Height (Slides 9.1–9.8): main result",
+              "bh(x) = number of black nodes from x down to a leaf, x not counted, NIL counted. Slides' tree: bh(7) = bh(18) = 2, bh(10) = bh(8) = 1, bh(NIL) = 0."
             ],
             [
-              "Proof of Height Bound: h ≤ 2 lg(n + 1) (Slides 9.9–9.16) — Core Principle & Complexity",
-              "<b>Theorem (Slide 9.9 & Midterm 2025 Q3)</b>: A red-black tree with $n$ internal keys has height $h \\le 2 \\lg(n + 1)$. <b>Proof via 2-3-4 Tree Merging (Slides 9.9–9.15)</b>:<ul><li>Merge every red node into its black parent to form a <b>2-3-4 tree</b> where every internal node has $2, 3,$ or $4$ children and all leaves have the exact same depth $h' = bh(\\text{root})$.</li><li>Because Property 3 forbids two consecutive red nodes on any path, at most half the nodes on any root-to-leaf path are red, so $h' \\ge h/2$.</li><li>A tree with $n$ internal nodes has exactly $n + 1$ `NIL` leaves, and a 2-3-4 tree of uniform depth $h'$ has at least $2^{h'}$ leaves: $n + 1 \\ge 2^{h'} \\ge 2^{h/2}$.</li><li>Taking $\\lg$ of both sides: $\\lg(n + 1) \\ge h/2 \\implies \\mathbf{h \\le 2 \\lg(n + 1) = O(\\lg n)}$.</li></ul>"
+              "Proof of Height Bound: h ≤ 2 lg(n + 1) (Slides 9.9–9.16): main result",
+              "Merge reds into black parents → 2-3-4 tree with uniform leaf depth h′ ≥ h/2 and n + 1 leaves ≥ 2<sup>h′</sup> ⇒ h ≤ 2 lg(n + 1)."
             ],
             [
-              "Rotations & RB-INSERT Cases 1, 2 & 3 (Slides 9.17–9.29) — Core Principle & Complexity",
-              "<b>Rotations (Slide 9.18)</b>: `LEFT-ROTATE(A)` and `RIGHT-ROTATE(B)` restructure pointers locally in $\\mathbf{O(1)}$ time while strictly preserving the BST inorder key ordering ($\\alpha \\le A \\le \\beta \\le B \\le \\gamma$). <b>`RB-INSERT(T, x)` Overview & Cases 1–3 (Slides 9.19–9.29)</b>: Insert $x$ using standard BST insertion and color $x$ <b>RED</b> (so Property 4 black-height is preserved, and only Property 3 ”red parent of red $x$” or Property 2 ”root is red” can be violated). While `color[p[x]] == RED`:<ul><li><b>Case 1 (Uncle $y$ is RED)</b>: Recolor parent and uncle `BLACK`, recolor grandparent `RED`, and move pointer $x$ up to grandparent (`x ← p[p[x]]`). Costs $O(1)$ per level up the tree, 0 rotations.</li><li><b>Case 2 (Uncle $y$ is BLACK and $x$ forms a zig-zag triangle with $p[x]$ and $p[p[x]]$)</b>: Rotate `p[x]` to transform the triangle into a straight line (Case 3).</li><li><b>Case 3 (Uncle $y$ is BLACK and $x$ forms a straight line with $p[x]$ and $p[p[x]]$)</b>: Recolor `p[x]` `BLACK`, grandparent `RED`, and rotate grandparent. <b>Terminates immediately!</b></li><li><b>Total Insertion Cost</b>: $O(\\lg n)$ time and <b>at most 2 rotations</b>!</li></ul>"
+              "Rotations & RB-INSERT Cases 1, 2 & 3 (Slides 9.17–9.29): main result",
+              "Rotations are O(1) and keep inorder order. Insert red, then: uncle red → Case 1 recolour and move up; uncle black → Case 2 (zig-zag) rotate into Case 3, Case 3 rotate grandparent and stop."
+            ],
+            [
+              "Balanced search tree (slide 9.2)",
+              "A search tree whose height is guaranteed O(lg n) for a dynamic set of n items. Examples: AVL, 2-3, 2-3-4, B-trees, red-black trees."
+            ],
+            [
+              "Uncle of x",
+              "The sibling of x's parent = the other child of the grandparent p[p[x]]. RB-INSERT picks its case by the uncle's colour."
+            ],
+            [
+              "Depth vs height of a node",
+              "Depth = edges from the root down to it. Height = edges on the longest path down to a leaf. Tree height = height of the root."
+            ],
+            [
+              "NIL leaves / sentinel",
+              "Every empty child pointer is a black leaf NIL; n keys give n + 1 NILs. In code one shared black node T.nil stands for all of them."
+            ],
+            [
+              "BST property",
+              "Every key in x's left subtree ≤ key[x] ≤ every key in x's right subtree (whole subtrees, not just children)."
+            ],
+            [
+              "Inorder traversal",
+              "Left subtree, node, right subtree. On a BST it prints the keys sorted. Θ(n)."
+            ],
+            [
+              "Cost of SEARCH, INSERT, MIN, MAX, SUCCESSOR, PREDECESSOR in a BST",
+              "O(h): one path down (or up). In a red-black tree h = O(lg n), so O(lg n)."
+            ],
+            [
+              "SUCCESSOR(x)",
+              "If right[x] ≠ NIL: TREE-MINIMUM(right[x]). Else climb until coming up from a left child; that ancestor is the answer."
+            ],
+            [
+              "PREDECESSOR(x)",
+              "If left[x] ≠ NIL: TREE-MAXIMUM(left[x]). Else climb until coming up from a right child."
+            ],
+            [
+              "Height of a BST built from sorted input",
+              "n − 1 (a chain), so operations cost Θ(n)."
+            ],
+            [
+              "Most nodes in a binary tree of height h",
+              "2<sup>h+1</sup> − 1 (level d has ≤ 2<sup>d</sup> nodes)."
+            ],
+            [
+              "2-3-4 tree",
+              "Nodes with 1, 2 or 3 keys and 2, 3 or 4 children; all leaves at the same depth. Depth h′ ⇒ at least 2<sup>h′</sup> leaves."
+            ],
+            [
+              "Number of NIL leaves of a tree with n keys",
+              "n + 1."
+            ],
+            [
+              "Red-black property 3",
+              "If a node is red, its parent is black: no two reds in a row. A black node may have children of any colour."
+            ],
+            [
+              "Example tree of slide 9.4: height and bh(root)",
+              "h = 4 (7 → 18 → 10 → 8 → NIL), bh(7) = 2, n = 8."
+            ],
+            [
+              "Induction lemma for red-black trees",
+              "The subtree at x has ≥ 2<sup>bh(x)</sup> − 1 internal nodes; step: 2(2<sup>bh(x)−1</sup> − 1) + 1 = 2<sup>bh(x)</sup> − 1."
+            ],
+            [
+              "Why bh(root) ≥ h/2",
+              "Property 3: no two reds in a row, so at least half the nodes on any root-to-leaf path are black."
+            ],
+            [
+              "Rotation cost and what it keeps",
+              "O(1) (constant number of pointers); keeps the inorder order a ≤ A ≤ b ≤ B ≤ c."
+            ],
+            [
+              "RIGHT-ROTATE(B), where does β go?",
+              "From A's right child to B's left child."
+            ],
+            [
+              "Why colour the new node red?",
+              "Red adds no black, so black-heights (property 4) stay; only property 3 (red parent) can break."
+            ],
+            [
+              "RB-INSERT Case 1",
+              "Uncle y red: colour p[x] and y black, grandparent red, x ← grandparent. No rotation."
+            ],
+            [
+              "RB-INSERT Case 2",
+              "Uncle black, x an inside child (zig-zag): x ← p[x], rotate x (LEFT-ROTATE if p is a left child). Falls into Case 3."
+            ],
+            [
+              "RB-INSERT Case 3",
+              "Uncle black, x an outside child (straight line): p[x] black, grandparent red, rotate the grandparent. Done."
+            ],
+            [
+              "Last line of RB-INSERT",
+              "color[root[T]] ← BLACK (restores property 2 if Case 1 coloured the root red)."
+            ],
+            [
+              "Insert 15 into the slides' tree: cases and result",
+              "Case 1 (uncle 8 red), Case 2 RIGHT-ROTATE(18), Case 3 LEFT-ROTATE(7); new root 10, 2 rotations."
+            ],
+            [
+              "RB-DELETE cost (slide 9.29)",
+              "Same as RB-INSERT: O(lg n) with O(1) rotations."
             ]
           ],
           "qa": [
             [
               "Prove that a Red-Black Tree with n keys has height h ≤ 2 lg(n + 1) (Midterm 2025 Q3).",
-              "1. First prove by induction on height that any node $x$’s subtree contains at least $2^{bh(x)} - 1$ internal nodes: For $x = \\text{NIL}$, $bh(x)=0$ and $2^0 - 1 = 0$. For an internal node $x$ with two children, each child has black-height at least $bh(x)-1$, so by the inductive hypothesis the subtree at $x$ has at least $2(2^{bh(x)-1} - 1) + 1 = 2^{bh(x)} - 1$ internal nodes.<br>2. By Property 3 (no two consecutive red nodes), at least half of the nodes on any simple path from the root to a leaf must be black, so $bh(\\text{root}) \\ge h/2$.<br>3. Therefore, $n \\ge 2^{bh(\\text{root})} - 1 \\ge 2^{h/2} - 1 \\implies n + 1 \\ge 2^{h/2} \\implies \\lg(n+1) \\ge h/2 \\implies \\mathbf{h \\le 2\\lg(n+1)}$.",
+              "<b>1. Lemma</b>: the subtree rooted at any node x has at least 2<sup>bh(x)</sup> − 1 internal nodes. Induction on the height of x.<br>• Base: height 0 means x = NIL, bh(x) = 0, and 2<sup>0</sup> − 1 = 0 internal nodes.<br>• Step: x has two children; each child c has bh(c) = bh(x) (c red) or bh(x) − 1 (c black), so bh(c) ≥ bh(x) − 1. Each child has smaller height, so by the hypothesis its subtree has ≥ 2<sup>bh(x)−1</sup> − 1 internal nodes. Adding x: ≥ 2(2<sup>bh(x)−1</sup> − 1) + 1 = 2<sup>bh(x)</sup> − 1.<br><b>2.</b> Property 3 (a red node has a black parent) forbids two reds in a row, so at least half the nodes on any root-to-leaf path are black: bh(root) ≥ h/2.<br><b>3.</b> At the root: n ≥ 2<sup>bh(root)</sup> − 1 ≥ 2<sup>h/2</sup> − 1 ⇒ n + 1 ≥ 2<sup>h/2</sup> ⇒ lg(n + 1) ≥ h/2 ⇒ <b>h ≤ 2 lg(n + 1)</b>.<br>(The slides' intuition: merging reds into black parents gives a 2-3-4 tree of depth h′ = bh(root) ≥ h/2 with n + 1 ≥ 2<sup>h′</sup> leaves.)",
               "Midterm 2025 Q3 & Lecture 9 · Slides 9.9–9.15"
             ],
             [
               "What are the properties of a Red-Black Tree, and how can you get the maximum of the tree and the predecessor of any key? Write pseudocode for both functions.",
-              "<b>Properties</b>: (1) Every node is red or black; (2) Root is black; (3) Every `NIL` leaf is black; (4) If a node is red, both its children are black; (5) Every simple path from a node to a descendant leaf contains the same number of black nodes.<br><b>Maximum (`O(lg n)`)</b>: Start at root and follow `right` pointers until `right[x] == NIL`.<br><b>Predecessor (`O(lg n)`)</b>: If `left[x] != NIL`, return `TREE-MAXIMUM(left[x])`; otherwise climb parent pointers until coming from a right child.",
+              "<b>Properties</b>: (1) every node is red or black; (2) the root and the leaves (NILs) are black; (3) if a node is red, its parent is black (no two reds in a row); (4) all simple paths from any node x to a descendant leaf contain the same number of black nodes, bh(x). (CLRS splits (2) and counts five.)<br><b>Maximum</b>, O(h) = O(lg n): follow right pointers.<br><code>TREE-MAXIMUM(x): while right[x] ≠ NIL do x ← right[x]; return x</code><br><b>Predecessor</b>, O(lg n): if x has a left subtree, the answer is its maximum; otherwise climb until we come up from a right child.<br><code>TREE-PREDECESSOR(x): if left[x] ≠ NIL then return TREE-MAXIMUM(left[x]); y ← p[x]; while y ≠ NIL and x = left[y] do x ← y; y ← p[y]; return y</code><br>Example on the slides' tree: the maximum is 26 (7 → 18 → 22 → 26); PREDECESSOR(18) = 11, PREDECESSOR(8) = 7.",
               "Midterm 2019 Q4, Midterm 2020 Q4 & Undated Midterm Q4"
+            ],
+            [
+              "For each algorithm, state its worst-case running time: (1) Binary Search, (2) Insertion Sort, (3) Merge Sort, (4) Counting Sort, (5) Heap Sort, (6) Red-Black Tree operations.",
+              "(1) Binary search Θ(lg n); (2) insertion sort Θ(n<sup>2</sup>); (3) merge sort Θ(n lg n); (4) counting sort Θ(n + k); (5) heap sort Θ(n lg n); (6) red-black tree SEARCH, INSERT, DELETE (and MIN, MAX, SUCCESSOR, PREDECESSOR): <b>O(lg n)</b>, because the height is at most 2 lg(n + 1) and each operation walks O(h), with at most 2 rotations per insert.",
+              "Midterm 2016 Q3 / 2017 Q5 / 2018 Q3"
+            ],
+            [
+              "Check the four red-black properties on the example tree of slide 9.4 and give the black-height of every node.",
+              "Tree: 7 (black root) with 3 (black) and 18 (red); 18 with 10 (black) and 22 (black); 10 with 8 and 11 (red); 22 with right child 26 (red); 9 NIL leaves.<br>(1) every node is red or black. (2) root 7 and all NILs are black. (3) the reds 18, 8, 11, 26 have black parents 7, 10, 10, 22. (4) every path from 7 meets 2 blacks: 7→3→NIL (3, NIL), 7→18→10→8→NIL (10, NIL), 7→18→22→26→NIL (22, NIL).<br>Black-heights: bh(7) = 2, bh(18) = 2, bh(3) = bh(10) = bh(22) = 1, bh(8) = bh(11) = bh(26) = 1, bh(NIL) = 0. Height h = 4.",
+              "Lecture 9 · Slides 9.3–9.8"
+            ],
+            [
+              "Explain the slides' intuition for h ≤ 2 lg(n + 1) on the example tree.",
+              "1. Merge each red node into its black parent (possible because a red node's parent is black): {7, 18}, {3}, {8, 10, 11}, {22, 26}.<br>2. Each new node has 2, 3 or 4 children (a black node with 0, 1 or 2 red children): a 2-3-4 tree.<br>3. All leaves have the same depth h′ = bh(root) (property 4): here h′ = 2.<br>4. h′ ≥ h/2 because at most half the nodes on a path are red: 2 ≥ 4/2.<br>5. The leaves are still the n + 1 = 9 NILs, and a 2-3-4 tree of depth h′ has ≥ 2<sup>h′</sup> leaves: 9 ≥ 4.<br>6. lg(n + 1) ≥ h′ ≥ h/2 ⇒ h ≤ 2 lg(n + 1): 4 ≤ 6.34.",
+              "Lecture 9 · Slides 9.9–9.15"
+            ],
+            [
+              "What is a rotation, why does it keep the BST property, and what does it cost?",
+              "RIGHT-ROTATE(B), with A the left child of B (A has subtrees α, β; B has γ): A takes B's place, B becomes A's right child, β moves from A's right to B's left. LEFT-ROTATE(A) undoes it.<br>Inorder is α, A, β, B, γ before and after, so for a ∈ α, b ∈ β, c ∈ γ: a ≤ A ≤ b ≤ B ≤ c holds in both trees; the BST property is kept.<br>Only a constant number of pointers change (parent link of the top, the A–B link, β's parent), so a rotation is <b>O(1)</b>.",
+              "Lecture 9 · Slide 9.18"
+            ],
+            [
+              "Trace the insertion of x = 15 into the example red-black tree.",
+              "1. BST insert: 7 → 18 → 10 → 11, 15 becomes the right child of 11, coloured red. 11 is red: property 3 broken.<br>2. p[x] = 11 is a right child of 10; uncle = 8 is red: <b>Case 1</b>: 11 and 8 black, 10 red, x ← 10.<br>3. p[x] = 18 is red and a right child of 7; uncle = 3 is black; 10 is a left child (zig-zag): <b>Case 2</b> (mirror): x ← 18, RIGHT-ROTATE(18).<br>4. Now 18 is the right child of 10, which is the right child of 7: <b>Case 3</b> (mirror): colour 10 black, 7 red, LEFT-ROTATE(7).<br>5. Result: root 10 (black); 7 (red) with 3, 8 (black); 18 (red) with 11, 22 (black); 15 red under 11, 26 red under 22. bh(root) = 2. 2 rotations.",
+              "Lecture 9 · Slides 9.19–9.23"
+            ],
+            [
+              "Why is a newly inserted node coloured red, and which properties can then be violated?",
+              "A red node adds no black node to any path, so all black-heights are unchanged and property 4 still holds; property 1 holds trivially. Only property 3 can break (the new node's parent is red), plus property 2 if the new node is the root of an empty tree, which the last line <code>color[root[T]] ← BLACK</code> fixes. Colouring it black would add a black to some paths only, breaking property 4, which is much harder to repair.",
+              "Lecture 9 · Slides 9.19, 9.24"
+            ],
+            [
+              "Describe RB-INSERT Cases 1, 2 and 3 and show that insertion takes O(lg n) time with at most 2 rotations.",
+              "Loop while p[x] is red; y = uncle of x.<br>• <b>Case 1</b>, y red: colour p[x] and y black, p[p[x]] red, x ← p[p[x]]. Black-heights unchanged; the violation moves up 2 levels.<br>• <b>Case 2</b>, y black and x a right child of a left child (zig-zag): x ← p[x], LEFT-ROTATE(x). Rotating two reds changes no black-height; now it is Case 3.<br>• <b>Case 3</b>, y black and x a left child of a left child: colour p[x] black, p[p[x]] red, RIGHT-ROTATE(p[p[x]]). p[x] is now black, so the loop ends.<br>(Mirror with left/right swapped when p[x] is a right child.)<br><b>Cost</b>: TREE-INSERT is O(lg n); Case 1 repeats at most O(h) = O(lg n) times with O(1) work each; Case 2 and 3 happen at most once, then the loop stops: ≤ 2 rotations. Total O(lg n).",
+              "Lecture 9 · Slides 9.24–9.29"
+            ],
+            [
+              "Why does a plain BST need balancing? Give an example.",
+              "All BST operations cost O(h). The height depends on the insertion order: inserting 1, 2, …, 7 in sorted order makes every key the right child of the previous one, a chain of height n − 1 = 6, so a search may visit all n nodes: Θ(n). The same keys inserted as 4, 2, 6, 1, 3, 5, 7 give height 2. A balanced tree (like a red-black tree) guarantees O(lg n) height whatever the order, so every operation is O(lg n).",
+              "Background · Final 2022 Q26"
             ]
           ],
           "quiz": [
@@ -3265,19 +5349,19 @@ window.COURSES.algo = {
               "o": [
                 [
                   "Dynamic programming",
-                  "Incorrect."
+                  "Dynamic programming is an algorithm design method (storing subproblem answers), not an operation that restructures a tree."
                 ],
                 [
                   "Binary sort",
-                  "Incorrect."
+                  "There is no \"binary sort\" step in red-black trees; balancing is done by recolouring and rotating, never by sorting the keys."
                 ],
                 [
                   "Depth-first search",
-                  "Incorrect."
+                  "DFS is a way to visit graph or tree nodes; it changes no links, so it cannot restore balance."
                 ],
                 [
                   "Rotation",
-                  "Correct! Final 2021 Q37 & Final Summer Q16: Left and Right Rotations are the O(1) pointer restructuring operations in Red-Black Trees."
+                  "Correct (Final 2021 Q37, Final Summer Q16): slides 9.17–9.18, a rotation relinks a node and its child in O(1) time and keeps the inorder order."
                 ]
               ],
               "a": 3,
@@ -3288,44 +5372,834 @@ window.COURSES.algo = {
               "o": [
                 [
                   "No, they are never preferred",
-                  "Incorrect."
+                  "Wrong: when key order matters (min, max, successor, range queries) or worst-case guarantees matter, red-black trees are the better choice."
                 ],
                 [
                   "Because of resizing issues in hash tables and better key ordering (min, max, predecessor, successor) in Red-Black Trees",
-                  "Correct! Final 2021 Q23 & Final 2022 Q37: Red-Black Trees avoid hash table resizing spikes and maintain keys in sorted order for O(lg n) predecessor/successor/range queries."
+                  "Correct (Final 2021 Q23, Final 2022 Q37): a hash table keeps no key order and needs costly resizing; a red-black tree gives ordered queries in O(lg n) worst case (slide 9.16)."
                 ],
                 [
                   "Because Red-Black Trees use O(1) total memory",
-                  "Both use O(n) memory."
+                  "Both structures store all n keys, so both use Θ(n) memory; a red-black tree even adds a colour bit and pointers per node."
                 ],
                 [
                   "Because Red-Black Trees do not use pointers",
-                  "Red-Black Trees use left, right, and parent pointers."
+                  "A red-black tree node has left, right and parent pointers (rotations relink them), so this is false."
                 ]
               ],
               "a": 1,
               "src": "Exam · Final 2021 Q23 & Final 2022 Q37"
+            },
+            {
+              "q": "A Heap is an example of a _____________, while the access time of an unbalanced Binary Search Tree may degrade in the worst case up to _____________.",
+              "o": [
+                [
+                  "Complete binary tree; O(n)",
+                  "Correct (Final 2022 Q25 & Q26): a binary heap is a complete binary tree, and an unbalanced BST can become a chain of height n − 1 (sorted input), so access costs O(n)."
+                ],
+                [
+                  "Spanning tree; O(n log n)",
+                  "A spanning tree belongs to graphs (MST), not heaps; and one BST access walks one path, at most n nodes, never n log n."
+                ],
+                [
+                  "Sparse tree; O(n²)",
+                  "\"Sparse tree\" is not what a heap is, and one access walks a single path of at most n nodes, so O(n²) is far too big."
+                ],
+                [
+                  "Binary search tree; O(1)",
+                  "A heap does not keep the BST order (only parent ≥ children), and O(1) is impossible for a degenerate tree where the key may be n levels down."
+                ]
+              ],
+              "a": 0,
+              "src": "Exam · Final Exam 2022 Q25 & Q26"
+            },
+            {
+              "q": "Printing every node in a balanced binary search tree takes Θ(lg n) time.",
+              "o": [
+                [
+                  "True",
+                  "Not true: printing must output all n keys, so it cannot take less than n steps; lg n is the cost of one search path, not of visiting every node."
+                ],
+                [
+                  "False",
+                  "Correct, it is False: an inorder traversal visits each of the n nodes once, so printing takes Θ(n) in any BST, balanced or not."
+                ]
+              ],
+              "a": 1,
+              "src": "Exam · Final Summer TF 5"
+            },
+            {
+              "q": "In a Red-Black Tree, a black node must have only red children.",
+              "o": [
+                [
+                  "True",
+                  "Not true: no property restricts the children of a black node. In the slides' tree, black 7 has a black child 3 and a red child 18, and black 3 has only NIL (black) leaves."
+                ],
+                [
+                  "False",
+                  "Correct, it is False: property 3 restricts red nodes only (a red node's parent is black). A black node may have red or black children, e.g. 7 with children 3 (black) and 18 (red)."
+                ]
+              ],
+              "a": 1,
+              "src": "Exam · Final Summer TF 6"
+            },
+            {
+              "q": "We do not have to make any key comparisons to find the minimum or maximum node of a Binary Search Tree.",
+              "o": [
+                [
+                  "True",
+                  "Correct, it is True: TREE-MINIMUM just follows left pointers until left is NIL (TREE-MAXIMUM follows right pointers); only pointers are tested, never keys."
+                ],
+                [
+                  "False",
+                  "Not false: the BST property already puts the smallest key at the far left and the largest at the far right, so no key needs comparing."
+                ]
+              ],
+              "a": 0,
+              "src": "Exam · Final Summer TF 13"
+            },
+            {
+              "q": "In the example red-black tree of slide 9.8, what is the black-height of the root 7?",
+              "o": [
+                [
+                  "1",
+                  "This counts only the NIL and forgets the black node on the way down, e.g. 3 on the path 7 → 3 → NIL, or 10 on 7 → 18 → 10 → 8 → NIL."
+                ],
+                [
+                  "2",
+                  "Correct: every path from 7 to a leaf meets exactly 2 black nodes after 7: (3, NIL), (10, NIL) or (22, NIL). Slide 9.8 writes bh = 2 at 7."
+                ],
+                [
+                  "3",
+                  "This counts 7 itself. Black-height never counts the starting node x, only the black nodes below it, NIL included."
+                ],
+                [
+                  "4",
+                  "4 is the height h of the tree (edges on the longest path to a NIL), not the number of black nodes on a path."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 9 · Slide 8"
+            },
+            {
+              "q": "In the same example tree (slide 9.8), what is bh(18)?",
+              "o": [
+                [
+                  "2",
+                  "Correct: from 18 every path meets a black child (10 or 22) and then a black NIL: 2 blacks. The red colour of 18 itself does not count."
+                ],
+                [
+                  "1",
+                  "This misses one of the two blacks: from 18 the paths meet the black node 10 or 22 and then also the black NIL."
+                ],
+                [
+                  "3",
+                  "This counts both 10 and 22, but a single path from 18 goes through only one of them; each path meets one black child and one NIL."
+                ],
+                [
+                  "0",
+                  "bh = 0 belongs to a NIL leaf only; any internal node has at least the NIL below it, so bh ≥ 1."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 9 · Slide 8"
+            },
+            {
+              "q": "Which statement is red-black property 3 as written on slide 9.3?",
+              "o": [
+                [
+                  "If a node is red, then its parent is black",
+                  "Correct: slide 9.3, property 3. It forbids two reds in a row on any path, which gives bh(root) ≥ h/2."
+                ],
+                [
+                  "If a node is black, then both its children are red",
+                  "Wrong: nothing restricts the children of a black node; this is the false statement of Final Summer TF 6."
+                ],
+                [
+                  "Every path from the root has the same number of red nodes",
+                  "The slides fix the number of black nodes on each path (property 4); the number of reds may differ from path to path."
+                ],
+                [
+                  "The root and the leaves are red",
+                  "Property 2 says the opposite: the root and the leaves (NILs) are black."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 9 · Slide 3"
+            },
+            {
+              "q": "A red-black tree has n = 8 keys. How many NIL leaves does it have (slide 9.15)?",
+              "o": [
+                [
+                  "8",
+                  "This counts one leaf per key, but n nodes have 2n child pointers of which only n − 1 point to real nodes, leaving n + 1 for NILs."
+                ],
+                [
+                  "16",
+                  "16 = 2n counts every child pointer; n − 1 = 7 of them point to real nodes, so only 9 point to NIL."
+                ],
+                [
+                  "9",
+                  "Correct: n + 1 = 9 NIL leaves (slide 9.15 \"the number of leaves in each tree is n + 1\"); the slides' tree indeed shows 9 NILs."
+                ],
+                [
+                  "7",
+                  "7 = n − 1 is the number of edges between real nodes, not the number of NIL leaves."
+                ]
+              ],
+              "a": 2,
+              "src": "Lecture 9 · Slide 15"
+            },
+            {
+              "q": "After merging every red node of the example tree into its black parent (slides 9.9–9.14), which node of the 2-3-4 tree has 4 children?",
+              "o": [
+                [
+                  "{7, 18}",
+                  "{7, 18} has two keys, so 3 children: {3}, {8, 10, 11}, {22, 26}."
+                ],
+                [
+                  "{22, 26}",
+                  "{22, 26} has two keys and 3 children (3 NIL leaves): 22 absorbed only one red child."
+                ],
+                [
+                  "{3}",
+                  "3 has no red children, so it stays a 2-node with its 2 NIL leaves."
+                ],
+                [
+                  "{8, 10, 11}",
+                  "Correct: black 10 absorbs both red children 8 and 11, giving 3 keys and 4 children (the 4 NILs under 8 and 11)."
+                ]
+              ],
+              "a": 3,
+              "src": "Lecture 9 · Slide 14"
+            },
+            {
+              "q": "Why is h′ ≥ h/2 in the slides' proof (slide 9.15)?",
+              "o": [
+                [
+                  "Because at most half the nodes on any root-to-leaf path are red, and merging removes only red nodes",
+                  "Correct: property 3 forbids two reds in a row, so at least half the path survives merging. (The slide says \"leaves\"; it means nodes.)"
+                ],
+                [
+                  "Because every 2-3-4 node has at most 4 children",
+                  "The child count bounds the number of leaves (≤ 4<sup>h′</sup>), not the relation between the path lengths h and h′."
+                ],
+                [
+                  "Because there are n + 1 leaves",
+                  "n + 1 leaves gives n + 1 ≥ 2<sup>h′</sup>, the next step of the proof; it says nothing about h compared with h′."
+                ],
+                [
+                  "Because rotations take O(1) time",
+                  "Rotations are used for insertion (slide 9.18); the height theorem is about any red-black tree and needs no rotations."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 9 · Slide 15"
+            },
+            {
+              "q": "What is the largest height a red-black tree with n = 15 keys can have, by the theorem of slide 9.9?",
+              "o": [
+                [
+                  "4",
+                  "4 = lg 16 is roughly the height of the best possible tree, not the guaranteed upper bound; the bound is twice that."
+                ],
+                [
+                  "8",
+                  "Correct: h ≤ 2 lg(n + 1) = 2 lg 16 = 2 · 4 = 8."
+                ],
+                [
+                  "15",
+                  "15 = n would be a chain of a plain BST; property 3 and 4 make that impossible for a red-black tree."
+                ],
+                [
+                  "16",
+                  "16 = n + 1 is the number of NIL leaves, not a height bound; the bound uses lg of it."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 9 · Slide 9"
+            },
+            {
+              "q": "Rotations maintain which relation for a ∈ α, b ∈ β, c ∈ γ (slide 9.18)?",
+              "o": [
+                [
+                  "a ≤ b ≤ A ≤ B ≤ c",
+                  "This puts β left of A, but β is A's right subtree (keys between A and B), so b ≥ A."
+                ],
+                [
+                  "A ≤ a ≤ b ≤ B ≤ c",
+                  "α is A's left subtree, so its keys are ≤ A, not ≥ A."
+                ],
+                [
+                  "a ≤ A ≤ b ≤ B ≤ c",
+                  "Correct: the inorder order α, A, β, B, γ is the same before and after the rotation, so the BST property survives."
+                ],
+                [
+                  "a ≤ A ≤ B ≤ b ≤ c",
+                  "This puts β right of B, but β is moved to B's left subtree, so its keys are ≤ B."
+                ]
+              ],
+              "a": 2,
+              "src": "Lecture 9 · Slide 18"
+            },
+            {
+              "q": "How long does a rotation take on a tree with n nodes?",
+              "o": [
+                [
+                  "O(lg n)",
+                  "O(lg n) is a whole walk down the tree; a rotation changes only a few pointers at one place and needs no walk."
+                ],
+                [
+                  "O(n)",
+                  "A rotation never visits the nodes inside α, β, γ; the subtrees move as whole blocks with their roots."
+                ],
+                [
+                  "O(1)",
+                  "Correct (slide 9.18): a constant number of pointers change (the parent link, the A–B link and β's parent), whatever the size of the subtrees."
+                ],
+                [
+                  "O(h²)",
+                  "Nothing in a rotation depends on the height; it is local to two nodes and their three subtrees."
+                ]
+              ],
+              "a": 2,
+              "src": "Lecture 9 · Slide 18"
+            },
+            {
+              "q": "Inserting x = 15 into the example tree: which case applies first (slides 9.20–9.21)?",
+              "o": [
+                [
+                  "Case 1, because the uncle 8 is red",
+                  "Correct: 15's parent 11 is red, and the uncle (the other child of 10) is 8, red. So recolour 8 and 11 black, 10 red, and move x up to 10."
+                ],
+                [
+                  "Case 2, because 15 is a right child",
+                  "Case 2 requires a black uncle; here the uncle 8 is red, so it is Case 1. (Case 2 does happen next, at 10.)"
+                ],
+                [
+                  "Case 3, because 15 and 11 are both right children",
+                  "Case 3 also requires a black uncle; with the uncle 8 red only recolouring (Case 1) is done."
+                ],
+                [
+                  "No case: 15 is red and nothing is violated",
+                  "15 has the red parent 11: two reds in a row break property 3, so the loop must run."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 9 · Slide 20"
+            },
+            {
+              "q": "After the recolouring in the x = 15 example, which operation comes next (slide 9.21)?",
+              "o": [
+                [
+                  "LEFT-ROTATE(10)",
+                  "x = 10 is a left child of the right child 18, so the mirror Case 2 rotates the parent 18 to the right, not 10 to the left."
+                ],
+                [
+                  "RIGHT-ROTATE(18)",
+                  "Correct: 10 and 18 are red, the uncle 3 is black, and 10 is an inside (left) child of the right child 18: mirror Case 2, RIGHT-ROTATE(18)."
+                ],
+                [
+                  "LEFT-ROTATE(7)",
+                  "LEFT-ROTATE(7) is the Case 3 step and comes second, after the zig-zag 7, 18, 10 has been straightened."
+                ],
+                [
+                  "Recolour 18 and 3 black",
+                  "That would be Case 1, which needs a red uncle; the uncle of 10 is 3, which is black."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 9 · Slide 21"
+            },
+            {
+              "q": "Which node is the root after inserting 15 into the example tree (slide 9.23)?",
+              "o": [
+                [
+                  "7",
+                  "7 was the root before; LEFT-ROTATE(7) moves it down to be the left child of 10 and colours it red."
+                ],
+                [
+                  "18",
+                  "18 was rotated down by RIGHT-ROTATE(18); it ends as the red right child of 10."
+                ],
+                [
+                  "10",
+                  "Correct: after RIGHT-ROTATE(18) and LEFT-ROTATE(7), 10 is on top and is coloured black (slide 9.23)."
+                ],
+                [
+                  "15",
+                  "A new key enters as a leaf; 15 stays a red leaf under 11. Rotations never brought it near the top."
+                ]
+              ],
+              "a": 2,
+              "src": "Lecture 9 · Slide 23"
+            },
+            {
+              "q": "Why does RB-INSERT colour the new node x red (slides 9.19, 9.24)?",
+              "o": [
+                [
+                  "So that black-heights do not change and only property 3 can be violated",
+                  "Correct: a red node adds no black to any path, so property 4 holds; the only possible problem is a red parent (property 3)."
+                ],
+                [
+                  "So that the root stays black",
+                  "The root's colour is not affected by a red leaf below it; the last line color[root[T]] ← BLACK guards the root."
+                ],
+                [
+                  "Because red nodes take less memory",
+                  "The colour is one bit either way (slide 9.3); red and black nodes have the same size."
+                ],
+                [
+                  "So that no rotation is ever needed",
+                  "A red x may still have a red parent, and then Cases 2 and 3 do rotate (2 rotations in the x = 15 example)."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 9 · Slide 19"
+            },
+            {
+              "q": "In RB-INSERT, Case 1 applies when:",
+              "o": [
+                [
+                  "the uncle y of x is red",
+                  "Correct (slides 9.24, 9.26): with a red uncle, recolour parent and uncle black and the grandparent red, then x ← grandparent."
+                ],
+                [
+                  "the uncle y is black and x is a right child",
+                  "That is Case 2 (black uncle, zig-zag), which rotates the parent."
+                ],
+                [
+                  "the uncle y is black and x is a left child",
+                  "That is Case 3 (black uncle, straight line), which rotates the grandparent and ends the loop."
+                ],
+                [
+                  "x is the root",
+                  "When x is the root the loop does not run at all; the last line just colours the root black."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 9 · Slide 26"
+            },
+            {
+              "q": "After which case does RB-INSERT stop immediately (slide 9.28)?",
+              "o": [
+                [
+                  "Case 1",
+                  "Case 1 only recolours and moves x up to the grandparent, which may have a red parent: the loop can continue."
+                ],
+                [
+                  "Case 2",
+                  "Case 2 does not fix the violation; it only turns the zig-zag into a straight line and falls into Case 3."
+                ],
+                [
+                  "Case 3",
+                  "Correct: after RIGHT-ROTATE(C) and recolouring, B is black with red children: \"Done! No more violations of RB property 3 are possible.\""
+                ],
+                [
+                  "None: the loop always runs to the root",
+                  "Only Case 1 climbs; Cases 2 and 3 end the loop at once (slide 9.29: \"perform 1 or 2 rotations, and terminate\")."
+                ]
+              ],
+              "a": 2,
+              "src": "Lecture 9 · Slide 28"
+            },
+            {
+              "q": "What is the most rotations one RB-INSERT can perform (slide 9.29)?",
+              "o": [
+                [
+                  "0",
+                  "Case 1 alone uses 0 rotations, but Cases 2 and 3 do rotate (x = 15 needed 2)."
+                ],
+                [
+                  "2",
+                  "Correct: Case 1 only recolours; Case 2 rotates once and falls into Case 3, which rotates once and terminates. So at most 2."
+                ],
+                [
+                  "O(lg n)",
+                  "O(lg n) is the most Case 1 recolourings; rotations happen only in the final Case 2 / Case 3 step, at most 2."
+                ],
+                [
+                  "3",
+                  "3 rotations is the CLRS bound for RB-DELETE; insertion needs at most 2."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 9 · Slide 29"
+            },
+            {
+              "q": "Which of these is NOT given on slide 9.2 as an example of a balanced search tree?",
+              "o": [
+                [
+                  "AVL tree",
+                  "AVL trees are on slide 9.2: they guarantee O(lg n) height by keeping subtree heights within 1."
+                ],
+                [
+                  "Plain binary search tree",
+                  "Correct: a plain BST has no balancing; sorted input makes it a chain of height n − 1, so it is not balanced."
+                ],
+                [
+                  "B-tree",
+                  "B-trees are on slide 9.2 (they generalise 2-3-4 trees to large nodes)."
+                ],
+                [
+                  "2-3-4 tree",
+                  "2-3-4 trees are on slide 9.2, and slide 9.14 builds one from a red-black tree."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 9 · Slide 2"
+            },
+            {
+              "q": "The queries SEARCH, MIN, MAX, SUCCESSOR and PREDECESSOR on a red-black tree with n nodes run in (slide 9.16):",
+              "o": [
+                [
+                  "O(1)",
+                  "Each query walks a path in the tree, which can have about lg n levels; it is not constant."
+                ],
+                [
+                  "O(n)",
+                  "O(n) is the worst case of a plain BST; the red-black height bound 2 lg(n + 1) prevents it."
+                ],
+                [
+                  "O(n lg n)",
+                  "That is the cost of sorting n keys; a single query walks one path."
+                ],
+                [
+                  "O(lg n)",
+                  "Correct: each query is O(h) and h ≤ 2 lg(n + 1), so O(lg n) in the worst case."
+                ]
+              ],
+              "a": 3,
+              "src": "Lecture 9 · Slide 16"
             }
           ],
           "extra": [
             {
-              "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 9?",
+              "q": "The keys 5, 3, 8, 1, 4, 7, 9 are inserted in this order into an empty BST. What is the height of the tree, in edges between keys (not counting NIL leaves)?",
               "o": [
                 [
-                  "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-                  "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
+                  "2",
+                  "Correct: 5 is the root, 3 and 8 its children, and 1, 4, 7, 9 the leaves at depth 2."
                 ],
                 [
-                  "The algorithm requires O(2ⁿ) exponential space in the best case",
-                  "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
+                  "3",
+                  "3 counts the levels of keys (or the edges down to the NILs, the convention of slide 9.4); the question counts edges between keys only, which gives 2."
                 ],
                 [
-                  "The algorithm only works when n ≤ 10",
-                  "False — Asymptotic analysis applies as n → ∞."
+                  "6",
+                  "6 = n − 1 is the height of a chain, which only sorted (or reverse-sorted) input produces."
                 ],
                 [
-                  "Correctness does not depend on loop invariants or optimal substructure",
-                  "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
+                  "7",
+                  "7 = n is the number of keys; a tree with n keys has height at most n − 1."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "In the BST built from 50, 30, 70, 20, 40, 60, 80, what is SUCCESSOR(40)?",
+              "o": [
+                [
+                  "50",
+                  "Correct: 40 has no right subtree, so climb: 40 is a right child of 30, climb; 30 is a left child of 50, stop. Answer 50."
+                ],
+                [
+                  "30",
+                  "30 is the parent of 40 but is smaller (40 is its right child); the climb continues past it."
+                ],
+                [
+                  "60",
+                  "60 is the successor of 50, not of 40; you would get it by also taking the minimum of 50's right subtree."
+                ],
+                [
+                  "None",
+                  "40 is not the maximum (80 is), so it has a successor; the climb finds 50."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "The keys 10, 20, 30, 40, 50 are inserted in this order into an empty plain BST. What is its height?",
+              "o": [
+                [
+                  "2",
+                  "2 = ⌊lg 5⌋ is the best possible height; sorted input gives the worst one."
+                ],
+                [
+                  "4",
+                  "Correct: each key goes right of the previous one, a chain of height n − 1 = 4. A search for 50 visits all 5 nodes."
+                ],
+                [
+                  "5",
+                  "5 counts nodes on the chain, but height counts edges: 4."
+                ],
+                [
+                  "3",
+                  "No branching happens with sorted input, so the tree has a single path of 4 edges."
+                ]
+              ],
+              "a": 1
+            },
+            {
+              "q": "A subtree has black-height bh(x) = 3. At least how many keys (internal nodes) does it contain?",
+              "o": [
+                [
+                  "3",
+                  "This confuses bh with the number of keys; the lemma gives 2<sup>bh(x)</sup> − 1."
+                ],
+                [
+                  "8",
+                  "8 = 2<sup>3</sup> is the number of leaves of a perfect tree of black height 3, one more than its keys."
+                ],
+                [
+                  "7",
+                  "Correct: the lemma gives ≥ 2<sup>bh(x)</sup> − 1 = 2<sup>3</sup> − 1 = 7 internal nodes (an all-black perfect tree of height 3)."
+                ],
+                [
+                  "6",
+                  "6 = 2 · 3 confuses the bound with doubling the black-height; the bound is exponential: 2<sup>3</sup> − 1."
+                ]
+              ],
+              "a": 2
+            },
+            {
+              "q": "A red-black tree stores n = 1023 keys. What height bound does h ≤ 2 lg(n + 1) give?",
+              "o": [
+                [
+                  "10",
+                  "10 = lg 1024 is the minimum possible height, not the guaranteed maximum; the bound doubles it."
+                ],
+                [
+                  "20",
+                  "Correct: 2 lg(1023 + 1) = 2 lg 1024 = 2 · 10 = 20."
+                ],
+                [
+                  "1022",
+                  "1022 = n − 1 is the worst height of a plain BST, which red-black trees rule out."
+                ],
+                [
+                  "40",
+                  "40 would be 4 lg(n + 1); the theorem has the factor 2."
+                ]
+              ],
+              "a": 1
+            },
+            {
+              "q": "How many NIL leaves does a red-black tree with 20 keys have?",
+              "o": [
+                [
+                  "20",
+                  "One per key is too few: the n − 1 = 19 parent links use 19 of the 40 child pointers, leaving 21 for NILs."
+                ],
+                [
+                  "40",
+                  "40 = 2n counts all child pointers, but 19 of them point to real nodes."
+                ],
+                [
+                  "19",
+                  "19 = n − 1 is the number of edges between real nodes."
+                ],
+                [
+                  "21",
+                  "Correct: n + 1 = 21 NIL leaves, whatever the shape of the tree."
+                ]
+              ],
+              "a": 3
+            },
+            {
+              "q": "Into the slides' original example tree (7, 3, 18, 10, 8, 11, 22, 26) we insert 1. What does RB-INSERT do after placing 1?",
+              "o": [
+                [
+                  "Nothing: 1 becomes the red left child of black 3, so no property is broken",
+                  "Correct: the walk 7 → 3 puts 1 left of 3; its parent 3 is black, so the while loop does not run. 0 rotations."
+                ],
+                [
+                  "Case 1 recolouring",
+                  "Case 1 needs a red parent and a red uncle; the parent 3 is black, so the loop never starts."
+                ],
+                [
+                  "One rotation at 3",
+                  "Rotations happen only in Cases 2 and 3, which need a red parent; 3 is black."
+                ],
+                [
+                  "Colour 1 black",
+                  "1 stays red: a black 1 would give the paths through it one extra black and break property 4."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Into the slides' original example tree we insert 27. Which case applies, and how many rotations happen?",
+              "o": [
+                [
+                  "Case 1, 0 rotations",
+                  "Case 1 needs a red uncle; the uncle of 27 is the left child of 22, a black NIL."
+                ],
+                [
+                  "Case 2 then Case 3, 2 rotations",
+                  "27 is the right child of 26, which is the right child of 22: a straight line, not a zig-zag, so Case 2 is skipped."
+                ],
+                [
+                  "Case 3 (mirror), 1 rotation: LEFT-ROTATE(22)",
+                  "Correct: 7 → 18 → 22 → 26, 27 right of red 26; uncle NIL is black and the line is straight: colour 26 black, 22 red, LEFT-ROTATE(22)."
+                ],
+                [
+                  "No case, 0 rotations",
+                  "27's parent 26 is red, so property 3 is broken and the loop must run."
+                ]
+              ],
+              "a": 2
+            },
+            {
+              "q": "Into the slides' original example tree we insert 9. Which sequence of cases follows?",
+              "o": [
+                [
+                  "Case 1, then Case 2 (mirror) and Case 3 (mirror): 2 rotations",
+                  "Correct: 9 goes right of red 8; the uncle 11 is red, Case 1 makes 10 red; then 10 under red 18 with black uncle 3 is a zig-zag: RIGHT-ROTATE(18), LEFT-ROTATE(7)."
+                ],
+                [
+                  "Case 2 then Case 3 only",
+                  "First the uncle of 9 must be checked: it is 11, red, so Case 1 comes first."
+                ],
+                [
+                  "Case 1 only",
+                  "After Case 1, x = 10 still has the red parent 18 with a black uncle 3, so rotations are needed."
+                ],
+                [
+                  "Case 3 only, LEFT-ROTATE(7)",
+                  "The violation at 10 and 18 is a zig-zag (10 is a left child of the right child 18), so Case 2 must straighten it first."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "After inserting 15 (final tree of slide 9.23), we insert 14. How many rotations does RB-INSERT perform?",
+              "o": [
+                [
+                  "0",
+                  "14 lands as the left child of red 15, so property 3 is broken and the uncle (left of 11) is a black NIL: rotations are needed."
+                ],
+                [
+                  "1",
+                  "One rotation is enough only for a straight line; 14 is a left child of 15, which is a right child of 11: a zig-zag."
+                ],
+                [
+                  "2",
+                  "Correct: walk 10 → 18 → 11 → 15, 14 left of 15; black uncle and zig-zag: RIGHT-ROTATE(15) (Case 2), then LEFT-ROTATE(11) (Case 3). 14 ends black with red 11 and 15."
+                ],
+                [
+                  "3",
+                  "RB-INSERT never needs more than 2 rotations: Case 2 once and Case 3 once."
+                ]
+              ],
+              "a": 2
+            },
+            {
+              "q": "After RIGHT-ROTATE(B), where B had left child A with subtrees α (left) and β (right), and B had right subtree γ, which subtree has a new parent?",
+              "o": [
+                [
+                  "α",
+                  "α stays the left subtree of A; it only moves up one level with A."
+                ],
+                [
+                  "β",
+                  "Correct: β moves from A's right child to B's left child; it holds the keys between A and B."
+                ],
+                [
+                  "γ",
+                  "γ stays the right subtree of B; it only moves down one level with B."
+                ],
+                [
+                  "None of them",
+                  "A rotation must move β, otherwise B would have no left subtree and A two right-side children."
+                ]
+              ],
+              "a": 1
+            },
+            {
+              "q": "In the slides' example tree, what is PREDECESSOR(8)?",
+              "o": [
+                [
+                  "7",
+                  "Correct: 8 has no left child; 8 is a left child of 10, climb; 10 is a left child of 18, climb; 18 is a right child of 7, stop: 7."
+                ],
+                [
+                  "3",
+                  "3 is smaller than 7, so it cannot be the next smaller key before 8; 7 lies between them."
+                ],
+                [
+                  "10",
+                  "10 is larger than 8 (its parent from the right side); a predecessor is smaller."
+                ],
+                [
+                  "None",
+                  "8 is not the minimum (3 is), so a predecessor exists."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "In a red-black tree, a red node x has two children. What are their colours?",
+              "o": [
+                [
+                  "Both black",
+                  "Correct: a red child would have a red parent, which property 3 forbids, so both children (possibly NILs) are black."
+                ],
+                [
+                  "Both red",
+                  "Two reds in a row are exactly what property 3 forbids."
+                ],
+                [
+                  "One red, one black",
+                  "The red child would have a red parent, breaking property 3."
+                ],
+                [
+                  "Any colours",
+                  "Only black nodes may have children of any colour; red nodes must have black children."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "A plain BST with 1,000 keys was built from sorted input. A red-black tree holds the same keys. Roughly how many levels can a search visit in each, at worst?",
+              "o": [
+                [
+                  "1,000 and 20",
+                  "Correct: the chain has height 999 (1,000 nodes on the path); the red-black tree has height ≤ 2 lg 1001 ≈ 19.9, so about 20 nodes."
+                ],
+                [
+                  "10 and 10",
+                  "10 ≈ lg 1000 is the best possible height; the sorted BST is a chain, far from it."
+                ],
+                [
+                  "1,000 and 1,000",
+                  "The red-black height bound 2 lg(n + 1) holds whatever the insertion order."
+                ],
+                [
+                  "500 and 10",
+                  "The sorted chain uses every key on one path (not half), and the red-black bound is 2 lg(n + 1), about 20, not lg n."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "In the RB-INSERT loop, why does p[p[x]] always exist?",
+              "o": [
+                [
+                  "Because p[x] is red and the root is black, so p[x] is not the root",
+                  "Correct: the loop runs only while p[x] is red; the root is black (property 2), so p[x] has a parent."
+                ],
+                [
+                  "Because x is always a leaf",
+                  "x moves up in Case 1 and can be an internal node; that is not the reason."
+                ],
+                [
+                  "Because the tree has at least 3 nodes",
+                  "The tree could be tiny; what guarantees a grandparent is that a red parent cannot be the black root."
+                ],
+                [
+                  "Because of the sentinel T.nil",
+                  "The sentinel is the parent of the root; if p[x] were the root, p[p[x]] would be T.nil, which the loop never reaches."
                 ]
               ],
               "a": 0
@@ -3335,7 +6209,7 @@ window.COURSES.algo = {
         {
           "n": 10,
           "code": "Lec 10",
-          "title": "Lecture 10: Red-Black Trees Deep Dive — Coloring Exercises, Pointer Rotations & Symmetric Insertion Cases 1–6",
+          "title": "Lecture 10: Red-Black Trees in Depth: Colouring, the Insertion Problem, Rotations and Insert Cases 1-6",
           "videos": [
             {
               "id": "jDM6_TnYIqE",
@@ -3359,74 +6233,548 @@ window.COURSES.algo = {
           ],
           "notes": [
             {
-              "h": "Coloring Red-Black Trees & Insertion Problem Trace (Slides 10.1–10.19)",
+              "h": "Before you start: binary search trees and pointer code",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
               "pts": [
-                "<b>Coloring Exercise on `{7, 5, 9, 12}` (Slide 10.8 & Final 2019 Credit Q3)</b>: Root `7` is <b>BLACK</b>; children `5` and `9` are <b>BLACK</b> (each having black-height $1$ to `NIL`); child `12` (under `9`) must be <b>RED</b> so that every path from root `7` to `NIL` has the exact same black-height ($bh(7) = 2$, counting `5/9` and `NIL`).",
-                "<b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of red `11` (after the recoloring, `9` is red and `8`, `12` are black). Red breaks Property 3 (red `11` with a red child) and black breaks Property 4 (black-height), so <b>no color works</b>: the tree is too imbalanced and its <b>structure must change</b> (rotations) to allow recoloring, in $O(\\lg n)$ time (Slide 10.19).</li></ul>"
+                "A <b>binary tree</b> is made of nodes; each node has at most two children, a left one and a right one. The top node is the <b>root</b>. Example: in slide 10.8's tree the root is 7, its children are 5 and 9, and 12 is the right child of 9.",
+                "A <b>binary search tree (BST)</b> keeps its keys in order: for every node, all keys in its left subtree are smaller and all keys in its right subtree are larger. Slide 10.8's tree: 5 &lt; 7, and 9, 12 &gt; 7; under 9, 12 &gt; 9.",
+                "<b>Inorder</b> traversal (left subtree, then the node, then the right subtree) lists a BST's keys in sorted order: 5, 7, 9, 12. Any change of shape (a rotation) is allowed only if it keeps this order.",
+                "<b>BST insert</b> (`treeInsert`): start at the root, go left if the new key is smaller, right if it is larger, until you fall off the tree; the new node goes in that empty spot as a leaf. Insert 8 into slide 10.8's tree: 8 &gt; 7 go right, 8 &lt; 9 go left, 9 has no left child, so 8 becomes 9's left child.",
+                "The <b>height</b> h of a node is the number of edges on the longest path from it down to a leaf. Search, Minimum, Maximum, Successor and insert walk one path, so they cost O(h). A balanced tree has h = O(lg n); keys inserted in sorted order (1, 2, 3, …) make a chain with h = n − 1, so O(n).",
+                "In code each node is a record with five fields: `key`, `left`, `right`, `p` (the parent) and `color`. The fields `left`, `right` and `p` are <b>pointers</b>: they hold the address of another node.",
+                "Three notations for the same thing: `x->p` (C arrow, slides 10.25–10.30), `p[x]` (slide 10.24) and `x.p` (CLRS, 3rd ed.) all mean \"the parent of x\". `a->f` means: go to the node that a points to and read its field f.",
+                "<b>Reading a pointer chain</b>: read left to right, one hop per arrow. `x->p->p->right` = start at x, go to its parent, then to the parent's parent (the <b>grandparent</b>), then take that node's right child. Slide 10.16's tree with x = 11: `x->p` = 12, `x->p->p` = 9, `x->p->p->right` = 12, `x->p->p->left` = 8.",
+                "The <b>uncle</b> of x is the grandparent's other child (the parent's sibling). If `x->p == x->p->p->left` the uncle is `x->p->p->right`; otherwise it is `x->p->p->left`. With x = 11 above, `x->p->p->right` is the parent 12 itself, so the uncle is `x->p->p->left` = 8.",
+                "<b>Parent links</b>: every edge is stored twice, once going down in the parent (`9->right = 12`) and once going up in the child (`12->p = 9`). Code that moves a node must update both pointers of every edge it changes, or the tree becomes inconsistent.",
+                "<b>Sentinel `T.nil`</b>: instead of NULL, every missing child and the root's parent point to one shared dummy node `T.nil` whose color is BLACK. The slides' \"leaf (NULL pointer)\" is this node. It lets the code read `y->color` when the uncle y is \"no node\": it simply reads BLACK."
               ],
               "fig": [
-                "ag-10-bh",
-                "ag-10-color",
+                "ag-10-ptrs"
+              ],
+              "figAt": {
+                "ag-10-ptrs": 7
+              },
+              "figH": {
+                "ag-10-ptrs": "Reading x->p->p->right on the tree of slide 10.16: fields, parent links and T.nil"
+              }
+            },
+            {
+              "h": "Before you start: red-black properties, black-height and mirror cases",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "pts": [
+                "A <b>red-black tree</b> is a BST in which each node also stores a colour, red or black, and the colours must obey five rules that keep the height O(lg n) (Lecture 9).",
+                "The five <b>red-black properties</b> (numbered as on slide 10.3):<ul><li>1. Every node is either red or black.</li><li>2. Every leaf (NULL pointer, `T.nil`) is black.</li><li>3. If a node is red, both its children are black.</li><li>4. Every path from a node to a descendant leaf contains the same number of black nodes.</li><li>5. The root is always black.</li></ul>",
+                "Two consequences the slides note: from #2, every real node has 2 children (some may be NIL); from #3, a path can never have two red nodes in a row.",
+                "<b>Black-height</b> bh(x): the number of black nodes on a path from x down to a leaf, not counting x itself but counting the NIL leaf. Property 4 makes it the same on every path. Slide 10.4: bh(7) = 2, bh(18) = 2, bh(10) = 1, bh(8) = 1, a NIL has bh 0.",
+                "Worked count, slide 10.4: from 7 the path 7 → 18 → 10 → 8 → NIL meets 18 (red), 10 (black), 8 (red), NIL (black): 2 blacks, so bh(7) = 2. From 18 (red) the same path meets 10 and NIL: bh(18) = 2 too.",
+                "A <b>mirror image</b> (symmetric case) swaps every left with right, in the picture and in the code: \"x is the left child of a left child\" becomes \"x is the right child of a right child\", and `leftRotate` becomes `rightRotate`. The five properties never mention left or right, so the mirror of a correct fix is also correct. Slide 10.31's Cases 4-6 are the mirrors of Cases 1-3.",
+                "A <b>Δ</b> (triangle) in the case pictures of slides 10.27–10.30 stands for a whole subtree (maybe just NIL). \"All Δ's are equal-black-height subtrees\" means each has the same bh, so we can compare black counts along paths without knowing what is inside."
+              ]
+            },
+            {
+              "h": "Before you start: a method to colour a given tree",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "pts": [
+                "Exams give an uncoloured BST and ask you to colour it (slide 10.8; asked in Final 2019 Credit Q3). The method below works on such trees; s and L are path lengths counted in real nodes (NILs not counted).",
+                "The colouring method:<ul><li>1. List every path from the root to a NIL and count its real nodes. Let s = the shortest, L = the longest.</li><li>2. If L &gt; 2s, stop: no colouring exists.</li><li>3. Colour the root black (#5); NILs are black (#2).</li><li>4. Colour one shortest path all black. Now every path must have exactly b = s black real nodes.</li><li>5. On each longer path with r nodes, exactly r − b nodes are red, never two in a row. Start with the longest path: it has the fewest choices.</li><li>6. Check #3 and #4 at every node, not just the root. If it fails, try b = s − 1 (b may not go below ⌈L/2⌉); if no b works, the tree has no colouring.</li></ul>",
+                "Why L ≤ 2s: the root is black and reds cannot touch, so a path of r nodes has at least ⌈r/2⌉ black nodes; a shortest path has at most s. All paths have the same black count, so ⌈L/2⌉ ≤ s.",
+                "Slide 10.4's tree (7; 3; 18; 10, 22; 8, 11, 26): s = 2 (7 → 3), L = 4 (7 → 18 → 10 → 8). Colour 7 and 3 black, so b = 2.",
+                "Slide 10.4, continued: 7 → 18 → 10 → 8 needs 2 reds that do not touch below black 7, so 18 and 8 are red and 10 is black; the same path through 11 makes 11 red. 18 is red, so 22 is black; 7 → 18 → 22 → 26 then needs a second red: 26. This is exactly slide 10.4's colouring, and the only one.",
+                "Slide 10.16's tree (after inserting 8 and 11): s = 2 (7 → 5), L = 4 (7 → 9 → 12 → 11). b = 2: 9 and 11 red, 12 black, and 8 black (child of red 9). This is the recolouring the slide shows.",
+                "Slide 10.19's tree (after putting 10 under 11): s = 2 but L = 5 (7 → 9 → 12 → 11 → 10). 5 &gt; 2 × 2, so no colouring exists: this is why the slide says \"no color! Tree is too imbalanced\"."
+              ],
+              "fig": [
+                "ag-10-paint"
+              ],
+              "figAt": {
+                "ag-10-paint": 1
+              },
+              "figH": {
+                "ag-10-paint": "The colouring method, step by step, on the trees of slides 10.8, 10.4, 10.16 and 10.19"
+              }
+            },
+            {
+              "h": "Review: red-black trees and their properties (Slides 10.2–10.4)",
+              "pts": [
+                "Slide 10.2: red-black trees are binary search trees <b>augmented</b> with a node colour, and their operations are designed to guarantee height h = O(lg n).",
+                "Already done (Lecture 9): the properties were described and proved to give h = O(lg n). Next (this lecture): the operations on red-black trees, mainly insertion.",
+                "Slide 10.3 lists the five properties with two notes: #2 means every \"real\" node has 2 children; #3 means you can't have 2 consecutive reds on a path.",
+                "Slide 10.4's example (from CLRS): root 7 black (bh = 2); 3 black; 18 red (bh = 2); 10 and 22 black (bh = 1); 8, 11, 26 red (bh = 1); every NIL has bh = 0.",
+                "Checking #4 on slide 10.4: every path from 7 down to a NIL meets exactly 2 black nodes below 7. For example 7 → 3 → NIL (3, NIL), 7 → 18 → 10 → 8 → NIL (10, NIL), 7 → 18 → 22 → NIL (22, NIL), 7 → 18 → 22 → 26 → NIL (22, NIL).",
+                "Exam (Final Summer Q22): \"the root and the leaves (NIL) are black\" is always true (#5 and #2). Exam (Final Summer Q6, False): a black node need not have only red children; in slide 10.4 black 7 has a black child 3 and a red child 18."
+              ]
+            },
+            {
+              "h": "Black-height and the height bound (Slides 10.5–10.7)",
+              "pts": [
+                "Slide 10.5: <b>black-height</b> = the number of black nodes on a path to a leaf (the node itself not counted, the NIL counted).",
+                "Minimum black-height of a node with height h: <b>bh ≥ h/2</b>. By #3 no two reds are adjacent, so at least half of the nodes on any downward path are black. Slide 10.4: 7 has h = 4 (7 → 18 → 10 → 8 → NIL, counting the edge down to the NIL leaf, as the proof does) and bh = 2 = 4/2.",
+                "<b>Theorem</b> (slide 10.5): a red-black tree with n internal nodes has height h ≤ 2 lg(n + 1). It is proved by induction (in detail in Lecture 9).",
+                "Lemma used: the subtree rooted at x has at least 2<sup>bh(x)</sup> − 1 internal nodes. Base: x = NIL has bh 0 and 2<sup>0</sup> − 1 = 0 nodes. Step: each child has bh ≥ bh(x) − 1 (a black child counts one less, a red child the same), so x's subtree has ≥ 2(2<sup>bh(x)−1</sup> − 1) + 1 = 2<sup>bh(x)</sup> − 1.",
+                "Slide 10.6, at the root: n ≥ 2<sup>bh(root)</sup> − 1 ≥ 2<sup>h/2</sup> − 1, so lg(n + 1) ≥ h/2 and <b>h ≤ 2 lg(n + 1)</b>. Thus h = O(lg n). Asked as a proof in Midterm 2025 Q3.",
+                "Numbers: slide 10.4 has n = 8 and h = 4 ≤ 2 lg 9 ≈ 6.34. A tree of 15 keys has h ≤ 2 lg 16 = 8 ‡.",
+                "Slide 10.7, corollary: Minimum(), Maximum(), Successor(), Predecessor() and Search() take O(lg n) time: each walks one root-to-leaf path, O(h) = O(lg n). Asked in Final 2021 Q22, Final 2022 Q36 and Midterm 2016 Q3 / 2017 Q5 / 2018 Q3.",
+                "Insert() and Delete() will also take O(lg n) time, but need special care since they modify the tree: a plain BST insert or delete can break #3 or #4.",
+                "Exam (Final Summer Q5, False): printing every node of a balanced BST takes Θ(n), not Θ(lg n), because it must visit all n nodes; the O(lg n) bounds are for operations that walk one path."
+              ],
+              "formula": [
+                "bh(x) ≥ h(x) / 2",
+                "nodes in subtree(x) ≥ 2^bh(x) − 1",
+                "n ≥ 2^bh(root) − 1",
+                "n ≥ 2^(h/2) − 1",
+                "lg(n + 1) ≥ h/2",
+                "h ≤ 2 lg(n + 1)   so   h = O(lg n)"
+              ],
+              "fig": [
+                "ag-10-bh"
+              ],
+              "figAt": {
+                "ag-10-bh": 1
+              },
+              "figH": {
+                "ag-10-bh": "Review: black-height and why h ≤ 2 lg(n + 1)"
+              }
+            },
+            {
+              "h": "Colouring exercise: colour this tree (Slide 10.8)",
+              "pts": [
+                "Slide 10.8: \"Color this tree\": the BST with root 7, children 5 and 9, and 12 as the right child of 9 (9's left child is NIL). Asked in Final 2019 Credit Q3.",
+                "Step 1, paths: 7 → 5 → NIL (2 real nodes), 7 → 9 → NIL (2), 7 → 9 → 12 → NIL (3). So s = 2, L = 3, and 3 ≤ 2 × 2: a colouring can exist.",
+                "Step 2: the root 7 is black (#5); every NIL is black (#2).",
+                "Step 3: make the shortest paths all black: 5 is black (path 7 → 5) and 9 is black (path 7 → 9 → NIL). Every path must now have 2 black real nodes.",
+                "Step 4: 7 → 9 → 12 has one node too many, so 12 must be <b>red</b>. Its children are NILs (black), so #3 holds.",
+                "Step 5, check every node: bh(12) = 1, bh(9) = 1, bh(5) = 1, bh(7) = 2. Every path from 7 meets 2 black nodes below 7 (5 or 9, and the NIL). Answer: 7, 5, 9 black; 12 red (the slide draws 12 red).",
+                "Why it is the only colouring ‡: 12 black gives the path through 12 one black too many; 9 red forces 12 black and then 9 → NIL and 9 → 12 → NIL differ; 5 red makes bh(7) = 1, which forces 9 red, again impossible.",
+                "This is also the tree rbInsert builds from the keys 7, 5, 9, 12 inserted into an empty tree: 12 triggers Case 4 and the root is recoloured black (full run in the Cases 4-6 section) ‡."
+              ],
+              "fig": [
+                "ag-10-color"
+              ],
+              "figAt": {
+                "ag-10-color": 0
+              },
+              "figH": {
+                "ag-10-color": "Colour this tree: tap the nodes of 7, 5, 9, 12 and check the five properties"
+              }
+            },
+            {
+              "h": "The problem with insertion: inserting 8 and 11 (Slides 10.9–10.16)",
+              "pts": [
+                "Slides 10.9–10.19 insert 8, then 11, then 10 into slide 10.8's coloured tree, each time asking: where does it go (BST insert), and what colour should it be?",
+                "<b>Insert 8, where?</b> (slide 10.9): 8 &gt; 7 go right to 9; 8 &lt; 9 go left; 9's left is NIL, so 8 becomes the left child of 9 (slide 10.10).",
+                "<b>What colour?</b> (slides 10.10–10.11): <b>red</b>. Its parent 9 is black, so #3 holds; a red node adds no black to any path, so #4 holds. Black would fail #4: 7 → 9 → 8 → NIL would meet 3 blacks below 7 (9, 8, NIL) against 2 elsewhere.",
+                "<b>Insert 11, where?</b> (slides 10.12–10.13): 11 &gt; 7 right, 11 &gt; 9 right, 11 &lt; 12 left; 12's left is NIL, so 11 becomes the left child of 12.",
+                "<b>Can't be red! (#3)</b> (slide 10.14): its parent 12 is red, and a red node must have black children.",
+                "<b>Can't be black! (#4)</b> (slide 10.15): 7 → 9 → 12 → 11 → NIL would meet 3 blacks below 7 (9, 11, NIL) while 7 → 5 → NIL meets 2 (5, NIL).",
+                "<b>Solution: recolour the tree</b> (slide 10.16): 11 red, 12 and 8 black, 9 red. Now 7 → 9 → 12 → 11 → NIL meets 12 and NIL (2 blacks), the same as every other path, and red 9 has black children 8 and 12.",
+                "This recolouring is exactly rbInsert's Case 4 (the mirror of Case 1, because the parent 12 is a right child): x = 11, red parent 12, red uncle 8, so parent and uncle turn black and the grandparent 9 red. Then x = 9, whose parent 7 is black, so the loop stops."
+              ],
+              "fig": [
                 "ag-10-problem"
               ],
               "figAt": {
-                "ag-10-bh": 0,
-                "ag-10-color": 0,
-                "ag-10-problem": 1
+                "ag-10-problem": 0
               },
               "figH": {
-                "ag-10-bh": "Review: black-height and why h ≤ 2 lg(n + 1)",
-                "ag-10-color": "Colour this tree: tap the nodes of 7, 5, 9, 12 and check the five properties",
                 "ag-10-problem": "The problem with insertion: where do 8, 11 and 10 go, and what colour?"
               }
             },
             {
-              "h": "Pointer-Level Rotation Pseudocode & Insertion Cases 1–6 (Slides 10.20–10.32)",
+              "h": "The problem with insertion: inserting 10 (Slides 10.17–10.19)",
               "pts": [
-                "<b>`rightRotate(y)` Pointer Manipulation (Slide 10.21)</b>: Let `x = y->left`. Set `y->left = x->right` (and if `x->right != NIL`, `x->right->p = y`); set `x->p = y->p` (updating `root` or `y->p`'s child pointer); finally set `x->right = y` and `y->p = x`.",
-                "<b>Symmetric Insertion Cases 1–6 (Slides 10.25–10.31)</b>:<ul><li>When `x->p` is a <b>left child</b> of `x->p->p`, let uncle `y = x->p->p->right`:<ul><li><b>Case 1 (`y` is RED)</b>: Recolor `x->p` and `y` BLACK, `x->p->p` RED, set `x = x->p->p`.</li><li><b>Case 2 (`y` is BLACK, `x` is right child)</b>: Set `x = x->p`, `leftRotate(x)` $\\rightarrow$ becomes Case 3.</li><li><b>Case 3 (`y` is BLACK, `x` is left child)</b>: Recolor `x->p` BLACK, `x->p->p` RED, `rightRotate(x->p->p)`.</li></ul></li><li>When `x->p` is a <b>right child</b> of `x->p->p`, Cases 4, 5, 6 are the exact left-right mirror images!</li></ul>"
+                "<b>Insert 10, where?</b> (slides 10.17–10.18): 10 &gt; 7, 10 &gt; 9, 10 &lt; 12, 10 &lt; 11: it becomes the left child of 11.",
+                "Red breaks #3: its parent 11 is red.",
+                "Black breaks #4: 7 → 9 → 12 → 11 → 10 → NIL would meet 3 blacks below 7 (12, 10, NIL) against 2 on 7 → 5 → NIL.",
+                "Recolouring other nodes does not help either: <b>\"A: no color! Tree is too imbalanced\"</b> (slide 10.19). The path to 10 has 5 real nodes and the path to 5 only 2; 5 &gt; 2 × 2, so this shape has no valid colouring at all.",
+                "So we <b>must change the tree structure</b> to allow recolouring. Goal (slide 10.19): restructure the tree in O(lg n) time. The tool is the rotation (next slides).",
+                "Preview ‡: rbInsert handles 10 with Case 3. The parent 11 is red and is the left child of 12; the uncle `12->right` is NIL (black); 10 is a left child. So 11 turns black, 12 red, and rightRotate(12): 9's right child becomes 11 (black) with red children 10 and 12."
+              ]
+            },
+            {
+              "h": "Rotation: what it does and the pointer code (Slides 10.20–10.21)",
+              "pts": [
+                "Slide 10.20: our basic operation for changing tree structure is called <b>rotation</b>. `rightRotate(y)` lifts y's left child x into y's place and puts y under x as its right child; `leftRotate(x)` is the reverse.",
+                "The picture: before, y is on top with left child x and right subtree C; x has subtrees A (left) and B (right). After rightRotate(y): x is on top with left subtree A and right child y; y has subtrees B (left) and C (right).",
+                "<b>Does rotation preserve inorder key ordering?</b> (slide 10.20) Yes. Inorder before: A, x, B, y, C. After: A, x, B, y, C. B moves from x's right to y's left, and it still lies between x and y, so the BST property holds.",
+                "Slide 10.21, \"A lot of pointer manipulation\":<ul><li>x keeps its left child (A)</li><li>y keeps its right child (C)</li><li>x's right child (B) becomes y's left child</li><li>x's and y's parents change</li></ul>",
+                "Three edges change (y–B replaces x–B, x–y is turned upside down, the old parent of y now points to x), and each edge is two pointers (down and up), so rightRotate writes 6 pointers. The table lists them.",
+                "The code ‡ (CLRS's RIGHT-ROTATE in the slides' arrow syntax; the slides only ask \"what would the code actually do?\"), line by line:<ul><li>`x = y->left`: remember x before y->left is overwritten.</li><li>`y->left = x->right`: B becomes y's left child (down pointer).</li><li>`if (x->right != NIL) x->right->p = y`: B's up pointer (skipped when B is empty).</li><li>`x->p = y->p`: x takes y's parent (up pointer).</li><li>the `if / else if / else`: the parent's down pointer that pointed to y now points to x; if y was the root, x becomes the root.</li><li>`x->right = y`, then `y->p = x`: y goes under x.</li></ul>",
+                "Order matters: `y->p` is read (to fix the parent) before the last line overwrites it, and x is saved first.",
+                "<b>What is the running time?</b> (slide 10.21) <b>O(1)</b>: a fixed number of pointer changes, however large A, B and C are; whole subtrees move with one pointer each.",
+                "`leftRotate(x)` is the mirror image (swap left and right, and the names x and y). leftRotate(x) after rightRotate(y) gives back the original tree."
               ],
-              "code": "rbInsert(x) {\n  treeInsert(x);\n  x->color = RED;\n  while (x != root && x->p->color == RED) {\n    if (x->p == x->p->p->left) {\n      y = x->p->p->right;           // y is uncle of x\n      if (y->color == RED) {        // Case 1: uncle is RED\n        x->p->color = BLACK;\n        y->color = BLACK;\n        x->p->p->color = RED;\n        x = x->p->p;\n      } else {\n        if (x == x->p->right) {     // Case 2: zig-zag triangle\n          x = x->p;\n          leftRotate(x);\n        }\n        x->p->color = BLACK;        // Case 3: straight line\n        x->p->p->color = RED;\n        rightRotate(x->p->p);\n      }\n    } else { /* Cases 4-6: symmetric with left <-> right */ }\n  }\n  root->color = BLACK;\n}",
+              "table": [
+                [
+                  "Pointer",
+                  "Before rightRotate(y)",
+                  "After"
+                ],
+                [
+                  "y->left",
+                  "x",
+                  "B"
+                ],
+                [
+                  "B->p",
+                  "x",
+                  "y"
+                ],
+                [
+                  "x->p",
+                  "y",
+                  "old y->p"
+                ],
+                [
+                  "old parent's child field",
+                  "y",
+                  "x"
+                ],
+                [
+                  "x->right",
+                  "B",
+                  "y"
+                ],
+                [
+                  "y->p",
+                  "old parent",
+                  "x"
+                ],
+                [
+                  "x->left",
+                  "A",
+                  "A (kept)"
+                ],
+                [
+                  "y->right",
+                  "C",
+                  "C (kept)"
+                ]
+              ],
+              "code": "rightRotate(y)            // ‡ not on the slides (CLRS)\n x = y->left;\n y->left = x->right;\n if (x->right != NIL) x->right->p = y;\n x->p = y->p;\n if (y->p == NIL) root = x;\n else if (y == y->p->left) y->p->left = x;\n else y->p->right = x;\n x->right = y;\n y->p = x;\n\nleftRotate(x)             // ‡ mirror image\n y = x->right;\n x->right = y->left;\n if (y->left != NIL) y->left->p = x;\n y->p = x->p;\n if (x->p == NIL) root = y;\n else if (x == x->p->left) x->p->left = y;\n else x->p->right = y;\n y->left = x;\n x->p = y;",
               "fig": [
-                "ag-10-rotptr",
-                "ag-10-rotex",
+                "ag-10-rotptr"
+              ],
+              "figAt": {
+                "ag-10-rotptr": 4
+              },
+              "figH": {
+                "ag-10-rotptr": "rightRotate(y), one pointer change at a time"
+              }
+            },
+            {
+              "h": "Rotation example: rotate left about 9 (Slides 10.22–10.23)",
+              "pts": [
+                "Slide 10.22's tree (the shape after inserting 8 and 11, drawn without colours): 7 with children 5 and 9; 9 with children 8 and 12; 12 with left child 11.",
+                "\"Rotate left about 9\" = leftRotate(9): x = 9, its right child y = 12, and B = 12's left child = 11.",
+                "The pointer changes, in code order:<ul><li>`9->right = 11` and `11->p = 9` (B moves under 9)</li><li>`12->p = 7`, and since 9 was 7's right child, `7->right = 12`</li><li>`12->left = 9` and `9->p = 12`</li></ul>",
+                "Result (slide 10.23): 7 with children 5 and 12; 12 has left child 9 and no right child; 9 has children 8 and 11.",
+                "Inorder is 5, 7, 8, 9, 11, 12 before and after: the rotation changed the shape, not the order.",
+                "A rotation alone does not fix colours ‡: slide 10.23's shape has no valid colouring (7 → 12 → NIL forces 12 black with b = 2, and then 9 and 8 on 7 → 12 → 9 → 8 would both have to be red). That is why rbInsert always recolours together with its rotations."
+              ],
+              "fig": [
+                "ag-10-rotex"
+              ],
+              "figAt": {
+                "ag-10-rotex": 0
+              },
+              "figH": {
+                "ag-10-rotex": "Rotation example: rotate left about 9"
+              }
+            },
+            {
+              "h": "Insertion: the basic idea and why the new node is red (Slide 10.24)",
+              "pts": [
+                "Slide 10.24, the basic idea: insert x into the tree (plain BST insert), colour x <b>red</b>.",
+                "Why red: a red node adds no black node to any path, so #4 (equal black counts) cannot break. Only property 3 might be violated, and only if p[x] (x's parent) is red.",
+                "Why not black: a new black leaf adds one black to the paths through it and to no other path, so #4 would break on every insert into a non-empty tree. Slide 10.10's 8 coloured black would give 7 → 9 → 8 → NIL 3 blacks against 2.",
+                "One more case ‡: inserting into an empty tree makes x a red root (#5 broken); colouring the root black at the end fixes it.",
+                "If #3 is violated, <b>move the violation up the tree</b> until a place is found where it can be fixed: recolouring (Case 1) pushes the red-red pair 2 levels up; a rotation (Cases 2-3) removes it.",
+                "Total time <b>O(lg n)</b>: treeInsert walks one path, O(lg n); the fix-up climbs at most the height of the tree with O(1) work per step.",
+                "At most 2 rotations per insertion ‡: Cases 1 and 4 only recolour, and after Case 2 + Case 3 (or 5 + 6) the loop ends."
+              ]
+            },
+            {
+              "h": "The rbInsert code, line by line (Slides 10.25–10.26)",
+              "pts": [
+                "`treeInsert(x); x->color = RED;`: put x in as a BST leaf and colour it red (the idea of slide 10.24).",
+                "The comment \"Move violation of #3 up tree, maintaining #4 as invariant\": every step of the loop keeps #4 true; the only fault is one red x with a red parent.",
+                "`while (x!=root && x->p->color == RED)`: repeat while x has a red parent. Stop when x is the root or x's parent is black.",
+                "Why `x->p->p` exists inside the loop ‡: x's parent is red and the root is black (thanks to CLRS's final `root->color = BLACK`), so the red parent is not the root and has a parent. In the slides' version, which lacks that line, the root can be red, and then `x->p->p` can be the sentinel NIL.",
+                "`if (x->p == x->p->p->left)`: is the parent a left child? Then the uncle is `y = x->p->p->right` and Cases 1-3 apply. The last `else` (parent is a right child) is \"same as above, but with right and left exchanged\": Cases 4-6.",
+                "<b>Case 1</b>, `if (y->color == RED)` (slide 10.26: \"Case 1: uncle is RED\"): parent black, uncle black, grandparent red, `x = x->p->p`.",
+                "`else // y->color == BLACK`: <b>Case 2</b> if x is a right child (`x = x->p; leftRotate(x);`), and then always <b>Case 3</b> (`x->p->color = BLACK; x->p->p->color = RED; rightRotate(x->p->p);`). Case 3 is not inside an else, so Case 2 falls into it.",
+                "Missing line (slide omission): the slide's code has no `root->color = BLACK` at the end, which CLRS has. Without it the root can stay red: inserting 12 into 7 (black) with red children 5 and 9 runs Case 4, makes 7 red, and the loop stops because x = 7 is the root. The first insert into an empty tree also leaves a red root. Worse, a red root breaks the next insert: e.g. after inserting 7 alone (red root), inserting 5 enters the loop with `x->p->p` = NIL. So the slides' code really needs that last line.",
+                "Naming ‡: CLRS (3rd ed.) calls the loop RB-INSERT-FIXUP, writes z for x, and calls the mirror cases 1-3 again; the slides number them 4-6. Use the slides' numbering in the exam."
+              ],
+              "code": "rbInsert(x)\n treeInsert(x);\n x->color = RED;\n // Move violation of #3 up tree, maintaining #4 as invariant:\n while (x!=root && x->p->color == RED)\n if (x->p == x->p->p->left)\n     y = x->p->p->right;\n     if (y->color == RED)\n          x->p->color = BLACK;\n          y->color = BLACK;\n          x->p->p->color = RED;       // Case 1: uncle is RED\n          x = x->p->p;\n     else    // y->color == BLACK\n          if (x == x->p->right)\n              x = x->p;\n              leftRotate(x);          // Case 2\n          x->p->color = BLACK;\n          x->p->p->color = RED;\n          rightRotate(x->p->p);       // Case 3\n else     // x->p == x->p->p->right\n     (same as above, but with\n      \"right\" & \"left\" exchanged)",
+              "fig": [
                 "ag-10-cases"
               ],
               "figAt": {
-                "ag-10-rotptr": 0,
-                "ag-10-rotex": 0,
-                "ag-10-cases": 1
+                "ag-10-cases": 5
               },
               "figH": {
-                "ag-10-rotptr": "rightRotate(y), one pointer change at a time",
-                "ag-10-rotex": "Rotation example: rotate left about 9",
                 "ag-10-cases": "rbInsert: Cases 1, 2, 3 with the code, and the symmetric Cases 4-6"
               }
+            },
+            {
+              "h": "Case 1: the uncle is red (Slides 10.27–10.28)",
+              "pts": [
+                "Situation (slide 10.27): x = B is red and the right child of A; A (the parent) is red and the left child of C; C (the grandparent) is black; the uncle y = D is red. All Δ's have equal black-height.",
+                "Action: A black, D black, C red, then `x = x->p->p`: C becomes the new x. Only colours change, no pointers.",
+                "Why #4 still holds: before, a path from C down into any Δ met exactly one black node on the way (C); after, it meets exactly one (A or D). Paths from above C see the same count too.",
+                "Why the loop continues: C is now red, and C's parent may be red. The violation moved 2 levels up; \"the while loop now continues with x's grandparent as the new x\".",
+                "Slide 10.28: the same action when x = B is the <b>left</b> child of A. Case 1 looks only at the uncle's colour, not at which side x is on.",
+                "Example: inserting 11 (slide 10.16) is the mirror, Case 4: 12 and 8 black, 9 red, x = 9; 9's parent 7 is black, so the loop stops.",
+                "Each Case 1 step is O(1) and moves x up 2 levels, so it repeats at most about h/2 times: O(lg n) ‡."
+              ]
+            },
+            {
+              "h": "Cases 2 and 3: the uncle is black (Slides 10.29–10.30)",
+              "pts": [
+                "<b>Case 2</b> (slide 10.29): the uncle y is black and x = B is a <b>right</b> child of A, while A is the left child of C. The path C → A → B bends (a \"zig-zag\" ‡).",
+                "Code: `x = x->p; leftRotate(x);` then continue with the Case 3 code. So x becomes A and the rotation lifts B above A.",
+                "Effect: B is now C's left child and A is B's left child, so x = A is a left child of a left child: Case 2 is transformed into Case 3.",
+                "Why #4 holds: the rotation moves only the red nodes A and B, so each Δ still has exactly the same black nodes above it (C): all downward paths contain the same number of black nodes.",
+                "<b>Case 3</b> (slide 10.30): the uncle y is black and x = A is a <b>left</b> child of B, which is the left child of C: a straight line.",
+                "Code: `x->p->color = BLACK; x->p->p->color = RED; rightRotate(x->p->p);` (\"change colors; rotate right\").",
+                "Effect: B (now black) is on top, with red children A and C; C keeps the uncle Δ y as its right subtree.",
+                "Why #4 holds: before, every path from the top met one black (C) above the Δ's; after, it meets one black (B). The top node is black before and after, so nothing above changes.",
+                "The loop ends: x's parent B is black, so the while test fails. Case 2 + Case 3 use at most 2 rotations.",
+                "Example: inserting 10 into slide 10.19's tree is Case 3 directly (10 is already a left child, so Case 2 is skipped): 11 black, 12 red, rightRotate(12). Result: 7 (B); 9 (R) with children 8 (B) and 11 (B); 11 with children 10 (R) and 12 (R). Every path from 7 has 2 blacks below 7."
+              ]
+            },
+            {
+              "h": "Cases 4-6: the mirror image, and a full run (Slide 10.31)",
+              "pts": [
+                "Slide 10.31: Cases 1-3 hold if x's parent is a <b>left</b> child. If x's parent is a <b>right</b> child, Cases 4-6 are symmetric (swap left for right).",
+                "The mirror cases (code ‡ below):<ul><li><b>Case 4</b> (mirror of 1): the uncle `y = x->p->p->left` is red: parent and uncle black, grandparent red, `x = x->p->p`.</li><li><b>Case 5</b> (mirror of 2): uncle black and x is a <b>left</b> child: `x = x->p; rightRotate(x);`, then Case 6.</li><li><b>Case 6</b> (mirror of 3): uncle black and x is a right child: parent black, grandparent red, `leftRotate(x->p->p)`.</li></ul>",
+                "Full run with the slides' keys ‡ (rbInsert plus `root->color = BLACK`), part 1, building slide 10.8's tree from empty:<ul><li>7: the root, red, then recoloured black.</li><li>5: left of 7, red; parent black, done.</li><li>9: right of 7, red; done.</li><li>12: right of 9; red parent 9 is a right child and the uncle 5 is red: Case 4 (9, 5 black, 7 red, x = 7 = root); root back to black. This is slide 10.8's tree.</li></ul>",
+                "Full run, part 2, the slides' keys 8, 11, 10:<ul><li>8: left of 9, red; parent 9 black, done (slide 10.11).</li><li>11: left of 12; red parent 12 is a right child, uncle 8 red: Case 4 (12, 8 black, 9 red, x = 9); parent 7 black, done (slide 10.16).</li><li>10: left of 11; red parent 11 is a left child of 12, uncle NIL black, x a left child: Case 3 (11 black, 12 red, rightRotate(12)); done.</li></ul>",
+                "Final tree: 7 (B) with children 5 (B) and 9 (R); 9 with children 8 (B) and 11 (B); 11 with children 10 (R) and 12 (R). bh(7) = 2, and all five properties hold.",
+                "Case 6 example ‡: insert 13 into slide 10.8's tree. Its parent 12 is red and a right child, the uncle `9->left` is NIL (black), 13 is a right child: 12 black, 9 red, leftRotate(9). Result: 7 (B) with 5 (B) and 12 (B); 12 with 9 (R) and 13 (R).",
+                "Case 5 then 6 example ‡: insert 10 into slide 10.8's tree. 10 is the left child of red 12 (a right child), the uncle is NIL: Case 5 sets x = 12 and rightRotate(12), lifting 10; then Case 6: 10 black, 9 red, leftRotate(9). Result: 7 (B) with 5 (B) and 10 (B); 10 with 9 (R) and 12 (R)."
+              ],
+              "code": "else     // x->p == x->p->p->right   (‡ written out)\n     y = x->p->p->left;\n     if (y->color == RED)\n          x->p->color = BLACK;\n          y->color = BLACK;\n          x->p->p->color = RED;       // Case 4\n          x = x->p->p;\n     else    // y->color == BLACK\n          if (x == x->p->left)\n              x = x->p;\n              rightRotate(x);         // Case 5\n          x->p->color = BLACK;\n          x->p->p->color = RED;\n          leftRotate(x->p->p);        // Case 6\nroot->color = BLACK;   // ‡ CLRS, missing on the slide",
+              "fig": [
+                "ag-10-run"
+              ],
+              "figAt": {
+                "ag-10-run": 3
+              },
+              "figH": {
+                "ag-10-run": "rbInsert run key by key on 7, 5, 9, 12, 8, 11, 10 (or your own keys), with the case that fires"
+              }
+            },
+            {
+              "h": "Deletion (Slide 10.32)",
+              "pts": [
+                "\"And you thought insertion was tricky…\": deleting can remove a black node, which breaks #4 on all paths that went through it, so the repair is harder than for insertion.",
+                "RB delete is not covered in class in this lecture (slide 10.32); it still runs in O(lg n) (slide 10.7). Lecture 11 goes through rbDelete and its fix-up cases."
+              ]
             }
           ],
           "cards": [
             [
               "Coloring {7 (root), 5 (left), 9 (right), 12 (right of 9)}",
-              "7: BLACK, 5: BLACK, 9: BLACK, 12: RED (so every root-to-NIL path has 2 black nodes besides root)."
+              "7, 5, 9 black; 12 red. Every path from 7 meets 2 black nodes below 7 (counting the NIL), so bh(7) = 2. It is the only valid colouring (slide 10.8, Final 2019 Credit Q3)."
             ],
             [
               "RB-INSERT Case 1 vs. Cases 2 & 3",
-              "Case 1 (Uncle is RED): recolor parent & uncle BLACK, grandparent RED, and move x up. Cases 2 & 3 (Uncle is BLACK): 1 or 2 rotations + recolor, then loop terminates."
+              "Case 1 (uncle red): recolour parent and uncle black, grandparent red, x = grandparent; the loop may go on. Cases 2 & 3 (uncle black): one or two rotations plus recolouring, then the loop ends."
             ],
             [
-              "Coloring Red-Black Trees & Insertion Problem Trace (Slides 10.1–10.19) — Core Principle & Complexity",
-              "<b>Coloring Exercise on `{7, 5, 9, 12}` (Slide 10.8 & Final 2019 Credit Q3)</b>: Root `7` is <b>BLACK</b>; children `5` and `9` are <b>BLACK</b> (each having black-height $1$ to `NIL`); child `12` (under `9`) must be <b>RED</b> so that every path from root `7` to `NIL` has the exact same black-height ($bh(7) = 2$, counting `5/9` and `NIL`). <b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of red `11` (after the recoloring, `9` is red and `8`, `12` are black). Red breaks Property 3 (red `11` with a red child) and black breaks Property 4 (black-height), so <b>no color works</b>: the tree is too imbalanced and its <b>structure must change</b> (rotations) to allow recoloring, in $O(\\lg n)$ time (Slide 10.19).</li></ul>"
+              "Coloring Red-Black Trees & Insertion Problem Trace (Slides 10.1–10.19): Core Principle & Complexity",
+              "Insert as a red leaf. 8 under black 9: red, nothing to fix. 11 under red 12: red breaks #3, black breaks #4, so recolour (12, 8 black, 9 red). 10 under red 11: no colour works, so the structure must change (rotation), in O(lg n)."
             ],
             [
-              "Pointer-Level Rotation Pseudocode & Insertion Cases 1–6 (Slides 10.20–10.32) — Core Principle & Complexity",
-              "<b>`rightRotate(y)` Pointer Manipulation (Slide 10.21)</b>: Let `x = y->left`. Set `y->left = x->right` (and if `x->right != NIL`, `x->right->p = y`); set `x->p = y->p` (updating `root` or `y->p`'s child pointer); finally set `x->right = y` and `y->p = x`. <b>Symmetric Insertion Cases 1–6 (Slides 10.25–10.31)</b>:<ul><li>When `x->p` is a <b>left child</b> of `x->p->p`, let uncle `y = x->p->p->right`:<ul><li><b>Case 1 (`y` is RED)</b>: Recolor `x->p` and `y` BLACK, `x->p->p` RED, set `x = x->p->p`.</li><li><b>Case 2 (`y` is BLACK, `x` is right child)</b>: Set `x = x->p`, `leftRotate(x)` $\\rightarrow$ becomes Case 3.</li><li><b>Case 3 (`y` is BLACK, `x` is left child)</b>: Recolor `x->p` BLACK, `x->p->p` RED, `rightRotate(x->p->p)`.</li></ul></li><li>When `x->p` is a <b>right child</b> of `x->p->p`, Cases 4, 5, 6 are the exact left-right mirror images!</li></ul>"
+              "Pointer-Level Rotation Pseudocode & Insertion Cases 1–6 (Slides 10.20–10.32): Core Principle & Complexity",
+              "rightRotate(y): x = y->left moves up, x->right becomes y->left, x takes y's parent, y becomes x->right: 6 pointer writes, O(1), inorder unchanged. Insert fix-up: uncle red → recolour (Case 1/4); uncle black → rotate (Case 2/5) and recolour + rotate (Case 3/6)."
+            ],
+            [
+              "The 5 red-black properties",
+              "1 every node red or black; 2 every leaf (NULL) black; 3 a red node has two black children; 4 every path from a node to a descendant leaf has the same number of blacks; 5 the root is black."
+            ],
+            [
+              "Black-height bh(x)",
+              "Number of black nodes on a path from x down to a leaf, not counting x, counting the NIL. Same on every path by #4. Slide 10.4: bh(7) = 2, bh(10) = 1."
+            ],
+            [
+              "Minimum black-height of a node of height h",
+              "bh ≥ h/2, because no two reds are adjacent (#3), so at least half the nodes on a path are black."
+            ],
+            [
+              "Height bound theorem",
+              "A red-black tree with n internal nodes has height h ≤ 2 lg(n + 1), so h = O(lg n). Proof by induction (Midterm 2025 Q3)."
+            ],
+            [
+              "Lemma behind the height bound",
+              "The subtree rooted at x has at least 2<sup>bh(x)</sup> − 1 internal nodes; at the root n ≥ 2<sup>bh</sup> − 1 ≥ 2<sup>h/2</sup> − 1."
+            ],
+            [
+              "Which operations are O(lg n) by the corollary (slide 10.7)?",
+              "Minimum, Maximum, Successor, Predecessor, Search: each walks one path of length O(lg n). Insert and Delete are O(lg n) too but need special care."
+            ],
+            [
+              "Why do Insert and Delete need special care?",
+              "They modify the tree, so a plain BST insert/delete can break property 3 or 4; they must recolour and rotate."
+            ],
+            [
+              "T.nil sentinel",
+              "One shared black dummy node used for every NIL child and for the root's parent; lets code read y->color even when y is \"no node\"."
+            ],
+            [
+              "What is x->p->p->right?",
+              "The right child of x's grandparent: the uncle when x->p is a left child, but x->p itself when x->p is a right child."
+            ],
+            [
+              "Uncle of x",
+              "The other child of x's grandparent: x->p->p->right if x->p is a left child, else x->p->p->left."
+            ],
+            [
+              "Why is the inserted node coloured red?",
+              "A red node adds no black to any path, so #4 cannot break; only #3 may break, and only if its parent is red. Black would break #4 every time."
+            ],
+            [
+              "Which property can rbInsert's first two lines violate?",
+              "Only #3 (if p[x] is red); plus #5 if the tree was empty (red root)."
+            ],
+            [
+              "Rotation",
+              "The basic O(1) operation that changes tree structure (rightRotate / leftRotate) while preserving the inorder key order."
+            ],
+            [
+              "rightRotate(y) in words (slide 10.21)",
+              "x keeps its left child; y keeps its right child; x's right child becomes y's left child; x's and y's parents change."
+            ],
+            [
+              "Running time of a rotation",
+              "O(1): a fixed number of pointer changes (6 pointer writes), whatever the subtree sizes."
+            ],
+            [
+              "Rotate left about 9 (slides 10.22–10.23)",
+              "12 takes 9's place under 7; 9 becomes 12's left child; 12's old left child 11 becomes 9's right child. Inorder 5, 7, 8, 9, 11, 12 unchanged."
+            ],
+            [
+              "Insert 8 into slide 10.8's tree",
+              "Left child of 9, coloured red; parent 9 is black, so nothing is violated."
+            ],
+            [
+              "Insert 11 after 8: why neither colour, and the fix",
+              "Red breaks #3 (parent 12 red); black breaks #4 (one extra black on its paths). Fix: recolour 12 and 8 black, 9 red (Case 4)."
+            ],
+            [
+              "Insert 10 after 8 and 11 (slide 10.19)",
+              "No colour works: the tree is too imbalanced (path of 5 nodes vs 2); must change the structure (rotation) in O(lg n). rbInsert: Case 3, rightRotate(12)."
+            ],
+            [
+              "Case 2 (x->p a left child)",
+              "Uncle black, x a right child: x = x->p; leftRotate(x). Turns it into Case 3."
+            ],
+            [
+              "Case 3 (x->p a left child)",
+              "Uncle black, x a left child: x->p black, x->p->p red, rightRotate(x->p->p). The loop ends."
+            ],
+            [
+              "Cases 4-6",
+              "Used when x's parent is a right child: mirror images of Cases 1-3 (swap left and right). Case 4 recolours, Case 5 rightRotate(x->p), Case 6 leftRotate(x->p->p)."
+            ],
+            [
+              "Test before colouring a tree",
+              "Longest root-to-NIL path ≤ 2 × shortest (in real nodes). If not, no colouring exists (slide 10.19: 5 > 2 × 2)."
+            ],
+            [
+              "What is missing at the end of the slide's rbInsert?",
+              "root->color = BLACK (CLRS). Without it Case 1/4 or the first insert can leave a red root."
+            ],
+            [
+              "What does a Δ mean in the case pictures?",
+              "A whole subtree; all Δ's have equal black-height, so black counts along paths can be compared."
+            ],
+            [
+              "Rotations per insertion",
+              "At most 2 (Case 2 + Case 3, or 5 + 6); Case 1/4 only recolours ‡."
+            ],
+            [
+              "Mirror image (symmetric case)",
+              "The same case with every left and right swapped, in the picture and in the code; it is correct because the properties do not mention sides."
             ]
           ],
           "qa": [
             [
               "Color the following Red-Black Tree (Final 2019 Credit Q3 & Lec 10 Slide 8): Root 7 with left child 5 and right child 9, where 9 has right child 12.",
-              "• <b>Root `7`</b>: Must be <b>BLACK</b> (Property 2/5).<br>• <b>Node `5` (left child of `7`)</b>: Has two `NIL` children, while `9` has child `12`. If `12` is colored <b>RED</b>, it adds $0$ to the black-height along the right path, allowing both `5` and `9` to be colored <b>BLACK</b> (so every root-to-`NIL` path has black-height $2$).",
+              "• Paths from 7 to a NIL: 7 → 5 (2 real nodes), 7 → 9 (2, through 9's empty left), 7 → 9 → 12 (3).<br>• Root 7 is <b>black</b> (#5); NILs are black (#2).<br>• The shortest paths set the black count at 2: <b>5 black</b>, <b>9 black</b>.<br>• 7 → 9 → 12 has one node too many, so <b>12 is red</b> (its NIL children are black, so #3 holds).<br>• Check: bh(12) = bh(9) = bh(5) = 1, bh(7) = 2; every path from 7 meets 2 blacks below 7.<br>• It is the only valid colouring: 12 black adds a black; 9 red forces 12 black and unequal paths under 9; 5 red forces bh(7) = 1, impossible on the right.",
               "Final 2019 Credit Q3 & Lecture 10 · Slide 10.8"
+            ],
+            [
+              "What is the minimum black-height of a node with height h?",
+              "bh ≥ h/2. By property 3 no red node has a red child, so on any downward path at most every second node is red: at least half the nodes (counting the black NIL) are black. Example (slide 10.4): 7 has h = 4 and bh = 2.",
+              "Lecture 10 · Slide 10.5"
+            ],
+            [
+              "Prove that a Red-Black Tree with n keys has height h ≤ 2 lg(n + 1).",
+              "1. Lemma, by induction on the height of x: the subtree rooted at x has ≥ 2<sup>bh(x)</sup> − 1 internal nodes. Base: x = NIL, bh = 0, 2<sup>0</sup> − 1 = 0. Step: each child has bh ≥ bh(x) − 1, so the subtree has ≥ 2(2<sup>bh(x)−1</sup> − 1) + 1 = 2<sup>bh(x)</sup> − 1.<br>2. By property 3 at least half the nodes on any root-to-leaf path are black, so bh(root) ≥ h/2.<br>3. n ≥ 2<sup>bh(root)</sup> − 1 ≥ 2<sup>h/2</sup> − 1, so lg(n + 1) ≥ h/2, so <b>h ≤ 2 lg(n + 1)</b> = O(lg n).",
+              "Midterm 2025 Q3 · Lecture 10 · Slides 10.5–10.6"
+            ],
+            [
+              "State the worst-case running time of Red-Black Tree operations.",
+              "O(lg n) for Search, Minimum, Maximum, Successor, Predecessor, Insert and Delete. Reason: the height is at most 2 lg(n + 1); the queries walk one path, and Insert/Delete walk one path plus O(lg n) recolouring steps and at most a constant number of rotations (O(1) each).",
+              "Midterm 2016 Q3 / 2017 Q5 / 2018 Q3 · Lecture 10 · Slide 10.7"
+            ],
+            [
+              "Insert 8 into the tree of slide 10.8 (7, 5, 9 black, 12 red). Where does it go, and what colour should it be?",
+              "Where: 8 &gt; 7 go right, 8 &lt; 9 go left; 9's left is NIL, so 8 is the left child of 9. Colour: <b>red</b>. Its parent 9 is black (#3 holds) and a red node changes no black count (#4 holds). Black would make 7 → 9 → 8 → NIL have 3 blacks below 7 against 2.",
+              "Lecture 10 · Slides 10.9–10.11"
+            ],
+            [
+              "Next insert 11. Where does it go, and what colour?",
+              "Where: 11 &gt; 7, 11 &gt; 9, 11 &lt; 12: the left child of 12. Red is impossible (#3: parent 12 is red). Black is impossible (#4: 7 → 9 → 12 → 11 → NIL would have 3 blacks below 7, 7 → 5 → NIL has 2). Solution: recolour the tree: 11 red, 12 and 8 black, 9 red. This is rbInsert's Case 4 (red uncle 8); x moves to 9, whose parent 7 is black, so it stops.",
+              "Lecture 10 · Slides 10.12–10.16"
+            ],
+            [
+              "Next insert 10. Where does it go, and what colour?",
+              "Where: 10 &gt; 7, 10 &gt; 9, 10 &lt; 12, 10 &lt; 11: the left child of 11. Red breaks #3 (11 is red); black breaks #4 (3 blacks below 7 on its path vs 2). No recolouring works either: the path to 10 has 5 nodes and the path to 5 only 2 (5 &gt; 2 × 2). <b>No colour</b>: the tree is too imbalanced, we must change the structure (rotate) to allow recolouring, in O(lg n). rbInsert does Case 3: 11 black, 12 red, rightRotate(12).",
+              "Lecture 10 · Slides 10.17–10.19"
+            ],
+            [
+              "Does rotation preserve inorder key ordering?",
+              "Yes. For rightRotate(y) with x = y->left and subtrees A, B, C: inorder before = A, x, B, y, C; after = A, x, B, y, C. B moves from x's right to y's left but still lies between x and y, so the BST property holds. Example: rotate left about 9 keeps 5, 7, 8, 9, 11, 12.",
+              "Lecture 10 · Slide 10.20"
+            ],
+            [
+              "What would the code for rightRotate() actually do?",
+              "A lot of pointer manipulation: x keeps its left child, y keeps its right child, x's right child becomes y's left child, x's and y's parents change. Code (CLRS): <code>x = y->left; y->left = x->right; if (x->right != NIL) x->right->p = y; x->p = y->p; if (y->p == NIL) root = x; else if (y == y->p->left) y->p->left = x; else y->p->right = x; x->right = y; y->p = x;</code>",
+              "Lecture 10 · Slides 10.20–10.21"
+            ],
+            [
+              "What is the running time of a rotation?",
+              "O(1). It changes a fixed number of pointers (6 writes) whatever the sizes of the subtrees A, B, C; each subtree moves as one block by changing one pointer to it.",
+              "Lecture 10 · Slide 10.21"
+            ],
+            [
+              "Rotate left about 9 in the tree of slide 10.22 (7; 5, 9; 8, 12; 11 under 12).",
+              "leftRotate(9): x = 9, y = 12, B = 11. 9->right = 11, 11->p = 9; 12->p = 7, 7->right = 12; 12->left = 9, 9->p = 12. Result: 7 with children 5 and 12; 12 with left child 9; 9 with children 8 and 11. Inorder stays 5, 7, 8, 9, 11, 12.",
+              "Lecture 10 · Slides 10.22–10.23"
+            ],
+            [
+              "Why does rbInsert colour the new node red, and which property can then be violated?",
+              "Red adds no black to any path, so #4 stays true; only #3 can break, when p[x] is red (and #5 if the tree was empty). Black would break #4 on every insert. The violation is moved up the tree until it can be fixed; total O(lg n).",
+              "Lecture 10 · Slide 10.24"
+            ],
+            [
+              "Explain rbInsert Cases 1, 2 and 3 (x's parent is a left child).",
+              "• <b>Case 1</b>, uncle y red: parent and uncle black, grandparent red, x = grandparent (violation moves 2 levels up; same action whether x is a left or right child).<br>• <b>Case 2</b>, uncle black and x a right child: x = x->p; leftRotate(x), which makes it Case 3.<br>• <b>Case 3</b>, uncle black and x a left child: parent black, grandparent red, rightRotate(grandparent); the loop ends.<br>Each case keeps #4: all downward paths keep the same number of blacks.",
+              "Lecture 10 · Slides 10.27–10.30"
+            ],
+            [
+              "Write the code for Cases 4-6 (x's parent is a right child).",
+              "<code>y = x->p->p->left; if (y->color == RED) { x->p->color = BLACK; y->color = BLACK; x->p->p->color = RED; x = x->p->p; } else { if (x == x->p->left) { x = x->p; rightRotate(x); } x->p->color = BLACK; x->p->p->color = RED; leftRotate(x->p->p); }</code> It is Cases 1-3 with left and right exchanged.",
+              "Lecture 10 · Slide 10.31"
+            ],
+            [
+              "Insert 7, 5, 9, 12, 8, 11, 10 into an empty red-black tree, naming the case at each step.",
+              "7: root, red, then root->color = BLACK. 5, 9: red children of 7, no fix. 12: right of 9, uncle 5 red: Case 4 (9, 5 black, 7 red), root back to black (slide 10.8's tree). 8: left of 9, parent black, no fix. 11: left of 12, uncle 8 red: Case 4 (12, 8 black, 9 red), stops at 9 (parent 7 black). 10: left of 11, parent 11 a left child, uncle NIL black, x a left child: Case 3 (11 black, 12 red, rightRotate(12)). Final: 7B; 5B, 9R; 8B, 11B; 10R, 12R. (The slides show the steps from 8 on.)",
+              "Lecture 10 · Slides 10.8–10.31"
             ]
           ],
           "quiz": [
@@ -3435,19 +6783,19 @@ window.COURSES.algo = {
               "o": [
                 [
                   "The root is red",
-                  "The root is always black."
+                  "Wrong: property 5 says the root is always black. A red root would also be fixed at once by colouring it black."
                 ],
                 [
                   "The root and leaves (NIL) are black",
-                  "Correct! Final Summer Q22: Property 2 states that both the root and all NIL leaves are black."
+                  "Correct (Final Summer Q22): property 5 makes the root black and property 2 makes every leaf (NULL pointer, T.nil) black."
                 ],
                 [
                   "All simple paths from a node to the leaves contain the same total number of red and black nodes",
-                  "Only the number of BLACK nodes (black-height) is equal on all paths, not the combined count of red + black nodes."
+                  "Wrong: property 4 equalises only the BLACK nodes. In slide 10.4, 7 → 3 → NIL has 2 nodes below 7 but 7 → 18 → 10 → 8 → NIL has 4."
                 ],
                 [
                   "A black node must have only red children",
-                  "Final Summer Q6 (False): A black node can have black children, red children, or one of each."
+                  "Wrong (Final Summer Q6 is False): only a red node has a rule about its children. In slide 10.4 black 7 has a black child 3."
                 ]
               ],
               "a": 1,
@@ -3458,44 +6806,857 @@ window.COURSES.algo = {
               "o": [
                 [
                   "Insertion, deletion, finding predecessor, and finding successor (as well as search, min, max)",
-                  "Correct! Final 2021 Q22 & Final 2022 Q36: Because height is O(log n), all dynamic-set dictionary operations run in O(log n) time."
+                  "Correct (Final 2021 Q22, Final 2022 Q36): the height is ≤ 2 lg(n + 1), so every operation that walks one path, plus Insert/Delete with their fix-ups, is O(lg n)."
                 ],
                 [
                   "Only insertion",
-                  "All dictionary operations run in O(log n)."
+                  "Wrong: slide 10.7 lists Minimum, Maximum, Successor, Predecessor and Search as O(lg n) too; Delete is O(lg n) as well."
                 ],
                 [
                   "Only finding predecessor and successor",
-                  "Insertion and deletion also run in O(log n)."
+                  "Wrong: Search, Min, Max, Insert and Delete also run in O(lg n), since all of them follow one root-to-leaf path."
                 ],
                 [
                   "Printing every node in the tree",
-                  "Final Summer Q5 (False): Printing every node in an n-node balanced tree visits all n nodes and takes Θ(n) time, not Θ(log n)."
+                  "Wrong (Final Summer Q5 is False): printing visits all n nodes, so it takes Θ(n) however balanced the tree is."
                 ]
               ],
               "a": 0,
               "src": "Exam · Final 2021 Q22, Final 2022 Q36 & Final Summer Q5"
+            },
+            {
+              "q": "True or false: in a Red-Black Tree, a black node must have only red children.",
+              "o": [
+                [
+                  "True",
+                  "Wrong: property 3 constrains only RED nodes (their children must be black). Nothing restricts a black node: in slide 10.4, black 10 has red children but black 7 has a black child 3."
+                ],
+                [
+                  "False",
+                  "Correct (official answer False): a black node may have red or black children or one of each; e.g. slide 10.8's answer has black 9 with a NIL (black) child and red child 12."
+                ]
+              ],
+              "a": 1,
+              "src": "Exam · Final Summer Q6"
+            },
+            {
+              "q": "True or false: printing every node in a balanced binary search tree takes Θ(lg n) time.",
+              "o": [
+                [
+                  "True",
+                  "Wrong: Θ(lg n) is the cost of walking ONE path (search, min, successor). Printing must output all n keys, so it cannot be faster than n steps."
+                ],
+                [
+                  "False",
+                  "Correct (official answer False): an inorder walk visits every one of the n nodes once, so it takes Θ(n), even when the height is O(lg n)."
+                ]
+              ],
+              "a": 1,
+              "src": "Exam · Final Summer Q5"
+            },
+            {
+              "q": "What is the worst-case running time of Search, Insert and Delete in a red-black tree with n nodes?",
+              "o": [
+                [
+                  "O(lg n)",
+                  "Correct (Midterm 2018 Q3 official key): the height is ≤ 2 lg(n + 1), and Insert/Delete add only O(lg n) recolourings and O(1) rotations."
+                ],
+                [
+                  "O(n)",
+                  "Wrong: O(n) is the worst case of an UNBALANCED BST (a chain). The red-black properties forbid chains because the height stays ≤ 2 lg(n + 1)."
+                ],
+                [
+                  "O(1)",
+                  "Wrong: O(1) is the cost of one rotation, not of a whole operation; finding the place of a key needs a walk of O(lg n) nodes."
+                ],
+                [
+                  "O(n lg n)",
+                  "Wrong: that is the cost of n insertions (building the tree) or of sorting, not of one operation."
+                ]
+              ],
+              "a": 0,
+              "src": "Midterm 2016 Q3 / 2017 Q5 / 2018 Q3"
+            },
+            {
+              "q": "A red-black tree with n internal nodes has height at most:",
+              "o": [
+                [
+                  "2 lg(n + 1)",
+                  "Correct (slides 10.5–10.6): n ≥ 2<sup>h/2</sup> − 1 gives lg(n + 1) ≥ h/2, so h ≤ 2 lg(n + 1)."
+                ],
+                [
+                  "lg(n + 1)",
+                  "Wrong: that is the height of a perfectly balanced tree. Red nodes can double the length of a path, so the bound has a factor 2."
+                ],
+                [
+                  "n − 1",
+                  "Wrong: n − 1 is the height of a chain, the worst case of a plain BST; property 3 and 4 rule chains out."
+                ],
+                [
+                  "h/2",
+                  "Wrong: h/2 is the lower bound on the black-height bh(root), not a bound on the height."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slides 10.5–10.6"
+            },
+            {
+              "q": "What is the minimum black-height of a node with height h?",
+              "o": [
+                [
+                  "h/2",
+                  "Correct (slide 10.5): by #3 no two reds are adjacent, so at least half of the nodes on a downward path are black: bh ≥ h/2."
+                ],
+                [
+                  "h",
+                  "Wrong: bh = h only if every node on the path is black; red nodes are allowed, so bh can be smaller."
+                ],
+                [
+                  "lg h",
+                  "Wrong: nothing logarithmic appears here; the reds can at most halve the black count, they cannot shrink it to lg h."
+                ],
+                [
+                  "1",
+                  "Wrong: bh = 1 would allow a long path with many reds in a row, which property 3 forbids for any h ≥ 3."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.5"
+            },
+            {
+              "q": "Colour slide 10.8's tree (root 7; children 5 and 9; 12 the right child of 9). Which node is red?",
+              "o": [
+                [
+                  "12",
+                  "Correct: 7 → 5 and 7 → 9 have 2 nodes, so every path has 2 black real nodes; 7 → 9 → 12 has 3, so its extra node 12 must be red."
+                ],
+                [
+                  "9",
+                  "Wrong: a red 9 forces 12 black (#3), and then 9 → NIL (1 black) and 9 → 12 → NIL (2 blacks) break #4."
+                ],
+                [
+                  "5",
+                  "Wrong: a red 5 makes 7 → 5 → NIL have 1 black below 7, so the right side would also need 1, forcing 9 red, which fails as shown."
+                ],
+                [
+                  "7",
+                  "Wrong: 7 is the root, and property 5 says the root is always black."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.8"
+            },
+            {
+              "q": "Insert 8 into slide 10.8's tree. Where does it go and what colour is it?",
+              "o": [
+                [
+                  "Left child of 9, red",
+                  "Correct (slides 10.10–10.11): 8 > 7, 8 < 9, so it lands at 9's empty left; red is fine because 9 is black and a red node adds no black."
+                ],
+                [
+                  "Left child of 9, black",
+                  "Wrong colour: a black 8 would give 7 → 9 → 8 → NIL 3 blacks below 7 against 2 on every other path (#4)."
+                ],
+                [
+                  "Left child of 12, red",
+                  "Wrong place: 8 &lt; 9, so the walk turns left at 9 and never reaches 12. (11 is the key that goes under 12.)"
+                ],
+                [
+                  "Right child of 5, red",
+                  "Wrong place: 8 > 7, so the walk turns right at the root; 5 is in the left subtree with keys smaller than 7."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slides 10.9–10.11"
+            },
+            {
+              "q": "After 8, key 11 is inserted as the left child of red 12. Why can't 11 be red?",
+              "o": [
+                [
+                  "Property 3: its parent 12 is red",
+                  "Correct (slide 10.14): a red node must have two black children, so a red 11 under red 12 makes two reds in a row."
+                ],
+                [
+                  "Property 4: black counts differ",
+                  "Wrong: that is why 11 cannot be BLACK (slide 10.15). A red node changes no black count."
+                ],
+                [
+                  "Property 5: the root must be black",
+                  "Wrong: 11 is a leaf deep in the tree, not the root; #5 is about the root 7 only."
+                ],
+                [
+                  "Property 2: leaves must be black",
+                  "Wrong: property 2 is about the NIL leaves (NULL pointers), not about real nodes like 11."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.14"
+            },
+            {
+              "q": "Why can't 11 be black there?",
+              "o": [
+                [
+                  "Property 4: the path through 11 would have one black too many",
+                  "Correct (slide 10.15): 7 → 9 → 12 → 11 → NIL would meet 3 blacks below 7 (9, 11, NIL) while 7 → 5 → NIL meets 2."
+                ],
+                [
+                  "Property 3: a black node may not have a red parent",
+                  "Wrong: #3 restricts the children of red nodes; a black child under red 12 is exactly what #3 wants."
+                ],
+                [
+                  "Property 1: 11 would have no colour",
+                  "Wrong: black is a colour; property 1 only says each node is red or black."
+                ],
+                [
+                  "Property 5: the root must be black",
+                  "Wrong: the root 7 stays black whatever colour 11 gets; the problem is the black count on 11's paths."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.15"
+            },
+            {
+              "q": "Slide 10.16 solves the insertion of 11 by recolouring. Which colouring does it give?",
+              "o": [
+                [
+                  "9 red; 8 and 12 black; 11 red",
+                  "Correct: this is Case 4 (red uncle 8): parent 12 and uncle 8 black, grandparent 9 red. Every path from 7 again meets 2 blacks below 7."
+                ],
+                [
+                  "9 black; 8 and 12 red; 11 black",
+                  "Wrong: that is the old colouring with 11 black, which breaks #4 (3 blacks on the path through 11)."
+                ],
+                [
+                  "7 red; 9 black; 12 black; 11 red",
+                  "Wrong: the root must stay black (#5); the slide never touches 7."
+                ],
+                [
+                  "All of 9, 8, 12, 11 black",
+                  "Wrong: the paths through 9 would then meet 3 or 4 blacks below 7 while 7 → 5 → NIL meets 2 (#4)."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.16"
+            },
+            {
+              "q": "Slide 10.19: what colour can 10 (left child of red 11) be?",
+              "o": [
+                [
+                  "No colour: the tree is too imbalanced, its structure must change",
+                  "Correct: red breaks #3, black breaks #4, and the 5-node path vs the 2-node path 7 → 5 makes every recolouring fail; a rotation is needed, in O(lg n)."
+                ],
+                [
+                  "Red, after recolouring 11 black",
+                  "Wrong: 11 black (with 12 black above it) adds a black to the paths through 11 only, so #4 breaks; the path is simply too long."
+                ],
+                [
+                  "Black",
+                  "Wrong: a black 10 gives 7 → 9 → 12 → 11 → 10 → NIL 3 blacks below 7 against 2 on 7 → 5 → NIL (#4)."
+                ],
+                [
+                  "Red, with no change",
+                  "Wrong: its parent 11 is red, so a red 10 breaks property 3 (two reds in a row)."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.19"
+            },
+            {
+              "q": "True or false: a rotation preserves the inorder ordering of the keys.",
+              "o": [
+                [
+                  "True",
+                  "Correct (slide 10.20): inorder is A, x, B, y, C both before and after rightRotate(y); B stays between x and y."
+                ],
+                [
+                  "False",
+                  "Wrong: if a rotation changed the order, the tree would stop being a BST; rotations are used precisely because they keep it (5, 7, 8, 9, 11, 12 on slides 10.22–10.23)."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.20"
+            },
+            {
+              "q": "In rightRotate(y) with x = y->left, what happens to x's right child?",
+              "o": [
+                [
+                  "It becomes y's left child",
+                  "Correct (slide 10.21): B moves from x's right to y's left; y->left = x->right and B->p = y."
+                ],
+                [
+                  "It stays x's right child",
+                  "Wrong: x's right slot is needed for y itself (x->right = y). It is x's LEFT child A that x keeps."
+                ],
+                [
+                  "It becomes y's right child",
+                  "Wrong: y keeps its right child C (slide 10.21); B goes to y's left, the slot x left free."
+                ],
+                [
+                  "It becomes the new root",
+                  "Wrong: x takes y's place (and becomes the root only if y was the root); B moves down under y."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.21"
+            },
+            {
+              "q": "What is the running time of a rotation?",
+              "o": [
+                [
+                  "O(1)",
+                  "Correct (slide 10.21): a constant number of pointer changes (6 writes), independent of the subtree sizes."
+                ],
+                [
+                  "O(lg n)",
+                  "Wrong: O(lg n) is the cost of walking a path (insert, search); one rotation does not walk at all."
+                ],
+                [
+                  "O(n)",
+                  "Wrong: subtrees A, B, C move as whole blocks by changing one pointer each; no node inside them is visited."
+                ],
+                [
+                  "O(h²)",
+                  "Wrong: no loop at all in rotate; the code is a straight list of about 10 assignments."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.21"
+            },
+            {
+              "q": "Rotate left about 9 in slide 10.22's tree (9 has children 8 and 12; 12 has left child 11). Which is the result?",
+              "o": [
+                [
+                  "12 under 7; 9 is 12's left child; 9's children are 8 and 11",
+                  "Correct (slide 10.23): leftRotate(9) lifts 9's right child 12, and 12's old left child 11 becomes 9's right child."
+                ],
+                [
+                  "8 under 7; 9 is 8's right child",
+                  "Wrong: that is rightRotate(9), which lifts the LEFT child 8. A left rotation lifts the right child."
+                ],
+                [
+                  "12 under 7; 9 is 12's left child; 11 is 12's right child",
+                  "Wrong: 11 cannot stay at 12, because 12's left slot is taken by 9; and 11 &lt; 12 could not be its right child."
+                ],
+                [
+                  "11 under 7 with children 9 and 12",
+                  "Wrong: that needs two rotations (it is the shape a double rotation would give); one left rotation only lifts 12."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slides 10.22–10.23"
+            },
+            {
+              "q": "After treeInsert(x) and x->color = RED, which red-black property might be violated?",
+              "o": [
+                [
+                  "Only property 3, if x's parent is red",
+                  "Correct (slide 10.24): a red node adds no black, so #4 holds; the only possible fault is a red-red pair x and p[x]."
+                ],
+                [
+                  "Only property 4",
+                  "Wrong: #4 breaks if the new node is BLACK; that is exactly why rbInsert colours it red."
+                ],
+                [
+                  "Properties 3 and 4 together",
+                  "Wrong: colouring x red keeps every black count, so #4 is safe; only #3 is at risk."
+                ],
+                [
+                  "None: a red leaf never breaks anything",
+                  "Wrong: slide 10.14 shows it: 11 red under red 12 breaks #3."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.24"
+            },
+            {
+              "q": "In rbInsert, with x->p a left child, what is y = x->p->p->right?",
+              "o": [
+                [
+                  "The uncle of x",
+                  "Correct: x->p->p is the grandparent, and its right child is the parent's sibling, the uncle (slide 10.26 tests its colour for Case 1)."
+                ],
+                [
+                  "The parent of x",
+                  "Wrong here: x->p is the LEFT child, so the right child of the grandparent is the other child. (It would be the parent if x->p were a right child.)"
+                ],
+                [
+                  "The grandparent of x",
+                  "Wrong: the grandparent is x->p->p itself; ->right takes one more hop down."
+                ],
+                [
+                  "The sibling of x",
+                  "Wrong: x's sibling is x->p's other child (x->p->right or ->left), one level lower than the uncle."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slides 10.25–10.26"
+            },
+            {
+              "q": "Case 1 of rbInsert applies when:",
+              "o": [
+                [
+                  "x's uncle is red",
+                  "Correct (slide 10.26: \"Case 1: uncle is RED\"): then recolouring alone works: parent and uncle black, grandparent red."
+                ],
+                [
+                  "x's uncle is black and x is a right child",
+                  "Wrong: that is Case 2 (slide 10.29), which needs a left rotation."
+                ],
+                [
+                  "x's uncle is black and x is a left child",
+                  "Wrong: that is Case 3 (slide 10.30): recolour and rotate right."
+                ],
+                [
+                  "x's parent is black",
+                  "Wrong: then the while loop does not even run, because nothing is violated."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slides 10.26–10.27"
+            },
+            {
+              "q": "What does Case 1 do?",
+              "o": [
+                [
+                  "Parent and uncle black, grandparent red, x = grandparent",
+                  "Correct (slide 10.27): only colours change, #4 is preserved, and the loop continues two levels higher."
+                ],
+                [
+                  "Parent black, grandparent red, rightRotate(grandparent)",
+                  "Wrong: that is Case 3. Case 1 never rotates; with a red uncle a recolouring suffices."
+                ],
+                [
+                  "x = x->p; leftRotate(x)",
+                  "Wrong: that is Case 2, used when the uncle is BLACK and x is a right child."
+                ],
+                [
+                  "x black and stop",
+                  "Wrong: a black x adds a black to its paths and breaks #4; rbInsert never recolours x itself black."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slides 10.27–10.28"
+            },
+            {
+              "q": "Case 2 (uncle black, x a right child) does:",
+              "o": [
+                [
+                  "x = x->p; leftRotate(x), turning it into Case 3",
+                  "Correct (slide 10.29): the left rotation makes x (now the old parent) a left child, and the code continues with Case 3."
+                ],
+                [
+                  "x = x->p; rightRotate(x)",
+                  "Wrong: that is Case 5, the mirror used when x's parent is a RIGHT child and x a left child."
+                ],
+                [
+                  "Recolour parent and uncle black",
+                  "Wrong: that is Case 1, which needs a RED uncle."
+                ],
+                [
+                  "rightRotate(x->p->p) only",
+                  "Wrong: a right rotation of the grandparent on a bent path would leave the red-red pair; first straighten it with leftRotate."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.29"
+            },
+            {
+              "q": "Case 3 (uncle black, x a left child of a left child) does:",
+              "o": [
+                [
+                  "x->p black, x->p->p red, rightRotate(x->p->p)",
+                  "Correct (slide 10.30): \"change colors; rotate right\". B ends black on top with red children A and C, and the loop stops."
+                ],
+                [
+                  "x->p black, x->p->p red, leftRotate(x->p->p)",
+                  "Wrong: that is Case 6, the mirror for a right child of a right child."
+                ],
+                [
+                  "x->p red, x->p->p black, rightRotate(x->p)",
+                  "Wrong colours and wrong node: the rotation is about the grandparent, and the parent becomes BLACK."
+                ],
+                [
+                  "Only recolour, no rotation",
+                  "Wrong: with a black uncle recolouring alone breaks #4; the rotation is needed (slide 10.19 shows why)."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.30"
+            },
+            {
+              "q": "When do Cases 4-6 apply?",
+              "o": [
+                [
+                  "When x's parent is a right child",
+                  "Correct (slide 10.31): Cases 1-3 hold if x's parent is a left child; otherwise the symmetric Cases 4-6 (left and right swapped)."
+                ],
+                [
+                  "When x's uncle is NIL",
+                  "Wrong: a NIL uncle is simply black (T.nil), which leads to Case 2/3 or 5/6 depending on the side."
+                ],
+                [
+                  "When x is the root",
+                  "Wrong: when x is the root the while loop stops; no case applies."
+                ],
+                [
+                  "After a deletion",
+                  "Wrong: these are insertion cases. Deletion has its own fix-up (not covered here, slide 10.32)."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.31"
+            },
+            {
+              "q": "Slide 10.7: which operations follow directly from h = O(lg n) with no special care?",
+              "o": [
+                [
+                  "Minimum, Maximum, Successor, Predecessor, Search",
+                  "Correct: they only read the tree and walk one path, so they cost O(h) = O(lg n)."
+                ],
+                [
+                  "Insert and Delete",
+                  "Wrong: they also take O(lg n), but the slide says they need special care because they modify the tree."
+                ],
+                [
+                  "Rotations",
+                  "Wrong: rotations are O(1) and are tools used inside Insert/Delete, not consequences of the height bound."
+                ],
+                [
+                  "Printing all keys",
+                  "Wrong: printing visits all n nodes, Θ(n) (Final Summer Q5)."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 10 · Slide 10.7"
             }
           ],
           "extra": [
             {
-              "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 10?",
+              "q": "In slide 10.4's tree, what is bh(18)? (18 is red; below it 10 black with red children 8, 11; 22 black with red child 26.)",
               "o": [
                 [
-                  "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-                  "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
+                  "2",
+                  "Correct: from 18 a path meets 10 (or 22) and the NIL: 2 blacks. 18 itself is not counted (and it is red anyway)."
                 ],
                 [
-                  "The algorithm requires O(2ⁿ) exponential space in the best case",
-                  "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
+                  "3",
+                  "Wrong: this counts 18 too. bh(x) never counts x itself, and 18 is red, so it would not count anyway."
                 ],
                 [
-                  "The algorithm only works when n ≤ 10",
-                  "False — Asymptotic analysis applies as n → ∞."
+                  "1",
+                  "Wrong: this forgets the NIL leaf. The NIL is black and is counted, so the path 18 → 10 → 8 → NIL gives 2."
                 ],
                 [
-                  "Correctness does not depend on loop invariants or optimal substructure",
-                  "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
+                  "4",
+                  "Wrong: 4 is the number of edges on the path 18 → 10 → 8 → NIL plus one; bh counts black nodes only."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "A red-black tree has 15 internal nodes. What is the largest height the theorem allows?",
+              "o": [
+                [
+                  "8",
+                  "Correct: h ≤ 2 lg(n + 1) = 2 lg 16 = 2 × 4 = 8."
+                ],
+                [
+                  "4",
+                  "Wrong: lg(n + 1) = 4 is the height of a perfect tree; the theorem allows twice that because of red nodes."
+                ],
+                [
+                  "15",
+                  "Wrong: 15 (or 14) is the height of a chain, which the red-black properties rule out."
+                ],
+                [
+                  "7.8",
+                  "Wrong: this uses 2 lg 15 ≈ 7.81; the bound is 2 lg(n + 1) with n + 1 = 16."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "By the lemma, a node with black-height 3 has at least how many internal nodes in its subtree?",
+              "o": [
+                [
+                  "7",
+                  "Correct: the lemma says size ≥ 2<sup>bh</sup> − 1, and with bh = 3 that is 2<sup>3</sup> − 1 = 8 − 1 = 7 internal nodes."
+                ],
+                [
+                  "8",
+                  "Wrong: 2<sup>3</sup> = 8 forgets the − 1 (a bh-1 node can have just 1 internal node: 2<sup>1</sup> − 1 = 1)."
+                ],
+                [
+                  "3",
+                  "Wrong: bh itself is not a node count; each black level at least doubles the count."
+                ],
+                [
+                  "15",
+                  "Wrong: 15 = 2<sup>4</sup> − 1 is the bound for bh = 4, one black level more than asked."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Using the colouring method on slide 10.19's tree, why does no colouring exist?",
+              "o": [
+                [
+                  "Longest path 5 nodes > 2 × shortest path 2 nodes",
+                  "Correct: a 5-node path starting with a black root has at least ⌈5/2⌉ = 3 blacks, but the path 7 → 5 can hold at most 2."
+                ],
+                [
+                  "11 and 12 are both red",
+                  "Wrong: that is a fault of the current colours only; the question is whether ANY colouring exists, and the path lengths decide it."
+                ],
+                [
+                  "The tree has an even number of nodes",
+                  "Wrong: node count parity has nothing to do with it; slide 10.4's tree has 8 nodes and is valid."
+                ],
+                [
+                  "The root has only one child",
+                  "Wrong: 7 has two children (5 and 9); and NIL children are allowed anyway."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "In slide 10.16's tree with x = 11, what is x->p->p->right?",
+              "o": [
+                [
+                  "12, the parent of x",
+                  "Correct: x->p = 12, x->p->p = 9, and 9's right child is 12. That is why the code first tests whether x->p is a left child."
+                ],
+                [
+                  "8, the uncle",
+                  "Wrong: 8 is 9's LEFT child, x->p->p->left. The uncle is x->p->p->right only when x->p is a left child."
+                ],
+                [
+                  "9, the grandparent",
+                  "Wrong: 9 is x->p->p; ->right moves one more step down."
+                ],
+                [
+                  "NIL",
+                  "Wrong: 12->right is NIL, but the chain asks for the right child of 9, not of 12."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Inserting 10 into slide 10.19's situation (parent 11 red, a left child of 12, uncle NIL): which case does rbInsert apply?",
+              "o": [
+                [
+                  "Case 3",
+                  "Correct: x->p = 11 is a left child, uncle 12->right = NIL is black, and 10 is a left child, so no Case 2: recolour 11 black, 12 red, rightRotate(12)."
+                ],
+                [
+                  "Case 1",
+                  "Wrong: Case 1 needs a red uncle; the uncle here is NIL (T.nil), which is black."
+                ],
+                [
+                  "Case 2",
+                  "Wrong: Case 2 needs x to be a RIGHT child; 10 &lt; 11 is a left child."
+                ],
+                [
+                  "Case 6",
+                  "Wrong: Cases 4-6 are used when x's parent is a RIGHT child; 11 is 12's left child."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "After rbInsert(10) on slide 10.19's tree, which node is 9's right child?",
+              "o": [
+                [
+                  "11 (black), with red children 10 and 12",
+                  "Correct: Case 3 colours 11 black, 12 red and rightRotate(12) lifts 11 into 12's place under 9."
+                ],
+                [
+                  "12 (black), with left child 11",
+                  "Wrong: that is the tree before the fix; the rotation moves 12 down."
+                ],
+                [
+                  "10 (black), with children 11 and 12",
+                  "Wrong: 10 &lt; 11 &lt; 12 means 10 cannot have 11 as a child on both sides; one right rotation lifts 11, not 10."
+                ],
+                [
+                  "11 (red), with black children 10 and 12",
+                  "Wrong colours: Case 3 makes the new top black (11) and the two below red, keeping 2 blacks below 7."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Insert 7, 5, 9, 12 into an empty red-black tree with rbInsert. Which case fires when 12 is inserted?",
+              "o": [
+                [
+                  "Case 4 (the uncle 5 is red)",
+                  "Correct: 12's parent 9 is red and a right child, the uncle 7->left = 5 is red, so the mirror of Case 1 recolours 9, 5 black and 7 red, then the root is recoloured black."
+                ],
+                [
+                  "Case 1",
+                  "Wrong number: Case 1 is for a parent that is a LEFT child; 9 is 7's right child, so the mirror Case 4 is used."
+                ],
+                [
+                  "Case 6",
+                  "Wrong: Case 6 needs a BLACK uncle (and rotates); here the uncle 5 is red, so recolouring is enough."
+                ],
+                [
+                  "No fix is needed",
+                  "Wrong: 12 is red under red 9, which breaks property 3."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Insert 13 into slide 10.8's tree (7, 5, 9 black, 12 red). What happens?",
+              "o": [
+                [
+                  "Case 6: 12 black, 9 red, leftRotate(9)",
+                  "Correct: 13 is a right child of red 12, which is a right child; the uncle 9->left is NIL (black). Result: 12 under 7 with red children 9 and 13."
+                ],
+                [
+                  "Case 4: recolour 12 and 9",
+                  "Wrong: Case 4 needs a red uncle; 13's uncle is 9->left = NIL, which is black."
+                ],
+                [
+                  "Case 5, then Case 6",
+                  "Wrong: Case 5 is for a LEFT child under a right child (a bend); 13 &gt; 12 makes a straight line."
+                ],
+                [
+                  "No fix: 13 is red under black 9",
+                  "Wrong: 13 goes under 12 (13 &gt; 12), and 12 is red."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Insert 10 into slide 10.8's tree (without 8 and 11). Which cases fire?",
+              "o": [
+                [
+                  "Case 5, then Case 6",
+                  "Correct: 10 is the left child of red 12, a right child, with a NIL uncle: rightRotate(12) (Case 5), then 10 black, 9 red, leftRotate(9) (Case 6). 10 ends on top."
+                ],
+                [
+                  "Case 2, then Case 3",
+                  "Wrong: Cases 2-3 are for a parent that is a LEFT child; 12 is 9's right child, so the mirrors 5-6 are used."
+                ],
+                [
+                  "Case 6 only",
+                  "Wrong: 10 is a LEFT child of 12, a bend, so it must first be straightened by Case 5."
+                ],
+                [
+                  "Case 4",
+                  "Wrong: the uncle (9->left) is NIL, black, so recolouring alone is not allowed."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "rightRotate(y) with x = y->left: which pointer does NOT change?",
+              "o": [
+                [
+                  "x->left",
+                  "Correct: x keeps its left child A (slide 10.21). Likewise y->right keeps C."
+                ],
+                [
+                  "x->right",
+                  "Wrong: x->right changes from B to y, because y goes under x as its right child."
+                ],
+                [
+                  "y->left",
+                  "Wrong: y->left changes from x to B (x's old right child)."
+                ],
+                [
+                  "y->p",
+                  "Wrong: y->p changes from its old parent to x (\"x's and y's parents change\")."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "How many pointer writes does rightRotate(y) do when B is not NIL and y is not the root?",
+              "o": [
+                [
+                  "6",
+                  "Correct: y->left, B->p, x->p, the old parent's child field, x->right and y->p: three edges, two pointers each."
+                ],
+                [
+                  "3",
+                  "Wrong: 3 is the number of edges that change; each edge is stored twice (down and up), so 6 writes."
+                ],
+                [
+                  "4",
+                  "Wrong: this forgets the parent links (B->p and y->p or x->p); every changed edge needs its up pointer too."
+                ],
+                [
+                  "n",
+                  "Wrong: subtrees move as blocks; the count is a constant, which is why rotation is O(1)."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Start from root 7 (black) with red children 5 and 9, and insert 12 with the slide's rbInsert code (it has no final root->color = BLACK). What is wrong afterwards?",
+              "o": [
+                [
+                  "The root 7 is red",
+                  "Correct: the parent 9 and uncle 5 are both red, so Case 4 colours 9 and 5 black and 7 red, and x moves up to 7. x is the root, so the loop stops, and with no root->color = BLACK line the root stays red."
+                ],
+                [
+                  "12 is black",
+                  "Wrong: 12 is inserted red, and Case 4 recolours its parent 9, its uncle 5 and the grandparent 7, never x itself, so 12 stays red."
+                ],
+                [
+                  "9 and 12 are both red",
+                  "Wrong: Case 4 turns the parent 9 black, so the red-red pair between 9 and 12 is gone after the fix."
+                ],
+                [
+                  "Nothing, the tree is valid",
+                  "Wrong: the root 7 ends up red, which breaks the root-is-black property. Only CLRS's last line root->color = BLACK repairs it, and the slide's code has no such line."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Why is the T.nil sentinel useful in rbInsert?",
+              "o": [
+                [
+                  "y->color can be read even when the uncle is \"no node\": it is BLACK",
+                  "Correct: T.nil is a real node with color BLACK, so Case 1's test y->color == RED needs no NULL check."
+                ],
+                [
+                  "It stores the number of nodes",
+                  "Wrong: T.nil holds no data; its only important field is its black colour (and a parent pointer)."
+                ],
+                [
+                  "It makes the tree balanced",
+                  "Wrong: balance comes from the five properties and the fix-up cases, not from the sentinel."
+                ],
+                [
+                  "It is red, so new nodes can attach to it",
+                  "Wrong: leaves are BLACK by property 2; a red T.nil would break #3 under every red node."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Which shape after a single rotation can still have no valid colouring, as slide 10.23 shows?",
+              "o": [
+                [
+                  "7; 5, 12; 9 under 12; 8, 11 under 9",
+                  "Correct: 7 → 12 → NIL has 2 nodes, forcing 12 black, so 7 → 12 → 9 → 8 would need red 9 and red 8 in a row: impossible. Rotations need recolouring too."
+                ],
+                [
+                  "7; 5, 9; 8, 12 (before adding 11)",
+                  "Wrong: this shape can be coloured (e.g. 5, 9 black, 8, 12 red; 7 black)."
+                ],
+                [
+                  "7; 5, 9; 12 under 9",
+                  "Wrong: this is slide 10.8's tree, coloured validly with 12 red."
+                ],
+                [
+                  "7; 5, 9; 8, 11 under 9; 10, 12 under 11",
+                  "Wrong: this is the final tree after rbInsert(10) (Case 3), valid with 9, 10, 12 red and 7, 5, 8, 11 black."
                 ]
               ],
               "a": 0
@@ -3505,7 +7666,7 @@ window.COURSES.algo = {
         {
           "n": 11,
           "code": "Lec 11",
-          "title": "Lecture 11: Red-Black Trees — Full Insertion Traces (Exam Workouts) & Deletion Fixup (rbTreeFix Cases 1–4)",
+          "title": "Lecture 11: Red-Black Trees, Insertion Traces (with Exam Workouts) and Deletion with rbTreeFix Cases 1–4",
           "videos": [
             {
               "id": "O3hI9FdxFOM",
@@ -3524,53 +7685,439 @@ window.COURSES.algo = {
           ],
           "notes": [
             {
-              "h": "Complete Slide & Exam Insertion Traces (Slides 11.1–11.14)",
+              "h": "Before you start: deleting a key from a plain binary search tree",
               "pts": [
-                "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(B), 93(R)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `71`, colored <b>RED</b> (parent black $\\implies$ valid).</li><li><b>Insert `82`</b>: Placed as left child of red `93` under black `71`, with red uncle `65` $\\implies$ <b>Case 1 (Uncle `65` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED (its parent `47` is black, so the loop stops).</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `93`, with a `NIL` (black) uncle and `87` an inner child $\\implies$ <b>Case 2 then Case 3</b>: left-rotate `82`, then recolor `87` BLACK and `93` RED and right-rotate `93`. Result: `71`(R) with children `65`(B) and `87`(B), and `87` has red children `82` and `93`.</li></ul>",
-                "<b>Final Exam Workout 1: Insert `(2, 1, 4, 5, 9, 3, 6, 7)` into an Empty Red-Black Tree (Final 2016 Q4 & Final 5 Q4)</b>:<ul><li>1. <b>Insert `2`</b>: `2(B)` is root.</li><li>2. <b>Insert `1`</b>: Left child of `2`, colored `1(R)`.</li><li>3. <b>Insert `4`</b>: Right child of `2`, colored `4(R)`. Tree: `2(B)` with children `1(R), 4(R)`.</li><li>4. <b>Insert `5`</b>: Right child of `4(R)`. Uncle `1(R)` is RED (<b>Case 1</b>) $\\implies$ recolor `1(B), 4(B)`, grandparent `2` stays `2(B)` (root).</li><li>5. <b>Insert `9`</b>: Right child of `5(R)` under `4(B)` with `NIL(B)` uncle (<b>Case 3 RR line</b>) $\\implies$ left-rotate `4(B)` and recolor `5(B)` and `4(R), 9(R)`.</li><li>6. <b>Insert `3`</b>: Left child of `4(R)` under `5(B)` with red uncle `9(R)` (<b>Case 1</b>) $\\implies$ recolor `4(B), 9(B)` and `5(R)`.</li><li>7. <b>Insert `6`</b>: Left child of `9(B)`, colored `6(R)`.</li><li>8. <b>Insert `7`</b>: Right child of `6(R)` under `9(B)` with `NIL(B)` uncle (<b>Case 2 LR triangle $\\to$ Case 3</b>) $\\implies$ left-rotate `6(R)`, right-rotate `9(B)`, recolor `7(B)` and `9(R)`!</li></ul>",
-                "<b>Final Exam Workout 2: Insert `(5, 1, 4, 10, 9, 20, 6, 7)` (Final 2018 I Q4, Final 2018 II Q7 & Exam Examples Q7)</b>:<ul><li>1. `5(B)` $\\to$ 2. `1(R)` left of `5` $\\to$ 3. `4(R)` right of `1(R)` (<b>Case 2+3 LR</b>: left-rotate `1`, right-rotate `5` $\\to$ root becomes `4(B)` with `1(R)` and `5(R)`!).</li><li>4. `10(R)` right of `5(R)` (<b>Case 1</b>: recolor `1(B), 5(B)`).</li><li>5. `9(R)` left of `10(R)` (<b>Case 2+3 RL</b>: right-rotate `10`, left-rotate `5` $\\to$ `9(B)` with `5(R), 10(R)`).</li><li>6. `20(R)` right of `10(R)` (<b>Case 1</b>: recolor `5(B), 10(B), 9(R)`).</li><li>7. `6(R)` right of `5(B)` $\\to$ 8. `7(R)` right of `6(R)` (<b>Case 3 RR</b>: left-rotate `5(B)` $\\to$ `6(B)` with `5(R), 7(R)`). Final root `4(B)` has $bh = 2$.</li></ul>"
+                "A <b>binary search tree</b> (BST) keeps, at every node, smaller keys in the left subtree and larger keys in the right subtree. Example: root 50; left child 30 (children 20 and 40, and 40 has a left child 35); right child 70 (children 60 and 80).",
+                "An <b>inorder walk</b> (left subtree, node, right subtree) lists the keys in sorted order: 20, 30, 35, 40, 50, 60, 70, 80. Any deletion must keep this order sorted.",
+                "To delete key k, first <b>search</b> for its node z: compare k with the current key, go left if smaller, right if larger. Delete 60: 60 > 50 go right, 60 < 70 go left, found.",
+                "What happens next depends on how many real children z has. There are three cases:<ul><li><b>Leaf</b> (no children): cut it off; its parent's pointer becomes NIL. Delete 60: 70's left pointer becomes NIL.</li><li><b>One child</b>: splice z out; its only child moves up into z's place. Delete 40: its child 35 becomes 30's right child.</li><li><b>Two children</b>: z cannot be cut out (two subtrees, one free pointer). Copy a neighbour key into z and delete that neighbour instead.</li></ul>",
+                "Why case 2 is safe: 35 was inside 30's right subtree, so 35 > 30 and 35 < 50. Putting 35 where 40 was keeps every BST comparison true.",
+                "The neighbour in case 3 is the <b>inorder predecessor</b> (the largest key in z's left subtree: go left once, then right until there is no right child) or the <b>inorder successor</b> (the smallest key in the right subtree: go right once, then left until there is no left child).",
+                "Example, delete 50: predecessor = 40 (left to 30, right to 40, 40 has no right child). Copy 40 into the root node, then delete the old 40 node: it has one child (35), so case 2 applies. Inorder afterwards: 20, 30, 35, 40, 60, 70, 80. With the successor, 60 would go to the root instead.",
+                "Key fact: the predecessor has <b>no right child</b> (otherwise that child would be larger) and the successor has no left child. So the node really removed has <b>at most one real child</b>. Slide 11.15 relies on exactly this.",
+                "Which one the slides use: the code on slide 11.25 says <code>y = successor(z); // or predecessor</code>, and all three deletion examples (slides 11.17-11.29) use the <b>predecessor</b>. The notes follow the examples: predecessor.",
+                "Finding the predecessor or the successor needs no key comparisons, only \"go left / go right until NIL\" (asked in Final Summer Q13, see the quiz). Each walk is at most the height of the tree."
+              ],
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "fig": [
+                "ag-11-bstdel"
+              ],
+              "figAt": {
+                "ag-11-bstdel": 7
+              },
+              "figH": {
+                "ag-11-bstdel": "Plain BST deletion: a leaf, a node with one child, a node with two children (predecessor)"
+              }
+            },
+            {
+              "h": "Before you start: TRANSPLANT, the replacement node x, its sibling and its nephews",
+              "pts": [
+                "<b>TRANSPLANT</b> (CLRS name ‡) means: replace the subtree rooted at node y by the subtree rooted at node x. Two pointers change: y's parent now points to x, and x's parent becomes y's parent. If y was the root, x becomes the root.",
+                "The slides do not call it TRANSPLANT, but slide 11.26 does exactly this: <code>x.setParent(y.getParent())</code>, then <code>y.getParent().setLeft(x)</code> or <code>setRight(x)</code>, or <code>root = x</code> when y was the root.",
+                "A <b>parent pointer</b> is a link from each node up to its parent (<code>getParent()</code> / <code>setParent()</code> in the slides; null for the root). Child pointers go down, parent pointers go up, and every pointer change must update both directions.",
+                "Example: left-rotating 82 (slides 11.8 → 11.9) changes the parent of 87 (from 82 to 93) and of 82 (from 93 to 87); 87's left subtree, if it existed, would get 82 as its new parent. Forgetting one of these breaks the later walks up the tree (x = x.getParent()).",
+                "In the slides' <code>rbDelete</code>, <b>z</b> is the node holding the key to delete.",
+                "<b>y</b> is the node that is physically removed: z itself if z has at most one child, otherwise z's predecessor / successor.",
+                "<b>x</b> is y's only child, the replacement node that moves into y's place.",
+                "If y has no real child, x would be null. The slides then create a <b>pretend node</b>: a black node with no data (<code>new TreeNode&lt;T&gt;(null)</code>, colour black) that stands in for the NIL leaf, so the fix-up has a real object with a parent pointer to work on. It is detached again at the end (slide 11.26).",
+                "The <b>sibling</b> of x is the other child of x's parent. CLRS calls it <b>w</b> ‡. Careful with letters in this lecture: the slides' <code>rbTreeFix</code> code calls the sibling <b>y</b> (a new meaning; in <code>rbDelete</code> y was the removed node), and the case pictures on slides 11.33-11.36 call it z or w.",
+                "The sibling's two children are x's <b>nephews</b>. The <b>near nephew</b> is the one on x's side (if x is a left child: the sibling's left child); the <b>far nephew</b> is on the other side (the sibling's right child).",
+                "Example (deletion example 3 after the first fix step, slide 11.28): x is the pretend node, left child of 47. Its sibling is 65, and x's nephews are 65's two NIL children, both black.",
+                "NIL leaves count as <b>black</b> (property 2), so a missing child is a black nephew. The slides' code writes <code>y.getLeft().getColor()</code>; read it as \"black if the child is NIL\" ‡."
+              ],
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
+            },
+            {
+              "h": "Before you start: the extra black token, and why only black deletions need fixing",
+              "pts": [
+                "The course's four red-black properties (Lecture 9): <ul><li>1. Every node is either red or black.</li><li>2. The root and the leaves (NILs) are black.</li><li>3. If a node is red, its parent is black (no two reds in a row).</li><li>4. All simple paths from any node x to a descendant leaf have the same number of black nodes, the <b>black-height</b> bh(x).</li></ul>",
+                "Slide 11.16 uses these numbers: removing a black node breaks <b>property 4</b>; a doubly black node breaks <b>property 1</b>.",
+                "Count black nodes on every path from the root to a NIL leaf in the slides' deletion tree (47; 32; 71 red with 65 and 87; 87 with red 82 and 93): every path has 3 (NIL included). Example: on the path 47, 71 (red, not counted), 65, NIL the black nodes are 47, 65 and NIL: 3 of them.",
+                "<b>Counting convention</b>: in these notes \"black nodes on a root-to-NIL path\" includes the root and the NIL leaf; the black-height bh(x) of Lecture 9 does not count x itself. So bh(root) = (black nodes on a root-to-NIL path) − 1: here every path has 3, so bh(47) = 2. The workouts' \"bh(root) = 2\" uses the same rule.",
+                "<b>Removing a red node</b> changes no count (red nodes are never counted), cannot put two reds in a row (its parent is black and its child, if any, is black), and is never the root. So no property breaks (slide 11.15).",
+                "<b>Removing a black node</b> y takes one black node off every path that went through y. Delete 32: the path 47 → NIL (where 32 was) now has 2 black nodes, all other paths 3. Property 4 is broken.",
+                "The repair idea (slide 11.16): pretend the replacement node x carries an <b>extra black token</b> ■, i.e. it counts as one more black. Then every path through x has 3 again, so property 4 holds.",
+                "If x is red, \"red + token\" means: just colour x black. If x is already black, x would count as two blacks: it is <b>doubly black</b>, which is not a legal colour (property 1). <code>rbTreeFix</code> moves the token up or removes it by recolouring and rotating.",
+                "Small check: in deletion example 2 the removed node 65 is black and its child 51 is red. 51 gets the token and is red, so it is simply coloured black: every path through it counts 3 again."
+              ],
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "fig": [
+                "ag-11-bhpath"
+              ],
+              "figAt": {
+                "ag-11-bhpath": 7
+              },
+              "figH": {
+                "ag-11-bhpath": "Black nodes on every path: removing a red node, a black leaf, and a black node with a red child"
+              }
+            },
+            {
+              "h": "Before you start: recap of rotations and the three insertion cases",
+              "pts": [
+                "A <b>rotation</b> changes the shape of a subtree in O(1) pointer changes and keeps the inorder order. <code>leftRotate(x)</code>: x's right child z moves up, x becomes z's left child, and z's old left subtree becomes x's right subtree. <code>rightRotate</code> is the mirror.",
+                "Example (slides 11.8 → 11.9): left-rotate 82, whose right child is 87: 87 takes 82's place under 93 and 82 becomes 87's left child. Inorder 82, 87, 93 is unchanged.",
+                "<b>rbInsert</b> (Lecture 9): insert x as in a BST, colour it <b>red</b> (so black-heights do not change), then fix while x's parent is red. The <b>uncle</b> is the parent's sibling (the code calls it y).",
+                "The cases when the parent p is a left child of the grandparent g:<ul><li><b>Case 1</b>, uncle red: colour p and the uncle black, g red, and continue from x = g.</li><li><b>Case 2</b>, uncle black and x a right child (zig-zag): x = p, left-rotate x. Now it is Case 3.</li><li><b>Case 3</b>, uncle black and x a left child (straight line): colour p black, g red, right-rotate g. Done.</li></ul>",
+                "When p is a <b>right</b> child, everything is mirrored (left ↔ right). Lecture 10 numbers the mirrors Case 4, 5, 6; these notes write \"Case 1 / 2 / 3 (mirror)\".",
+                "A NIL uncle counts as <b>black</b>. That is why inserting under a node with no sibling usually leads to Case 2 or 3.",
+                "Finally the root is coloured black (<code>root.setColor(black)</code>), which repairs property 2 if Case 1 coloured the root red."
+              ],
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
+            },
+            {
+              "h": "Insertion example: insert 65, 82, 87 (Slides 11.1–11.11)",
+              "pts": [
+                "Start tree (slide 11.1): root <b>47</b> black; left child 32 black; right child 71 black; <b>93</b> red, the right child of 71. All other children are NIL (black dots on the slide). Every root-to-NIL path has 3 black nodes.",
+                "The handwritten photo in the corner of slide 11.1 (a recursion tree for T(n) = 2T(n/2) + 4n) is a leftover from the recurrences lecture; it is not part of red-black trees.",
+                "<b>Insert 65</b> (slides 11.1-11.2): 65 > 47 go right, 65 < 71 go left: 65 becomes 71's left child, coloured red. Its parent 71 is black, so the while loop does not run. Done, no case.",
+                "<b>Insert 82</b> (slides 11.3-11.4): 82 > 47, 82 > 71, 82 < 93: 82 becomes the left child of 93, red. Now 82 and its parent 93 are both red (property 3 broken).",
+                "The parent 93 is a right child of 71, so the uncle is 71's left child, <b>65, which is red</b>: <b>Case 1</b> (mirror side; recolouring is the same on both sides).",
+                "Case 1 (slide 11.5, \"change nodes' colors\"): colour 93 and 65 <b>black</b>, colour the grandparent 71 <b>red</b>, x = 71. The parent of 71 is 47, black, so the loop stops. Tree: 47; 32; 71 red with black 65 and black 93; 82 red under 93.",
+                "Why Case 1 keeps property 4: 71 gives its black to both children, so every path through 71 still has the same number of black nodes.",
+                "<b>Insert 87</b> (slides 11.6-11.7): 87 > 47, > 71, < 93, > 82: 87 becomes the right child of 82, red. 87 and its parent 82 are both red.",
+                "The parent 82 is the left child of 93; the uncle is 93's right child, <b>NIL, black</b>. 87 is a right child of a left child (zig-zag): <b>Case 2</b>.",
+                "Case 2 (slide 11.8 → 11.9): x = 82, left-rotate 82. Now 87 is 93's left child and 82 is 87's left child: a straight line, which is <b>Case 3</b>. Colours do not change in Case 2.",
+                "Case 3 (slide 11.10, \"change nodes' colors\", then the arrow at 93): colour the parent 87 <b>black</b>, the grandparent 93 <b>red</b>, then right-rotate 93.",
+                "Result (slide 11.11): 47 black root; 32 black; 71 red with children 65 black and 87 black; 87 has red children 82 and 93. Every root-to-NIL path has 3 black nodes, no red node has a red child.",
+                "This result tree is the start tree of deletion examples 1 and 3 (slides 11.17 and 11.22)."
               ],
               "fig": [
-                "algo-rbt-sim",
                 "ag-11-ins",
-                "ag-11-lrot",
-                "ag-11-exam1",
+                "algo-rbt-sim"
+              ],
+              "figAt": {
+                "ag-11-ins": 11,
+                "algo-rbt-sim": 11
+              },
+              "figH": {
+                "ag-11-ins": "Insertion example: insert 65, 82, 87 into the slides' tree"
+              }
+            },
+            {
+              "h": "The leftRotate and rbInsert code (Slides 11.12–11.14)",
+              "pts": [
+                "Slide 11.12 gives <code>leftRotate(root, x)</code> with parent pointers. It returns the (possibly new) root. Precondition: x's right child z is a proper node with a value.",
+                "Its steps:<ul><li><code>z = x.getRight()</code>.</li><li><code>x.setRight(z.getLeft())</code>, and if that subtree exists, set its parent to x.</li><li><code>z.setLeft(x)</code>: move x down.</li><li><code>z.setParent(x.getParent())</code>, then hang z where x hung (left or right child of x's old parent), or <code>root = z</code> if x was the root.</li><li><code>x.setParent(z)</code>; return root.</li></ul>",
+                "Traced on the left rotation of 82 in the insertion example: z = 87; 87 has no left child, so 82's right pointer becomes null; 82 becomes 87's left child; 87's parent becomes 93; 82 was 93's left child, so 93's left child becomes 87; 82's parent becomes 87. The root (47) is unchanged.",
+                "Every line is a constant amount of work: a rotation is <b>O(1)</b>. <code>rightRotate</code> is the same code with left and right swapped.",
+                "Slides 11.13-11.14 give <code>rbInsert</code>: <code>bstInsert</code>, colour red, then the while loop <code>while (x != root and x.getParent().getColor() == red)</code>. Slide 11.13 fills in the uncle-red branch (Case 1), slide 11.14 the uncle-black branch (Cases 2 and 3).",
+                "In the code, <code>if (x == x.getParent().getRight()) { x = x.getParent(); root = left_rotate(root,x); }</code> is Case 2; the three lines after it (parent black, grandparent red, <code>right_rotate</code> of the grandparent) are Case 3. The else branch \"symmetric to if\" handles a parent that is a right child.",
+                "Slide 11.14 names the parameter <code>newNode</code> but the body uses <code>x</code> (the slide shows <code>bstInsert(root,newNode)</code> then <code>x.setColor(red)</code>); read x = newNode, as on slide 11.13.",
+                "Cost: the BST insert walks down one path, O(h). Case 1 moves x up two levels per iteration, so it repeats at most O(h) times; Cases 2 and 3 end the loop after at most 2 rotations. With h = O(lg n), rbInsert is <b>O(lg n)</b>."
+              ],
+              "code": "TreeNode<T> rbInsert(TreeNode<T> root,TreeNode<T> x)\n// returns a new root\n{\n  root=bstInsert(root,x); // a modification of BST insertItem\n  x.setColor(red);\n  while (x != root and x.getParent().getColor() == red) {\n    if (x.getParent() == x.getParent().getParent().getLeft()) {\n      //parent is left child\n      y = x.getParent().getParent().getRight() //uncle of x\n      if (y.getColor() == red) { // uncle is red\n        x.getParent().setColor(black);\n        y.setColor(black);\n        x.getParent().getParent().setColor(red);\n        x = x.getParent().getParent();\n      } else { // uncle is black\n        if (x == x.getParent().getRight()) {\n          x = x.getParent();\n          root = left_rotate(root,x);\n        }\n        x.getParent().setColor(black);\n        x.getParent().getParent().setColor(red);\n        root = right_rotate(root,x.getParent().getParent());\n      }\n    } else\n      // ... symmetric to if\n  } // end while\n  root.setColor(black);\n  return root;\n}",
+              "fig": [
+                "ag-11-lrot"
+              ],
+              "figAt": {
+                "ag-11-lrot": 2
+              },
+              "figH": {
+                "ag-11-lrot": "The leftRotate code, traced on the left rotation of 82"
+              }
+            },
+            {
+              "h": "Exam workout 1: insert 2, 1, 4, 5, 9, 3, 6, 7 into an empty tree (Final 2016 Q4 & Final 5 Q4)",
+              "pts": [
+                "Asked in Final 2016 Q4 and Final 5 Q4. Use the rbInsert of slides 11.13-11.14; at each step name the case.",
+                "<b>Insert 2</b>: empty tree, 2 is the root, inserted red; the loop does not run (x is the root) and <code>root.setColor(black)</code> makes it black.",
+                "<b>Insert 1</b>: 1 < 2, left child of 2, red. Parent 2 is black: no case. <b>Insert 4</b>: 4 > 2, right child of 2, red. Parent black: no case. Tree: 2 black with red children 1 and 4.",
+                "<b>Insert 5</b>: 5 > 2, 5 > 4: right child of 4, red. Parent 4 is red; the uncle 1 is <b>red</b>: <b>Case 1</b>. Colour 4 and 1 black, 2 red; x = 2 is the root, the loop stops and the root is coloured black again.",
+                "After 5: 2 black; 1 black; 4 black with right child 5 red. The black-height of the root grew from 1 to 2: Case 1 reaching the root is the only way an insertion makes the tree's black-height grow ‡.",
+                "<b>Insert 9</b>: 9 > 2, > 4, > 5: right child of 5, red. Parent 5 is red and a right child of 4; the uncle (4's left child) is <b>NIL, black</b>; 9 is a right child too (straight line): <b>Case 3 (mirror)</b>.",
+                "Case 3 (mirror): colour 5 black, 4 red, left-rotate 4. Tree: 2; 1 black; 5 black with red children 4 and 9.",
+                "<b>Insert 3</b>: 3 > 2, 3 < 5, 3 < 4: left child of 4, red. Parent 4 red; uncle 9 is <b>red</b>: <b>Case 1</b>. Colour 4 and 9 black, 5 red; x = 5, whose parent 2 is black, so the loop stops.",
+                "<b>Insert 6</b>: 6 > 2, > 5, < 9: left child of 9, red. Parent 9 is black: no case.",
+                "<b>Insert 7</b>: 7 > 2, > 5, < 9, > 6: right child of 6, red. Parent 6 is red and the left child of 9; the uncle (9's right child) is NIL, black; 7 is a right child (zig-zag): <b>Case 2</b>, then Case 3.",
+                "Case 2: x = 6, left-rotate 6 (7 moves up, 6 becomes its left child). Case 3: colour 7 black and 9 red, right-rotate 9.",
+                "<b>Final tree</b>: root 2 black; left 1 black; right 5 red. 5 has left child 4 black (with left child 3 red) and right child 7 black (with red children 6 and 9). bh(root) = 2.",
+                "Check: path 2 → 1 → NIL has black 1 and NIL (2 below the root); path 2 → 5 → 7 → 9 → NIL has 7 and NIL (2). All paths agree."
+              ],
+              "callout": "Past-exam workout. It is not on the slides; it uses the slides' rbInsert exactly.",
+              "fig": [
+                "ag-11-exam1"
+              ],
+              "figAt": {
+                "ag-11-exam1": 11
+              },
+              "figH": {
+                "ag-11-exam1": "rbInsert step by step: insert 2, 1, 4, 5, 9, 3, 6, 7 (or your own keys)"
+              }
+            },
+            {
+              "h": "Exam workout 2: insert 5, 1, 4, 10, 9, 20, 6, 7 (Final 2018 I Q4, Final 2018 II Q7 & Exam Examples Q7)",
+              "pts": [
+                "Asked in Final 2018 I Q4, Final 2018 II Q7 and Exam Examples Q7.",
+                "<b>Insert 5</b>: root, coloured black. <b>Insert 1</b>: left child of 5, red; parent black: no case.",
+                "<b>Insert 4</b>: 4 < 5, 4 > 1: right child of 1, red. Parent 1 is red and a left child; the uncle (5's right child) is NIL, black; 4 is a right child (zig-zag): Case 2, then Case 3.",
+                "Case 2: x = 1, left-rotate 1 (4 moves up). Case 3: colour 4 black and 5 red, right-rotate 5. Tree: root 4 black with red children 1 and 5.",
+                "<b>Insert 10</b>: 10 > 4, > 5: right child of 5, red. Parent 5 red; uncle 1 <b>red</b>: <b>Case 1</b>. Colour 5 and 1 black, 4 red; x = 4 is the root, so it is coloured black again.",
+                "<b>Insert 9</b>: 9 > 4, > 5, < 10: left child of 10, red. Parent 10 is red and a right child of 5; uncle (5's left child) NIL, black; 9 is a left child (zig-zag): <b>Case 2 (mirror)</b>, then Case 3 (mirror).",
+                "Case 2 (mirror): x = 10, right-rotate 10. Case 3 (mirror): colour 9 black, 5 red, left-rotate 5. Tree: 4; 1 black; 9 black with red children 5 and 10.",
+                "<b>Insert 20</b>: 20 > 4, > 9, > 10: right child of 10, red. Parent 10 red; uncle 5 <b>red</b>: <b>Case 1</b>. Colour 10 and 5 black, 9 red; x = 9, parent 4 is black, stop.",
+                "<b>Insert 6</b>: 6 > 4, < 9, > 5: right child of 5, red. Parent 5 is black: no case.",
+                "<b>Insert 7</b>: 7 > 4, < 9, > 5, > 6: right child of 6, red. Parent 6 is red and a right child of 5; uncle (5's left child) <b>NIL, black</b>; 7 is a right child (straight line): <b>Case 3 (mirror)</b>: colour 6 black, 5 red, left-rotate 5.",
+                "<b>Final tree</b>: root 4 black; left 1 black; right 9 red. 9 has left child 6 black (red children 5 and 7) and right child 10 black (right child 20 red). bh(root) = 2.",
+                "A shorter one, Final Summer Q29: insert 1, 2, 3, 4. 1 is the root (black); 2 is its right child, red; 3 goes right of 2: uncle NIL, straight line, <b>Case 3 (mirror)</b>: 2 black, 1 red, left-rotate 1.",
+                "Then 4 goes right of 3: uncle 1 is red, <b>Case 1</b>: 1 and 3 black, 2 red, then the root is coloured black. Final: 2 black, children 1 and 3 black, 4 red under 3."
+              ],
+              "callout": "Past-exam workout. It is not on the slides; it uses the slides' rbInsert exactly.",
+              "fig": [
                 "ag-11-exam2"
               ],
               "figAt": {
-                "ag-11-ins": 0,
-                "ag-11-lrot": 0,
-                "ag-11-exam1": 1,
-                "ag-11-exam2": 2
+                "ag-11-exam2": 10
               },
               "figH": {
-                "ag-11-ins": "Insertion example: insert 65, 82, 87 into the slides' tree",
-                "ag-11-lrot": "The leftRotate code, traced on the left rotation of 82",
-                "ag-11-exam1": "rbInsert step by step: insert 2, 1, 4, 5, 9, 3, 6, 7 (or your own keys)",
                 "ag-11-exam2": "rbInsert step by step: insert 5, 1, 4, 10, 9, 20, 6, 7"
               }
             },
             {
-              "h": "Red-Black Tree Deletion & Doubly-Black Fixup (`rbTreeFix` Cases 1–4, Slides 11.15–11.39)",
+              "h": "Red-black tree deletion: the method (Slides 11.15–11.16)",
               "pts": [
-                "<b>Deletion Overview (Slides 11.15–11.16)</b>: Standard BST deletion reduces deleting a 2-child node to deleting its inorder successor/predecessor `y` (which has at most one real child `x`).<ul><li>If the removed node `y` was <b>RED</b>, no Red-Black properties are violated—done!</li><li>If `y` was <b>BLACK</b>, removing it reduces the black-height along paths through `y`, so we pass an <b>”extra black token”</b> to `x` (the child replacing `y`) and call `rbTreeFix(root, x)`.</li></ul>",
-                "<b>Four Cases of `rbTreeFix(root, x)` (Slides 11.30–11.38)</b>: Let `y` be `x`’s sibling:<ul><li><b>Case (1): `x` is RED</b> (has a red color + extra black token): Simply color `x` <b>BLACK</b> and terminate!</li><li><b>Case (2): `x` is BLACK and sibling `y` is RED</b>: Color `y` BLACK and `x.parent` RED, rotate `x.parent` toward `x`, and update `y` to `x`’s new (now guaranteed BLACK) sibling $\\rightarrow$ falls into Case 3 or 4.</li><li><b>Case (3): `x` is BLACK, sibling `y` is BLACK, and BOTH nephews (`y.left`, `y.right`) are BLACK</b>: Color `y` RED and move the extra black token up to `x = x.parent` (loop continues, or stops if `x` is red via Case 1).</li><li><b>Case (4): `x` is BLACK, sibling `y` is BLACK, and AT LEAST ONE nephew is RED</b>:<ul><li><b>Subcase 4(i)</b> (far nephew is BLACK, near nephew is RED): Color near nephew BLACK, `y` RED, rotate `y` away from `x` $\\rightarrow$ transforms into Subcase 4(ii).</li><li><b>Subcase 4(ii)</b> (far nephew is RED): Color `y` with `x.parent`’s color, color `x.parent` BLACK, color far nephew BLACK, rotate `x.parent` toward `x`, and remove the extra black token completely (<b>terminates after at most 3 rotations total!</b>).</li></ul></li></ul>"
+                "Step 1 (slide 11.15): use the <b>standard BST deletion</b>. If the node has two non-null children, its data is replaced by its successor's or predecessor's data and <b>its colour stays the same</b>. Then the successor / predecessor node is removed.",
+                "Let <b>y</b> be the node actually removed. If y was <b>red</b>, no property can be violated: just remove it.",
+                "Otherwise (y black): remove it and call the tree-fix algorithm <code>rbTreeFix</code> on y's child <b>x</b>, the node that took y's position.",
+                "The removed node has <b>at most one real (non-null) child</b>. If it has one, rbTreeFix runs on that child. If it has none, x is a <b>black pretend (null) child</b>.",
+                "Slide 11.16: rbTreeFix treats x as having an <b>extra black token</b>. This corrects the violation of property 4 caused by removing a black node.",
+                "If x is <b>red</b>, just colour it black. If x is black, it becomes <b>doubly black</b>, a violation of property 1.",
+                "The token is pushed up the tree until:<ul><li>a red node is reached, which is made black;</li><li>the root is reached (the token is dropped: every path loses one black, so property 4 holds again);</li><li>or it can be removed by rotating and recolouring.</li></ul>"
+              ]
+            },
+            {
+              "h": "Deletion examples 1 and 2: delete 87, delete 71 (Slides 11.17–11.21)",
+              "pts": [
+                "Example 1 starts from the insertion result (example 2 adds a red 51 under 65, see below): 47 black; 32 black; 71 red with 65 black and 87 black; 87 has red children 82 and 93.",
+                "<b>Example 1, delete 87</b> (slide 11.17): 87 has two children, so find its <b>predecessor</b>: go left to 82, which has no right child. Predecessor = 82.",
+                "Slide 11.18: replace 87's data with 82 (the node stays <b>black</b>), then remove the old 82 node. It was <b>red</b>: \"Predecessor red: no violation\". Done.",
+                "Result: 47; 32; 71 red with 65 black and 82 black; 82 has right child 93 red. Every root-to-NIL path still has 3 black nodes.",
+                "<b>Example 2, delete 71</b> (slide 11.19): a slightly different tree, 65 now has a red left child <b>51</b>. 71 is red with two children.",
+                "Predecessor of 71: go left to 65, which has no right child. Predecessor = <b>65</b>, which is <b>black</b> and has one child, 51.",
+                "Slide 11.20, \"Replace with predecessor, attach predecessor's child\": 71's node gets the data 65 and stays red; the old 65 node (y) is removed and its child x = 51 is attached in its place (left child of the new 65).",
+                "y was black, so every path through 51 lost a black node: rbTreeFix(51) runs. x = 51 is <b>red</b>: <b>case (1)</b>, the loop does not run and <code>x.setColor(black)</code> colours it black.",
+                "Slide 11.21, \"Fix tree by coloring predecessor's child black\". Result: 47; 32; 65 red with 51 black and 87 black; 87 has red 82 and 93.",
+                "With the successor rule instead ‡: in example 1 the successor of 87 is 93 (red, no fix); in example 2 it is 82 (red, no fix, and 51 stays red). Same validity, different trees: in an exam, follow the rule asked for."
               ],
               "fig": [
-                "ag-11-delex",
-                "ag-11-fixcases",
-                "ag-11-delsim",
-                "ag-11-eff"
+                "ag-11-delex"
               ],
               "figAt": {
-                "ag-11-delex": 0,
-                "ag-11-fixcases": 1,
-                "ag-11-delsim": 1
+                "ag-11-delex": 8
               },
               "figH": {
-                "ag-11-delex": "Deletion examples 1-3: delete 87, 71 and 32",
-                "ag-11-fixcases": "The four cases of rbTreeFix, with the code",
-                "ag-11-delsim": "Try your own: delete keys and watch rbTreeFix",
+                "ag-11-delex": "Deletion examples 1-3: delete 87, 71 and 32"
+              }
+            },
+            {
+              "h": "Deletion example 3: delete 32, rbTreeFix cases (2) then (3) (Slides 11.22–11.24, 11.27–11.29)",
+              "pts": [
+                "Start tree (slide 11.22): the insertion result again (47; 32; 71 red with 65 and 87; 87 with red 82 and 93). <b>Delete 32</b>: it is black with no real children. (The \"Example 3\" tab of the deletion visual in the previous section runs the same trace with the code's wording.)",
+                "Slide 11.23: 32 has fewer than two children, so it is y itself. x is the removed node's child: both are NIL, so x is a black <b>pretend</b> node. Remove 32 and attach x to 47 (its left child).",
+                "Slide 11.24: y = 32 was black, so call <code>rbTreeFix</code> on x. The path 47 → x has only 2 black nodes against 3 elsewhere: x carries the black token and is black, so it is <b>doubly black</b>.",
+                "Slide 11.27, first loop iteration: x is a left child; its sibling y = <b>71 is red</b>: <b>case (2)</b>. Make y black and y's parent 47 red, then <b>left-rotate</b> x's parent 47.",
+                "Slide 11.28: 71 is now the black root, 47 is its red left child, and 47's right child is 65 (71's old left subtree). x is still 47's left child; its <b>new sibling y = 65</b> is black.",
+                "Case (2) did not remove the token; it turned the red sibling into a black one so that case (3) or (4) can finish (slide 11.33 remark).",
+                "Next: sibling 65 is black and both of x's nephews (65's two NIL children) are black: <b>case (3)</b>. Colour y = 65 <b>red</b> and move the token up: x = 47.",
+                "Slide 11.29, \"Assign x its parent, and color it black\": the loop test sees x = 47 <b>red</b>, so the loop stops and <code>x.setColor(black)</code> colours 47 black (case (1)). The pretend node is detached.",
+                "Final tree: root 71 black; 47 black with right child 65 red; 87 black with red children 82 and 93. Every root-to-NIL path has 3 black nodes (71, 47 or 87, NIL).",
+                "Why this order finishes quickly: after case (2) the parent is red, so if case (3) follows, x becomes that red parent and the loop ends at once."
+              ],
+              "fig": [
+                "ag-11-ex3"
+              ],
+              "figAt": {
+                "ag-11-ex3": 8
+              },
+              "figH": {
+                "ag-11-ex3": "Deletion example 3: delete 32, with the black count on every path"
+              }
+            },
+            {
+              "h": "The rbDelete code (Slides 11.25–11.26)",
+              "pts": [
+                "Find y, the node to remove: <code>if (z.getLeft() == null || z.getRight() == null) y = z;</code> otherwise <code>y = successor(z); // or predecessor</code> and <code>z.setItem(y.getItem)</code> moves y's data into z (z keeps its colour).",
+                "Find x, y's only child: <code>if (y.getRight() != null) x = y.getRight(); else x = y.getLeft();</code>. If x is null, create a pretend node with no data and colour it black.",
+                "Detach x from y and attach it to y's parent (TRANSPLANT): <code>x.setParent(y.getParent())</code>; if y was the root, <code>root = x</code>; otherwise x becomes the left or right child of y's parent, on the side where y was.",
+                "<code>if (y.getColor() == black) root = rbTreeFix(root, x);</code>: the fix runs only when a black node was removed. A red y needs nothing (slide 11.15).",
+                "Clean-up: <code>if (x.getItem() == null)</code> (x is a pretend node), set its parent's left or right pointer back to null. Then return the root.",
+                "Cost: the BST part walks one path (O(h)), the pointer work is O(1), and rbTreeFix is O(h). So rbDelete is <b>O(lg n)</b>."
+              ],
+              "code": "TreeNode<T> rbDelete(TreeNode<T> root,TreeNode<T> z)\n//return new root, z contains item to be deleted\n{\n  TreeNode<T> x,y;\n  // find node y, which is going to be removed\n  if (z.getLeft() == null || z.getRight() == null)\n    y = z;\n  else {\n    y = successor(z); // or predecessor\n    z.setItem(y.getItem); // move data from y to z\n  }\n  // find child x of y\n  if (y.getRight() != null)\n    x = y.getRight();\n  else\n    x = y.getLeft();\n  // Note x might be null; create a pretend node\n  if (x == null) {\n    x = new TreeNode<T>(null);\n    x.setColor(black);\n  }\n  x.setParent(y.getParent()); // detach x from y\n  if (y.getParent() == null)\n    // if y was the root, x is a new root\n    root = x;\n  else\n    // Atttach x to y's parent\n    if (y == y.getParent().getLeft()) // left child\n      y.getParent().setLeft(x);\n    else\n      y.getParent().setRight(x);\n  if (y.getColor() == black)\n    root=rbTreeFix(root,x);\n  if (x.getItem() == null) // x is a pretend node\n    if (x==x.getParent().getLeft())\n      x.getParent().setLeft(null);\n    else\n      x.getParent().setRight(null);\n  return root;\n}"
+            },
+            {
+              "h": "The four cases of rbTreeFix (Slides 11.30, 11.33–11.36)",
+              "pts": [
+                "In all cases x holds the black token. Cases are checked in this order; the pictures show x as a left child, and each has a mirror for x as a right child.",
+                "<b>Case (1), x is red</b> (slide 11.30): the simplest case. Colour x black and remove the token: done. In the remaining cases x is black with the token, i.e. doubly black.",
+                "<b>Case (2), x's sibling is red</b> (slide 11.33): then x's parent is black (a red sibling cannot have a red parent). Swap the colours of the parent and the sibling (sibling black, parent red) and rotate the parent towards x (<code>Left_rotate</code> when x is a left child).",
+                "Case (2) remarks: the roots of the sibling's subtrees C and D are black, and C becomes x's new sibling, so it is black. The token stays on x; in the next step, case (3) or (4), the algorithm finishes.",
+                "<b>Case (3), sibling black and both nephews black</b> (slide 11.35): colour the sibling <b>red</b> and pass the token one level up to the parent (x = parent). The parent may be any colour (dashed on the slide).",
+                "Why case (3) works: the sibling's subtree loses one black (sibling red), x's subtree gives up its extra black: both sides of the parent are now one short, so the parent carries the token. If the parent is red, case (1) ends it; otherwise the loop continues higher.",
+                "<b>Case (4), sibling black and at least one nephew red</b> (slide 11.36): the token is removed completely.<ul><li><b>Subcase (i)</b>, far nephew black (so the near nephew is red): swap the colours of the sibling and the near nephew, rotate the sibling away from x (<code>Right_rotate(w)</code> on the slide). Now the new far nephew is red: subcase (ii).</li><li><b>Subcase (ii)</b>, far nephew red: the sibling takes the parent's colour, the parent becomes black, the far nephew becomes black, rotate the parent towards x (<code>Left_rotate(y)</code> on the slide). The token is removed.</li></ul>",
+                "<b>Mirror of case (4)</b> (x a right child, slide 11.36 bottom row): the near nephew is the sibling's right child and the far nephew its left child. Subcase (i), far (left) nephew black: near nephew black, sibling red, <b>left</b>-rotate the sibling. Subcase (ii): recolour as above, then <b>right</b>-rotate the parent.",
+                "The mirrors of cases (2) and (3) (bottom rows of slides 11.33 and 11.35) swap left and right the same way: case (2) right-rotates the parent; case (3) is unchanged (sibling red, token up).",
+                "Letters on the top rows differ from the code: on slides 11.33 and 11.35 the parent is y, the token node x and the sibling z; on slide 11.36 the parent is y, the sibling w and the near nephew z. In the code the sibling is always y.",
+                "Letters on the <b>bottom rows</b> (mirrors) change again. On 11.33 and 11.35 the token sits on <b>z</b> (the right child) and the sibling is <b>x</b>: so \"Right_rotate(y), colors of x and y were swapped\" and, on 11.35, \"x is coloured red\" mean the sibling, not the token node.",
+                "On the bottom row of 11.36 the parent is z, the token is on w, the sibling is x and the near nephew y: subcase (i) is <code>Left_rotate(x)</code> (colours of x and y swapped), subcase (ii) is <code>Right_rotate(z)</code> (colours of z and y swapped, far nephew x black).",
+                "Example of subcase (ii) directly ‡: delete 65 from the insertion result tree. x is a pretend node (left child of red 71); the sibling 87 is black and its far nephew 93 is red: 87 becomes red (71's colour), 71 black, 93 black, left-rotate 71.",
+                "Result of that example: under 47 the right subtree is 87 red, with children 71 black (right child 82 red) and 93 black. Every root-to-NIL path still has 3 black nodes ‡.",
+                "How long it takes: case (3) moves the token up one level per iteration, at most the height O(lg n). Cases (2) and (4) do a constant number of rotations and lead to the end. Total at most 3 rotations ‡ and <b>O(lg n)</b> time."
+              ],
+              "table": [
+                [
+                  "Case",
+                  "When (x has the token)",
+                  "Do",
+                  "Then"
+                ],
+                [
+                  "(1)",
+                  "x red",
+                  "x black",
+                  "done"
+                ],
+                [
+                  "(2)",
+                  "sibling red",
+                  "sibling black, parent red, rotate parent",
+                  "(3) or (4)"
+                ],
+                [
+                  "(3)",
+                  "sibling black, both nephews black",
+                  "sibling red, x = parent",
+                  "loop one level up"
+                ],
+                [
+                  "(4)(i)",
+                  "sibling black, far nephew black",
+                  "near nephew black, sibling red, rotate sibling",
+                  "(4)(ii)"
+                ],
+                [
+                  "(4)(ii)",
+                  "sibling black, far nephew red",
+                  "sibling = parent colour, parent and far nephew black, rotate parent",
+                  "done"
+                ]
+              ],
+              "fig": [
+                "ag-11-fixcases"
+              ],
+              "figAt": {
+                "ag-11-fixcases": 11
+              },
+              "figH": {
+                "ag-11-fixcases": "The four cases of rbTreeFix, with the code"
+              }
+            },
+            {
+              "h": "The same cases in another form: the photographed deletion rules (Slides 11.31–11.32)",
+              "pts": [
+                "Slides 11.31-11.32 are photos of a second, common way to state RB deletion with a \"double black\" (DB) node and seven cases. The photo calls them Case 1-7; here they are called Rule 1-7 so they do not clash with rbTreeFix cases (1)-(4). They describe the same algorithm; the table matches them.",
+                "Rule 1, \"If the node is Red, just delete it\" = slide 11.15: a red removed node needs no fix.",
+                "Rule 2, \"If the node is Black and has a single Red child, replace the node with the child\" = rbTreeFix <b>case (1)</b>: the red child takes the token and is coloured black (example 2 with 65 and 51).",
+                "\"If the node is Black and its children are also Black, upon deletion Double Black (DB) is formed\" = x is black with the token. Rule 3, \"If the root is DB, just remove DB\" = the loop stops at the root.",
+                "Rule 4, DB's sibling black and its children black: remove DB, add black to the parent (red becomes black, black becomes DB), make the sibling red = <b>case (3)</b> (followed by case (1) if the parent was red).",
+                "Rule 5, DB's sibling red: swap the colours of parent and sibling, rotate the parent in DB's direction, re-apply the cases = <b>case (2)</b>.",
+                "Rule 6, sibling black, far child black, near child red: swap the colours of the sibling and its near child, rotate the sibling away from DB, apply rule 7 = <b>case (4)(i)</b>.",
+                "Rule 7, sibling black and its far child red: swap the colours of the parent and the sibling, rotate the parent in DB's direction, remove DB, colour the red far child black = <b>case (4)(ii)</b>."
+              ],
+              "table": [
+                [
+                  "Photo \"Case\" (slides 11.31-11.32)",
+                  "Slides' rbTreeFix"
+                ],
+                [
+                  "1: node red, just delete",
+                  "no fix (slide 11.15)"
+                ],
+                [
+                  "2: black node, single red child",
+                  "case (1)"
+                ],
+                [
+                  "3: root is DB",
+                  "loop ends at the root"
+                ],
+                [
+                  "4: sibling black, its children black",
+                  "case (3)"
+                ],
+                [
+                  "5: sibling red",
+                  "case (2)"
+                ],
+                [
+                  "6: far child black, near child red",
+                  "case (4)(i)"
+                ],
+                [
+                  "7: far child red",
+                  "case (4)(ii)"
+                ]
+              ]
+            },
+            {
+              "h": "The rbTreeFix code (Slides 11.37–11.38)",
+              "pts": [
+                "The loop <code>while (x != root &amp;&amp; x.getColor() == black)</code> runs while x is doubly black (\"not case (1)\"). The code shown is for x a <b>left</b> child; the else branch is the symmetric code.",
+                "<code>y = x.getParent().getRight()</code>: y is x's sibling. If y is red: <b>case (2)</b>: <code>y.setColor(black)</code>, parent red (\"p was black\"), <code>left_rotate(root, x.getParent())</code>, then <code>y = x.getParent().getRight()</code>, the new sibling.",
+                "If both of y's children are black: <b>case (3)</b>: <code>y.setColor(red); x = x.getParent();</code>.",
+                "Else <b>case (4)</b>. If <code>y.getRight()</code> (the far nephew) is black: <b>subcase (i)</b>: near nephew <code>y.getLeft()</code> black, y red, <code>right_rotate(root, y)</code>, and y = the new sibling.",
+                "<b>Subcase (ii)</b>: <code>y.setColor(x.getParent().getColor())</code>, parent black, far nephew <code>y.getRight()</code> black, <code>left_rotate(root, x.getParent())</code>, and <code>x = root; // we can finish</code>.",
+                "After the loop: <code>x.setColor(black)</code>. This line is case (1) when x stopped on a red node, and it keeps the root black when x reached the root."
+              ],
+              "code": "TreeNode<T> rbTreeFix(TreeNode<T> root,TreeNode<T> x)\n//return new root; x is a node with the black token\n{\n  while (x != root && x.getColor() == black) // not case (1)\n    if (x == x.getParent().getLeft()) { // x is left child\n      y = x.getParent().getRight(); // y is x's sibling\n      if (y.getColor() == red) { // case (2)\n        y.setColor(black);\n        x.getParent().setColor(red); // p was black\n        root = left_rotate(root,x.getParent());\n        y = x.getParent().getRight(); // new sibling\n      }\n      if (y.getLeft().getColor() == black &&\n          y.getRight().getColor() == black) {\n        // nephews are black - case (3)\n        y.setColor(red);\n        x = x.getParent();\n      } else { // case (4)\n        if (y.getRight().getColor() == black) {\n          // subcase (i)\n          y.getLeft().setColor(black);\n          y.setColor(red);\n          root = right_rotate(root,y);\n          y = x.getParent().getRight();\n        }\n        // subcase (ii)\n        y.setColor(x.getParent().getColor());\n        x.getParent().setColor(black);\n        y.getRight().setColor(black);\n        root = left_rotate(root, x.getParent());\n        x = root; // we can finish\n      }\n    } else {\n      … // x is right child - symmetric\n    }\n  // end while loop\n  x.setColor(black);\n  return root;\n}",
+              "fig": [
+                "ag-11-delsim"
+              ],
+              "figAt": {
+                "ag-11-delsim": 5
+              },
+              "figH": {
+                "ag-11-delsim": "Try your own: delete keys and watch rbTreeFix"
+              }
+            },
+            {
+              "h": "RB trees efficiency (Slide 11.39)",
+              "pts": [
+                "All operations (search, insert, delete) work in time <b>O(height)</b>, and the height of a red-black tree is O(log n) (proved in Lecture 9: h ≤ 2 lg(n + 1)).",
+                "Hence all operations work in <b>O(log n)</b>: much more efficient than a linked-list or array implementation of a sorted list.",
+                "A sorted array searches in O(log n) (binary search) but inserting or deleting shifts up to n elements: O(n). A sorted linked list has no random access, so even search is O(n).",
+                "Example ‡: with n = 10<sup>6</sup> keys, lg n ≈ 20, so an RB tree has at most 2 lg(n + 1) ≈ 40 levels; a sorted list may need up to 10<sup>6</sup> steps. An unbalanced BST can also degrade to a chain of n nodes: O(n) (Final 2022 Q26).",
+                "Worst-case running times asked in Midterm 2016 Q3 / 2017 Q5 / 2018 Q3: red-black tree search, insert and delete are all O(lg n). Printing all n keys is still Θ(n) (Final Summer Q5)."
+              ],
+              "table": [
+                [
+                  "Sorted list",
+                  "Search",
+                  "Insertion",
+                  "Deletion"
+                ],
+                [
+                  "with arrays",
+                  "O(log n)",
+                  "O(n)",
+                  "O(n)"
+                ],
+                [
+                  "with linked list",
+                  "O(n)",
+                  "O(n)",
+                  "O(n)"
+                ],
+                [
+                  "with RB trees",
+                  "O(log n)",
+                  "O(log n)",
+                  "O(log n)"
+                ]
+              ],
+              "fig": [
+                "ag-11-eff"
+              ],
+              "figH": {
                 "ag-11-eff": "RB trees efficiency: sorted arrays, linked lists and RB trees compared"
               }
             }
@@ -3578,30 +8125,179 @@ window.COURSES.algo = {
           "cards": [
             [
               "Inserting (1, 2, 3, 4) into a Red-Black Tree (Final Summer Q29)",
-              "1(B) → 2(R) → 3(R) triggers left-rotate on 1 giving root 2(B) with 1(R), 3(R) → 4(R) triggers Case 1 recoloring 1(B), 3(B) with 4(R) as right child of 3(B)."
+              "1 root (black); 2 red right child; 3: uncle NIL, straight line, Case 3 (mirror): left-rotate 1, so 2 black with red 1 and 3; 4: uncle 1 red, Case 1: 1 and 3 black. Final: 2 black, 1 and 3 black, 4 red right child of 3."
             ],
             [
               "Why Deleting a RED Node Needs No Fixup",
-              "Removing a red node with at most 1 child does not change the number of black nodes on any path, cannot create two consecutive reds, and never removes the root."
+              "Red nodes are not counted in black-heights, so no path loses a black node (property 4 holds); its parent and child are black, so no red-red pair appears (property 3); a red node is never the root (property 2)."
             ],
             [
               "Four Cases of RB-DELETE Fixup (rbTreeFix)",
-              "Case 1: x is red (color black, done); Case 2: sibling y is red (rotate parent, y becomes black); Case 3: sibling y & both nephews black (color y red, push token to parent); Case 4: sibling y black & ≥1 nephew red (1–2 rotations, done)."
+              "(1) x red: colour it black, done. (2) sibling red: sibling black, parent red, rotate parent towards x. (3) sibling black, both nephews black: sibling red, token up to the parent. (4) sibling black, a nephew red: (i) far nephew black: rotate sibling; (ii) far nephew red: recolour, rotate parent, done."
             ],
             [
-              "Complete Slide & Exam Insertion Traces (Slides 11.1–11.14) — Core Principle & Complexity",
-              "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(B), 93(R)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `71`, colored <b>RED</b> (parent black $\\implies$ valid).</li><li><b>Insert `82`</b>: Placed as left child of red `93` under black `71`, with red uncle `65` $\\implies$ <b>Case 1 (Uncle `65` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED (its parent `47` is black, so the loop stops).</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `93`, with a `NIL` (black) uncle and `87` an inner child $\\implies$ <b>Case 2 then Case 3</b>: left-rotate `82`, then recolor `87` BLACK and `93` RED and right-rotate `93`. Result: `71`(R) with children `65`(B) and `87`(B), and `87` has red children `82` and `93`.</li></ul> <b>Final Exam Workout 1: Insert `(2, 1, 4, 5, 9, 3, 6, 7)` into an Empty Red-Black Tree (Final 2016 Q4 & Final 5 Q4)</b>:<ul><li>1. <b>Insert `2`</b>: `2(B)` is root.</li><li>2. <b>Insert `1`</b>: Left child of `2`, colored `1(R)`.</li><li>3. <b>Insert `4`</b>: Right child of `2`, colored `4(R)`. Tree: `2(B)` with children `1(R), 4(R)`.</li><li>4. <b>Insert `5`</b>: Right child of `4(R)`. Uncle `1(R)` is RED (<b>Case 1</b>) $\\implies$ recolor `1(B), 4(B)`, grandparent `2` stays `2(B)` (root).</li><li>5. <b>Insert `9`</b>: Right child of `5(R)` under `4(B)` with `NIL(B)` uncle (<b>Case 3 RR line</b>) $\\implies$ left-rotate `4(B)` and recolor `5(B)` and `4(R), 9(R)`.</li><li>6. <b>Insert `3`</b>: Left child of `4(R)` under `5(B)` with red uncle `9(R)` (<b>Case 1</b>) $\\implies$ recolor `4(B), 9(B)` and `5(R)`.</li><li>7. <b>Insert `6`</b>: Left child of `9(B)`, colored `6(R)`.</li><li>8. <b>Insert `7`</b>: Right child of `6(R)` under `9(B)` with `NIL(B)` uncle (<b>Case 2 LR triangle $\\to$ Case 3</b>) $\\implies$ left-rotate `6(R)`, right-rotate `9(B)`, recolor `7(B)` and `9(R)`!</li></ul>"
+              "Complete Slide & Exam Insertion Traces (Slides 11.1–11.14): core principle & complexity",
+              "Each insert: BST insert, colour red, then fix while the parent is red: uncle red → Case 1 (recolour, go up 2 levels); uncle black → Case 2 (zig-zag rotation) then Case 3 (recolour + rotation, stop). O(lg n) time, at most 2 rotations."
             ],
             [
-              "Red-Black Tree Deletion & Doubly-Black Fixup (`rbTreeFix` Cases 1–4, Slides 11.15–11.39) — Core Principle & Complexity",
-              "<b>Deletion Overview (Slides 11.15–11.16)</b>: Standard BST deletion reduces deleting a 2-child node to deleting its inorder successor/predecessor `y` (which has at most one real child `x`).<ul><li>If the removed node `y` was <b>RED</b>, no Red-Black properties are violated—done!</li><li>If `y` was <b>BLACK</b>, removing it reduces the black-height along paths through `y`, so we pass an <b>”extra black token”</b> to `x` (the child replacing `y`) and call `rbTreeFix(root, x)`.</li></ul> <b>Four Cases of `rbTreeFix(root, x)` (Slides 11.30–11.38)</b>: Let `y` be `x`’s sibling:<ul><li><b>Case (1): `x` is RED</b> (has a red color + extra black token): Simply color `x` <b>BLACK</b> and terminate!</li><li><b>Case (2): `x` is BLACK and sibling `y` is RED</b>: Color `y` BLACK and `x.parent` RED, rotate `x.parent` toward `x`, and update `y` to `x`’s new (now guaranteed BLACK) sibling $\\rightarrow$ falls into Case 3 or 4.</li><li><b>Case (3): `x` is BLACK, sibling `y` is BLACK, and BOTH nephews (`y.left`, `y.right`) are BLACK</b>: Color `y` RED and move the extra black token up to `x = x.parent` (loop continues, or stops if `x` is red via Case 1).</li><li><b>Case (4): `x` is BLACK, sibling `y` is BLACK, and AT LEAST ONE nephew is RED</b>:<ul><li><b>Subcase 4(i)</b> (far nephew is BLACK, near nephew is RED): Color near nephew BLACK, `y` RED, rotate `y` away from `x` $\\rightarrow$ transforms into Subcase 4(ii).</li><li><b>Subcase 4(ii)</b> (far nephew is RED): Color `y` with `x.parent`’s color, color `x.parent` BLACK, color far nephew BLACK, rotate `x.parent` toward `x`, and remove the extra black token completely (<b>terminates after at most 3 rotations total!</b>).</li></ul></li></ul>"
+              "Red-Black Tree Deletion & Doubly-Black Fixup (`rbTreeFix` Cases 1–4, Slides 11.15–11.39): core principle & complexity",
+              "BST-delete; if the removed node y was black, its child x gets an extra black token and rbTreeFix runs: the token moves up (case 3), is absorbed by a red node (case 1) or is removed by case (4); case (2) only prepares a black sibling. At most 3 rotations ‡, O(lg n) time."
+            ],
+            [
+              "BST deletion: the three cases",
+              "Leaf: remove it (parent pointer → NIL). One child: the child takes its place. Two children: copy the predecessor (or successor) into the node, then delete that node, which has at most one child."
+            ],
+            [
+              "Inorder predecessor of a node with a left subtree",
+              "The largest key in its left subtree: go left once, then right until there is no right child. It has no right child."
+            ],
+            [
+              "Which neighbour do the slides' deletion examples use?",
+              "The predecessor (slides 11.18, 11.20). The rbDelete code says \"successor(z); // or predecessor\"."
+            ],
+            [
+              "In rbDelete: z, y, x",
+              "z holds the key to delete; y is the node physically removed (z, or its predecessor / successor); x is y's only child (or a black pretend node) that takes y's place."
+            ],
+            [
+              "Pretend node",
+              "A black node with no data created when the removed node has no real child, so rbTreeFix has a node x with a parent; detached at the end of rbDelete."
+            ],
+            [
+              "TRANSPLANT (replacing y by x)",
+              "x.parent = y.parent; y's parent points to x on y's side; if y was the root, x becomes the root."
+            ],
+            [
+              "Extra black token",
+              "A black counted once more on x, so paths through x get back the black node removed with y (property 4 holds again)."
+            ],
+            [
+              "Doubly black",
+              "A black node x carrying the token: counts as two blacks, which violates property 1 (slide 11.16)."
+            ],
+            [
+              "Removing a black node breaks which property?",
+              "Property 4 (all paths from a node to its leaves have the same number of black nodes)."
+            ],
+            [
+              "Where does the black token stop?",
+              "At a red node (coloured black), at the root (dropped), or when rotations and recolouring remove it (case 4)."
+            ],
+            [
+              "Near and far nephew (x a left child)",
+              "Near = sibling's left child; far = sibling's right child."
+            ],
+            [
+              "rbTreeFix case (2) result",
+              "The new sibling is black (it was a black child of the red sibling) and the parent is red; case (3) or (4) then finishes."
+            ],
+            [
+              "rbTreeFix case (3) action",
+              "Colour the sibling red, x = x.parent: the black token is passed one level up."
+            ],
+            [
+              "rbTreeFix case (4)(i) action",
+              "Near nephew black, sibling red, rotate the sibling away from x (right_rotate when x is a left child): now the far nephew is red."
+            ],
+            [
+              "rbTreeFix case (4)(ii) action",
+              "Sibling takes the parent's colour, parent black, far nephew black, rotate the parent towards x, x = root (token removed)."
+            ],
+            [
+              "Maximum rotations in rbTreeFix",
+              "3 (case 2: one, then case 4: up to two) ‡; case 3 only recolours."
+            ],
+            [
+              "Insertion example result (slide 11.11)",
+              "47 black; 32 black; 71 red with 65 black and 87 black; 87 with red 82 and 93."
+            ],
+            [
+              "Insert 82 into the slides' tree: case?",
+              "Case 1: the uncle 65 is red. 65 and 93 black, 71 red; 71's parent 47 is black, stop."
+            ],
+            [
+              "Insert 87 into the slides' tree: cases?",
+              "Case 2 (left-rotate 82), then Case 3 (87 black, 93 red, right-rotate 93): the uncle is NIL (black) and 87 is a zig-zag child."
+            ],
+            [
+              "Deletion example 1 (delete 87)",
+              "Predecessor 82 is copied into 87's node; the removed 82 is red: no violation."
+            ],
+            [
+              "Deletion example 2 (delete 71)",
+              "Predecessor 65 (black) is copied; its child 51 takes its place; case (1): 51 is coloured black."
+            ],
+            [
+              "Deletion example 3 (delete 32)",
+              "x = pretend node; case (2) (sibling 71 red): left-rotate 47; case (3) (sibling 65, NIL nephews): 65 red, x = 47 red → black. Root 71."
+            ],
+            [
+              "leftRotate precondition (slide 11.12)",
+              "The right child of x is a proper node (with a value); it returns the new root."
+            ],
+            [
+              "Exam workout 1 final tree (2, 1, 4, 5, 9, 3, 6, 7)",
+              "2 black; 1 black; 5 red; 5 has 4 black (left child 3 red) and 7 black (children 6 and 9 red)."
+            ],
+            [
+              "Exam workout 2 final tree (5, 1, 4, 10, 9, 20, 6, 7)",
+              "4 black; 1 black; 9 red; 9 has 6 black (children 5 and 7 red) and 10 black (right child 20 red)."
+            ],
+            [
+              "RB tree vs sorted array / linked list (slide 11.39)",
+              "Array: search O(log n), insert / delete O(n). Linked list: all O(n). RB tree: all O(log n)."
             ]
           ],
           "qa": [
             [
               "Insert the numbers (2, 1, 4, 5, 9, 3, 6, 7) step-by-step into an initially empty Red-Black Tree and show the color of each node.",
-              "1. <b>Insert 2</b>: Root `2(B)`.<br>2. <b>Insert 1, 4</b>: `2(B)` with left `1(R)` and right `4(R)`.<br>3. <b>Insert 5</b>: Right of `4(R)`; uncle `1(R)` is red (Case 1) $\\to$ `1(B), 4(B)`, `5(R)`.<br>4. <b>Insert 9</b>: Right of `5(R)`; uncle `NIL` is black (Case 3) $\\to$ left-rotate `4(B)`, so `5(B)` has children `4(R), 9(R)`.<br>5. <b>Insert 3</b>: Left of `4(R)`; uncle `9(R)` is red (Case 1) $\\to$ `4(B), 9(B)`, `5(R)`.<br>6. <b>Insert 6</b>: Left of `9(B)` as `6(R)`.<br>7. <b>Insert 7</b>: Right of `6(R)` under `9(B)` (Case 2+3 LR) $\\to$ left-rotate `6`, right-rotate `9`, recolor `7(B)` with children `6(R), 9(R)`.<br><b>Final Tree</b>: Root `2(B)` (left `1(B)`, right `5(R)`); `5(R)` has left `4(B)` (left `3(R)`) and right `7(B)` (left `6(R)`, right `9(R)`).",
+              "Use rbInsert (slides 11.13-11.14):<br>1. <b>2</b>: root, coloured black.<br>2. <b>1</b>: left child of 2, red, parent black: no case.<br>3. <b>4</b>: right child of 2, red: no case.<br>4. <b>5</b>: right child of 4. Uncle 1 red: <b>Case 1</b>: 1 and 4 black, 2 red, then root 2 black again.<br>5. <b>9</b>: right child of 5. Uncle NIL (black), straight line: <b>Case 3 (mirror)</b>: 5 black, 4 red, left-rotate 4. Now 5 black with red 4 and 9.<br>6. <b>3</b>: left child of 4. Uncle 9 red: <b>Case 1</b>: 4 and 9 black, 5 red; 5's parent 2 is black, stop.<br>7. <b>6</b>: left child of 9 (black): no case.<br>8. <b>7</b>: right child of 6. Uncle NIL (black), zig-zag: <b>Case 2</b> (left-rotate 6), then <b>Case 3</b> (7 black, 9 red, right-rotate 9).<br><b>Final tree</b>: 2 (B); left 1 (B); right 5 (R). 5 has left 4 (B) with left child 3 (R), and right 7 (B) with children 6 (R) and 9 (R). bh(root) = 2.",
               "Final 2016 Q4 & Final 5 Q4"
+            ],
+            [
+              "Insert the numbers (5, 1, 4, 10, 9, 20, 6, 7) step by step into an initially empty red-black tree; name the case at each step.",
+              "1. <b>5</b>: root, black.<br>2. <b>1</b>: left of 5, red: no case.<br>3. <b>4</b>: right of 1. Uncle NIL, zig-zag: <b>Case 2</b> (left-rotate 1), <b>Case 3</b> (4 black, 5 red, right-rotate 5). Root 4 with red 1 and 5.<br>4. <b>10</b>: right of 5. Uncle 1 red: <b>Case 1</b>: 1, 5 black, 4 red → root black.<br>5. <b>9</b>: left of 10. Uncle NIL, zig-zag: <b>Case 2 (mirror)</b> (right-rotate 10), <b>Case 3 (mirror)</b> (9 black, 5 red, left-rotate 5). 9 black with red 5 and 10.<br>6. <b>20</b>: right of 10. Uncle 5 red: <b>Case 1</b>: 5, 10 black, 9 red; parent 4 black, stop.<br>7. <b>6</b>: right of 5 (black): no case.<br>8. <b>7</b>: right of 6. Uncle NIL, straight line: <b>Case 3 (mirror)</b>: 6 black, 5 red, left-rotate 5.<br><b>Final</b>: 4 (B); 1 (B); 9 (R) with 6 (B) [children 5 (R), 7 (R)] and 10 (B) [right child 20 (R)]. bh(root) = 2.",
+              "Final 2018 I Q4, Final 2018 II Q7 & Exam Examples Q7"
+            ],
+            [
+              "Insert 1, 2, 3, 4 into an empty red-black tree. Give the final tree with colours.",
+              "1: root, black. 2: right child of 1, red, parent black. 3: right child of 2; uncle NIL (black), straight line: <b>Case 3 (mirror)</b>: 2 black, 1 red, left-rotate 1 → 2 (B) with 1 (R), 3 (R). 4: right child of 3; uncle 1 red: <b>Case 1</b>: 1 and 3 black, 2 red, then the root is coloured black. <b>Final</b>: 2 (B) with children 1 (B) and 3 (B); 4 (R) is the right child of 3.",
+              "Final Summer Q29"
+            ],
+            [
+              "Insert 65, 82 and 87 into the red-black tree with root 47 (black), children 32 (black) and 71 (black), and 93 (red) as the right child of 71. Name each case.",
+              "<b>65</b>: left child of 71, red; parent black: no fix.<br><b>82</b>: left child of 93, red; parent 93 red, uncle 65 red: <b>Case 1</b>: 65 and 93 black, 71 red; 47 is black, stop.<br><b>87</b>: right child of 82; parent 82 red, uncle (93's right) NIL black, zig-zag: <b>Case 2</b>: left-rotate 82; then <b>Case 3</b>: 87 black, 93 red, right-rotate 93.<br><b>Result</b>: 47 (B); 32 (B); 71 (R) with 65 (B) and 87 (B); 87 has 82 (R) and 93 (R).",
+              "Lecture 11 · Slides 11.1–11.11"
+            ],
+            [
+              "Explain how a node is deleted from a red-black tree and when rbTreeFix is called.",
+              "First standard BST deletion. If the node z has two children, its data is replaced by its predecessor's (or successor's) and its colour stays; that node y is removed instead. y has at most one real child x (or x is a black pretend node). x is attached to y's parent. If y was <b>red</b>, no property breaks: done. If y was <b>black</b>, every path through it lost a black node (property 4): x gets an extra black token and rbTreeFix(root, x) runs. If x is red it is coloured black; if black it is doubly black and the token is pushed up until a red node, the root, or a rotation removes it.",
+              "Lecture 11 · Slides 11.15–11.16"
+            ],
+            [
+              "Delete 87, then (separately) 71 from the slides' trees (examples 1 and 2). Explain each step.",
+              "<b>Delete 87</b> (tree 47; 32; 71 R with 65 B and 87 B; 87 with 82 R, 93 R): two children, predecessor 82. Copy 82 into 87's node (stays black), remove the old 82: it is red, no violation.<br><b>Delete 71</b> (same tree with 51 R as left child of 65): predecessor 65 (black, child 51). Copy 65 into 71's node (stays red), remove the old 65 and attach 51 in its place. 65 was black → rbTreeFix(51): 51 is red, case (1): colour it black. Result: 47; 32; 65 R with 51 B and 87 B; 87 with 82 R, 93 R.",
+              "Lecture 11 · Slides 11.17–11.21"
+            ],
+            [
+              "Delete 32 from the tree 47 (B); 32 (B); 71 (R) with 65 (B) and 87 (B); 87 with 82 (R) and 93 (R). Show every rbTreeFix step.",
+              "32 has no real child, so it is removed itself and x = a black pretend node, attached as 47's left child. 32 was black → rbTreeFix(x).<br>1. x is a left child, sibling 71 is <b>red</b>: <b>case (2)</b>: 71 black, 47 red, left-rotate 47. 71 is now the root; 47 (red) has left x and right 65. New sibling 65 is black.<br>2. Sibling 65 has two NIL (black) children: <b>case (3)</b>: 65 red, x = 47.<br>3. x = 47 is red: the loop stops, x.setColor(black) (case (1)). Pretend node detached.<br><b>Result</b>: 71 (B); 47 (B) with right child 65 (R); 87 (B) with 82 (R), 93 (R). All paths have 3 black nodes.",
+              "Lecture 11 · Slides 11.22–11.29"
+            ],
+            [
+              "State the four cases of rbTreeFix (x a left child) and what each does.",
+              "<b>(1)</b> x red: colour x black; done.<br><b>(2)</b> x black, sibling red: sibling black, parent red, left-rotate parent; new sibling is black → case (3) or (4).<br><b>(3)</b> sibling black, both nephews black: sibling red, x = parent (token one level up).<br><b>(4)</b> sibling black, at least one nephew red: (i) if the far (right) nephew is black: near nephew black, sibling red, right-rotate sibling; (ii) sibling takes the parent's colour, parent black, far nephew black, left-rotate parent, x = root: the token is removed. For x a right child, swap left and right.",
+              "Lecture 11 · Slides 11.30–11.38"
+            ],
+            [
+              "Why does rbTreeFix run in O(lg n) time?",
+              "Case (3) is the only case that loops again: it moves the token up one level, so it repeats at most the height h times. Case (2) leads to case (3) with a red parent (which ends at once) or to case (4); case (4) ends the loop. So there are O(h) recolourings and at most 3 rotations ‡, each O(1). With h ≤ 2 lg(n + 1), the fix (and rbDelete) is O(lg n).",
+              "Lecture 11 · Slides 11.33–11.39"
+            ],
+            [
+              "For each algorithm, state its worst-case running time: (1) Binary Search, (2) Insertion Sort, (3) Merge Sort, (4) Counting Sort, (5) Heap Sort, (6) Red-Black Tree operations.",
+              "1. Binary search: Θ(lg n).<br>2. Insertion sort: Θ(n<sup>2</sup>).<br>3. Merge sort: Θ(n lg n).<br>4. Counting sort: Θ(n + k) (Θ(n) when k = O(n)).<br>5. Heap sort: Θ(n lg n).<br>6. Red-black tree search / insert / delete: O(lg n), because every operation is O(height) and the height is O(lg n) (slide 11.39).",
+              "Midterm 2016 Q3 / 2017 Q5 / 2018 Q3"
             ]
           ],
           "quiz": [
@@ -3610,19 +8306,19 @@ window.COURSES.algo = {
               "o": [
                 [
                   "Insert a new node (the standard BST insertion phase of RB-Insert)",
-                  "Correct! Final 2021 Q24 & Final 2022 Q38: This recursive function performs the standard BST insertion of node pt and links parent pointers before RB-Insert fixup."
+                  "Correct (Final 2021 Q24, Final 2022 Q38). It walks left or right by comparing pt.data with root.data and hangs pt where it finds NULL, setting the parent pointer: this is bstInsert, the first line of rbInsert (slide 11.13)."
                 ],
                 [
                   "Delete a node",
-                  "Does not remove any node."
+                  "Wrong: no pointer is ever set to remove a node. Every assignment links root.left or root.right to the result of a recursive call that finally returns the new node pt."
                 ],
                 [
                   "Search for a node without modifying the tree",
-                  "Assigns root.left and root.right and returns pt at NULL."
+                  "Wrong: a search would only compare and return, but this code assigns root.left / root.right and parent pointers, and at NULL it returns pt, which links pt into the tree."
                 ],
                 [
                   "Count the number of nodes",
-                  "Returns a Node pointer, not an integer count."
+                  "Wrong: a count would return an integer such as 1 + left + right. This function returns a Node (the subtree root, or pt at an empty spot)."
                 ]
               ],
               "a": 0,
@@ -3633,44 +8329,735 @@ window.COURSES.algo = {
               "o": [
                 [
                   "Root is 1(B) with right chain 2(R) → 3(B) → 4(R)",
-                  "Inserting 3 into 1(B)→2(R) triggers a left rotation at 1, making 2(B) the root."
+                  "Wrong: inserting 3 makes 1 → 2 → 3 a straight line with a NIL (black) uncle, so Case 3 (mirror) left-rotates 1 and 2 becomes the root. A chain would also break property 3 or 4."
                 ],
                 [
                   "Root is 2(B), with left child 1(B), right child 3(B), and 4(R) as right child of 3",
-                  "Correct! Final Summer Q29: After 1,2,3 we have root 2(B) with 1(R) and 3(R). Inserting 4 under 3(R) triggers Case 1 (uncle 1 is red), recoloring 1 and 3 BLACK and keeping 4 RED!"
+                  "Correct (Final Summer Q29). After 1, 2, 3: 2 black with red 1 and 3. 4 goes under red 3 with red uncle 1: Case 1 colours 1 and 3 black, 2 red, and the root is coloured black again."
                 ],
                 [
                   "Root is 3(B), with left child 2(R) and right child 4(R)",
-                  "2 becomes the root on the third insertion and remains the root when 4 only triggers Case 1 recoloring."
+                  "Wrong: 3 never becomes the root. The rotation at the third insert lifts 2, and inserting 4 only recolours (Case 1). This option also loses key 1."
                 ],
                 [
                   "Root is 2(B), with left child 1(R), right child 3(R), and 4(B) as right child of 3",
-                  "New node 4 is inserted as RED and triggers Case 1 recoloring of 1 and 3 to BLACK."
+                  "Wrong: a new node is always inserted red, and here Case 1 recolours 1 and 3 black, not 4. Black 4 under red 3 would give its path one more black node than the path to 1."
                 ]
               ],
               "a": 1,
               "src": "Exam · Final Summer Q29 & Exam Examples Q29"
+            },
+            {
+              "q": "In a red-black tree, a black node must have only red children.",
+              "o": [
+                [
+                  "True",
+                  "Wrong: property 3 restricts red nodes (a red node's parent is black), not black ones. In the slide tree 47 is black with a black child 32, and after deletion example 3 the black root 71 has two black children."
+                ],
+                [
+                  "False",
+                  "Correct: a black node may have red or black children. Only a red node must have black children (property 3 / no two reds in a row)."
+                ]
+              ],
+              "a": 1,
+              "src": "Exam · Final Summer Q6"
+            },
+            {
+              "q": "We do not have to make any key comparisons to find the minimum or maximum node of a binary search tree.",
+              "o": [
+                [
+                  "True",
+                  "Correct: the minimum is reached by following left pointers until NIL and the maximum by right pointers. The predecessor used in the deletion examples is found the same way: one step left, then right until NIL."
+                ],
+                [
+                  "False",
+                  "Wrong: comparisons are needed only to search for a given key. The BST property already puts the smallest key at the end of the leftmost path, so no key has to be compared."
+                ]
+              ],
+              "a": 0,
+              "src": "Exam · Final Summer Q13"
+            },
+            {
+              "q": "Printing every node in a balanced binary search tree takes Θ(lg n) time.",
+              "o": [
+                [
+                  "True",
+                  "Wrong: O(lg n) is the cost of one search, insert or delete (slide 11.39), which visits one path. Printing must visit all n nodes, so it cannot be faster than n steps."
+                ],
+                [
+                  "False",
+                  "Correct: an inorder walk prints all n keys in Θ(n) time. The O(log n) bound of balanced trees is per single operation, not for listing the whole tree."
+                ]
+              ],
+              "a": 1,
+              "src": "Exam · Final Summer Q5"
+            },
+            {
+              "q": "A heap is an example of a _____, while the access time of an unbalanced binary search tree may degrade in the worst case up to _____.",
+              "o": [
+                [
+                  "Complete binary tree; O(n)",
+                  "Correct (Final 2022 Q25 & Q26): a binary heap is a complete binary tree (every level full except possibly the last, which is filled left to right), and an unbalanced BST can become a chain of n nodes, so access is O(n). That is why RB trees keep the height O(log n)."
+                ],
+                [
+                  "Spanning tree; O(n log n)",
+                  "Wrong: a spanning tree is a graph concept (it connects all vertices of a graph). A chain-shaped BST costs one step per level, n levels, so O(n), not O(n log n)."
+                ],
+                [
+                  "Sparse tree; O(n²)",
+                  "Wrong: \"sparse tree\" is not the heap's shape, and one access in a degenerate BST follows one path of at most n nodes: O(n), not O(n²)."
+                ],
+                [
+                  "Binary search tree; O(1)",
+                  "Wrong: a heap orders parent vs children, not left vs right, so it is not a BST. O(1) access would need hashing or direct addressing, not an unbalanced tree."
+                ]
+              ],
+              "a": 0,
+              "src": "Exam · Final 2022 Q25 & Q26"
+            },
+            {
+              "q": "Insert 82 into the tree 47 (B); 32 (B), 71 (B); 65 (R) left of 71, 93 (R) right of 71. Which case applies and what changes?",
+              "o": [
+                [
+                  "Case 1: the uncle 65 is red, so 65 and 93 become black and 71 becomes red",
+                  "Correct (slide 11.5): 82 becomes 93's left child; parent 93 and uncle 65 are both red, so they turn black and the grandparent 71 turns red. 71's parent 47 is black, so the loop stops."
+                ],
+                [
+                  "Case 2: left-rotate 93",
+                  "Wrong: Case 2 needs a black uncle. Here the uncle 65 is red, and Case 1 (recolouring only) is tried first; no rotation happens for 82."
+                ],
+                [
+                  "Case 3: colour 93 black, 71 red, left-rotate 71",
+                  "Wrong: Case 3 also needs a black uncle. With the red uncle 65, rotating would be unnecessary; Case 1 recolours and keeps the shape."
+                ],
+                [
+                  "No case: 82's parent is black",
+                  "Wrong: 82's parent is 93, which is red on slide 11.4, so 82 (red) and 93 form a red-red pair that must be fixed."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slide 11.5"
+            },
+            {
+              "q": "Inserting 87 (right child of red 82, which is the left child of black 93 with no right child). What does rbInsert do?",
+              "o": [
+                [
+                  "Case 2 (left-rotate 82), then Case 3 (87 black, 93 red, right-rotate 93)",
+                  "Correct (slides 11.8-11.11): the uncle is NIL, black, and 87 is a right child of a left child (zig-zag). Case 2 straightens it, Case 3 recolours and rotates the grandparent 93."
+                ],
+                [
+                  "Case 1: colour 82 and the uncle black, 93 red",
+                  "Wrong: Case 1 needs a red uncle, but 93's right child is NIL, which counts as black (property 2)."
+                ],
+                [
+                  "Case 3 only: right-rotate 93",
+                  "Wrong: right-rotating 93 directly with 87 as an inner (right) child would leave 87 under 93 still red-red. The zig-zag needs Case 2 first."
+                ],
+                [
+                  "Case 2 only: left-rotate 82, then stop",
+                  "Wrong: after Case 2, 87 and 82 are still both red (82 is now 87's red child). Case 3 must follow in the same iteration."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slides 11.8–11.10"
+            },
+            {
+              "q": "After inserting 65, 82, 87 (slide 11.11), what is the right subtree of 71?",
+              "o": [
+                [
+                  "87 (black) with red children 82 and 93",
+                  "Correct: Case 3 made 87 black and the old grandparent 93 red, and the right rotation of 93 put 82 left and 93 right of 87."
+                ],
+                [
+                  "93 (black) with red children 82 and 87",
+                  "Wrong: this ignores the rotations. 87 lies between 82 and 93, and Case 3 lifts the middle key 87 to the top of the three."
+                ],
+                [
+                  "82 (black) with red children 87 and 93",
+                  "Wrong: 82 would need both 87 and 93 in its right subtree; it is the smallest of the three and ends up as 87's left child."
+                ],
+                [
+                  "87 (red) with black children 82 and 93",
+                  "Wrong colours: Case 3 colours the new top 87 black and the old grandparent 93 red. A red 87 under red 71 would break property 3."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slide 11.11"
+            },
+            {
+              "q": "Deletion example 1: delete 87 (black, children 82 red and 93 red). Which node is physically removed and is a fix needed?",
+              "o": [
+                [
+                  "The predecessor 82 is removed; it is red, so no fix is needed",
+                  "Correct (slide 11.18): 87's data is replaced by its predecessor 82 (the node stays black), and the removed old 82 node is red: \"Predecessor red: no violation\"."
+                ],
+                [
+                  "87's node is removed; it is black, so rbTreeFix runs",
+                  "Wrong: a node with two children is not removed itself; only its data is replaced. The node removed is the predecessor, which is red here."
+                ],
+                [
+                  "The successor 93 is removed and rbTreeFix runs",
+                  "Wrong: the slides' examples use the predecessor. Even with the successor rule, 93 is red, so no fix would be needed."
+                ],
+                [
+                  "82 is removed and its pretend child is coloured black by case (1)",
+                  "Wrong: rbTreeFix is called only when the removed node is black (slide 11.26). 82 is red, so the fix is not called at all."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slide 11.18"
+            },
+            {
+              "q": "Deletion example 2: delete 71 (red), whose predecessor 65 is black with a red child 51. What happens?",
+              "o": [
+                [
+                  "65 is copied into 71's node, the old 65 is removed, 51 takes its place and is coloured black (case 1)",
+                  "Correct (slides 11.20-11.21): the removed node 65 is black, so rbTreeFix(51) runs; 51 is red, so case (1) just colours it black."
+                ],
+                [
+                  "71's node is removed and 65 is coloured red",
+                  "Wrong: 71 has two children, so only its data is replaced. The node 71 (holding 65 now) keeps its red colour."
+                ],
+                [
+                  "51 becomes doubly black and case (3) runs",
+                  "Wrong: 51 is red, and a red node with the token is just coloured black; doubly black means a black node with the token."
+                ],
+                [
+                  "No fix: 71 was red",
+                  "Wrong: what matters is the colour of the removed node y (the old 65 node, black), not of z = 71, whose node and colour stay."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slides 11.20–11.21"
+            },
+            {
+              "q": "Deletion example 3: after deleting 32, x is a black pretend node, left child of 47, and its sibling 71 is red. Which rbTreeFix case runs first?",
+              "o": [
+                [
+                  "Case (2): 71 black, 47 red, left-rotate 47",
+                  "Correct (slides 11.27-11.28): a red sibling is case (2). After the rotation 71 is the root and x's new sibling is the black 65."
+                ],
+                [
+                  "Case (1): colour x black",
+                  "Wrong: case (1) needs x red. x is a black pretend node with the token, i.e. doubly black."
+                ],
+                [
+                  "Case (3): colour 71 red and move the token to 47",
+                  "Wrong: case (3) needs a black sibling. 71 is red, so case (2) must first make the sibling black."
+                ],
+                [
+                  "Case (4)(ii): rotate 47 and drop the token",
+                  "Wrong: case (4) needs a black sibling with a red nephew; the sibling 71 is red here."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slide 11.27"
+            },
+            {
+              "q": "Continuing example 3: x's new sibling is 65 (black, two NIL children) and the parent 47 is red. What finishes the fix?",
+              "o": [
+                [
+                  "Case (3): 65 red, x = 47; 47 is red so the loop stops and 47 is coloured black",
+                  "Correct (slide 11.29): both nephews are NIL (black), so case (3) passes the token up to the red 47, which absorbs it (case (1)). The root is 71."
+                ],
+                [
+                  "Case (4)(ii): rotate 47 again",
+                  "Wrong: case (4) needs at least one red nephew; 65's children are NIL leaves, which are black."
+                ],
+                [
+                  "Case (2) again with sibling 65",
+                  "Wrong: case (2) needs a red sibling, and 65 is black. Case (2) also never repeats right after itself."
+                ],
+                [
+                  "Nothing: the token was removed by the rotation",
+                  "Wrong: case (2) only changes colours and shape; the token stays on x until case (3) passes it to 47."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slides 11.28–11.29"
+            },
+            {
+              "q": "Removing a red node from a red-black tree can violate property 4 (equal black counts on all paths).",
+              "o": [
+                [
+                  "True",
+                  "Wrong: black counts only count black nodes, so taking out a red node leaves every count unchanged (slide 11.15: \"If the removed node was red, no property could get violated\")."
+                ],
+                [
+                  "False",
+                  "Correct: a red node contributes nothing to black-heights, and its parent and child are black, so neither property 3 nor 4 can break."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 11 · Slide 11.15"
+            },
+            {
+              "q": "According to slide 11.16, a \"doubly black\" node violates which red-black property?",
+              "o": [
+                [
+                  "Property 1: every node is either red or black",
+                  "Correct: a black node with the extra token would count as two blacks, which is not one of the two allowed colours."
+                ],
+                [
+                  "Property 4: equal black counts on all paths",
+                  "Wrong: the token exists precisely to fix property 4 (counting it, all paths agree again). The cost is property 1."
+                ],
+                [
+                  "Property 3: a red node has a black parent",
+                  "Wrong: doubly black is about too much black, not about two reds in a row."
+                ],
+                [
+                  "Property 2: the root is black",
+                  "Wrong: the root is still black; when the token reaches the root it is simply dropped."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slide 11.16"
+            },
+            {
+              "q": "In rbTreeFix case (3) (sibling black, both nephews black), what happens?",
+              "o": [
+                [
+                  "The sibling is coloured red and the token moves to x's parent",
+                  "Correct (slide 11.35): both subtrees of the parent lose one black, so the parent carries the token; \"the black token is passed one level up\"."
+                ],
+                [
+                  "The parent is rotated towards x and the token is removed",
+                  "Wrong: that is case (4)(ii), which needs a red far nephew. Case (3) does no rotation."
+                ],
+                [
+                  "The sibling is coloured black and the parent red",
+                  "Wrong: that is case (2), for a red sibling. In case (3) the sibling is already black."
+                ],
+                [
+                  "x is coloured red",
+                  "Wrong: x stays black; only the token moves. On the mirrored picture the node coloured red is the sibling (x there), not the token node."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slide 11.35"
+            },
+            {
+              "q": "In rbTreeFix case (4)(ii) (x a left child, sibling y black, far nephew red), what does the code do?",
+              "o": [
+                [
+                  "y gets the parent's colour, parent black, y.right black, left-rotate the parent, x = root",
+                  "Correct (slide 11.38): this removes the token completely; x = root makes the loop end."
+                ],
+                [
+                  "y.left black, y red, right-rotate y",
+                  "Wrong: that is subcase (i), used when the far nephew y.right is black, to make a red far nephew."
+                ],
+                [
+                  "y red, x = parent",
+                  "Wrong: that is case (3), used only when both nephews are black."
+                ],
+                [
+                  "y black, parent red, left-rotate the parent",
+                  "Wrong: that is case (2), for a red sibling. In (4)(ii) the parent becomes black, not red."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slide 11.38"
+            },
+            {
+              "q": "In the slides' rbDelete, when z has two children, which node y is removed and which node is x?",
+              "o": [
+                [
+                  "y = z's successor (or predecessor), its data moved into z; x = y's only child or a black pretend node",
+                  "Correct (slide 11.25): such a y has at most one child, and x (possibly a pretend NIL node) takes y's place."
+                ],
+                [
+                  "y = z; x = z's left child",
+                  "Wrong: y = z only when z has at most one child. With two children, z's node keeps its place and colour and gets y's data."
+                ],
+                [
+                  "y = z's parent; x = z",
+                  "Wrong: the parent is never removed; it only gets a new child pointer when x is attached."
+                ],
+                [
+                  "y = the root; x = the new root",
+                  "Wrong: the root is replaced only when y happened to be the root (y.getParent() == null on slide 11.26)."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slide 11.25"
+            },
+            {
+              "q": "Slide 11.32 (photo) says: \"If DB's sibling is Red: swap colours of parent and sibling, rotate parent in DB direction, re-apply the cases.\" Which rbTreeFix case is this?",
+              "o": [
+                [
+                  "Case (2)",
+                  "Correct: red sibling → sibling black, parent red, rotate the parent towards x; then case (3) or (4) is applied (slide 11.33)."
+                ],
+                [
+                  "Case (3)",
+                  "Wrong: case (3) is the black sibling with black children (photo rule 4): colour the sibling red and push DB up."
+                ],
+                [
+                  "Case (4)(i)",
+                  "Wrong: (4)(i) is photo rule 6: a black sibling whose near child is red and far child black; it rotates the sibling, not the parent."
+                ],
+                [
+                  "Case (1)",
+                  "Wrong: case (1) is x red (photo rule 2, a black node with a red child): only a recolouring, no rotation."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slides 11.32–11.33"
+            },
+            {
+              "q": "According to slide 11.39, which implementation of a sorted list supports search, insertion and deletion all in O(log n)?",
+              "o": [
+                [
+                  "Red-black tree",
+                  "Correct: every operation is O(height) and the height is O(log n), so search, insertion and deletion are all O(log n)."
+                ],
+                [
+                  "Sorted array",
+                  "Wrong: search is O(log n) with binary search, but insertion and deletion shift elements: O(n)."
+                ],
+                [
+                  "Sorted linked list",
+                  "Wrong: without random access even search is O(n), and finding the place to insert or delete is O(n)."
+                ],
+                [
+                  "Unbalanced binary search tree",
+                  "Wrong: its height can be n (a chain), so each operation is O(n) in the worst case (Final 2022 Q26)."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slide 11.39"
+            },
+            {
+              "q": "Slide 11.12: what is the precondition of leftRotate(root, x)?",
+              "o": [
+                [
+                  "The right child of x is a proper node (with a value)",
+                  "Correct: the code starts with z = x.getRight() and moves z up; if z were null, z.getLeft() and z.setLeft(x) would fail."
+                ],
+                [
+                  "The left child of x is a proper node",
+                  "Wrong: that is rightRotate's precondition. leftRotate never reads x's left child."
+                ],
+                [
+                  "x is the root",
+                  "Wrong: the code handles any x; if x has a parent, z is hung on that parent's left or right, and only if x was the root does root = z."
+                ],
+                [
+                  "x is red",
+                  "Wrong: rotations ignore colours completely; recolouring is done separately by rbInsert and rbTreeFix."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 11 · Slide 11.12"
             }
           ],
           "extra": [
             {
-              "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 11?",
+              "q": "Plain BST with root 50; 30 (children 20, 40; 40 has left child 35); 70 (children 60, 80). Delete 50 using the predecessor. Which key ends up at the root?",
               "o": [
                 [
-                  "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-                  "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
+                  "40",
+                  "Correct: the predecessor is the largest key in the left subtree: left to 30, then right to 40 (no right child). 40 is copied into the root, and its child 35 replaces it."
                 ],
                 [
-                  "The algorithm requires O(2ⁿ) exponential space in the best case",
-                  "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
+                  "60",
+                  "Wrong: 60 is the successor (smallest key in the right subtree). That is the other allowed rule, but the question asks for the predecessor."
                 ],
                 [
-                  "The algorithm only works when n ≤ 10",
-                  "False — Asymptotic analysis applies as n → ∞."
+                  "35",
+                  "Wrong: 35 is 40's child; it only moves up into 40's old position. The predecessor of 50 is 40, the largest key below 50."
                 ],
                 [
-                  "Correctness does not depend on loop invariants or optimal substructure",
-                  "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
+                  "30",
+                  "Wrong: 30 is just the left child; going right from it reaches the larger 40, so 30 is not the largest key in the left subtree."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "In a plain BST, the node to delete has exactly one child. What happens?",
+              "o": [
+                [
+                  "Its child takes its place (the parent now points to the child)",
+                  "Correct: the whole child subtree lies on the same side of the parent as the deleted node, so the BST order still holds."
+                ],
+                [
+                  "It is replaced by its successor's key",
+                  "Wrong: copying a neighbour key is only needed for two children; with one child, a single pointer change is enough."
+                ],
+                [
+                  "The child is deleted too",
+                  "Wrong: deleting one key must keep all other keys; the child subtree is reattached, not removed."
+                ],
+                [
+                  "The node is coloured black",
+                  "Wrong: a plain BST has no colours; colours only matter in the red-black fix-up."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Why does the node physically removed in BST deletion have at most one real child?",
+              "o": [
+                [
+                  "Because it is either z with at most one child, or z's predecessor / successor, which has no right / left child",
+                  "Correct: if the predecessor had a right child, that child would be larger and so would be the predecessor instead."
+                ],
+                [
+                  "Because red-black trees never have nodes with two children",
+                  "Wrong: most internal nodes have two children (e.g. 47 with 32 and 71). The point is which node gets removed."
+                ],
+                [
+                  "Because the root is never removed",
+                  "Wrong: the root can be removed (then x becomes the root, slide 11.26), and this does not limit the number of children."
+                ],
+                [
+                  "Because leaves are always removed first",
+                  "Wrong: the algorithm removes one chosen node per call, not leaves first."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "In the tree 47 (B); 32 (B); 71 (R) with 65 (B) and 87 (B); 87 with 82 (R) and 93 (R), how many black nodes (counting the NIL) lie on each root-to-NIL path, and how many on 47 → NIL right after removing 32?",
+              "o": [
+                [
+                  "3 on every path; 2 on 47 → NIL after removing 32",
+                  "Correct: e.g. 47, 65, NIL = 3. Without 32 the left path has only 47 and NIL, so one black is missing: property 4 breaks."
+                ],
+                [
+                  "4 on every path; 3 after removing 32",
+                  "Wrong: this counts the red 71 or 82/93; red nodes are never counted. 47 → 71 → 87 → 82 → NIL has blacks 47, 87, NIL = 3."
+                ],
+                [
+                  "2 on every path; 1 after removing 32",
+                  "Wrong: this forgets the NIL leaf, which is black and counted here. With the NIL the count is 3, and 2 after the removal."
+                ],
+                [
+                  "3 on every path; still 3 after removing 32",
+                  "Wrong: 32 is black, so every path through it loses one black node. Only removing a red node keeps the counts."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Insert 1, 2, 3, 4, 5 into an empty red-black tree. What is the final tree?",
+              "o": [
+                [
+                  "2 (B); 1 (B); 4 (B) with red children 3 and 5",
+                  "Correct: after 1-4 the tree is 2; 1 B; 3 B with red 4. 5 goes right of red 4 with NIL uncle (straight line): Case 3 (mirror): 4 black, 3 red, left-rotate 3."
+                ],
+                [
+                  "2 (B); 1 (B); 3 (B) with right chain 4 (R) → 5 (R)",
+                  "Wrong: two reds in a row (4, 5) break property 3; the fix must rotate at 3."
+                ],
+                [
+                  "3 (B); 2 (R) with 1 (B); 4 (R) with 5 (B)",
+                  "Wrong: inserting 5 only touches the subtree of 3; the root 2 does not change."
+                ],
+                [
+                  "2 (B); 1 (R); 4 (R) with black children 3 and 5",
+                  "Wrong colours: Case 3 colours the new middle 4 black and the old grandparent 3 red; and 1 is already black after inserting 4."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Insert 10, 20, 30, 15 into an empty red-black tree. Which cases are used, in order?",
+              "o": [
+                [
+                  "30: Case 3 (mirror); 15: Case 1",
+                  "Correct: 10, 20, 30 form a straight right line with NIL uncle (left-rotate 10, 20 becomes the root). 15 goes under red 10 with red uncle 30: Case 1, then the root is coloured black."
+                ],
+                [
+                  "30: Case 1; 15: Case 3",
+                  "Wrong: when 30 arrives, the uncle (10's left child) is NIL, black, so Case 1 cannot apply."
+                ],
+                [
+                  "30: Case 2 then 3; 15: Case 2 then 3",
+                  "Wrong: 30 is a right child of a right child (straight line), so no Case 2; and 15's uncle 30 is red, so 15 is Case 1."
+                ],
+                [
+                  "30: Case 3 (mirror); 15: no case",
+                  "Wrong: 15 becomes the right child of 10, which is red after the rotation, so a red-red fix (Case 1) is needed."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "What is bh(root), counting the NIL leaf but not the root, of the final tree of exam workout 1 (2, 1, 4, 5, 9, 3, 6, 7)?",
+              "o": [
+                [
+                  "2",
+                  "Correct: path 2 → 1 → NIL has black 1 and the NIL: 2. Every other path agrees, e.g. 2 → 5 (red) → 4 → 3 (red) → NIL: 4 and NIL."
+                ],
+                [
+                  "3",
+                  "Wrong: this also counts the root itself; bh(x) counts the black nodes below x (Lecture 9 convention)."
+                ],
+                [
+                  "1",
+                  "Wrong: this forgets the NIL leaf, which is black and is counted by the black-height definition."
+                ],
+                [
+                  "4",
+                  "Wrong: 4 counts every node below the root on the longest path (5, 7, 9, NIL), red ones included; only black nodes count, giving 7 and NIL = 2."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Delete 65 from the insertion result tree (47; 32; 71 R with 65 B and 87 B; 87 with 82 R, 93 R). Which rbTreeFix case runs?",
+              "o": [
+                [
+                  "Case (4)(ii): the sibling 87 is black and its far nephew 93 is red",
+                  "Correct: x is a pretend node, left child of 71. 87 takes 71's colour (red), 71 and 93 become black, left-rotate 71. Result under 47: 87 R with 71 B (child 82 R) and 93 B."
+                ],
+                [
+                  "Case (1): no real fix is needed",
+                  "Wrong: case (1) needs x red, but x is a black pretend node. And 65 is black, so the fix does run."
+                ],
+                [
+                  "Case (3): both nephews are black",
+                  "Wrong: 87's children 82 and 93 are both red, so case (4) applies."
+                ],
+                [
+                  "Case (4)(i): the near nephew 82 is red",
+                  "Wrong: subcase (i) is used only when the far nephew is black. Here the far nephew 93 is red, so the code goes straight to (ii)."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Delete 1 from exam workout 1's final tree (2 B; 1 B; 5 R with 4 B [left 3 R] and 7 B [6 R, 9 R]). Which cases run, in order?",
+              "o": [
+                [
+                  "Case (2), then case (4)(i), then case (4)(ii)",
+                  "Correct: sibling 5 red → case (2) (rotate 2). New sibling 4 is black with near nephew 3 red and far nephew NIL → (4)(i), then (4)(ii). Final: 5 B; 3 R with 2 B, 4 B; 7 B with 6 R, 9 R."
+                ],
+                [
+                  "Case (2), then case (3)",
+                  "Wrong: after case (2) the new sibling 4 has a red child 3, so not both nephews are black."
+                ],
+                [
+                  "Case (3) only",
+                  "Wrong: the first sibling 5 is red; case (3) needs a black sibling."
+                ],
+                [
+                  "Case (4)(ii) only",
+                  "Wrong: the first sibling is red (case (2) first), and after it the far nephew of 4 is NIL (black), so (4)(i) comes before (4)(ii)."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "What is the largest number of rotations rbTreeFix can perform in one deletion?",
+              "o": [
+                [
+                  "3",
+                  "Correct ‡: case (2) does 1 rotation, then case (4) does up to 2 ((i) and (ii)) and ends. Case (3) never rotates, and if it follows case (2) the loop ends at once."
+                ],
+                [
+                  "O(lg n)",
+                  "Wrong: only case (3) can repeat up the tree, and it only recolours. The number of rotations is a constant."
+                ],
+                [
+                  "1",
+                  "Wrong: a red sibling (case 2) followed by case (4)(i) and (ii) gives 3, as in deleting 1 from exam workout 1's tree."
+                ],
+                [
+                  "2",
+                  "Wrong: 2 is case (4) alone; a red sibling adds one more rotation first."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Case (3) runs and x's parent is red. What happens next?",
+              "o": [
+                [
+                  "The loop stops: x is now the red parent and x.setColor(black) absorbs the token",
+                  "Correct: this is what happens in deletion example 3 (47 becomes black). It is case (1) for the new x."
+                ],
+                [
+                  "Case (2) runs on the parent",
+                  "Wrong: the loop test x.getColor() == black fails for a red x, so no further case runs."
+                ],
+                [
+                  "The token is dropped at the root",
+                  "Wrong: the parent need not be the root; the token stops because the parent is red."
+                ],
+                [
+                  "Case (3) runs again one level higher",
+                  "Wrong: case (3) repeats only when the new x is black."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "Which node does the slides' rbTreeFix code call y?",
+              "o": [
+                [
+                  "x's sibling (the parent's other child)",
+                  "Correct: y = x.getParent().getRight() for x a left child. In rbDelete, y was the removed node, and in rbInsert y is the uncle: three different meanings."
+                ],
+                [
+                  "The removed node",
+                  "Wrong: that is y in rbDelete (slide 11.25); inside rbTreeFix the removed node is already gone."
+                ],
+                [
+                  "x's parent",
+                  "Wrong: on the case pictures of slides 11.33-11.35 the parent is labelled y, but the code uses x.getParent() for it."
+                ],
+                [
+                  "x's uncle",
+                  "Wrong: the uncle is y in rbInsert (slide 11.13); deletion looks at the sibling and the nephews."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "After deleting 32 (deletion example 3), what is the root of the tree?",
+              "o": [
+                [
+                  "71",
+                  "Correct: case (2) left-rotates 47, so 71 (coloured black) moves up to the root; case (3) then only recolours."
+                ],
+                [
+                  "47",
+                  "Wrong: 47 is rotated down to become 71's left child in case (2)."
+                ],
+                [
+                  "65",
+                  "Wrong: 65 moves to 47's right side and is coloured red by case (3); it never becomes the root."
+                ],
+                [
+                  "87",
+                  "Wrong: 87 stays 71's right child; no rotation involves it."
+                ]
+              ],
+              "a": 0
+            },
+            {
+              "q": "With the successor rule instead of the predecessor, deleting 87 from the insertion result tree removes which node, and is a fix needed?",
+              "o": [
+                [
+                  "The node of 93 (red): no fix ‡",
+                  "Correct: the successor of 87 is the smallest key in its right subtree, 93 (a red leaf). 93 is copied into 87's node (stays black) and the red node is removed."
+                ],
+                [
+                  "The node of 82 (red): no fix",
+                  "Wrong: 82 is the predecessor (used on slide 11.18), not the successor."
+                ],
+                [
+                  "The node of 87 (black): rbTreeFix runs",
+                  "Wrong: 87 has two children, so its node is not removed; only its data is replaced."
+                ],
+                [
+                  "The node of 93: rbTreeFix case (3) runs",
+                  "Wrong: 93 is red, and rbTreeFix is called only when the removed node is black."
                 ]
               ],
               "a": 0
@@ -8905,7 +14292,7 @@ window.COURSES.algo = {
     {
       "n": 8,
       "code": "Lec 8",
-      "title": "Lecture 8: Hashing — Hash Functions, Amortized Analysis of Dynamic Tables, Separate Chaining & Open Addressing",
+      "title": "Lecture 8: Hash Functions, Amortized Table Doubling, Separate Chaining and Open Addressing",
       "videos": [
         {
           "id": "JZHBa-rLrBA",
@@ -8958,78 +14345,510 @@ window.COURSES.algo = {
       ],
       "notes": [
         {
-          "h": "Direct Addressing & Four Hash Function Methods (Slides 8.1–8.15)",
+          "h": "Before you start: dictionaries, keys and table slots",
           "pts": [
-            "<b>Direct Addressing (Slides 8.5–8.6)</b>: $h(k) = k$ stores each key at its own index in $O(1)$ worst-case search/insert/delete, but wastes massive memory when the universe of keys is large.",
-            "<b>Four Hash Function Construction Methods (Slides 8.7–8.15)</b>:<ul><li><b>1. Division Method</b>: $h(k) = k \\bmod n$. Choose table size $n$ to be a <b>prime number</b> not close to a power of 2 or 10 (Slide 8.9 shows why $n=4$ maps $10, 20, 30, 40, 50$ only to slots $0$ and $2$, whereas prime $n=7$ spreads them across $3, 6, 2, 4, 1$).</li><li><b>2. Multiplication Method</b>: $h(k) = \\lfloor n (k A \\bmod 1) \\rfloor$ where $0 < A < 1$ (Knuth suggests $A \\approx (\\sqrt{5}-1)/2 \\approx 0.618033$). Slide 8.11 Example ($n=100, A=0.618033$): $h(123) = \\lfloor 100(76.018059 \\bmod 1) \\rfloor = \\lfloor 1.8059 \\rfloor = 1$; $h(150) = \\lfloor 100(92.70495 \\bmod 1) \\rfloor = 70$. Note: In binary implementation $m = 2^p$ (so for $p=7$, $m = 2^7 = 128$, Final 2 Q6).</li><li><b>3. Mid-Square Method</b>: Square $k$ ($k^2$) and extract the middle $r$ digits (e.g., $n=100 \\implies r=2$ digits).</li><li><b>4. Folding Method</b>: Partition key $K$ into parts matching the address width and add them. Slide 8.15 Example (`K = 12345678`, 2-digit address `0..99`):<ul><li><b>Fold-Shifting</b>: $12 + 34 + 56 + 78 = 180 \\implies 180 \\bmod 100 = \\mathbf{80}$.</li><li><b>Fold-Boundary</b> (reverse outer parts `12→21` and `78→87`): $21 + 34 + 56 + 87 = 198 \\implies 198 \\bmod 100 = \\mathbf{98}$.</li></ul></li></ul>"
+            "A <b>dictionary</b> (also called a dynamic set) stores items, each with a key, and supports three operations: <code>INSERT(x)</code>, <code>SEARCH(k)</code> (find the item whose key is k, or report that it is not there) and <code>DELETE(x)</code>.",
+            "Example: a phone book. The key is the name; the phone number is extra data that travels with the key. We always search <i>by the key</i>.",
+            "Search in an unsorted list (array) of n items must check the items one by one: up to n comparisons, O(n). Finding 100 in 10, 20, 30, …, 100 takes 10 comparisons.",
+            "Search in a balanced <b>binary search tree</b> (BST) is O(lg n): at each node you compare and go left (smaller keys) or right (larger keys), so you walk one root-to-leaf path. Slide 8.3's tree with root 27 holds 7 keys; every search needs at most 3 comparisons (lg 8 = 3).",
+            "Hashing aims for O(1) on average: compute <i>where</i> the key lives directly, instead of searching for it.",
+            "A <b>table slot</b> is one cell of an array T[0..m−1]. m is the table size, and a slot index is a whole number from 0 to m−1. A <b>hash function</b> h maps every key to a slot: h(k) ∈ {0, 1, …, m−1}.",
+            "Keys must be <b>integers</b> so we can do arithmetic on them. A string becomes a number through its character codes: in ASCII C = 67, A = 65, T = 84. Adding them gives 67 + 65 + 84 = 216.",
+            "Plain sums give anagrams the same number (\"CAT\" and \"ACT\" are both 216), so they would always collide. Better: weight each position like digits in base 128: \"CAT\" = 67·128² + 65·128 + 84 = 1,106,132.",
+            "The <b>universe</b> U is the set of all possible keys (for example all 9-digit student IDs: 10⁹ of them), while only n keys are stored (say 300 students). The table size m is chosen close to n, not close to |U|."
+          ],
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "fig": [
+            "ag-8-keyslot"
+          ],
+          "figAt": {
+            "ag-8-keyslot": 7
+          },
+          "figH": {
+            "ag-8-keyslot": "From a key to a slot: \"CAT\" becomes 216, 216 mod 11 = 7, and \"ACT\" collides with it"
+          }
+        },
+        {
+          "h": "Before you start: mod, floor, digits, primes and gcd",
+          "pts": [
+            "<b>k mod m</b> is the remainder when k is divided by m. It is always between 0 and m−1, which is exactly the range of slot indices. 17 mod 7 = 3, because 17 = 2·7 + 3.",
+            "More with the slides' numbers: 172 mod 157 = 15 (172 = 1·157 + 15); 30 mod 4 = 2 (30 = 7·4 + 2); 62 mod 11 = 7 (62 = 5·11 + 7). A key smaller than m stays as it is: 7 mod 11 = 7.",
+            "Adding and then taking mod wraps around the end of the table: (7 + 4) mod 11 = 11 mod 11 = 0, so a probe past slot 10 continues at slot 0.",
+            "In code, <code>%</code> is the mod operator: <code>180 % 100</code> = 80. Taking % 100 keeps the last two digits; % 10 keeps the last digit.",
+            "The <b>floor</b> ⌊x⌋ is the largest integer ≤ x: ⌊1.8059⌋ = 1, ⌊70.495⌋ = 70, ⌊3⌋ = 3. It throws away the fraction.",
+            "<b>x mod 1</b> is the fractional part of x, that is x − ⌊x⌋: 76.018059 mod 1 = 0.018059 and 92.70495 mod 1 = 0.70495. It is always ≥ 0 and < 1.",
+            "Because the fractional part is in [0, 1), the value ⌊n · fraction⌋ is one of 0, 1, …, n−1: a valid slot. That is why the multiplication method multiplies by n and then takes the floor.",
+            "Digit operations used by the slides: the middle 3 digits of 1522756 are 227; reversing the part 12 gives 21; splitting 12345678 into 2-digit parts gives 12, 34, 56, 78.",
+            "A <b>prime</b> number has no divisors except 1 and itself: 2, 3, 5, 7, 11, 13, 157 are prime; 4, 10, 16, 100 are not.",
+            "<b>gcd(a, b)</b> is the greatest common divisor of a and b. They are <b>relatively prime</b> when gcd(a, b) = 1. Examples: gcd(5, 10) = 5, gcd(4, 10) = 2, gcd(3, 10) = 1, gcd(1, 11) = 1.",
+            "Why gcd matters for probing: stepping by 5 around a table of 10 starting at slot 5 visits 5, 0, 5, 0, … (only 10 / gcd(5, 10) = 2 slots). Stepping by 3 visits 5, 8, 1, 4, 7, 0, 3, 6, 9, 2: all 10 slots, since gcd(3, 10) = 1."
+          ],
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
+        },
+        {
+          "h": "Before you start: collisions, probability and load factor",
+          "pts": [
+            "A <b>collision</b> happens when two different keys get the same slot: h(k₁) = h(k₂) with k₁ ≠ k₂. With h(k) = k mod 10, keys 0 and 30 both give slot 0 (Slide 8.7).",
+            "<b>Pigeonhole principle</b>: if more than m items are put into m boxes, some box gets at least two. With n = 12 keys and m = 11 slots, at least one slot holds 2 keys, whatever the hash function is.",
+            "The universe U is far bigger than m, so many possible keys share every slot: collisions cannot be avoided, only handled. The lecture handles them with separate chaining (Slides 8.30–8.48) and open addressing (Slides 8.49–8.94).",
+            "<b>Probability</b> of an event = favourable outcomes / all outcomes, when the outcomes are equally likely. If a key is equally likely to go to any of m = 3 slots, the chance that it goes to slot 2 is 1/3.",
+            "<b>Expected value</b> = Σ (value × its probability), the long-run average. A fair die: (1 + 2 + 3 + 4 + 5 + 6) · 1/6 = 3.5.",
+            "The expected value of a sum is the sum of the expected values. Each of the n keys falls into a given slot with probability 1/m, so the expected number of keys in that slot is n · (1/m) = n/m.",
+            "<b>Simple uniform hashing</b> (Slide 8.33): the assumption that each key is equally likely to be hashed to any slot of the table, independently of where the other keys went.",
+            "<b>Load factor</b> α = n/m (number of keys stored / number of slots). Under simple uniform hashing it is the expected length of a chain. Slide 8.33: n = 3, m = 3 gives α = 1; n = 6, m = 3 gives α = 2.",
+            "With chaining α may be larger than 1 (chains just get longer). With open addressing every key needs its own slot, so there α ≤ 1.",
+            "Repeated trials: if each try succeeds with probability p, the expected number of tries until the first success is 1/p. In open addressing a probe finds an empty slot with probability about 1 − α, which is where the 1/(1 − α) of Slide 8.90 comes from."
+          ],
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
+        },
+        {
+          "h": "Before you start: growing arrays and geometric sums",
+          "pts": [
+            "An array has a fixed size, chosen when it is allocated. To make it bigger you must allocate a new larger array, <b>copy</b> every old item into it, then free the old one: exactly the three steps of Slide 8.18.",
+            "Cost model of the slides: writing one item costs 1 and copying one item costs 1 (\"1 dollar pays for 1 unit of work\", Slide 8.25). Growing a full table of s items therefore costs s copies plus 1 for the new item.",
+            "Example (Slide 8.20, c₅ = 5): the table of size 4 is full with 4 items; inserting the 5th allocates size 8, copies 4 items and writes 1, cost 4 + 1 = 5.",
+            "Doubling makes copying rare: the sizes go 1, 2, 4, 8, 16, …, so a copy happens only when the number of items passes a power of 2.",
+            "<b>Geometric sum</b>: 1 + 2 + 4 + … + 2ᵏ = 2ᵏ⁺¹ − 1. Example: 1 + 2 + 4 + 8 = 15 = 16 − 1. Each term is bigger than all the earlier terms together.",
+            "So the copies made during n insertions add up to 1 + 2 + … + 2ᵏ with 2ᵏ < n, which is less than 2 · 2ᵏ < 2n. Example n = 17: copies 1 + 2 + 4 + 8 + 16 = 31 < 34.",
+            "Summation notation: Σᵢ₌₁ⁿ cᵢ means c₁ + c₂ + … + cₙ. \"Σ cᵢ ≤ Σ ĉᵢ\" says that the true total cost is at most the total amount charged.",
+            "One expensive operation versus a whole sequence: a single insert can cost n (a big copy), but n inserts together never cost n · n. Bounding the total and dividing by n is the idea of <b>amortized analysis</b> (Slides 8.16–8.29)."
+          ],
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
+        },
+        {
+          "h": "What hashing is, and direct hashing (Slides 8.1–8.6)",
+          "pts": [
+            "Lecture outline (Slide 8.2): hashing definition, hashing methods (hash functions), amortized analysis, separate chaining, open addressing.",
+            "Slide 8.3 recalls that search in a list is O(n) and in a binary search tree O(lg n), and asks: is it possible to search in less time? Hashing answers yes, on average.",
+            "<b>Hashing</b> (Slide 8.4): a data structure that uses a special function, the <b>hash function</b>, to map a given key to a position for faster access. How well it works depends on how good the hash function is.",
+            "Costs (Slide 8.4): best case O(1), average case O(1), worst case O(n), when many keys collide into the same place. A hash table maps keys to values, and keys competing for the same bucket are a collision (Final Q1 & Q2).",
+            "<b>Direct hashing</b> (Slide 8.5): the key <i>is</i> the address, with no algorithmic manipulation: h(K) = K. Keys 1, 4, 7, 9, 0, 8 go to slots 1, 4, 7, 9, 0, 8 of the table 0..9.",
+            "The slide's key space also contains 30. It needs slot 30, but the table only has slots 0 to 9: to store 7 keys the array would need 31 cells.",
+            "Advantages (Slide 8.6): searching, insertion and deletion are all O(1), one array access each; every key has its own cell, so there are no collisions. Direct addressing gives O(1) search (Final Q9 & Q10).",
+            "Disadvantages (Slide 8.6): memory consuming. The address space (the array) must be as large as the largest key value, which is wasteful when keys are large but few: 300 student IDs of 9 digits would need 10⁹ cells ‡."
           ],
           "fig": [
-            "ag-8-direct",
-            "ag-8-mod-prime",
+            "ag-8-direct"
+          ],
+          "figAt": {
+            "ag-8-direct": 5
+          },
+          "figH": {
+            "ag-8-direct": "Direct hashing h(K) = K, then the division method and its collision"
+          }
+        },
+        {
+          "h": "Division method, and why the table size should be prime (Slides 8.7–8.9)",
+          "pts": [
+            "<b>Division method</b> (Slide 8.7): h(k) = k mod n, where n is the size of the hash table. The hash value is the remainder of k divided by n.",
+            "Slide 8.7's example, n = 10: keys 1, 4, 7, 9, 0, 8 land in their own slots, 35 mod 10 = 5 goes to slot 5, and 30 mod 10 = 0 wants slot 0, which key 0 already holds: a <b>collision</b>.",
+            "Advantage (Slide 8.8): fast, it needs only one operation.",
+            "Disadvantage (Slide 8.8): certain values of n are bad, namely non-prime numbers and powers of 2 (2ᵖ). Why? Because they may cause a lot of collisions, so it is better to use a prime n.",
+            "Why powers of 2 are bad ‡: k mod 2ᵖ is just the last p bits of k, so keys that differ only in their higher bits always collide. With n = 16, keys 5, 21 and 37 all give 5.",
+            "Slide 8.9: with random data any size works, but real data often has a pattern. Keys 10, 20, 30, 40, 50 with mod 4 give 2, 0, 2, 0, 2: of the four possible values 0, 1, 2, 3 only 0 and 2 are used, and they collide (the slide says \"3 possible values\").",
+            "With the prime 7: 10 mod 7 = 3, 20 mod 7 = 6, 30 mod 7 = 2, 40 mod 7 = 5, 50 mod 7 = 1. Five keys, five different slots, no collisions. (The slide shows 40 mod 7 = 4; since 40 = 5·7 + 5 it is 5.)",
+            "Why the prime helps ‡: all the keys are multiples of 10, and gcd(10, 4) = 2, so they can only reach every second slot of a table of 4. Since 7 shares no factor with 10, multiples of 10 reach every slot of a table of 7.",
+            "Exam rule: h(k) = k mod m with m a prime not close to an exact power of 2 (Final Q3 & Q4). With m = 157, key 172 goes to 172 mod 157 = 15 (Final Q5)."
+          ],
+          "fig": [
+            "ag-8-mod-prime"
+          ],
+          "figAt": {
+            "ag-8-mod-prime": 6
+          },
+          "figH": {
+            "ag-8-mod-prime": "Why n should be prime: 10, 20, 30, 40, 50 mod 4 and mod 7"
+          }
+        },
+        {
+          "h": "Multiplication, mid-square and folding methods (Slides 8.10–8.15)",
+          "pts": [
+            "<b>Multiplication method</b> (Slide 8.10): h(k) = ⌊n (kA mod 1)⌋, where A is a constant between 0 and 1. Multiply k by A, keep only the fractional part, multiply it by n, and take the floor.",
+            "Advantage: the value of n is not critical (it need not be prime). Disadvantage: slower than the division method (a multiplication, a fraction and a floor instead of one mod).",
+            "Slide 8.11, k = 123, n = 100, A = 0.618033: 123 × 0.618033 = 76.018059; mod 1 gives 0.018059; × 100 gives 1.8059; the floor gives <b>h(123) = 1</b>.",
+            "Slide 8.11, k = 150: 150 × 0.618033 = 92.70495; mod 1 gives 0.70495; × 100 gives 70.495; the floor gives <b>h(150) = 70</b>.",
+            "A = 0.618033 ≈ (√5 − 1)/2 is the value Knuth suggests ‡. In the binary implementation the table size is a power of 2, m = 2ᵖ ‡: p = 7 gives m = 2⁷ = 128 (Final Q6).",
+            "<b>Mid-square method</b> (Slide 8.12): square the key and take the middle r digits as the hash value. r depends on the table size n: n = 10 → r = 1, n = 100 → r = 2, n = 1000 → r = 3 (the slide writes \"bits\"; it means decimal digits).",
+            "Advantage: far fewer collisions, because the middle digits of k² depend on every digit of k. Disadvantage: the square of a large key is hard to compute (it has twice as many digits).",
+            "Slide 8.13's examples:<ul><li>k = 120, n = 10: k² = 14400, middle digit 4, h(120) = 4.</li><li>k = 50, n = 100: k² = 2500, middle two digits 50, h(50) = 50.</li><li>k = 1234, n = 1000 (range 0 to 999; the slide shows 0→199): k² = 1522756, middle three 227, h(1234) = 227.</li><li>k = 110, n = 200 (range 0 to 199): k² = 12100, middle three 210 is out of range, so 210 % 200 = 10, h(110) = 10 (the slide writes h(50)).</li><li>k = 5642, n = 1000: k² = 31832164 has 8 digits, the middle four are 8321, and 8321 % 1000 = 321, h(5642) = 321.</li></ul>",
+            "When the middle digits are too large for the table (the last two examples), take them mod n to bring them into the range.",
+            "<b>Folding method</b> (Slide 8.14): partition the key K into parts K1, K2, …, then add the parts together. The part size depends on the address size: key 12345678 with 3-digit addresses splits into 123, 456, 78; with 4-digit addresses into 1234, 5678.",
+            "<b>Fold-shifting</b> (Slide 8.15): add the parts as they are. Key 12345678, two-digit addresses (0 to 99): 12 + 34 + 56 + 78 = 180, and 180 % 100 = <b>80</b> is the location.",
+            "<b>Fold-boundary</b> (Slide 8.15): reverse the outer parts (first and last) before adding: 12 becomes 21 and 78 becomes 87, so 21 + 34 + 56 + 87 = 198, and 198 % 100 = <b>98</b> is the location.",
+            "The final % 100 keeps the sum inside the address range 0 to 99 (it drops the carry digit 1 of 180 and 198)."
+          ],
+          "fig": [
             "ag-8-mult",
             "ag-8-midsquare",
             "ag-8-folding"
           ],
           "figAt": {
-            "ag-8-direct": 0,
-            "ag-8-mod-prime": 1,
-            "ag-8-mult": 1,
-            "ag-8-midsquare": 1,
-            "ag-8-folding": 1
+            "ag-8-mult": 3,
+            "ag-8-midsquare": 7,
+            "ag-8-folding": 11
           },
           "figH": {
-            "ag-8-direct": "Direct hashing h(K) = K, then the division method and its collision",
-            "ag-8-mod-prime": "Why n should be prime: 10, 20, 30, 40, 50 mod 4 and mod 7",
             "ag-8-mult": "Multiplication method: h(123) = 1 and h(150) = 70, line by line",
             "ag-8-midsquare": "Mid-square method: the slide's five examples",
             "ag-8-folding": "Folding 12345678: fold-shifting gives 80, fold-boundary gives 98"
           }
         },
         {
-          "h": "Amortized Analysis of Dynamic Hash Table Doubling (Slides 8.16–8.29)",
+          "h": "Amortized analysis and the aggregate method (Slides 8.16–8.23)",
           "pts": [
-            "<b>Dynamic Table Doubling Problem (Slides 8.16–8.23, Midterm 2018 Q6, Final 2019 Q2 & Final Summer Q28)</b>: Start with table capacity $1$ and double the table size ($1, 2, 4, 8, 16, \\dots$) whenever an insertion overflows the current table, copying all existing elements into the new table:<ul><li><b>1. Aggregate Method</b>: The $i$-th insertion costs $c_i = i$ if $i - 1$ is a power of 2 ($i = 1, 2, 3, 5, 9, \\dots$, where $i-1 = 2^k$ items are copied + $1$ new item inserted), and $c_i = 1$ otherwise. For $n$ insertions: $\\sum_{i=1}^n c_i \\le n + \\sum_{j=0}^{\\lfloor \\lg(n-1) \\rfloor} 2^j < n + 2n = 3n = O(n)$. Thus the amortized cost per insertion is $\\frac{3n}{n} = \\mathbf{3 = O(1)}$!</li><li><b>2. Accounting (Banker's) Method (Slides 8.24–8.26)</b>: Charge $\\hat{c}_i = \\mathbf{\\$3}$ per insertion: $\\$1$ pays for the immediate insertion, $\\$1$ is stored as credit on the newly inserted element itself, and $\\$1$ is stored as credit on one of the already-present elements in the first half of the table. When the table fills from $m/2$ to $m$, every one of the $m$ elements holds $\\$1$ credit, paying for all $m$ copies on the next doubling with bank balance never dropping below $0$!</li><li><b>3. Potential (Physicist's) Method (Slides 8.27–8.29)</b>: Define potential $\\Phi(D_i) = 2 \\cdot \\text{num}_i - \\text{size}_i$. For a non-expansion step, $\\hat{c}_i = c_i + \\Phi(D_i) - \\Phi(D_{i-1}) = 1 + 2 = 3$. For an expansion step ($\\text{size}_i = 2\\cdot\\text{size}_{i-1}, \\text{num}_{i-1} = \\text{size}_{i-1}$), $\\hat{c}_i = \\text{num}_i + (2) - (\\text{num}_i - 1) = 3 = O(1)$!</li></ul>"
-          ],
-          "formula": [
-            "Aggregate Method (Table Doubling 1, 2, 4, 8…): Total Cost = n + Σ (j = 0 … ⌊lg n⌋) 2ʲ < n + 2n = 3n ⇒ Amortized Cost = 3n / n = O(1)",
-            "Accounting Method: Charge $3 per insert ($1 immediate write + $1 self-credit + $1 partner-credit)",
-            "Potential Method: Φ(Dᵢ) = 2·numᵢ − sizeᵢ ⇒ Amortized Cost ĉᵢ = cᵢ + Φ(Dᵢ) − Φ(Dᵢ₋₁) = 3 = O(1)"
+            "<b>Amortized analysis</b> (Slide 8.16) is for algorithms where an occasional operation is very slow but most operations are fast. We analyze a whole sequence of operations and guarantee a worst-case average time per operation, lower than the worst case of the one expensive operation.",
+            "No probability is involved ‡: it is a guaranteed bound on the total cost of any sequence, divided by the number of operations. A structure should not be labelled costly just because a rarely performed operation is costly.",
+            "Three common methods (Slide 8.16): the aggregate method, the accounting method and the potential method.",
+            "<b>Aggregate method</b> (Slide 8.17): find the total cost of n operations, then divide by n: amortized cost = Cost(n operations) / n = [Cost(normal operations) + Cost(expensive operations)] / n.",
+            "The example (Slide 8.18) is hash table insertions. A big table makes search fast but needs a lot of space; a small one fills up. The solution is a <b>dynamic array</b>: when the table is full, (1) allocate a table of twice the size, (2) copy the old contents into it, (3) free the old table. If there is space, just insert.",
+            "Slide 8.18's picture starts from an empty table of size 0. Item 1 gives size 1, item 2 size 2, item 3 size 4, item 5 size 8; the slide marks items 1, 2 and 4 \"Overflow\" because after them the table is full. The next overflow happens when we insert 9: the size becomes 16.",
+            "Simple analysis (Slide 8.19): one insertion costs O(n) in the worst case (copy everything), so n insertions cost n · O(n) = O(n²). That is a correct upper bound, but far from tight.",
+            "A deeper look (Slide 8.20): let cᵢ be the cost of the i-th insertion. cᵢ = i if i − 1 is an exact power of 2 (copy the i − 1 old items, write 1), and cᵢ = 1 otherwise.",
+            "Slide 8.20's table for i = 1..10: sizeᵢ = 1, 2, 4, 4, 8, 8, 8, 8, 16, 16 and cᵢ = 1, 2, 3, 1, 5, 1, 1, 1, 9, 1. Doublings happen at i = 2, 3, 5, 9 (i − 1 = 1, 2, 4, 8). At i = 1, i − 1 = 0 is not a power of 2, so c₁ = 1.",
+            "Slide 8.21 splits each cost into 1 (the write every insertion pays) plus the copies of the doubling insertions: 1, 2, 4, 8.",
+            "Slide 8.22: Cost = (1 + 1 + 1 + … , n terms) + (1 + 2 + 4 + …) ≤ n + 2n, because the copies form a geometric series smaller than 2n. So n insertions cost O(3n) = O(n).",
+            "Written exactly ‡: Σ cᵢ (i = 1 to n) ≤ n + (2⁰ + 2¹ + … + 2ᵏ) with k = ⌊lg(n−1)⌋, and that sum is 2ᵏ⁺¹ − 1 < 2n, so the total is < n + 2n = 3n.",
+            "Slide 8.23: amortized cost = (1 + 2 + 3 + 1 + 5 + 1 + 1 + 1 + 9 + 1 + …) / n ≤ (n + 2n) / n = 3, so the amortized cost of one insertion is <b>O(1)</b>.",
+            "Check ‡: for n = 10 the costs add up to 25 ≤ 30 = 3n; for n = 17 they add up to 48 ≤ 51, although insertion 17 alone costs 17.",
+            "Exam: the aggregate proof is asked in Midterm 2018 Q6 and Final 2019 Q2; Final Summer Q28 asks for the result (O(n) total, O(1) per insertion)."
           ],
           "fig": [
             "ag-8-aggregate",
+            "ag-8-costbars"
+          ],
+          "figAt": {
+            "ag-8-aggregate": 12,
+            "ag-8-costbars": 13
+          },
+          "figH": {
+            "ag-8-aggregate": "Aggregate method: ten insertions into a doubling table cost at most 3n",
+            "ag-8-costbars": "Cost of every insertion as a bar: rare tall bars, total never above 3n"
+          },
+          "formula": [
+            "Aggregate Method (Table Doubling 1, 2, 4, 8…): Total Cost = n + Σ (j = 0 … ⌊lg n⌋) 2ʲ < n + 2n = 3n ⇒ Amortized Cost = 3n / n = O(1)"
+          ]
+        },
+        {
+          "h": "Accounting and potential methods (Slides 8.24–8.29)",
+          "pts": [
+            "<b>Accounting method</b> (Slide 8.24): charge the i-th operation an amortized cost ĉᵢ, where 1 dollar pays for 1 unit of work. The fee pays for the operation, and any amount not consumed is stored in the <b>bank</b> for later operations.",
+            "The bank balance must never go negative. That is the condition Σᵢ₌₁ⁿ cᵢ ≤ Σᵢ₌₁ⁿ ĉᵢ for every n: the money charged always covers the true work.",
+            "Slide 8.25 asks how much to charge each APPEND so that all future costs can be paid for. Answer: charging 3 dollars upon each APPEND is enough for every cost in the sequence.",
+            "Why 3 dollars is enough ‡: 1 dollar writes the new item now, 1 dollar is saved to copy this item at the next doubling, and 1 dollar is saved to copy one older item whose savings were spent at the last doubling.",
+            "Following the money: right after doubling to size 8 the bank holds 3 (b₅ = 3). Inserts 6, 7, 8 each cost 1 and add 2, so the bank reaches 9; insert 9 costs 8 copies + 1 write = 9 and leaves 9 + 3 − 9 = 3.",
+            "Key invariant (Slide 8.26): the bank balance never drops below 0, so the sum of the amortized costs (3n) is an upper bound on the sum of the true costs.",
+            "Slide 8.26's table, with ĉᵢ = 3 always and bᵢ = bᵢ₋₁ + 3 − cᵢ: cᵢ = 1, 2, 3, 1, 5, 1, 1, 1, 9, 1 and bᵢ = 2, 3, 3, 5, 3, 5, 7, 9, 3, 5. (The slide shows b₁₀ = 4; it is 3 + 3 − 1 = 5.)",
+            "<b>Potential method</b> (Slide 8.27): the prepaid work is stored as a <b>potential</b> Φ of the whole data structure instead of as credit on single items. The accounting and potential methods are closely related.",
+            "Potential of the dynamic array: Φ(hᵢ) = 2i − sizeᵢ, where i is the number of items after the i-th insertion. Amortized cost of the i-th insertion: ĉᵢ = cᵢ + Φ(hᵢ) − Φ(hᵢ₋₁).",
+            "Why this Φ ‡: right after a doubling the table is half full plus one, so Φ = 2; just before the next doubling it is full (i = size), so Φ = size, exactly enough to pay for copying size items. Φ₀ = 0 and Φ never goes negative because the table is always at least half full.",
+            "Case 1 (Slide 8.28), normal insert, no expansion (the size stays the same): ĉᵢ = 1 + (2i − size) − (2(i−1) − size) = 1 + 2i − size − 2i + 2 + size = <b>3</b>.",
+            "Case 2 (Slide 8.28), expansion: the table held i − 1 = size items, the new size is 2(i − 1), and cᵢ = i (copy i − 1, write 1). ĉᵢ = i + (2i − 2(i−1)) − (2(i−1) − (i−1)) = i + 2 − (i − 1) = <b>3</b>.",
+            "The slide writes case 2 with i items already in the table (cost i + 1, size i → 2i), and its middle lines use 2i − 2i = 0 and 2(i−1) − i for the two potentials; both are 2 too small, the errors cancel and it still ends at 3.",
+            "Slide 8.29's table for 17 insertions: Φ = 1, 2, 2, 4, 2, 4, 6, 8, 2, 4, 6, 8, 10, 12, 14, 16, 2. The amortized cost is 3 every time, except the first: 1 + (1 − 0) = 2.",
+            "Rows to check: i = 9: size 16, true cost 9, Φ₉ = 2·9 − 16 = 2, Φ₈ = 8, so ĉ₉ = 9 + (2 − 8) = 3. i = 17: size 32, true cost 17, Φ₁₇ = 34 − 32 = 2, Φ₁₆ = 16, so ĉ₁₇ = 17 + (2 − 16) = 3.",
+            "Conclusion: the total amortized cost of n insertions is at most 3n, and since Φₙ ≥ 0 = Φ₀ the true total is at most that too. All three methods give O(1) per insertion."
+          ],
+          "fig": [
             "ag-8-accounting",
             "ag-8-potential",
             "ag-8-potential-table"
           ],
           "figAt": {
-            "ag-8-aggregate": 0,
-            "ag-8-accounting": 0,
-            "ag-8-potential": 0,
-            "ag-8-potential-table": 0
+            "ag-8-accounting": 6,
+            "ag-8-potential": 12,
+            "ag-8-potential-table": 14
           },
           "figH": {
-            "ag-8-aggregate": "Aggregate method: ten insertions into a doubling table cost at most 3n",
-            "ag-8-accounting": "Accounting method: charge $3 per insert and watch the bank",
+            "ag-8-accounting": "Accounting method: charge 3 dollars per insert and watch the bank",
             "ag-8-potential": "Potential method: both cases give amortized cost 3",
             "ag-8-potential-table": "Potential method table for 17 insertions, row by row"
+          },
+          "formula": [
+            "Accounting Method: Charge $3 per insert ($1 immediate write + $1 self-credit + $1 partner-credit)",
+            "Potential Method: Φ(Dᵢ) = 2·numᵢ − sizeᵢ ⇒ Amortized Cost ĉᵢ = cᵢ + Φ(Dᵢ) − Φ(Dᵢ₋₁) = 3 = O(1)"
+          ]
+        },
+        {
+          "h": "Separate chaining and its analysis (Slides 8.30–8.37)",
+          "pts": [
+            "Outline of this part (Slide 8.30): how separate chaining works, analysis, the extended technique, rehashing.",
+            "<b>Separate chaining</b> (open hashing, Slide 8.31): if hash(k1) = i = hash(k2) for two different keys, the entries e1 and e2 are arranged into a chain, implemented as a linked list, and that list is stored in slot A[i] of the table A of size m.",
+            "A <b>linked list</b> is a chain of nodes; each node holds one item and a pointer to the next node. The slot stores a pointer to the first node, and an empty slot stores NIL (no list) ‡.",
+            "Advantages (Slide 8.32): simple to implement; the table never fills up (we can always add to a chain); less sensitive to the hash function or load factor; mostly used when it is unknown how many keys will be inserted or deleted, and how often.",
+            "Disadvantages (Slide 8.32): poor cache performance (list nodes are scattered in memory); wasted space (some slots are never used); a long chain makes search O(n) in the worst case; extra space for the links.",
+            "Expected chain length (Slide 8.33): under simple uniform hashing each key lands in a given slot with probability 1/m, so the expected length of any chain is n/m = α, called the <b>load factor</b> of the table. n = 3, m = 3 gives α = 1; n = 6, m = 3 gives α = 2.",
+            "Searching (Slide 8.34) for e_w, with Hash(key(e_w)) = 2: computing the hash and jumping to slot 2 costs O(1); walking the chain costs its length, expected α. Expected time to search = <b>O(1 + α)</b>. On the slide every chain has 3 items, so α = 9/3 = 3.",
+            "Deleting (Slide 8.35): first search for e_w, O(1 + α), then unlink its node, O(1). Expected time to delete = O(1 + α).",
+            "Inserting (Slide 8.36): hash the key (1) and link the new node into the chain (1). Expected time to insert = 1 + 1, that is <b>O(1)</b>. Linking at the head of the list is O(1) whatever the chain length ‡.",
+            "If the table grows with the data, n = O(m), then α = O(1) and all three operations take O(1) on average. The load factor is the average chain length, simple uniform hashing means every slot is equally likely, and chains are linked lists (Final Q13–Q15).",
+            "Worst case (Slide 8.37): all n elements are stored in one chain of length n. Expected time to search = O(1 + n) = O(n), and the same for delete. All keys in one slot give Θ(n) retrieval (Final Q7)."
+          ],
+          "fig": [
+            "ag-8-chaining"
+          ],
+          "figAt": {
+            "ag-8-chaining": 8
+          },
+          "figH": {
+            "ag-8-chaining": "Separate chaining: load factor and the cost of search, delete and insert"
           }
         },
         {
-          "h": "Separate Chaining & Open Addressing: Linear, Quadratic & Double Hashing (Slides 8.30–8.94)",
+          "h": "Extended technique: BST and AVL chains, then rehashing (Slides 8.38–8.48)",
           "pts": [
-            "<b>Separate Chaining (Open Hashing, Slides 8.31–8.46)</b>: Each slot points to a linked list (or balanced BST) of keys hashing to that slot. With $n$ keys and $m$ slots, the <b>load factor</b> is $\\alpha = n/m$ (average chain length).<ul><li><b>Worst-case search</b>: $\\Theta(n)$ (all $n$ keys hash to one chain; improves to $O(\\lg n)$ if chains are balanced BSTs).</li><li><b>Average-case search</b> under Simple Uniform Hashing: $\\Theta(1 + \\alpha)$ ($O(1)$ when $\\alpha = O(1)$).</li></ul>",
-            "<b>Open Addressing (Closed Hashing, Slides 8.49–8.94)</b>: All elements are stored directly inside the table array ($\u0007lpha \\le 1$). Deletion requires a special <b>DELETED (tombstone)</b> marker so subsequent searches do not stop prematurely!<ul><li><b>1. Linear Probing</b>: $h(k, i) = (h(k) + i) \\bmod m$ ($i = 0, 1, 2, \\dots$). Suffers from <b>primary clustering</b> (long contiguous runs of occupied slots grow longer).</li><li><b>2. Quadratic Probing</b>: $h(k, i) = (h(k) + i^2) \\bmod m$. Eliminates primary clustering, but suffers from milder <b>secondary clustering</b> (keys with the same initial $h(k)$ follow the exact same probe sequence). Guaranteed to find an empty slot if $m$ is prime and load factor $\\alpha < 0.5$.</li><li><b>3. Double Hashing</b>: $h(k, i) = (h_1(k) + i \\cdot h_2(k)) \\bmod m$, where $h_2(k) = R - (k \\bmod R)$ (for prime $R < m$) must <b>never evaluate to $0$</b> and should be relatively prime to $m$. Eliminates both primary and secondary clustering!</li></ul>",
-            "<b>Midterm 2021 ($m = 10, h_2(k) = 5 - (k \\bmod 5)$) vs. Midterm 2022 ($m = 11, h_2(k) = 7 - (k \\bmod 7)$) on Keys `[0, 30, 1, 55, 16, 28, 13, 9, 26]`</b>:<ul><li>In <b>Midterm 2021 ($m=10$)</b>, when inserting `55` under Double Hashing: $h_1(55) = 55 \\bmod 10 = 5$, and $h_2(55) = 5 - (55 \\bmod 5) = 5$. Because $\\gcd(h_2(55), 10) = \\gcd(5, 10) = 5 \\ne 1$, the probe sequence only visits $(5 + 5i) \\bmod 10 \\in \\{5, 0\\}$ (where slot `0` has `0` and slot `5` has `30`), so <b>`55` CANNOT BE INSERTED</b>!</li><li>In <b>Midterm 2022 ($m=11$, prime!)</b>, $h_1(k) = k \\bmod 11$ and $h_2(k) = 7 - (k \\bmod 7)$ places every key cleanly!</li></ul>"
+            "Limitations of separate chaining (Slide 8.38): deletion and search take O(n) in the worst case, and data inserted in unsorted order takes longer to search than sorted data.",
+            "Extended technique (Slide 8.38): each slot of the hash table holds a <b>binary search tree</b> (BST) instead of a linked list; the BST grows as data is inserted.",
+            "BST in short: for every node, keys in its left subtree are smaller and keys in its right subtree are larger. A search compares and goes left or right, walking one path, so it costs the tree's <b>height</b> (the longest root-to-leaf path).",
+            "Slide 8.38's picture: slot 0 holds the BST 50 with children 30 and 80, and 30 has children 10 and 40; slot 5 holds 55 with children 35 and 85, and 35 has right child 45. Searching 40 in slot 0: 50 (go left), 30 (go right), 40: 3 comparisons ‡.",
+            "Worst case (Slides 8.39–8.41): all n keys collide into one slot. Case 1, keys arrive sorted (10, 20, 30, 40, …): each new key goes to the same side, the tree becomes a path of n nodes (skewed), and operations take <b>O(n)</b>.",
+            "Case 2, keys arrive unsorted (for example 50, 30, 10, 40, …): the tree stays bushy with near-minimum height, about lg n, so operations take <b>O(lg n)</b>.",
+            "Best case (Slides 8.42–8.43): the keys are equally distributed, so each BST holds about n/m keys. Case 1, sorted keys (skewed trees): expected height n/m, <b>O(n/m)</b>. Case 2, unsorted keys: <b>O(lg(n/m))</b>.",
+            "Slide 8.44: so BST chains improve every case except Case 1 of the worst case (the skewed tree). The fix is an <b>AVL tree</b>: a self-balancing BST in which, for every node, the heights of the left and right subtrees differ by at most one.",
+            "BalanceFactor = height(left subtree) − height(right subtree), and AVL keeps it at −1, 0 or 1. Slide 8.44: the root 40 has left height 2 and right height 3: |2 − 3| = 1, allowed. Slide 8.45: node 70 has left height 0 and right height 1 (its child 80): |0 − 1| = 1.",
+            "Slide 8.46: inserting 20, 30, 40 into one slot in that order gives the path 20 → 30 → 40, unbalanced (20 has balance factor 0 − 2 = −2). A <b>rotation</b> lifts the middle key 30 to the root with children 20 and 40: balanced.",
+            "So with AVL trees every operation is O(lg n), where n is the number of elements (Slide 8.46), even when all keys collide.",
+            "<b>Rehashing</b> (Slide 8.47): as long as the load factor does not become too large, the average time stays O(1). In separate chaining α can rise above 1 without hurting much; in the other schemes the cost grows once α reaches 0.75 or 0.5.",
+            "So the array size is doubled and all the values are hashed again, with a new hash function, into the new larger array. Steps: for every new entry check the load factor; if it is greater than the threshold, start rehashing: make a larger array, copy (rehash) all elements into it, and make it the new bucket array.",
+            "Slide 8.47's example, threshold 2, m = 3, h(k) = k mod 3: 12 → 0, 10 → 1, 7 → 1, 14 → 2, 5 → 2. Insert 11 → slot 2: α = 6/3 = 2, not greater than 2. Insert 22: α = 7/3 = 2.33 > 2, so rehashing starts.",
+            "Slide 8.48: new size m = 6, h(k) = k mod 6: 12 → 0, 7 → 1, 14 → 2, 10 → 4, 22 → 4, 11 → 5, 5 → 5. New load factor 7/6 = 1.17, below the threshold. (The slide shows 1.67.)",
+            "A rehash costs O(n) once, but like table doubling it happens rarely, so its amortized cost per insertion is O(1) ‡."
+          ],
+          "fig": [
+            "ag-8-bst-chains",
+            "ag-8-avl",
+            "ag-8-rehash"
+          ],
+          "figAt": {
+            "ag-8-bst-chains": 6,
+            "ag-8-avl": 10,
+            "ag-8-rehash": 14
+          },
+          "figH": {
+            "ag-8-bst-chains": "A BST in every slot: worst case and best case",
+            "ag-8-avl": "AVL trees in the slots: balance factors and fixing 20, 30, 40",
+            "ag-8-rehash": "Rehashing when the load factor passes the threshold 2"
+          }
+        },
+        {
+          "h": "Open addressing: probing, insert, search and delete (Slides 8.49–8.55)",
+          "pts": [
+            "<b>Open addressing</b> (closed hashing, Slide 8.50): another way to handle collisions. There is no chaining and there are no pointers: all items are stored in the hash table itself, one item per slot, so at any time the table size ≥ the number of keys (α ≤ 1).",
+            "<b>Probing</b> (Slide 8.51): a collision is resolved by searching through alternate slots of the array, the <b>probe sequence</b>, until the target is reached. The hash function takes both the key and the probe number: h : U × {0, 1, …, m−1} → {0, 1, …, m−1} (universe of keys × trial count → slot in table).",
+            "h(k, 0) is the first slot tried, h(k, 1) the second, and so on. The probe sequence ⟨h(k, 0), h(k, 1), …, h(k, m−1)⟩ should be a permutation of {0, 1, …, m−1}: every slot is tried once, so an insert fails only when the table is really full.",
+            "Insert (Slide 8.52): compute h(k, i) for i = 0, 1, 2, … and keep probing until an empty slot (NIL) is found; put k there and return its index. If all m probes hit full slots, report \"Hash Table Overflow\".",
+            "Search (Slide 8.53): follow the same probe sequence; return j when T[j] = k; stop with \"not found\" (NIL) at an empty slot or after m probes. An empty slot proves k is absent: if k had been inserted, its insert would have stopped at that empty slot.",
+            "Delete (Slide 8.54): the key is first searched and then deleted. But if we simply empty its slot, a later search may stop there and miss keys that had probed past it. So deleted slots are marked specially as \"<b>deleted</b>\" (a tombstone).",
+            "Rules for the mark (Slide 8.54): insert can put a new item into a deleted slot; search does not stop at a deleted slot, it keeps probing. NIL means \"empty, never used\".",
+            "Three ways to probe (Slide 8.55): linear probing, quadratic probing, double hashing. All have the form h(k, i) = (h′(k) + f(i)) mod m: an ordinary hash function h′(k), an iteration term f(i) for the i-th probe, and mod the table size m."
+          ],
+          "code": "HASH-INSERT(T, k)\n1 i = 0\n2 repeat\n3     j = h(k, i)\n4     if T[j] == NIL\n5         T[j] = k\n6         return j\n7     else i = i + 1\n8 until i == m\n9 error \"Hash Table Overflow\"\n\nHASH-SEARCH(T, k)\n1 i = 0\n2 repeat\n3     j = h(k, i)\n4     if T[j] == k\n5         return j\n6     i = i + 1\n7 until T[j] == NIL or i == m\n8 return NIL"
+        },
+        {
+          "h": "Linear probing (Slides 8.56–8.66)",
+          "pts": [
+            "<b>Linear probing</b> (Slide 8.56): when a collision occurs, try the next bucket, and keep going until an empty bucket is found. f(i) = i, so h(k, i) = (h′(k) + i) mod m.",
+            "Probe sequence (Slide 8.57): 0th probe h(k) mod m, 1st (h(k) + 1) mod m, 2nd (h(k) + 2) mod m, …, i-th (h(k) + i) mod m. The mod wraps from slot m − 1 back to slot 0.",
+            "Slides 8.58–8.60, h(k) = k mod 11, keys 7, 36, 18, 62:<ul><li>7: h₀ = 7, empty, slot 7.</li><li>36: h₀ = 36 mod 11 = 3, slot 3.</li><li>18: h₀ = 7 is taken (collision), h₁ = 19 mod 11 = 8, slot 8.</li><li>62: h₀ = 7 and h₁ = 8 are taken, h₂ = 64 mod 11 = 9, slot 9.</li></ul>",
+            "Search 18 (Slide 8.61): h₀ = 7 holds 7, not matching; h₁ = 8 holds 18: matched, found after 2 probes.",
+            "Delete 18, then search 62 (Slide 8.62): if slot 8 were simply emptied, the search for 62 would try 7 (not matching), then 8, find it empty and stop: \"not found\", although 62 sits in slot 9. An empty slot breaks the search.",
+            "So (Slide 8.63) the item is replaced with the special flag \"Deleted\", which insert treats as empty (None) but search does not: search 62 now probes 7, 8 (Deleted, keep going), 9: found.",
+            "Insert 51 (Slide 8.64): h₀ = 51 mod 11 = 7 is taken, h₁ = 8 is marked Deleted, so insert reuses it: 51 goes to slot 8.",
+            "Time (Slide 8.65): the worst-case search in linear probing is O(table size). Even if only one element is present and all others were deleted, the \"deleted\" markers force the search through the whole table.",
+            "Advantages (Slide 8.66): easy to compute; best cache performance (the probes are neighbouring cells in memory); no extra memory, it uses the free space inside the table.",
+            "Disadvantage (Slide 8.66): <b>primary clustering</b>. Occupied slots form long runs; any key whose home slot falls in a run must walk to the end of it, and then makes it one longer. A free cell is always found if the table is big enough, but the time to find it can get large. In the slide's picture, a key with initial probe 52 walks over 52 to 56 before reaching the empty slot 57.",
+            "Exam (Final Q16): size 10, h(k) = k mod 10, linear probing, slots 2..7 hold 42, 23, 34, 52, 46, 33. The valid order is 46, 34, 42, 23, 52, 33: 52 probes 2, 3, 4 and lands in 5; 33 probes 3, 4, 5, 6 and lands in 7. Check any order by replaying the probes."
+          ],
+          "fig": [
+            "ag-8-linear"
+          ],
+          "figAt": {
+            "ag-8-linear": 6
+          },
+          "figH": {
+            "ag-8-linear": "Linear probing: insert, search and delete with the Deleted marker"
+          }
+        },
+        {
+          "h": "Quadratic probing and secondary clustering (Slides 8.67–8.79)",
+          "pts": [
+            "<b>Quadratic probing</b> (Slide 8.67): when a collision occurs, in the i-th iteration try the bucket i² after the home slot. f(i) = i², so h(k, i) = (h′(k) + i²) mod m. (The slide calls f \"a linear function of i\"; i² is quadratic.)",
+            "Probe sequence (Slide 8.68): h(k), h(k) + 1·1, h(k) + 2·2, h(k) + 3·3, …, h(k) + i·i, all mod m. The jumps between probes grow (1, 3, 5, 7, …), so a key quickly leaves a crowded region.",
+            "Slides 8.69–8.72, h(k) = k mod 11, keys 7, 36, 18, 62, 51:<ul><li>7 → slot 7; 36 → slot 3.</li><li>18: h₀ = 7 taken, h₁ = (18 + 1) mod 11 = 8, slot 8.</li><li>62: h₀ = 7 and h₁ = 8 taken, h₂ = (62 + 4) mod 11 = 66 mod 11 = 0, slot 0.</li><li>51: h₀ = 7, h₁ = 8, h₂ = 0 taken, h₃ = (51 + 9) mod 11 = 60 mod 11 = 5, slot 5.</li></ul>",
+            "Linear vs quadratic on the same keys (Slide 8.73): linear probing ends with 36 in slot 3 and one run 7, 18, 62, 51 in slots 7, 8, 9, 10; quadratic probing spreads them out: 62 in 0, 36 in 3, 51 in 5, 7 in 7, 18 in 8.",
+            "Advantages (Slide 8.74): average cache performance (between linear probing and double hashing); less clustering than linear probing (no primary clustering).",
+            "Disadvantage (Slide 8.74): two keys with the same initial probe position have the same probe sequence, since h(k1, 0) = h(k2, 0) implies h(k1, i) = h(k2, i). This milder form of clustering is called <b>secondary clustering</b>. Also, an element may be impossible to add because the computed index is never empty.",
+            "Secondary clustering example (Slides 8.75–8.77), h(k) = k mod 10, keys 2, 12, 22, 32, 42, 52, all with home slot 2:<ul><li>2 → slot 2.</li><li>12: h₀ = 2 occupied, h₁ = 13 mod 10 = 3, slot 3.</li><li>22: 2 and 3 taken, h₂ = 26 mod 10 = 6, slot 6.</li><li>32: 2, 3, 6 taken, h₃ = 41 mod 10 = 1, slot 1.</li><li>42: 2, 3, 6, 1 taken, h₄ = 58 mod 10 = 8, slot 8.</li><li>52: 2, 3, 6, 1, 8 taken, h₅ = 77 mod 10 = 7, slot 7.</li></ul>",
+            "Insert 62 (Slide 8.78): after 2, 3, 6, 1, 8, 7 come h₆ = 98 mod 10 = 8, h₇ = 111 mod 10 = 1, h₈ = 126 mod 10 = 6, h₉ = 143 mod 10 = 3: all taken. Unable to insert, although slots 0, 4, 5, 9 are empty.",
+            "Why ‡: i² mod 10 only takes the values 0, 1, 4, 9, 6, 5, so starting from slot 2 the probes can only reach 2, 3, 6, 1, 8, 7: exactly the six full slots.",
+            "Rule (Slide 8.79): with quadratic probing the table should be at most half full and its size must be prime; otherwise insertion may fail (there is always a collision). With m prime and α ≤ 1/2 an empty slot is always found ‡, because the first ⌈m/2⌉ probes all go to different slots."
+          ],
+          "fig": [
+            "ag-8-quadratic",
+            "ag-8-lin-quad",
+            "ag-8-secondary"
+          ],
+          "figAt": {
+            "ag-8-quadratic": 2,
+            "ag-8-lin-quad": 3,
+            "ag-8-secondary": 7
+          },
+          "figH": {
+            "ag-8-quadratic": "Quadratic probing on 7, 36, 18, 62, 51",
+            "ag-8-lin-quad": "Linear against quadratic probing on the same keys",
+            "ag-8-secondary": "Secondary clustering: 62 cannot be inserted"
+          }
+        },
+        {
+          "h": "Double hashing, and the three probing methods compared (Slides 8.80–8.88)",
+          "pts": [
+            "<b>Double hashing</b> (Slide 8.80): use a second hash function hash2(x) and in the i-th rotation look i·hash2(x) slots past the home slot. f(i) = i·hash2(k), so h(k, i) = (hash1(k) + i·hash2(k)) mod m. It needs more computation, since two hash functions are computed.",
+            "Probe sequence (Slide 8.81): hash1(k), hash1(k) + 1·hash2(k), hash1(k) + 2·hash2(k), …, hash1(k) + i·hash2(k), all mod m; i increases at each collision. The step size depends on the key, so keys with the same home slot usually take different paths.",
+            "Usual choice (Slide 8.82): hash1(key) = key % TABLE_SIZE, and hash2(key) = PRIME − (key % PRIME), where PRIME is a prime smaller than TABLE_SIZE. Since key % PRIME is 0 to PRIME − 1, hash2 is 1 to PRIME: never 0.",
+            "A good hash2 (Slide 8.82) must never evaluate to zero (a step of 0 would probe the same slot forever) and must make sure all cells can be probed: the step must be relatively prime to m, which is automatic when m is prime ‡.",
+            "Slides 8.83–8.86, hash1 = key mod 10, hash2(k) = 7 − (k % 7), keys 37, 90, 45, 22, 17, 49, 55:<ul><li>37 → 7; 90 → 0; 45 → 5; 22 → 2 (no collisions, hash2 not needed).</li><li>17: h₀ = 7 taken; hash2 = 7 − (17 % 7) = 7 − 3 = 4; h₁ = (7 + 4) mod 10 = 1, slot 1.</li><li>49 → 9.</li><li>55: h₀ = 5 taken; hash2 = 7 − (55 % 7) = 7 − 6 = 1; h₁ = (5 + 1) mod 10 = 6, slot 6.</li></ul>",
+            "Final table: 0: 90, 1: 17, 2: 22, 5: 45, 6: 55, 7: 37, 9: 49; slots 3, 4 and 8 are empty.",
+            "Advantages (Slide 8.87): no clustering. When m is prime or a power of 2, double hashing uses Θ(m²) probe sequences instead of Θ(m), since each pair (h1(k), h2(k)) gives its own sequence; its performance is very close to the ideal scheme of uniform hashing.",
+            "Why only m sequences for linear and quadratic probing ‡: there the whole sequence is fixed by the first slot, and there are only m first slots. Double hashing chooses a first slot and a step: about m · m pairs.",
+            "Disadvantages (Slide 8.87): poor cache performance (the probes jump around memory); more computation time, since two hash functions are computed.",
+            "Comparison (Slide 8.88): see the table. The slide leaves the probe-sequence cell of double hashing blank; from Slide 8.87 it is m². The slide also marks linear probing \"Yes\" for secondary clustering: keys with the same home slot share their sequence there too."
+          ],
+          "table": [
+            [
+              "",
+              "Linear probing",
+              "Quadratic probing",
+              "Double hashing"
+            ],
+            [
+              "Primary clustering",
+              "Yes",
+              "No",
+              "No"
+            ],
+            [
+              "Secondary clustering",
+              "Yes",
+              "Yes",
+              "No"
+            ],
+            [
+              "Number of probe sequences (m = table size)",
+              "m",
+              "m",
+              "m² (blank on the slide)"
+            ],
+            [
+              "Cache performance",
+              "Best",
+              "Between the two",
+              "Poor"
+            ]
+          ],
+          "fig": [
+            "ag-8-double"
+          ],
+          "figAt": {
+            "ag-8-double": 5
+          },
+          "figH": {
+            "ag-8-double": "Double hashing with hash2(k) = 7 − (k mod 7)"
+          }
+        },
+        {
+          "h": "Analysis of open addressing, rehashing, chaining vs open addressing (Slides 8.89–8.94)",
+          "pts": [
+            "Slide 8.89's formula is an unreadable image. The theorem it states (CLRS Theorem 11.6) ‡: with load factor α = n/m < 1 and uniform hashing, the expected number of probes in an unsuccessful search is at most <b>1/(1 − α)</b>.",
+            "Intuition ‡: the first probe always happens; it hits an occupied slot with probability α, so a second probe is needed; that one is occupied with probability about α again, and so on: 1 + α + α² + … = 1/(1 − α), a geometric sum.",
+            "Implications (Slide 8.90): if α is a constant, accessing an open-addressed hash table takes constant time. Half full: 1/(1 − 0.5) = 2 expected probes. 90% full: 1/(1 − 0.9) = 10 expected probes.",
+            "An insert costs the same as an unsuccessful search (it probes until an empty slot). A successful search needs at most (1/α) ln(1/(1 − α)) probes, about 1.39 at α = 0.5 ‡.",
+            "Rehashing for open addressing (Slide 8.91): when the table is too full, create a new table whose size is the prime closest to 2m (m = old size): compute the new table size, apply it to the hash function, compute the new hash value of each element, and insert it into the new table.",
+            "When to rehash (Slide 8.91): when the table is half full (λ = 0.5; λ is another name for the load factor), when an insertion fails, or when a chosen load factor is reached. Example ‡: m = 11 becomes the prime closest to 22, which is 23.",
+            "Separate chaining vs open addressing (Slide 8.92): see the table. In short, chaining is simpler, never fills up and deletes easily; open addressing has better cache performance and no links, but can fill up and needs care with clustering and load factor.",
+            "Cache misses (Slide 8.93): average cache misses per lookup against the load factor. Chaining stays at about 2 to 3 for every α; linear probing stays near 1 for small α but shoots up as α approaches 1 (above about 0.8 it is worse than chaining).",
+            "Recommendations (Slide 8.94):<ul><li>If open addressing is used, double hashing is preferred over quadratic probing.</li><li>If plenty of memory is available and the data won't expand, linear probing is simpler to implement.</li><li>If the number of items to insert is not known, separate chaining is preferable.</li><li>If deletion is required, use separate chaining.</li><li>When in doubt, use separate chaining.</li></ul>"
+          ],
+          "table": [
+            [
+              "",
+              "Separate chaining",
+              "Open addressing"
+            ],
+            [
+              "1",
+              "Simpler to implement",
+              "Requires more computation"
+            ],
+            [
+              "2",
+              "Table never fills up; we can always add to a chain",
+              "The table may become full"
+            ],
+            [
+              "3",
+              "Less sensitive to the hash function or load factor",
+              "Needs extra care to avoid clustering and to watch the load factor"
+            ],
+            [
+              "4",
+              "Used when it is unknown how many keys, and how often, will be inserted or deleted",
+              "Used when the frequency and number of keys is known"
+            ],
+            [
+              "5",
+              "Poor cache performance (linked lists)",
+              "Better cache performance (everything in one table)"
+            ],
+            [
+              "6",
+              "Wasted space (some slots are never used)",
+              "A slot can be used even if no input maps to it"
+            ],
+            [
+              "7",
+              "Deletion is easier",
+              "Deletion is difficult"
+            ],
+            [
+              "8",
+              "Extra space for links",
+              "No links"
+            ]
+          ],
+          "fig": [
+            "ag-8-probes",
+            "ag-8-cache"
+          ],
+          "figAt": {
+            "ag-8-probes": 2,
+            "ag-8-cache": 7
+          },
+          "figH": {
+            "ag-8-probes": "Expected probes 1/(1 − α): 2 when half full, 10 when 90% full",
+            "ag-8-cache": "Cache misses per lookup: chaining against linear probing"
+          }
+        },
+        {
+          "h": "Exam workout: Midterm 2021 Q1 and Midterm 2022 Q1 (methods of Slides 8.56–8.86)",
+          "pts": [
+            "Both questions insert 0, 30, 1, 55, 16, 28, 13, 9, 26 with linear probing, quadratic probing, double hashing and chaining. Midterm 2021 uses m = 10 with h₂(k) = 5 − (k mod 5); Midterm 2022 uses m = 11 with h₂(k) = 7 − (k mod 7).",
+            "Home slots: mod 10 gives 0, 0, 1, 5, 6, 8, 3, 9, 6; mod 11 gives 0, 8, 1, 0, 5, 6, 2, 9, 4.",
+            "2021 linear: 30 finds 0 taken and goes to 1; 1 finds 1 taken and goes to 2; 26 finds 6 taken and goes to 7. Quadratic gives the same table here, because every collision is solved at i = 1, where both add 1.",
+            "2021 double hashing: 30: h₂ = 5 − 0 = 5, so 0 + 5 = 5. 26: h₂ = 5 − 1 = 4, probes 6, 10 mod 10 = 0 (taken), 14 mod 10 = 4: slot 4.",
+            "2021 double hashing, key 55: h₁ = 5 is taken by 30, h₂ = 5 − (55 mod 5) = 5, so the probes (5 + 5i) mod 10 alternate 5, 0, 5, 0, … and both are full: <b>55 cannot be inserted</b>. The step 5 shares the factor 5 with m = 10, so only 10/5 = 2 slots are reachable.",
+            "2022 linear: 55 finds 0 and 1 taken and goes to 2; 13 finds 2 taken and goes to 3. 2022 quadratic: 55 tries 0, 1, then 0 + 4 = 4; 13 goes straight to 2; 26 tries 4, 5, 8, 13 mod 11 = 2, 20 mod 11 = 9 (all taken), then 29 mod 11 = 7.",
+            "2022 double hashing: 55: h₂ = 7 − (55 mod 7) = 7 − 6 = 1, probes 0, 1, 2: slot 2. 13: h₂ = 7 − 6 = 1, probes 2, 3: slot 3. 26 goes straight to 4. Same table as linear probing here.",
+            "Chaining, m = 10: 0: [0, 30], 1: [1], 3: [13], 5: [55], 6: [16, 26], 8: [28], 9: [9]. m = 11: 0: [0, 55], 1: [1], 2: [13], 4: [26], 5: [16], 6: [28], 8: [30], 9: [9].",
+            "Lesson: 11 is prime, so every step h₂ = 1..7 is relatively prime to it and double hashing always reaches an empty slot; 10 is one of the \"bad\" non-prime sizes of Slide 8.8."
           ],
           "table": [
             [
               "Slot",
-              "Midterm 2021 (m=10) Linear",
-              "Midterm 2021 (m=10) Quadratic",
-              "Midterm 2021 (m=10) Double (55 fails!)",
-              "Midterm 2022 (m=11) Linear",
-              "Midterm 2022 (m=11) Quadratic",
-              "Midterm 2022 (m=11) Double"
+              "2021 linear (m = 10)",
+              "2021 quadratic",
+              "2021 double (55 fails)",
+              "2022 linear (m = 11)",
+              "2022 quadratic",
+              "2022 double"
             ],
             [
               "0",
@@ -9053,7 +14872,7 @@ window.COURSES.algo = {
               "2",
               "1",
               "1",
-              "—",
+              "empty",
               "55",
               "13",
               "55"
@@ -9064,13 +14883,13 @@ window.COURSES.algo = {
               "13",
               "13",
               "13",
-              "—",
+              "empty",
               "13"
             ],
             [
               "4",
-              "—",
-              "—",
+              "empty",
+              "empty",
               "26",
               "26",
               "55",
@@ -9098,10 +14917,10 @@ window.COURSES.algo = {
               "7",
               "26",
               "26",
-              "—",
-              "—",
+              "empty",
+              "empty",
               "26",
-              "—"
+              "empty"
             ],
             [
               "8",
@@ -9123,28 +14942,20 @@ window.COURSES.algo = {
             ],
             [
               "10",
-              "N/A",
-              "N/A",
-              "N/A",
-              "—",
-              "—",
-              "—"
+              "n/a",
+              "n/a",
+              "n/a",
+              "empty",
+              "empty",
+              "empty"
             ]
           ],
           "fig": [
-            "algo-hash-sim",
-            "ag-8-chaining",
-            "ag-8-bst-chains",
-            "ag-8-avl",
-            "ag-8-rehash",
-            "ag-8-linear",
-            "ag-8-quadratic",
-            "ag-8-lin-quad",
-            "ag-8-secondary",
-            "ag-8-double",
-            "ag-8-probes",
-            "ag-8-cache"
+            "algo-hash-sim"
           ],
+          "figAt": {
+            "algo-hash-sim": 8
+          },
           "viz": {
             "type": "hash",
             "title": "Midterm 2022 Q1: Hash Table (m = 11) on [0, 30, 1, 55, 16, 28, 13, 9, 26]",
@@ -9188,70 +14999,230 @@ window.COURSES.algo = {
                 26
               ]
             ]
-          },
-          "figAt": {
-            "ag-8-chaining": 0,
-            "ag-8-bst-chains": 0,
-            "ag-8-avl": 0,
-            "ag-8-rehash": 0,
-            "ag-8-linear": 1,
-            "ag-8-quadratic": 1,
-            "ag-8-lin-quad": 1,
-            "ag-8-secondary": 1,
-            "ag-8-double": 1,
-            "ag-8-probes": 1,
-            "ag-8-cache": 1
-          },
-          "figH": {
-            "ag-8-chaining": "Separate chaining: load factor and the cost of search, delete and insert",
-            "ag-8-bst-chains": "A BST in every slot: worst case and best case",
-            "ag-8-avl": "AVL trees in the slots: balance factors and fixing 20, 30, 40",
-            "ag-8-rehash": "Rehashing when the load factor passes the threshold 2",
-            "ag-8-linear": "Linear probing: insert, search and delete with the Deleted marker",
-            "ag-8-quadratic": "Quadratic probing on 7, 36, 18, 62, 51",
-            "ag-8-lin-quad": "Linear against quadratic probing on the same keys",
-            "ag-8-secondary": "Secondary clustering: 62 cannot be inserted",
-            "ag-8-double": "Double hashing with hash2(k) = 7 − (k mod 7)",
-            "ag-8-probes": "Expected probes 1/(1 − α): 2 when half full, 10 when 90% full",
-            "ag-8-cache": "Cache misses per lookup: chaining against linear probing"
           }
         }
       ],
       "cards": [
         [
           "Division & Multiplication Hash Functions",
-          "Division: h(k) = k mod m (choose m prime). Multiplication: h(k) = ⌊m(kA mod 1)⌋ with 0 < A < 1 (A ≈ 0.618033)."
+          "Division: h(k) = k mod m, m prime, not near a power of 2. Multiplication: h(k) = ⌊m (kA mod 1)⌋ with 0 < A < 1 (slides: A = 0.618033); m is not critical."
         ],
         [
           "Fold-Shifting vs. Fold-Boundary",
-          "Both partition the key into address-sized chunks and add them; Fold-Boundary reverses the digits of the outer boundary chunks before adding."
+          "Both split the key into address-sized parts and add them. Fold-boundary first reverses the outer parts. 12345678, 2 digits: shifting 12+34+56+78 = 180 → 80; boundary 21+34+56+87 = 198 → 98."
         ],
         [
           "Dynamic Table Doubling Amortized Cost",
-          "Expanding table size as 1, 2, 4, 8… costs < n + 2n = 3n total for n insertions → O(1) amortized per insertion (Aggregate, Accounting $3, Potential Φ = 2·num − size)."
+          "Sizes 1, 2, 4, 8, …: n insertions cost ≤ n + 2n = 3n in total, so O(1) amortized per insertion (aggregate; accounting 3 dollars each; potential Φ = 2i − size)."
         ],
         [
           "Primary vs. Secondary Clustering",
-          "Primary clustering occurs in Linear Probing (any key landing in a cluster extends it). Secondary clustering occurs in Quadratic Probing (only keys with the exact same initial h(k) follow the same probe path)."
+          "Primary (linear probing): long runs of full slots; any key landing in a run extends it. Secondary (quadratic probing): keys with the same home slot follow the same probe sequence."
         ],
         [
           "Why Key 55 Cannot Be Inserted in Midterm 2021 Double Hashing",
-          "With m = 10 and h₂(55) = 5 − (55 mod 5) = 5, probes only alternate between slots 5 and 0 ((5 + 5i) mod 10), which are already occupied by 30 and 0!"
+          "m = 10, h₁(55) = 5 (taken), h₂(55) = 5 − (55 mod 5) = 5. Probes (5 + 5i) mod 10 = 5, 0, 5, 0, … both full; gcd(5, 10) = 5, so only 2 slots are reachable."
         ],
         [
-          "Direct Addressing & Four Hash Function Methods (Slides 8.1–8.15) — Core Principle & Complexity",
-          "<b>Direct Addressing (Slides 8.5–8.6)</b>: $h(k) = k$ stores each key at its own index in $O(1)$ worst-case search/insert/delete, but wastes massive memory when the universe of keys is large. <b>Four Hash Function Construction Methods (Slides 8.7–8.15)</b>:<ul><li><b>1. Division Method</b>: $h(k) = k \\bmod n$. Choose table size $n$ to be a <b>prime number</b> not close to a power of 2 or 10 (Slide 8.9 shows why $n=4$ maps $10, 20, 30, 40, 50$ only to slots $0$ and $2$, whereas prime $n=7$ spreads them across $3, 6, 2, 4, 1$).</li><li><b>2. Multiplication Method</b>: $h(k) = \\lfloor n (k A \\bmod 1) \\rfloor$ where $0 < A < 1$ (Knuth suggests $A \\approx (\\sqrt{5}-1)/2 \\approx 0.618033$). Slide 8.11 Example ($n=100, A=0.618033$): $h(123) = \\lfloor 100(76.018059 \\bmod 1) \\rfloor = \\lfloor 1.8059 \\rfloor = 1$; $h(150) = \\lfloor 100(92.70495 \\bmod 1) \\rfloor = 70$. Note: In binary implementation $m = 2^p$ (so for $p=7$, $m = 2^7 = 128$, Final 2 Q6).</li><li><b>3. Mid-Square Method</b>: Square $k$ ($k^2$) and extract the middle $r$ digits (e.g., $n=100 \\implies r=2$ digits).</li><li><b>4. Folding Method</b>: Partition key $K$ into parts matching the address width and add them. Slide 8.15 Example (`K = 12345678`, 2-digit address `0..99`):<ul><li><b>Fold-Shifting</b>: $12 + 34 + 56 + 78 = 180 \\implies 180 \\bmod 100 = \\mathbf{80}$.</li><li><b>Fold-Boundary</b> (reverse outer parts `12→21` and `78→87`): $21 + 34 + 56 + 87 = 198 \\implies 198 \\bmod 100 = \\mathbf{98}$.</li></ul></li></ul>"
+          "Direct addressing and the hash function methods (Slides 8.1–8.15): main result",
+          "Direct hashing h(K) = K gives O(1) search, insert, delete but needs an array as large as the biggest key. Hash functions (division, multiplication, mid-square, folding) map big keys into a table of size n."
         ],
         [
-          "Separate Chaining & Open Addressing: Linear, Quadratic & Double Hashing (Slides 8.30–8.94) — Core Principle & Complexity",
-          "<b>Separate Chaining (Open Hashing, Slides 8.31–8.46)</b>: Each slot points to a linked list (or balanced BST) of keys hashing to that slot. With $n$ keys and $m$ slots, the <b>load factor</b> is $\\alpha = n/m$ (average chain length).<ul><li><b>Worst-case search</b>: $\\Theta(n)$ (all $n$ keys hash to one chain; improves to $O(\\lg n)$ if chains are balanced BSTs).</li><li><b>Average-case search</b> under Simple Uniform Hashing: $\\Theta(1 + \\alpha)$ ($O(1)$ when $\\alpha = O(1)$).</li></ul> <b>Open Addressing (Closed Hashing, Slides 8.49–8.94)</b>: All elements are stored directly inside the table array ($\u0007lpha \\le 1$). Deletion requires a special <b>DELETED (tombstone)</b> marker so subsequent searches do not stop prematurely!<ul><li><b>1. Linear Probing</b>: $h(k, i) = (h(k) + i) \\bmod m$ ($i = 0, 1, 2, \\dots$). Suffers from <b>primary clustering</b> (long contiguous runs of occupied slots grow longer).</li><li><b>2. Quadratic Probing</b>: $h(k, i) = (h(k) + i^2) \\bmod m$. Eliminates primary clustering, but suffers from milder <b>secondary clustering</b> (keys with the same initial $h(k)$ follow the exact same probe sequence). Guaranteed to find an empty slot if $m$ is prime and load factor $\\alpha < 0.5$.</li><li><b>3. Double Hashing</b>: $h(k, i) = (h_1(k) + i \\cdot h_2(k)) \\bmod m$, where $h_2(k) = R - (k \\bmod R)$ (for prime $R < m$) must <b>never evaluate to $0$</b> and should be relatively prime to $m$. Eliminates both primary and secondary clustering!</li></ul>"
+          "Separate chaining and open addressing (Slides 8.30–8.94): main result",
+          "Chaining: average search Θ(1 + α), insert O(1), worst case O(n). Open addressing (α < 1): expected probes ≤ 1/(1 − α), with a Deleted marker for deletion."
+        ],
+        [
+          "What three operations does a dictionary support?",
+          "INSERT, SEARCH (by key) and DELETE."
+        ],
+        [
+          "Search cost: list, BST, hashing (Slides 8.3–8.4)",
+          "List O(n); balanced BST O(lg n); hashing O(1) best and average, O(n) worst."
+        ],
+        [
+          "Direct hashing: advantages and disadvantage",
+          "Search, insert, delete O(1). Memory consuming: the array must be as large as the largest key."
+        ],
+        [
+          "Collision",
+          "Two different keys hashed to the same slot: h(k₁) = h(k₂), k₁ ≠ k₂. Unavoidable when there are more possible keys than slots (pigeonhole)."
+        ],
+        [
+          "Why should the division-method table size be prime?",
+          "Non-primes and powers of 2 cause many collisions on patterned keys: 10, 20, 30, 40, 50 mod 4 use only slots 0 and 2; mod 7 they use 3, 6, 2, 5, 1."
+        ],
+        [
+          "h(172) with m = 157 (division)",
+          "172 mod 157 = 15."
+        ],
+        [
+          "Multiplication method: h(123) and h(150), n = 100, A = 0.618033",
+          "h(123) = ⌊100 · 0.018059⌋ = 1; h(150) = ⌊100 · 0.70495⌋ = 70."
+        ],
+        [
+          "Mid-square method",
+          "Square the key and take the middle r digits (r = 1, 2, 3 for n = 10, 100, 1000); take mod n if too big. 1234² = 1522756 → 227."
+        ],
+        [
+          "Amortized analysis",
+          "Bound the total cost of a whole sequence of operations and divide by their number: a guaranteed worst-case average per operation, no probability."
+        ],
+        [
+          "Cost cᵢ of the i-th insertion into a doubling table",
+          "cᵢ = i if i − 1 is an exact power of 2 (copy i − 1, write 1), else 1. c₁..c₁₀ = 1, 2, 3, 1, 5, 1, 1, 1, 9, 1."
+        ],
+        [
+          "Naive vs real bound for n insertions with doubling",
+          "Naive: n · O(n) = O(n²). Real (aggregate): Σ cᵢ ≤ n + 2n = 3n = O(n)."
+        ],
+        [
+          "Accounting method rule",
+          "Charge ĉᵢ (1 dollar = 1 unit of work); unused money goes to the bank; the bank must never be negative: Σ cᵢ ≤ Σ ĉᵢ. For table doubling ĉᵢ = 3 dollars."
+        ],
+        [
+          "Bank balances b₁..b₁₀ with 3 dollars per insertion",
+          "2, 3, 3, 5, 3, 5, 7, 9, 3, 5 (the slide prints b₁₀ = 4)."
+        ],
+        [
+          "Potential function of the dynamic array",
+          "Φ(hᵢ) = 2i − sizeᵢ; ĉᵢ = cᵢ + Φ(hᵢ) − Φ(hᵢ₋₁) = 3 in both cases (no expansion, expansion)."
+        ],
+        [
+          "Simple uniform hashing",
+          "Each key is equally likely to hash to any of the m slots (probability 1/m), independently of the others."
+        ],
+        [
+          "Load factor α",
+          "α = n/m = expected chain length. n = 6, m = 3 → α = 2. Chaining allows α > 1; open addressing needs α ≤ 1."
+        ],
+        [
+          "Expected times in separate chaining",
+          "Search O(1 + α), delete O(1 + α), insert O(1). Worst case (one chain of n): O(n)."
+        ],
+        [
+          "BST chains: four cases (Slides 8.39–8.43)",
+          "All keys in one slot: sorted O(n), unsorted O(lg n). Keys spread: sorted O(n/m), unsorted O(lg(n/m)). AVL trees make it O(lg n) always."
+        ],
+        [
+          "AVL balance factor",
+          "height(left subtree) − height(right subtree); AVL keeps it in {−1, 0, 1} at every node."
+        ],
+        [
+          "Rehashing (Slides 8.47–8.48 example)",
+          "When α > threshold, double the table and rehash all keys. m = 3, 7 keys: α = 2.33 > 2 → m = 6, α = 7/6 = 1.17."
+        ],
+        [
+          "Open addressing",
+          "All items stored in the table itself, one per slot, no pointers; probe h(k, 0), h(k, 1), … (a permutation of 0..m−1) until a free slot."
+        ],
+        [
+          "Why mark deleted slots \"Deleted\" instead of emptying them?",
+          "An empty slot stops a search, so keys stored past it would be lost. Insert may reuse a Deleted slot; search continues through it."
+        ],
+        [
+          "Linear, quadratic, double hashing: probe formulas",
+          "(h(k) + i) mod m; (h(k) + i²) mod m; (hash1(k) + i·hash2(k)) mod m."
+        ],
+        [
+          "Good second hash function",
+          "hash2(key) = PRIME − (key % PRIME), PRIME < table size: never 0, and all cells can be probed."
+        ],
+        [
+          "Quadratic probing condition (Slide 8.79)",
+          "Table at most half full and table size prime; otherwise an insert may fail (2, 12, …, 52 mod 10: 62 cannot be inserted)."
+        ],
+        [
+          "Probe sequences: linear / quadratic / double",
+          "m / m / Θ(m²). Cache: best / between / poor."
+        ],
+        [
+          "Expected probes in open addressing",
+          "≤ 1/(1 − α): 2 when half full, 10 when 90% full."
+        ],
+        [
+          "Open-addressing rehash size (Slide 8.91)",
+          "The prime closest to 2m; rehash when half full (λ = 0.5), when an insertion fails, or at a set load factor."
+        ],
+        [
+          "When in doubt (Slide 8.94)",
+          "Use separate chaining (also when deletion is needed or the number of items is unknown). For open addressing prefer double hashing."
         ]
       ],
       "qa": [
         [
           "Show the amortized analysis for a dynamic hash table that starts at size 1 and doubles at powers of 2 (1, 2, 4, 8, …) using the Aggregate Method.",
-          "Let $c_i$ be the cost of the $i$-th insertion. If the table is not full, $c_i = 1$. When $i - 1$ is a power of 2 ($i = 2, 3, 5, 9, \\dots, 2^k + 1$), the table doubles and copies all $i - 1 = 2^k$ existing items plus inserts the new item, costing $c_i = 2^k + 1$. Summing over $n$ insertions:<br>$$\\text{Total Cost} = \\sum_{i=1}^n c_i \\le n + \\sum_{k=0}^{\\lfloor \\lg(n-1) \\rfloor} 2^k = n + (2^{\\lfloor \\lg(n-1) \\rfloor + 1} - 1) < n + 2n = 3n.$$<br>Therefore, the <b>amortized cost per operation</b> is $\\frac{\\text{Total Cost}}{n} < \\frac{3n}{n} = 3 = \\mathbf{O(1)}$.",
+          "Let cᵢ be the cost of the i-th insertion (1 dollar per write or copy). If the table has space, cᵢ = 1. If the table is full, which happens when i − 1 is an exact power of 2 (i = 2, 3, 5, 9, …), it doubles: copy the i − 1 items and write the new one, so cᵢ = i.<br>Table: i = 1..10, size = 1, 2, 4, 4, 8, 8, 8, 8, 16, 16, cᵢ = 1, 2, 3, 1, 5, 1, 1, 1, 9, 1.<br>Total = (1 + 1 + … + 1, n terms) + (1 + 2 + 4 + … + 2ᵏ) with 2ᵏ ≤ n − 1. The geometric sum is 2ᵏ⁺¹ − 1 < 2n, so Total < n + 2n = 3n.<br>Amortized cost per insertion = Total / n < 3n / n = 3 = <b>O(1)</b> (check: n = 10 gives 25 ≤ 30).",
           "Midterm 2018 Q6, Final 2019 Q2 & Lecture 8 · Slides 8.17–8.22"
+        ],
+        [
+          "Slide 8.3: search costs O(n) in a list and O(lg n) in a BST. Is it possible to search in less time?",
+          "Yes, with hashing. A hash function computes the slot of a key directly, so search, insert and delete take O(1) in the best and average case (Slide 8.4). The worst case is still O(n), when many keys collide into one place, so a good hash function and a small load factor matter.",
+          "Lecture 8 · Slides 8.3–8.4"
+        ],
+        [
+          "Slide 8.8: certain values of n are bad for the division method. Why? Show with keys 10, 20, 30, 40, 50.",
+          "Non-prime sizes (and powers of 2) share factors with patterned keys, so the keys reach only some slots and collide. mod 4: 10 → 2, 20 → 0, 30 → 2, 40 → 0, 50 → 2: only slots 0 and 2 of 0..3 are used. mod 7 (prime): 3, 6, 2, 5, 1: five different slots, no collisions. (The slide prints 40 mod 7 = 4; it is 5.) So choose n prime, not close to a power of 2.",
+          "Lecture 8 · Slides 8.8–8.9"
+        ],
+        [
+          "Compute the multiplication-method hash of k = 123 and k = 150 with n = 100 and A = 0.618033.",
+          "h(k) = ⌊n (kA mod 1)⌋.<br>k = 123: 123 · 0.618033 = 76.018059 → fraction 0.018059 → · 100 = 1.8059 → h = 1.<br>k = 150: 150 · 0.618033 = 92.70495 → fraction 0.70495 → · 100 = 70.495 → h = 70.",
+          "Lecture 8 · Slide 8.11"
+        ],
+        [
+          "Hash key 12345678 into a two-digit address (0..99) with fold-shifting and with fold-boundary.",
+          "Split into 2-digit parts: 12, 34, 56, 78.<br>Fold-shifting adds them as they are: 12 + 34 + 56 + 78 = 180; 180 % 100 = <b>80</b>.<br>Fold-boundary reverses the outer parts first (12 → 21, 78 → 87): 21 + 34 + 56 + 87 = 198; 198 % 100 = <b>98</b>.",
+          "Lecture 8 · Slide 8.15"
+        ],
+        [
+          "Slide 8.19: what is the time complexity of n insertions into a table that doubles when full? Is the O(n²) answer correct?",
+          "Simple analysis: one insertion may copy the whole table, O(n), so n insertions cost n · O(n) = O(n²). That bound is true but not tight, because copying only happens when i − 1 is a power of 2. Summing the real costs gives at most n writes plus 1 + 2 + 4 + … < 2n copies, so n insertions cost < 3n = O(n), O(1) amortized each.",
+          "Lecture 8 · Slides 8.19–8.23"
+        ],
+        [
+          "Slide 8.25: how much must each APPEND be charged in the accounting method so that all future costs are paid? Show the bank for 10 insertions.",
+          "Charge 3 dollars per APPEND (1 dollar = one write or copy): 1 dollar pays for writing the item, 1 dollar is saved for copying it at the next doubling, 1 dollar is saved for copying an older item.<br>bᵢ = bᵢ₋₁ + 3 − cᵢ with cᵢ = 1, 2, 3, 1, 5, 1, 1, 1, 9, 1 gives b = 2, 3, 3, 5, 3, 5, 7, 9, 3, 5 (the slide prints 4 for b₁₀). The bank never goes below 0, so Σ cᵢ ≤ 3n: O(1) per APPEND.",
+          "Lecture 8 · Slides 8.24–8.26"
+        ],
+        [
+          "Use the potential function Φ(hᵢ) = 2i − sizeᵢ to show that each insertion into a doubling table has amortized cost 3.",
+          "ĉᵢ = cᵢ + Φ(hᵢ) − Φ(hᵢ₋₁).<br>Case 1, no expansion (size unchanged, cᵢ = 1): ĉᵢ = 1 + (2i − size) − (2(i − 1) − size) = 1 + 2 = 3.<br>Case 2, expansion (the table held i − 1 = size items, new size 2(i − 1), cᵢ = i): ĉᵢ = i + (2i − 2(i − 1)) − (2(i − 1) − (i − 1)) = i + 2 − (i − 1) = 3.<br>Φ₀ = 0 and Φ ≥ 0 (the table is at least half full), so the true total ≤ 3n.",
+          "Lecture 8 · Slides 8.27–8.29"
+        ],
+        [
+          "Slide 8.33: how do we obtain the expected length of any chain in a hash table with chaining? Give the expected times of search, delete and insert.",
+          "Under simple uniform hashing each of the n keys lands in a given slot with probability 1/m, so the expected number of keys in a slot (its chain length) is n · 1/m = n/m = α, the load factor (n = 6, m = 3 → α = 2).<br>Search: O(1) to hash and reach the slot + α to scan the chain = O(1 + α). Delete: search, then unlink: O(1 + α). Insert: hash + link at the head: O(1). Worst case (all n keys in one chain): O(n).",
+          "Lecture 8 · Slides 8.33–8.37"
+        ],
+        [
+          "Slides 8.47–8.48: a chained table of size 3 (h(k) = k mod 3, threshold 2) holds 12, 10, 7, 14, 5. Insert 11 and 22 and rehash when needed.",
+          "12 → 0, 10 → 1, 7 → 1, 14 → 2, 5 → 2. Insert 11 → 2: α = 6/3 = 2, not greater than 2. Insert 22 → 1: α = 7/3 = 2.33 > 2, so rehash into m = 6 with k mod 6: 12 → 0, 7 → 1, 14 → 2, 10 → 4, 22 → 4, 11 → 5, 5 → 5. New α = 7/6 = 1.17 (the slide prints 1.67).",
+          "Lecture 8 · Slides 8.47–8.48"
+        ],
+        [
+          "Slide 8.54: why must open addressing mark deleted slots specially? Show it with keys 7, 36, 18, 62 (mod 11, linear probing).",
+          "Insert: 7 → 7, 36 → 3, 18 → 7 taken → 8, 62 → 7, 8 taken → 9. If delete 18 just empties slot 8, search 62 probes 7 (no), 8 (empty) and stops: \"not found\", although 62 is in slot 9. So slot 8 is marked \"Deleted\": search skips over it (7, 8, 9: found), while insert may reuse it (insert 51: 7 taken, 8 Deleted → 51 goes to 8).",
+          "Lecture 8 · Slides 8.58–8.64"
+        ],
+        [
+          "Slides 8.75–8.78: with quadratic probing, h(k) = k mod 10, insert 2, 12, 22, 32, 42, 52 and then 62. What happens and why?",
+          "All keys have home slot 2. 2 → 2; 12 → 3 (2 + 1); 22 → 6 (2 + 4); 32 → 1 (32 + 9 = 41); 42 → 8 (42 + 16 = 58); 52 → 7 (52 + 25 = 77). 62 probes 2, 3, 6, 1, 8, 7, 8, 1, 6, 3 (h₆ to h₉ = 98, 111, 126, 143 mod 10): all full, so it cannot be inserted although 0, 4, 5, 9 are empty. Reason: secondary clustering (same home slot, same sequence) and i² mod 10 ∈ {0, 1, 4, 9, 6, 5} reaches only 6 slots. Hence: table at most half full and prime size.",
+          "Lecture 8 · Slides 8.74–8.79"
+        ],
+        [
+          "Slides 8.83–8.86: insert 37, 90, 45, 22, 17, 49, 55 with double hashing, hash1 = key mod 10, hash2 = 7 − (key % 7).",
+          "37 → 7, 90 → 0, 45 → 5, 22 → 2 (no collisions). 17: home 7 taken; hash2 = 7 − 3 = 4; (7 + 4) mod 10 = 1 → slot 1. 49 → 9. 55: home 5 taken; hash2 = 7 − 6 = 1; (5 + 1) mod 10 = 6 → slot 6. Table: 0: 90, 1: 17, 2: 22, 5: 45, 6: 55, 7: 37, 9: 49.",
+          "Lecture 8 · Slides 8.83–8.86"
+        ],
+        [
+          "Midterm 2021 Q1: hash table of size 10. Add 0, 30, 1, 55, 16, 28, 13, 9, 26 using (1) linear probing h(k) = k mod 10, (2) quadratic probing, (3) double hashing h₁(k) = k mod 10, h₂(k) = 5 − (k mod 5), (4) chaining.",
+          "(1) Linear: 30 → 0 taken → 1; 1 → 1 taken → 2; 26 → 6 taken → 7. Table [0: 0, 1: 30, 2: 1, 3: 13, 4: −, 5: 55, 6: 16, 7: 26, 8: 28, 9: 9].<br>(2) Quadratic: the same table (every collision is solved at i = 1, +1).<br>(3) Double: 30: h₂ = 5 → slot 5. 55: h₁ = 5 taken, h₂ = 5, probes 5, 0, 5, 0, … all full: <b>55 cannot be inserted</b> (gcd(5, 10) = 5). 26: h₂ = 4, probes 6, 0, 4 → 4. Table [0: 0, 1: 1, 2: −, 3: 13, 4: 26, 5: 30, 6: 16, 7: −, 8: 28, 9: 9].<br>(4) Chaining: 0: [0, 30], 1: [1], 3: [13], 5: [55], 6: [16, 26], 8: [28], 9: [9].",
+          "Midterm 2021 Q1"
+        ],
+        [
+          "Midterm 2022 Q1: hash table of size 11. Add 0, 30, 1, 55, 16, 28, 13, 9, 26 using (1) linear probing h(k) = k mod 11, (2) quadratic probing, (3) double hashing h₁(k) = k mod 11, h₂(k) = 7 − (k mod 7), (4) chaining.",
+          "Home slots: 0, 8, 1, 0, 5, 6, 2, 9, 4.<br>(1) Linear: 55 → 0, 1 taken → 2; 13 → 2 taken → 3. Table [0: 0, 1: 1, 2: 55, 3: 13, 4: 26, 5: 16, 6: 28, 7: −, 8: 30, 9: 9, 10: −].<br>(2) Quadratic: 55 → 0, 1 taken, 0 + 4 = 4; 13 → 2; 26 → 4, 5, 8, 2, 9 taken, 4 + 25 = 29 mod 11 = 7. Table [0: 0, 1: 1, 2: 13, 3: −, 4: 55, 5: 16, 6: 28, 7: 26, 8: 30, 9: 9, 10: −].<br>(3) Double: 55: h₂ = 7 − 6 = 1 → 0, 1 taken → 2; 13: h₂ = 1 → 3; 26 → 4. Same table as linear.<br>(4) Chaining: 0: [0, 55], 1: [1], 2: [13], 4: [26], 5: [16], 6: [28], 8: [30], 9: [9].",
+          "Midterm 2022 Q1"
         ]
       ],
       "quiz": [
@@ -9260,19 +15231,19 @@ window.COURSES.algo = {
           "o": [
             [
               "19",
-              "172 − 157 = 15, not 19."
+              "Wrong: 172 − 157 = 15, not 19. 19 would come from a subtraction slip; the remainder of 172 divided by 157 is 15."
             ],
             [
               "72",
-              "That is 172 mod 100."
+              "Wrong: 72 is 172 mod 100 (the last two digits). The division method divides by the table size m = 157, not by 100."
             ],
             [
               "15",
-              "Correct! h(172) = 172 mod 157 = 15."
+              "Right: h(k) = k mod m, and 172 = 1 · 157 + 15, so h(172) = 15 (Slide 8.7, Final Q5)."
             ],
             [
               "17",
-              "Incorrect."
+              "Wrong: 17 is just the first two digits of 172. The division method takes the remainder 172 mod 157 = 15."
             ]
           ],
           "a": 2,
@@ -9283,19 +15254,19 @@ window.COURSES.algo = {
           "o": [
             [
               "14",
-              "2 × 7 = 14, not 2^7."
+              "Wrong: 14 is 2 × 7. In the binary implementation the table size is a power of 2, m = 2ᵖ, so p = 7 gives 2⁷."
             ],
             [
               "128",
-              "Correct! In the multiplication method, the table size is chosen as a power of 2, m = 2^p = 2^7 = 128."
+              "Right: the binary multiplication method uses a table of size m = 2ᵖ (it is not critical for the method, Slide 8.10), so p = 7 gives 2⁷ = 128."
             ],
             [
               "49",
-              "7² = 49."
+              "Wrong: 49 is 7², the square of p. The table size is 2 raised to p, 2⁷ = 128."
             ],
             [
               "127",
-              "2^7 − 1 = 127."
+              "Wrong: 127 is 2⁷ − 1, the largest index of the table, not its size. The size is m = 2⁷ = 128."
             ]
           ],
           "a": 1,
@@ -9306,19 +15277,19 @@ window.COURSES.algo = {
           "o": [
             [
               "46, 42, 34, 52, 23, 33",
-              "If 46 is inserted before 52, then 52 (h=2) would only probe to 5, which works, BUT 23 (h=3) inserted after 34 (at 4) and 52 (at 5) works; wait: if 34 is inserted before 23, 52 (h=2) sees 42 at 2, 3 is EMPTY so 52 would land at slot 3 instead of slot 5!"
+              "Wrong: 52 (home 2) arrives while slot 3 is still empty, so it lands in 3; then 23 is pushed to 5 and 33 to 7. Slot 3 would hold 52, not 23."
             ],
             [
               "34, 42, 23, 52, 33, 46",
-              "If 33 (h=3) is inserted before 46 (h=6), 33 probes 3(23), 4(34), 5(52), and lands at empty slot 6 instead of slot 7!"
+              "Wrong: 33 (home 3) arrives before 46 and probes 3, 4, 5, then finds slot 6 empty, so 33 lands in 6 and 46 is pushed to 7."
             ],
             [
               "46, 34, 42, 23, 52, 33",
-              "Correct! 46→slot 6; 34→slot 4; 42→slot 2; 23→slot 3; then 52 (h=2) probes 2, 3, 4 and lands at slot 5; finally 33 (h=3) probes 3, 4, 5, 6 and lands at slot 7!"
+              "Right: 46 → 6, 34 → 4, 42 → 2, 23 → 3; then 52 probes 2, 3, 4 and lands in 5; 33 probes 3, 4, 5, 6 and lands in 7. Exactly the given table."
             ],
             [
               "42, 46, 33, 23, 34, 52",
-              "If 33 is inserted when slot 3 is empty, 33 lands at slot 3 instead of slot 7."
+              "Wrong: 33 arrives while slot 3 is empty and takes it, so 23 goes to 4, 34 to 5 and 52 to 7. Slot 3 would hold 33, not 23."
             ]
           ],
           "a": 2,
@@ -9329,44 +15300,1072 @@ window.COURSES.algo = {
           "o": [
             [
               "O(n) total for n insertions (O(1) per insertion)",
-              "Correct! Final Summer Q28 & Slide 8.22: Total cost for n insertions is < 3n = O(n), which is O(1) amortized per insertion."
+              "Right: the n writes cost n and the copies 1 + 2 + 4 + … form a geometric series below 2n, so the total is < 3n = O(n), O(1) amortized per insertion (Slides 8.22–8.23)."
             ],
             [
               "O(n²) total",
-              "Doubling only occurs at powers of 2, so the geometric series sums to < 2n, not Θ(n²)."
+              "Wrong: n² comes from the naive bound of Slide 8.19 (n insertions × O(n) each). Copies happen only at powers of 2, so the real total is < 3n."
             ],
             [
               "O(n lg n) total",
-              "The sum of powers of 2 up to n is 2n − 1 = O(n), not O(n lg n)."
+              "Wrong: it would hold if each of the lg n doublings copied n items, but they copy 1, 2, 4, …, so the copies add up to less than 2n."
             ],
             [
               "O(2ⁿ) total",
-              "Incorrect."
+              "Wrong: nothing grows exponentially in n; the table size doubles only about lg n times, and the total work is linear, < 3n."
             ]
           ],
           "a": 0,
           "src": "Exam · Final Summer Q28 & Exam Examples Q28"
+        },
+        {
+          "q": "<b>Q1 & Q2</b>: What is a hash table, and what is it called when several elements compete for the same bucket?",
+          "o": [
+            [
+              "A structure that maps keys to values; Collision",
+              "Right: the hash function maps a key to a position holding its value (Slide 8.4), and two keys wanting the same slot is a collision (Slide 8.7)."
+            ],
+            [
+              "A structure that maps values to keys; Diffusion",
+              "Wrong: the direction is reversed (we look up by key, not by value) and \"diffusion\" is not the term; competing keys cause a collision."
+            ],
+            [
+              "A structure used to implement stack; Replication",
+              "Wrong: a hash table implements a dictionary (insert, search, delete by key), not a stack; replication is not about two keys sharing a slot."
+            ],
+            [
+              "A tree structure; Duplication",
+              "Wrong: a hash table is an array of slots (trees appear only inside slots in the extended technique), and two keys in one slot is a collision."
+            ]
+          ],
+          "a": 0,
+          "src": "Exam · Final Q1 & Q2"
+        },
+        {
+          "q": "<b>Q3, Q4 & Q5</b>: In the division method, what is the hash function, what is the best choice for $m$, and where is key $172$ placed when $m = 157$?",
+          "o": [
+            [
+              "h(k) = k mod m; Any prime number not close to a power of 2; Position 15",
+              "Right: the division method takes the remainder k mod m (Slide 8.7), m should be prime (Slide 8.8), and 172 mod 157 = 15."
+            ],
+            [
+              "h(k) = k / m; Any even number; Position 19",
+              "Wrong: the hash is the remainder, not the quotient; even sizes share the factor 2 with many keys (bad, Slide 8.9); and 172 mod 157 is 15."
+            ],
+            [
+              "h(k) = m mod k; 2^p; Position 72",
+              "Wrong: the operands are swapped (key mod size), powers of 2 are the bad sizes of Slide 8.8, and 72 is 172 mod 100."
+            ],
+            [
+              "h(k) = m / k; 2^p − 1; Position 17",
+              "Wrong: a division m / k is not a slot index, 2ᵖ − 1 is not the recommended choice, and 17 is not the remainder 172 mod 157 = 15."
+            ]
+          ],
+          "a": 0,
+          "src": "Exam · Final Q3, Q4 & Q5"
+        },
+        {
+          "q": "<b>Q7, Q9 & Q10</b>: What is the average retrieval time when all $n$ keys hash to the same slot, and what is the search complexity in direct addressing?",
+          "o": [
+            [
+              "Θ(n) when all n keys hash to one slot; O(1) in direct addressing (with a distinct array position for every possible key)",
+              "Right: one chain of n keys must be scanned, Θ(n) (Slide 8.37), while direct hashing h(K) = K reaches the key in one access (Slide 8.6)."
+            ],
+            [
+              "Θ(n²) when all n keys hash to one slot; O(log n) in direct addressing",
+              "Wrong: scanning one chain of n items is linear, not quadratic, and direct addressing needs no search at all: O(1), not O(log n)."
+            ],
+            [
+              "Θ(n log n); O(n)",
+              "Wrong: n log n is a sorting cost, not a chain scan (Θ(n)); and direct addressing is O(1) because the key is the address."
+            ],
+            [
+              "O(1); O(n log n)",
+              "Wrong: O(1) is the average with keys spread out, not with all n keys in one slot (that is Θ(n)), and direct addressing is O(1)."
+            ]
+          ],
+          "a": 0,
+          "src": "Exam · Final Q7, Q9 & Q10"
+        },
+        {
+          "q": "<b>Q13, Q14 & Q15</b>: In separate chaining, what is the load factor $\\alpha$, what is Simple Uniform Hashing, and what data structure is used for chains?",
+          "o": [
+            [
+              "Average chain length (n/m); Every element has equal probability of hashing into any slot; Doubly/Singly linked list",
+              "Right: α = n/m is the expected chain length (Slide 8.33), simple uniform hashing gives probability 1/m per slot, and chains are linked lists (Slide 8.31)."
+            ],
+            [
+              "Average array size; Weighted probability; Stack",
+              "Wrong: α counts keys per slot, not array size; the probabilities are equal, not weighted; and chains are linked lists, not stacks."
+            ],
+            [
+              "Average key size; Priority hashing; Binary heap",
+              "Wrong: α is n/m, unrelated to how big a key is; \"priority hashing\" is not the assumption; chains are linked lists, not heaps."
+            ],
+            [
+              "Average table length; Sequential hashing; Array",
+              "Wrong: α is the average chain length, the assumption is uniform (not sequential) hashing, and a chain is a linked list (it grows without reallocation)."
+            ]
+          ],
+          "a": 0,
+          "src": "Exam · Final Q13, Q14 & Q15"
+        },
+        {
+          "q": "Direct hashing (h(K) = K) gives O(1) search, insert and delete. What is its disadvantage?",
+          "o": [
+            [
+              "It needs an array as large as the largest key, so it consumes memory",
+              "Right: Slide 8.6, the address space must be as large as the key values; key 30 alone needs a 31-cell array."
+            ],
+            [
+              "It causes many collisions",
+              "Wrong: every key has its own cell in direct hashing, so two different keys can never collide; that is the problem of hash functions."
+            ],
+            [
+              "Search is O(n) in the worst case",
+              "Wrong: search is one array access, O(1), always; O(n) worst-case search belongs to hashing with collisions."
+            ],
+            [
+              "It only works for prime table sizes",
+              "Wrong: the prime-size rule belongs to the division method (Slide 8.8); direct hashing does no arithmetic on the key at all."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.6"
+        },
+        {
+          "q": "Keys 10, 20, 30, 40, 50 are hashed with h(k) = k mod 7. Into which slot does 40 go?",
+          "o": [
+            [
+              "5",
+              "Right: 40 = 5 · 7 + 5, so 40 mod 7 = 5. (Slide 8.9 prints 4, a slip; the five keys still get five different slots: 3, 6, 2, 5, 1.)"
+            ],
+            [
+              "4",
+              "Wrong: this is the value printed on Slide 8.9, but 5 · 7 = 35 and 40 − 35 = 5, so the remainder is 5."
+            ],
+            [
+              "0",
+              "Wrong: 0 is 40 mod 4 (Slide 8.9's bad table size). With the prime 7 the remainder is 5."
+            ],
+            [
+              "2",
+              "Wrong: 2 is 30 mod 7, the slot of key 30. For 40 the remainder is 40 − 35 = 5."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.9"
+        },
+        {
+          "q": "Multiplication method with n = 100 and A = 0.618033: what is h(150)?",
+          "o": [
+            [
+              "70",
+              "Right: 150 · 0.618033 = 92.70495, the fractional part is 0.70495, times 100 is 70.495, and the floor is 70 (Slide 8.11)."
+            ],
+            [
+              "92",
+              "Wrong: 92 is the integer part of kA; the method keeps the fractional part (kA mod 1) and throws the integer part away."
+            ],
+            [
+              "71",
+              "Wrong: 71 rounds 70.495 up; the method takes the floor ⌊70.495⌋ = 70, never rounding up."
+            ],
+            [
+              "50",
+              "Wrong: 50 is 150 mod 100, the division method. The multiplication method gives ⌊100 · 0.70495⌋ = 70."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.11"
+        },
+        {
+          "q": "Mid-square method with n = 1000 (3 middle digits): what is h(1234)?",
+          "o": [
+            [
+              "227",
+              "Right: 1234² = 1522756 (7 digits); the middle three digits, positions 3 to 5, are 227 (Slide 8.13)."
+            ],
+            [
+              "756",
+              "Wrong: 756 are the last three digits of 1522756 (that would be k² mod 1000), not the middle ones."
+            ],
+            [
+              "152",
+              "Wrong: 152 are the first three digits of the square; the method takes the middle digits, which depend on all digits of k."
+            ],
+            [
+              "234",
+              "Wrong: 234 are the last digits of the key itself; the method squares the key first: 1522756 → 227."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.13"
+        },
+        {
+          "q": "Folding key 12345678 into a two-digit address (0..99) with fold-boundary gives:",
+          "o": [
+            [
+              "98",
+              "Right: reverse the outer parts (12 → 21, 78 → 87): 21 + 34 + 56 + 87 = 198, and 198 % 100 = 98 (Slide 8.15)."
+            ],
+            [
+              "80",
+              "Wrong: 80 is fold-shifting (12 + 34 + 56 + 78 = 180 → 80), which adds the parts without reversing the outer ones."
+            ],
+            [
+              "198",
+              "Wrong: 198 is the sum before reducing it into the address range; 198 % 100 = 98."
+            ],
+            [
+              "78",
+              "Wrong: 78 is just the last part of the key; folding adds all the parts (after reversing the outer ones)."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.15"
+        },
+        {
+          "q": "In the doubling table of Slide 8.20, what is c₉, the cost of the 9th insertion?",
+          "o": [
+            [
+              "9",
+              "Right: i − 1 = 8 is a power of 2, so the full table of 8 doubles to 16: 8 copies + 1 write = 9."
+            ],
+            [
+              "1",
+              "Wrong: cᵢ = 1 only when there is space; after 8 items the table of size 8 is full, so insert 9 must copy."
+            ],
+            [
+              "8",
+              "Wrong: 8 counts only the copies; the new item must also be written, so c₉ = 8 + 1 = 9."
+            ],
+            [
+              "16",
+              "Wrong: 16 is the new table size, not the work. Only the 8 existing items are copied, plus 1 write."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.20"
+        },
+        {
+          "q": "In the accounting method for table doubling, how much is each APPEND charged so that the bank never goes negative?",
+          "o": [
+            [
+              "3 dollars",
+              "Right: Slide 8.25, 3 dollars per APPEND pays for every cost in the sequence: 1 dollar writes the item, 2 dollars are saved for future copies."
+            ],
+            [
+              "1 dollar",
+              "Wrong: 1 dollar pays only the write; nothing is saved, so the first doubling (copying items) would drive the bank negative."
+            ],
+            [
+              "2 dollars",
+              "Wrong: with 2 dollars the bank is 1, 1, 0, 1, −2 after five inserts: insert 5 costs 5 and the bank goes negative."
+            ],
+            [
+              "n dollars",
+              "Wrong: charging n per operation is the naive O(n²) bound; the point of amortization is a constant charge, 3 dollars."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.25"
+        },
+        {
+          "q": "With 3 dollars per insertion, what is the bank balance b₅ after the 5th insertion (Slide 8.26)?",
+          "o": [
+            [
+              "3",
+              "Right: b₄ = 5 and c₅ = 5 (4 copies + 1 write), so b₅ = 5 + 3 − 5 = 3."
+            ],
+            [
+              "5",
+              "Wrong: 5 is b₄ (before insert 5) and also c₅. After paying 5 out of 5 + 3 the bank holds 3."
+            ],
+            [
+              "0",
+              "Wrong: the bank never empties in this example; after each doubling it falls back to 3, not to 0."
+            ],
+            [
+              "7",
+              "Wrong: 7 is b₇. At i = 5 the expensive doubling has just been paid: 5 + 3 − 5 = 3."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.26"
+        },
+        {
+          "q": "Potential method, Φ(hᵢ) = 2i − sizeᵢ. After 12 insertions into the doubling table, what is Φ?",
+          "o": [
+            [
+              "8",
+              "Right: after 12 inserts the size is 16, so Φ = 2 · 12 − 16 = 8 (Slide 8.29's table, row 12)."
+            ],
+            [
+              "3",
+              "Wrong: 3 is the amortized cost ĉ₁₂, not the potential. Φ = 2i − size = 24 − 16 = 8."
+            ],
+            [
+              "12",
+              "Wrong: 12 is the number of items; the potential subtracts the size: 2 · 12 − 16 = 8."
+            ],
+            [
+              "−4",
+              "Wrong: that uses size 28 or forgets the factor 2 (12 − 16). Φ = 2 · 12 − 16 = 8, and it is never negative here."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.29"
+        },
+        {
+          "q": "Using the potential method, what is the amortized cost ĉ₁₇ of the 17th insertion?",
+          "o": [
+            [
+              "3",
+              "Right: c₁₇ = 17 (16 copies + 1), Φ₁₇ = 34 − 32 = 2, Φ₁₆ = 32 − 16 = 16, so ĉ = 17 + 2 − 16 = 3 (Slide 8.29)."
+            ],
+            [
+              "17",
+              "Wrong: 17 is the true cost cᵢ. The potential drop from 16 to 2 pays for the copying: 17 − 14 = 3."
+            ],
+            [
+              "2",
+              "Wrong: 2 is Φ₁₇ (and the amortized cost of the very first insertion only). Here ĉ₁₇ = 17 + 2 − 16 = 3."
+            ],
+            [
+              "19",
+              "Wrong: it adds Φ₁₇ but forgets to subtract Φ₁₆; ĉ = c + Φ(after) − Φ(before) = 17 + 2 − 16 = 3."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.29"
+        },
+        {
+          "q": "A chained hash table has n = 6 keys in m = 3 slots. Under simple uniform hashing, what is the expected length of a chain?",
+          "o": [
+            [
+              "2",
+              "Right: the expected chain length is the load factor α = n/m = 6/3 = 2 (Slide 8.33)."
+            ],
+            [
+              "6",
+              "Wrong: 6 is the worst case, all keys in one chain; on average the keys are spread, n/m = 2 per chain."
+            ],
+            [
+              "3",
+              "Wrong: 3 is the number of slots m. The expected length is keys per slot, n/m = 6/3 = 2."
+            ],
+            [
+              "0.5",
+              "Wrong: that is m/n, upside down. The load factor is n/m = 2."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.33"
+        },
+        {
+          "q": "Under simple uniform hashing, the expected time to search a separately chained table is:",
+          "o": [
+            [
+              "O(1 + α)",
+              "Right: O(1) to compute the hash and reach the slot, plus the expected chain length α to scan it (Slide 8.34)."
+            ],
+            [
+              "O(α) only",
+              "Wrong: even an empty chain costs the hash computation and slot access, which is the 1 in 1 + α; with α near 0 the cost is not 0."
+            ],
+            [
+              "O(1) always",
+              "Wrong: O(1) is the insert time (Slide 8.36). A search must scan the chain, expected α items, so O(1 + α)."
+            ],
+            [
+              "O(lg n)",
+              "Wrong: O(lg n) is search in a balanced BST (or AVL chains, Slide 8.46); a linked-list chain costs O(1 + α)."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.34"
+        },
+        {
+          "q": "Separate chaining with a BST in each slot: all n keys hash to one slot and arrive in sorted order. The search cost is:",
+          "o": [
+            [
+              "O(n)",
+              "Right: sorted keys always go to the same side, so the BST is a path of n nodes (skewed tree), Slide 8.39 case 1."
+            ],
+            [
+              "O(lg n)",
+              "Wrong: O(lg n) is case 2 (unsorted keys, minimum height); sorted input makes the tree a chain."
+            ],
+            [
+              "O(n/m)",
+              "Wrong: n/m is the best case, keys spread over all m slots; here all n keys are in one slot."
+            ],
+            [
+              "O(1)",
+              "Wrong: O(1) would need short chains; one skewed tree with n nodes must be walked from top to bottom."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.39"
+        },
+        {
+          "q": "Rehashing example (Slide 8.47): m = 3, threshold 2, the table holds 7 keys after inserting 22. What happens?",
+          "o": [
+            [
+              "α = 7/3 = 2.33 > 2, so the table is rehashed into a table of size 6",
+              "Right: the load factor passes the threshold, so a double-size array (6) is built and every key is hashed again with k mod 6."
+            ],
+            [
+              "α = 7/3 = 2.33, but chaining never needs rehashing",
+              "Wrong: chaining tolerates α > 1, but the slides still rehash it once α passes the chosen threshold, here 2, to keep searches O(1)."
+            ],
+            [
+              "α = 3/7, below the threshold, nothing happens",
+              "Wrong: that is m/n upside down. α = n/m = 7/3 = 2.33, which is greater than 2."
+            ],
+            [
+              "The table is rehashed into the prime 7",
+              "Wrong: the closest-prime rule is the open-addressing rehash of Slide 8.91; the chaining example doubles 3 to 6."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.47"
+        },
+        {
+          "q": "True or false: in open addressing, a search stops when it reaches a slot marked \"Deleted\".",
+          "o": [
+            [
+              "True",
+              "Wrong: if the search stopped there, keys that probed past the deleted key would be lost (search 62 after deleting 18 would fail)."
+            ],
+            [
+              "False",
+              "Right: Slide 8.54, the search does not stop at a deleted slot, it keeps probing; only an empty (NIL) slot or m probes stop it."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 8 · Slide 8.54"
+        },
+        {
+          "q": "Linear probing, h(k) = k mod 11, keys 7, 36, 18, 62 inserted in this order. Where does 62 go?",
+          "o": [
+            [
+              "Slot 9",
+              "Right: 62 mod 11 = 7 (taken by 7), then 8 (taken by 18), then 9 is empty (Slide 8.60)."
+            ],
+            [
+              "Slot 7",
+              "Wrong: 7 is 62's home slot, but key 7 is already there, so linear probing moves on to 8 and 9."
+            ],
+            [
+              "Slot 8",
+              "Wrong: slot 8 was taken by 18 (whose home 7 was also full); 62 continues to 9."
+            ],
+            [
+              "Slot 0",
+              "Wrong: slot 0 is where quadratic probing puts 62 (7 + 4 = 11 → 0, Slide 8.71); linear probing steps by 1."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.60"
+        },
+        {
+          "q": "After deleting 18 (slot 8 marked Deleted) from the table 36: 3, 7: 7, 62: 9 (mod 11, linear probing), where does insert 51 put the key?",
+          "o": [
+            [
+              "Slot 8",
+              "Right: 51 mod 11 = 7 is taken; slot 8 is marked Deleted, and insert treats a deleted slot as free (Slide 8.64)."
+            ],
+            [
+              "Slot 10",
+              "Wrong: that skips the Deleted slot as if it were full; insert may reuse it. (Slot 10 is where 51 goes without the deletion, Slide 8.73.)"
+            ],
+            [
+              "Slot 7",
+              "Wrong: slot 7 holds key 7, a real item; 51 must probe on to slot 8."
+            ],
+            [
+              "It cannot be inserted",
+              "Wrong: most slots are empty and the very next probe (slot 8) is reusable; linear probing always finds a free cell while one exists."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.64"
+        },
+        {
+          "q": "Quadratic probing, h(k) = k mod 11, with 7, 36, 18, 62 already in slots 7, 3, 8, 0. Where does 51 go?",
+          "o": [
+            [
+              "Slot 5",
+              "Right: probes 7, 8, 0 are taken (51 + 0, + 1, + 4), then h₃ = (51 + 9) mod 11 = 60 mod 11 = 5 (Slide 8.72)."
+            ],
+            [
+              "Slot 9",
+              "Wrong: 9 is the next linear step after 7 and 8; quadratic probing jumps by i², so after 7, 8 it tries 0, then 5."
+            ],
+            [
+              "Slot 0",
+              "Wrong: slot 0 already holds 62 (placed by h₂), so 51 needs a fourth probe, h₃ = 5."
+            ],
+            [
+              "Slot 10",
+              "Wrong: 10 is where linear probing puts 51 (Slide 8.73). Quadratic: 7, 8, 0, then 60 mod 11 = 5."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.72"
+        },
+        {
+          "q": "Quadratic probing with h(k) = k mod 10 holds 2, 12, 22, 32, 42, 52 in slots 2, 3, 6, 1, 8, 7. What happens when 62 is inserted?",
+          "o": [
+            [
+              "It cannot be inserted: every probe lands on a full slot",
+              "Right: from slot 2 the offsets i² mod 10 ∈ {0, 1, 4, 9, 6, 5} reach only 2, 3, 6, 1, 8, 7, all full (Slide 8.78)."
+            ],
+            [
+              "It goes to slot 0",
+              "Wrong: slot 0 is empty, but 2 + i² mod 10 never equals 0, so quadratic probing never looks there."
+            ],
+            [
+              "It goes to slot 4",
+              "Wrong: that would need i² ≡ 2 (mod 10), which never happens; slot 4 is unreachable from home slot 2."
+            ],
+            [
+              "It goes to slot 9",
+              "Wrong: that would need i² ≡ 7 (mod 10), impossible; this is secondary clustering, not a free slot found."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.78"
+        },
+        {
+          "q": "According to Slide 8.79, quadratic probing should be used when:",
+          "o": [
+            [
+              "The table is at most half full and its size is prime",
+              "Right: otherwise an insertion may fail (always a collision), as the mod 10 example with 62 shows."
+            ],
+            [
+              "The table is at least 90% full",
+              "Wrong: a nearly full table is the worst case (10 expected probes at α = 0.9) and makes failures likely."
+            ],
+            [
+              "The table size is a power of 2",
+              "Wrong: powers of 2 are the bad sizes (Slide 8.8); with quadratic probing they also leave slots unreachable."
+            ],
+            [
+              "Keys arrive in sorted order",
+              "Wrong: key order matters for BST chains (Slide 8.39), not for whether quadratic probing finds a free slot."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.79"
+        },
+        {
+          "q": "Which property must a good second hash function hash2 have (Slide 8.82)?",
+          "o": [
+            [
+              "It must never evaluate to zero, and all cells must be probeable",
+              "Right: a step of 0 repeats the same slot forever, and the step must let the sequence visit every cell."
+            ],
+            [
+              "It must equal hash1",
+              "Wrong: then two keys with the same home slot would still share sequences; the point is a second, different function."
+            ],
+            [
+              "It must be a power of 2",
+              "Wrong: with an even table size an even step reaches only part of the table (step 5 in m = 10 reaches 2 slots)."
+            ],
+            [
+              "It must be larger than the table size",
+              "Wrong: hash2 = PRIME − (key % PRIME) with PRIME smaller than TABLE_SIZE, so it is 1..PRIME, below m."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.82"
+        },
+        {
+          "q": "Double hashing, hash1 = key mod 10, hash2 = 7 − (key % 7), slot 7 holds 37. Where does 17 go?",
+          "o": [
+            [
+              "Slot 1",
+              "Right: home 7 is taken; hash2(17) = 7 − 3 = 4; (7 + 4) mod 10 = 1 (Slide 8.85)."
+            ],
+            [
+              "Slot 8",
+              "Wrong: 8 is the linear-probing step (+1). Double hashing steps by hash2(17) = 4."
+            ],
+            [
+              "Slot 4",
+              "Wrong: 4 is the step hash2(17) itself; the probe is (hash1 + 1 · hash2) mod 10 = 11 mod 10 = 1."
+            ],
+            [
+              "Slot 3",
+              "Wrong: 3 is 17 % 7. hash2 is 7 − 3 = 4, and the probe is (7 + 4) mod 10 = 1."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.85"
+        },
+        {
+          "q": "Same double hashing example: where does 55 go when slot 5 holds 45?",
+          "o": [
+            [
+              "Slot 6",
+              "Right: hash2(55) = 7 − (55 % 7) = 7 − 6 = 1, so h₁ = (5 + 1) mod 10 = 6 (Slide 8.86)."
+            ],
+            [
+              "Slot 1",
+              "Wrong: that adds 6 (55 % 7) instead of hash2 = 7 − 6 = 1; (5 + 6) mod 10 = 1 is a misuse of the formula."
+            ],
+            [
+              "Slot 2",
+              "Wrong: slot 2 holds 22 and is not on 55's sequence; its first step goes to 5 + 1 = 6, which is free."
+            ],
+            [
+              "It cannot be inserted",
+              "Wrong: the step 1 is relatively prime to 10, and the very first step finds the empty slot 6."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.86"
+        },
+        {
+          "q": "Which open-addressing technique has neither primary nor secondary clustering (Slide 8.88)?",
+          "o": [
+            [
+              "Double hashing",
+              "Right: the step depends on the key, so keys with the same home slot take different paths; Θ(m²) probe sequences."
+            ],
+            [
+              "Linear probing",
+              "Wrong: linear probing has primary clustering (long runs) and, per the slide's table, secondary clustering too."
+            ],
+            [
+              "Quadratic probing",
+              "Wrong: it removes primary clustering but keeps secondary clustering: same home slot, same sequence."
+            ],
+            [
+              "Separate chaining",
+              "Wrong: chaining is not an open-addressing probe method at all; it stores collisions in lists outside the table cells."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.88"
+        },
+        {
+          "q": "An open-addressed table is 90% full. What is the expected number of probes (Slide 8.90)?",
+          "o": [
+            [
+              "10",
+              "Right: the expected number of probes is 1/(1 − α) = 1/(1 − 0.9) = 1/0.1 = 10."
+            ],
+            [
+              "2",
+              "Wrong: 2 is the half-full case, 1/(1 − 0.5). At 90% the cost grows to 10."
+            ],
+            [
+              "0.9",
+              "Wrong: 0.9 is the load factor itself; the expected probe count is 1/(1 − α)."
+            ],
+            [
+              "1.11",
+              "Wrong: that is 1/0.9 = 1/α, the formula inverted; the bound is 1/(1 − α) = 10."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.90"
+        },
+        {
+          "q": "When an open-addressed table of size m is too full, the slides rehash into a table of size:",
+          "o": [
+            [
+              "The prime closest to 2m",
+              "Right: Slide 8.91, compute the new size (the closest prime to 2m), then rehash every element into the new table."
+            ],
+            [
+              "m + 1",
+              "Wrong: growing by one slot would need a full rehash at almost every insert, an O(n²) total."
+            ],
+            [
+              "m²",
+              "Wrong: squaring wastes huge amounts of memory; doubling (to a nearby prime) keeps the amortized cost O(1)."
+            ],
+            [
+              "Exactly 2m",
+              "Wrong: 2m is even, a bad size for the division method; the slide picks the prime closest to 2m."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.91"
+        },
+        {
+          "q": "True or false: deletion is easier in separate chaining than in open addressing.",
+          "o": [
+            [
+              "True",
+              "Right: Slide 8.92 row 7, a chain node is simply unlinked, while open addressing needs \"Deleted\" markers to keep searches correct."
+            ],
+            [
+              "False",
+              "Wrong: Slide 8.92 lists deletion as easier in chaining and difficult in open addressing, which is why Slide 8.94 recommends chaining when deletes are needed."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.92"
+        },
+        {
+          "q": "According to Slide 8.94, which method should you use \"when in doubt\"?",
+          "o": [
+            [
+              "Separate chaining",
+              "Right: it never fills up, tolerates high load factors and supports deletion, so it is the safe default."
+            ],
+            [
+              "Linear probing",
+              "Wrong: linear probing is recommended only when memory is plentiful and the data won't expand."
+            ],
+            [
+              "Quadratic probing",
+              "Wrong: within open addressing the slides prefer double hashing over quadratic probing."
+            ],
+            [
+              "Double hashing",
+              "Wrong: double hashing is the best open-addressing choice, but the default when in doubt is separate chaining."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 8 · Slide 8.94"
         }
       ],
       "extra": [
         {
-          "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 8?",
+          "q": "A string key is turned into a number by adding its ASCII codes (C = 67, A = 65, T = 84). Where does \"CAT\" go with h(k) = k mod 11?",
           "o": [
             [
-              "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-              "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
+              "Slot 7",
+              "Right: 67 + 65 + 84 = 216, and 216 = 19 · 11 + 7, so 216 mod 11 = 7."
             ],
             [
-              "The algorithm requires O(2ⁿ) exponential space in the best case",
-              "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
+              "Slot 19",
+              "Wrong: 19 is the quotient 216 / 11; the hash is the remainder, and 19 is not even a slot of a table of size 11."
             ],
             [
-              "The algorithm only works when n ≤ 10",
-              "False — Asymptotic analysis applies as n → ∞."
+              "Slot 6",
+              "Wrong: that comes from 216 − 210; 11 · 19 = 209, so the remainder is 216 − 209 = 7."
             ],
             [
-              "Correctness does not depend on loop invariants or optimal substructure",
-              "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
+              "Slot 216",
+              "Wrong: 216 is the key as a number; it must be reduced mod 11 to give a slot in 0..10."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Pigeonhole: 12 keys are stored in a hash table with 11 slots. What can be guaranteed for every hash function?",
+          "o": [
+            [
+              "At least one slot receives at least 2 keys",
+              "Right: 12 items into 11 boxes means some box gets two or more, so a collision is unavoidable."
+            ],
+            [
+              "Every slot receives at least 1 key",
+              "Wrong: a bad hash function can send all 12 keys to one slot; nothing forces every slot to be used."
+            ],
+            [
+              "No collision happens if m is prime",
+              "Wrong: a prime size spreads patterned keys better, but 12 keys still cannot fit in 11 slots without sharing."
+            ],
+            [
+              "Exactly one slot receives 2 keys",
+              "Wrong: only \"at least one\" is guaranteed; many slots could get 2 or more keys."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Multiplication method with n = 100 and A = 0.618033. What is h(45)?",
+          "o": [
+            [
+              "81",
+              "Right: 45 · 0.618033 = 27.811485, the fractional part is 0.811485, × 100 = 81.1485, floor = 81."
+            ],
+            [
+              "27",
+              "Wrong: 27 is the integer part of kA, which the method discards (kA mod 1 keeps only the fraction)."
+            ],
+            [
+              "82",
+              "Wrong: 82 rounds 81.1485 up; the method takes the floor, 81."
+            ],
+            [
+              "45",
+              "Wrong: 45 is the division method with n = 100 (45 mod 100). The multiplication method gives 81."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Mid-square method with n = 100 (two middle digits). What is h(77)?",
+          "o": [
+            [
+              "92",
+              "Right: 77² = 5929 (4 digits); the middle two are 9 and 2, so h(77) = 92."
+            ],
+            [
+              "29",
+              "Wrong: 29 are the last two digits of 5929, which is k² mod 100, not the middle digits."
+            ],
+            [
+              "59",
+              "Wrong: 59 are the first two digits of the square; the method takes the middle two."
+            ],
+            [
+              "77",
+              "Wrong: that is the key itself; the method squares the key first and then takes the middle digits."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Key 87654321 is folded into a two-digit address (0..99). Fold-shifting and fold-boundary give:",
+          "o": [
+            [
+              "16 and 98",
+              "Right: shifting 87 + 65 + 43 + 21 = 216 → 16; boundary reverses the outer parts: 78 + 65 + 43 + 12 = 198 → 98."
+            ],
+            [
+              "16 and 16",
+              "Wrong: fold-boundary reverses the first and last parts (87 → 78, 21 → 12), which changes the sum to 198."
+            ],
+            [
+              "216 and 198",
+              "Wrong: those are the sums; each must still be taken % 100 to fit the address range: 16 and 98."
+            ],
+            [
+              "98 and 16",
+              "Wrong: the two results are swapped; fold-shifting (no reversal) gives 216 → 16."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Doubling table starting at size 1 (Slide 8.20 rule). What is the total true cost of the first 16 insertions?",
+          "o": [
+            [
+              "31",
+              "Right: 16 writes + copies 1 + 2 + 4 + 8 = 15 (at i = 2, 3, 5, 9), total 31 ≤ 3 · 16 = 48."
+            ],
+            [
+              "48",
+              "Wrong: 48 = 3n is the upper bound from the aggregate method, not the exact total, which is 31."
+            ],
+            [
+              "47",
+              "Wrong: that adds the copy of 16 items, which only happens at insertion 17 (i − 1 = 16)."
+            ],
+            [
+              "256",
+              "Wrong: that is the naive n² bound (16 · 16); the real total is linear."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "With 3 dollars charged per insertion into the doubling table, what is the bank balance after the 12th insertion?",
+          "o": [
+            [
+              "9",
+              "Right: b₉ = 3, then inserts 10, 11, 12 each cost 1 and add 2: 5, 7, 9."
+            ],
+            [
+              "36",
+              "Wrong: 36 = 3 · 12 is the total charged; the true costs (27 so far) must be paid out of it: 36 − 27 = 9."
+            ],
+            [
+              "3",
+              "Wrong: the bank is 3 right after a doubling (i = 9); three cheap inserts later it has grown to 9."
+            ],
+            [
+              "8",
+              "Wrong: 8 is Φ₁₂ = 2 · 12 − 16 from the potential method; the bank in the accounting method is 9 (b = Φ + 1 here)."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Potential method, Φ = 2i − size. What is the amortized cost of the 5th insertion (size 4 → 8)?",
+          "o": [
+            [
+              "3",
+              "Right: c₅ = 5 (4 copies + 1), Φ₅ = 10 − 8 = 2, Φ₄ = 8 − 4 = 4, so ĉ₅ = 5 + 2 − 4 = 3."
+            ],
+            [
+              "5",
+              "Wrong: 5 is the true cost; the drop in potential (4 → 2) pays for part of it: 5 − 2 = 3."
+            ],
+            [
+              "7",
+              "Wrong: that adds the change the wrong way round (5 + 4 − 2); ĉ = c + Φ(after) − Φ(before)."
+            ],
+            [
+              "1",
+              "Wrong: 1 is the cost of a normal insert; at i = 5 the table doubles, and amortized costs are 3, not 1."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "A chained table has m = 8 slots and n = 20 keys. Under simple uniform hashing, what are α and the expected search cost 1 + α?",
+          "o": [
+            [
+              "α = 2.5, expected search 3.5",
+              "Right: α = n/m = 20/8 = 2.5, and searching costs 1 (hash and slot) + α (scan) = 3.5."
+            ],
+            [
+              "α = 0.4, expected search 1.4",
+              "Wrong: 0.4 is m/n = 8/20, upside down. The load factor is keys per slot, 2.5."
+            ],
+            [
+              "α = 2.5, expected search 2.5",
+              "Wrong: that forgets the 1 for computing the hash and reaching the slot; it is Θ(1 + α)."
+            ],
+            [
+              "α = 20, expected search 21",
+              "Wrong: 20 is the worst case, one chain with every key; the expected chain length is n/m."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Linear probing with m = 7 and h(k) = k mod 7: insert 10, 3, 17, 24. Where does 24 go?",
+          "o": [
+            [
+              "Slot 6",
+              "Right: all four keys have home slot 3. 10 → 3, 3 → 4, 17 → 5, and 24 probes 3, 4, 5 and lands in 6."
+            ],
+            [
+              "Slot 3",
+              "Wrong: 3 is 24's home slot (24 = 3 · 7 + 3), but key 10 already sits there."
+            ],
+            [
+              "Slot 5",
+              "Wrong: slot 5 was taken by 17 just before; 24 has to walk one step further, to 6 (primary clustering)."
+            ],
+            [
+              "Slot 0",
+              "Wrong: slot 0 is where quadratic probing would send 17 (3 + 4 = 7 → 0); linear probing steps by 1."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Quadratic probing with m = 7 and h(k) = k mod 7: insert 10, 3, 17, 24. Where does 24 go?",
+          "o": [
+            [
+              "Slot 5",
+              "Right: 10 → 3, 3 → 4, 17 → 3, 4, then 3 + 4 = 7 → 0; 24 probes 3, 4, 0 (taken), then 3 + 9 = 12 mod 7 = 5."
+            ],
+            [
+              "Slot 6",
+              "Wrong: 6 is the linear-probing answer; quadratic offsets are 0, 1, 4, 9 → slots 3, 4, 0, 5."
+            ],
+            [
+              "Slot 0",
+              "Wrong: slot 0 was already filled by 17 (same home slot, same sequence: secondary clustering), so 24 goes one probe further."
+            ],
+            [
+              "Slot 2",
+              "Wrong: that would need i² ≡ 6 (mod 7), which never happens; the next free probe for 24 is 5."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Double hashing with m = 10, hash1(k) = k mod 10 and hash2(k) = 5. Which slots can a key with home slot 5 ever probe?",
+          "o": [
+            [
+              "Only 5 and 0",
+              "Right: (5 + 5i) mod 10 = 5, 0, 5, 0, …; gcd(5, 10) = 5, so only 10/5 = 2 slots are reachable (Midterm 2021, key 55)."
+            ],
+            [
+              "All 10 slots",
+              "Wrong: that needs the step relatively prime to m; 5 and 10 share the factor 5."
+            ],
+            [
+              "5, 6, 7, 8, 9",
+              "Wrong: that is a linear walk with step 1; here the step is 5, which jumps straight back and forth."
+            ],
+            [
+              "Only slot 5",
+              "Wrong: that happens only when hash2 = 0 (or a multiple of 10); step 5 alternates between 5 and 0."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Double hashing with m = 13, hash1(k) = k mod 13, hash2(k) = 7 − (k mod 7). Keys 14 and 27 are in slots 1 and 2. Where does 40 go?",
+          "o": [
+            [
+              "Slot 3",
+              "Right: 40 mod 13 = 1 (taken); hash2(40) = 7 − 5 = 2; (1 + 2) mod 13 = 3, empty."
+            ],
+            [
+              "Slot 2",
+              "Wrong: slot 2 holds 27 (whose step was 1); 40's step is 2, so it goes from 1 straight to 3."
+            ],
+            [
+              "Slot 6",
+              "Wrong: 6 would use the step 5 (40 mod 7) instead of hash2 = 7 − 5 = 2."
+            ],
+            [
+              "Slot 1",
+              "Wrong: slot 1 is 40's home slot, but 14 already occupies it, so a second probe is needed."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "An open-addressed table has α = 0.75. What is the bound on the expected number of probes for an unsuccessful search?",
+          "o": [
+            [
+              "4",
+              "Right: 1/(1 − α) = 1/(1 − 0.75) = 1/0.25 = 4."
+            ],
+            [
+              "1.33",
+              "Wrong: that is 1/α = 1/0.75, the formula inverted; the bound is 1/(1 − α)."
+            ],
+            [
+              "0.25",
+              "Wrong: 0.25 is 1 − α, the chance that a probe hits an empty slot; the expected count is its inverse, 4."
+            ],
+            [
+              "2",
+              "Wrong: 2 is the half-full case (α = 0.5); at α = 0.75 it doubles to 4."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "An open-addressed table of size 7 is rehashed using the rule of Slide 8.91. What is the new size?",
+          "o": [
+            [
+              "13",
+              "Right: 2m = 14 and the closest prime to 14 is 13 (15 and 16 are not prime; 17 is three away)."
+            ],
+            [
+              "14",
+              "Wrong: 14 = 2m is even, not prime; the slide takes the prime closest to 2m."
+            ],
+            [
+              "17",
+              "Wrong: 17 is prime, but 13 is closer to 14 (distance 1 against 3)."
+            ],
+            [
+              "49",
+              "Wrong: 49 = m², and it is not even prime (7 · 7)."
             ]
           ],
           "a": 0
@@ -9376,7 +16375,7 @@ window.COURSES.algo = {
     {
       "n": 9,
       "code": "Lec 9",
-      "title": "Lecture 9: Balanced Search Trees — Red-Black Tree Properties, Height Bound Proof (h ≤ 2 lg(n+1)), Rotations & Insertion",
+      "title": "Lecture 9: Balanced Search Trees, Red-Black Tree Properties, Height Bound h ≤ 2 lg(n + 1), Rotations and Insertion",
       "videos": [
         {
           "id": "O3hI9FdxFOM",
@@ -9410,33 +16409,226 @@ window.COURSES.algo = {
       ],
       "notes": [
         {
-          "h": "Red-Black Tree Properties & Black-Height (Slides 9.1–9.8)",
+          "h": "Before you start: binary-tree vocabulary, NIL leaves and the sentinel",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
           "pts": [
-            "<b>Balanced Search Trees (Slide 9.2)</b>: Guarantee tree height $h = O(\\lg n)$ for a dynamic set of $n$ items (unlike standard BSTs whose worst-case height is $\\Theta(n)$ on sorted input). Examples: AVL trees, 2-3 trees, 2-3-4 trees, B-trees, Red-Black trees.",
-            "<b>Red-Black Properties (Slide 9.3 & Lec 10 Slide 3)</b>: A BST with one extra color bit (`RED` or `BLACK`) per node satisfying:<ul><li><b>1. Color Property</b>: Every node is either <b>red</b> or <b>black</b>.</li><li><b>2. Root & Leaf Property</b>: The <b>root</b> is black, and every <b>leaf (`NIL` sentinel)</b> is black.</li><li><b>3. Red Property (No Two Consecutive Reds)</b>: If a node is red, then its parent (and both of its children) are black.</li><li><b>4. Black-Height Property</b>: For each node $x$, all simple paths from $x$ to descendant `NIL` leaves contain the <b>same number of black nodes</b>, called the <b>black-height $bh(x)$</b> (not counting $x$ itself).</li></ul>"
+            "Running example: the 7 keys 8, 4, 12, 2, 6, 10, 14 inserted in this order into an empty binary search tree. 8 is on top, 4 and 12 below it, then 2, 6 under 4 and 10, 14 under 12.",
+            "A <b>binary tree</b> is made of nodes; each node has at most two children, a left child and a right child. Each node stores a key and three pointers: <code>left[x]</code>, <code>right[x]</code> and <code>p[x]</code> (its parent). The slides write fields this way; newer books write <code>x.left</code>.",
+            "The <b>root</b> is the one node with no parent: 8, so <code>p[8] = NIL</code>. <code>NIL</code> means \"no node here\".",
+            "Family words, all used by RB-INSERT:<ul><li><b>parent</b> of 6 = 4; <b>children</b> of 4 = 2 (left) and 6 (right)</li><li><b>sibling</b> = same parent: 2 and 6, also 4 and 12</li><li><b>grandparent</b> of 6 = parent of its parent = 8, written <code>p[p[x]]</code></li><li><b>uncle</b> (or aunt) of 6 = the sibling of its parent = 12</li></ul>",
+            "A <b>leaf</b> is a node with no children (2, 6, 10, 14); every other node is an <b>internal node</b> (8, 4, 12).",
+            "<b>Depth</b> of a node = number of edges from the root down to it: depth(8) = 0, depth(12) = 1, depth(6) = 2.",
+            "<b>Height</b> of a node = number of edges on the longest downward path to a leaf: height(2) = 0, height(4) = 1, height(8) = 2. The <b>height of the tree</b> h is the height of its root, here 2.",
+            "A <b>complete binary tree</b> has every level full except possibly the last, which is filled from the left. Example: a 6-node heap has levels of 1, 2 and 3 nodes. Our 7-key tree is complete and even <b>perfect</b> (every level full). A binary heap is a complete binary tree (Final 2022 Q25).",
+            "The <b>subtree rooted at x</b> is x with everything below it (its descendants). Subtree of 12 = {12, 10, 14}. A descendant of x is any node in that subtree; x is an ancestor of each of them.",
+            "A <b>simple path</b> visits no node twice. \"A path from x to a descendant leaf\" (slide 9.3) means: start at x and keep stepping down to a child until you fall off the tree.",
+            "<b>NIL leaves</b>: red-black trees draw every empty child pointer as a small black leaf called NIL. The keys are then all internal nodes and the NILs are the only leaves. Our 7 keys get 8 NILs.",
+            "Why n keys always give <b>n + 1</b> NIL leaves: n nodes have 2n child pointers; n − 1 of them point to real nodes (every node except the root has one parent), so 2n − (n − 1) = n + 1 point to NIL. Slide 9.15 uses this.",
+            "With NIL leaves drawn, heights are counted down to the NILs: our tree has height 3 instead of 2. Slide 9.4 counts this way (it gives h = 4 for its example).",
+            "In code (CLRS) all NILs are one shared <b>sentinel</b> node <code>T.nil</code>: an ordinary black node, also used as the parent of the root. It lets the code read <code>color[left[x]]</code> without first testing for \"no node\", and costs one node of memory, not n + 1."
+          ],
+          "fig": [
+            "ag-9-anatomy"
+          ],
+          "figAt": {
+            "ag-9-anatomy": 0
+          },
+          "figH": {
+            "ag-9-anatomy": "Root, parent, sibling, uncle, leaf, depth, height, subtree and NIL leaves on a 7-key tree"
+          }
+        },
+        {
+          "h": "Before you start: the BST property and inorder order",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "pts": [
+            "A <b>binary search tree</b> (BST) keeps this rule at every node x: every key in the left subtree of x is ≤ key[x], and every key in the right subtree is ≥ key[x].",
+            "Check on the example: left of 8 is {4, 2, 6}, all ≤ 8; right of 8 is {12, 10, 14}, all ≥ 8; left of 12 is {10} ≤ 12, right of 12 is {14} ≥ 12. It holds everywhere.",
+            "The rule is about whole subtrees, not just children. Putting 9 as the right child of 6 would look fine locally (9 > 6) but breaks the rule at 8: 9 would sit in 8's left subtree although 9 > 8.",
+            "Red-black trees are BSTs: every red-black tree satisfies this rule, and the colours are an extra on top. So searching a red-black tree is ordinary BST searching.",
+            "<b>Inorder traversal</b>: <code>INORDER(x)</code> = if x ≠ NIL then INORDER(left[x]), print key[x], INORDER(right[x]). Left subtree, then the node, then the right subtree.",
+            "On the example it prints <b>2 4 6 8 10 12 14</b>: sorted. That is the BST rule seen from outside: each key is printed after all smaller keys (its left side) and before all larger ones.",
+            "Inorder visits every node once, so it takes <b>Θ(n)</b>, even in a balanced tree. Final Summer TF 5 says \"printing every node in a balanced BST takes Θ(lg n)\": <b>False</b>.",
+            "Why it matters here: a <b>rotation</b> (slide 9.18) is allowed only because it keeps the inorder order, which is the same as keeping the BST property."
+          ],
+          "fig": [
+            "ag-9-inorder"
+          ],
+          "figAt": {
+            "ag-9-inorder": 4
+          },
+          "figH": {
+            "ag-9-inorder": "Inorder traversal prints the keys 2 4 6 8 10 12 14 in sorted order"
+          }
+        },
+        {
+          "h": "Before you start: BST SEARCH, INSERT, MINIMUM, MAXIMUM, SUCCESSOR, PREDECESSOR",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "code": "TREE-SEARCH(x, k)\n1  while x ≠ NIL and k ≠ key[x]\n2      do if k < key[x]\n3            then x ← left[x]\n4            else x ← right[x]\n5  return x\n\nTREE-MINIMUM(x)\n1  while left[x] ≠ NIL\n2      do x ← left[x]\n3  return x\n\nTREE-SUCCESSOR(x)\n1  if right[x] ≠ NIL\n2     then return TREE-MINIMUM(right[x])\n3  y ← p[x]\n4  while y ≠ NIL and x = right[y]\n5      do x ← y\n6         y ← p[y]\n7  return y",
+          "pts": [
+            "A <b>dynamic set</b> is a set of keys that changes over time. Its operations: SEARCH, INSERT, DELETE (changing) and MINIMUM, MAXIMUM, SUCCESSOR, PREDECESSOR (queries). A BST implements all of them.",
+            "<b>SEARCH(k)</b>: start at the root; if k < key go left, if k > key go right, stop when equal or at NIL. Search 6: 8 → 4 → 6, found. Search 9: 8 → 12 → 10 → NIL, not found.",
+            "<b>INSERT(z)</b>: walk down exactly as a search for key[z], remembering the last node y; hang z under y as a new leaf. Insert 9: 8 → 12 → 10, then 9 becomes the left child of 10. Nothing else moves.",
+            "<b>MINIMUM</b>: follow left pointers until left is NIL: 8 → 4 → 2, minimum 2. <b>MAXIMUM</b>: follow right pointers: 8 → 12 → 14, maximum 14.",
+            "MIN and MAX compare no keys at all: they only test pointers for NIL. Final Summer TF 13 (\"no key comparisons are needed to find the min or max of a BST\"): <b>True</b>.",
+            "<b>SUCCESSOR(x)</b> = the next larger key (the next one in inorder):<ul><li>if x has a right subtree: the minimum of that subtree. SUCCESSOR(8) = MIN{12, 10, 14} = 10</li><li>else climb until you arrive from a <b>left</b> child. SUCCESSOR(6): 6 is the right child of 4, climb; 4 is the left child of 8, so the answer is 8</li></ul>",
+            "If the climb reaches the top without arriving from a left child, there is no successor (x is the maximum): SUCCESSOR(14) climbs 12, 8, then NIL.",
+            "<b>PREDECESSOR(x)</b> is the mirror: the maximum of the left subtree if there is one, else climb until you arrive from a <b>right</b> child. PREDECESSOR(8) = MAX{4, 2, 6} = 6; PREDECESSOR(10): 10 is the left child of 12, climb; 12 is the right child of 8, so 8.",
+            "Every one of these walks moves one level down (or up) per step and never turns back, so it visits at most h + 1 nodes: each costs <b>O(h)</b>, where h is the height of the tree.",
+            "So the speed of a BST is decided by its height. The whole lecture is about keeping h small: <b>O(lg n)</b>. (BST deletion is explained with Lecture 11.)"
+          ],
+          "fig": [
+            "ag-9-bstops"
+          ],
+          "figAt": {
+            "ag-9-bstops": 1
+          },
+          "figH": {
+            "ag-9-bstops": "The BST walks step by step: search, insert, min, max, successor, predecessor"
+          }
+        },
+        {
+          "h": "Before you start: why height matters, lg n and powers of 2",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "pts": [
+            "The shape of a BST depends on the <b>insertion order</b>. Insert 1, 2, 3, 4, 5, 6, 7 (sorted): each key is larger than all before it, so it goes right every time. The tree is a <b>chain</b> of height n − 1 = 6.",
+            "In that chain a search for 7 visits all 7 nodes: operations cost <b>Θ(n)</b>, no better than a linked list. Final 2022 Q26: the access time of an unbalanced BST may degrade up to <b>O(n)</b>.",
+            "The same 7 keys inserted as 4, 2, 6, 1, 3, 5, 7 give a perfect tree of height <b>2</b>, the smallest possible for 7 keys.",
+            "A search tree is <b>balanced</b> when its height is guaranteed to be <b>O(lg n)</b> no matter in which order keys are inserted and deleted (slide 9.2). It must repair its shape after each change; red-black trees do it with recolouring and rotations.",
+            "<b>lg n</b> means log base 2: the number of times you can halve n before reaching 1. lg 8 = 3, lg 1024 = 10, lg 1,000,000 ≈ 19.93. It grows very slowly.",
+            "Rules used in the proof: lg(2<sup>k</sup>) = k; lg is increasing, so a ≥ b implies lg a ≥ lg b; if 2<sup>h/2</sup> ≤ n + 1 then h/2 ≤ lg(n + 1).",
+            "Level d of a binary tree holds at most 2<sup>d</sup> nodes, so a tree of height h has at most 1 + 2 + … + 2<sup>h</sup> = <b>2<sup>h+1</sup> − 1</b> nodes. Height 1 holds at most 2<sup>2</sup> − 1 = 3 nodes and height 2 at most 7, so 7 keys need height ≥ 2 (exactly 2 for the perfect tree).",
+            "In the table the BST column counts edges between keys (add 1 to count down to the NILs), while the red-black bound, like the theorem of slide 9.9, counts down to the NIL leaves.",
+            "Flip it around: n keys need height at least about lg n. So O(lg n) height is the best any binary search tree can do; balanced trees promise it up to a constant factor."
+          ],
+          "table": [
+            [
+              "n keys",
+              "lg n",
+              "sorted-insert BST height (edges between keys)",
+              "red-black bound 2 lg(n + 1) (counted to the NILs)"
+            ],
+            [
+              "7",
+              "2.81",
+              "6",
+              "6"
+            ],
+            [
+              "1,000",
+              "9.97",
+              "999",
+              "19.93"
+            ],
+            [
+              "1,000,000",
+              "19.93",
+              "999,999",
+              "39.86"
+            ]
+          ],
+          "fig": [
+            "ag-9-degrade"
+          ],
+          "figAt": {
+            "ag-9-degrade": 0
+          },
+          "figH": {
+            "ag-9-degrade": "Sorted input builds a chain of height 6; a good order of the same keys gives height 2"
+          }
+        },
+        {
+          "h": "Before you start: 2-3-4 trees",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "pts": [
+            "The slides' height proof (slides 9.9–9.15) turns a red-black tree into a <b>2-3-4 tree</b>, so you need to know what that is.",
+            "A 2-3-4 tree is a search tree whose nodes hold <b>1, 2 or 3 keys</b>, in sorted order, and have one more child than keys:<ul><li><b>2-node</b>: 1 key, 2 children</li><li><b>3-node</b>: 2 keys, 3 children</li><li><b>4-node</b>: 3 keys, 4 children</li></ul>",
+            "The children split the key range. For a 3-node {10, 20}: the first child holds keys < 10, the middle child keys between 10 and 20, the last child keys > 20. A 2-node is just a BST node.",
+            "The defining property: <b>all leaves are at the same depth</b> (uniform depth). The tree is perfectly level at the bottom, even though nodes have different widths.",
+            "Example (slide 9.14): root {7, 18} with children {3}, {8, 10, 11}, {22, 26}; every leaf is at depth 2. Its nodes have 3, 2, 4 and 3 children.",
+            "Leaf count: every node has <b>at least 2</b> children, so level d has at least 2<sup>d</sup> nodes, and a 2-3-4 tree with all leaves at depth h′ has <b>at least 2<sup>h′</sup> leaves</b> (at most 4<sup>h′</sup>). The example: 9 leaves ≥ 2<sup>2</sup> = 4.",
+            "Slide 9.2 lists 2-3-4 trees as a balanced search tree of their own. In this lecture they are only a thinking tool: red-black trees are a way to store a 2-3-4 tree as a binary tree."
+          ],
+          "fig": [
+            "ag-9-nodes234"
+          ],
+          "figAt": {
+            "ag-9-nodes234": 1
+          },
+          "figH": {
+            "ag-9-nodes234": "2-nodes, 3-nodes, 4-nodes and the 2-3-4 tree of slide 9.14"
+          }
+        },
+        {
+          "h": "Before you start: proof by induction",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "pts": [
+            "Slide 9.9 says \"the book uses induction. Read carefully\", and Midterm 2025 Q3 asks for that proof. Induction proves a statement P(k) for every k = 0, 1, 2, …",
+            "Two parts:<ul><li><b>Base case</b>: show P(0) directly</li><li><b>Inductive step</b>: assume P is true for all smaller values (the <b>inductive hypothesis</b>) and use that to show P(k)</li></ul>Then P holds for every k: P(0) gives P(1), which gives P(2), and so on.",
+            "On trees we induct on the <b>height</b> of a node: a node's children have smaller height, so the hypothesis may be used for the children's subtrees.",
+            "Tiny example: \"a perfect binary tree of height h has 2<sup>h+1</sup> − 1 nodes\". Base h = 0: one node, 2<sup>1</sup> − 1 = 1. Step: the root plus two subtrees of height h − 1 give 1 + 2(2<sup>h</sup> − 1) = 2<sup>h+1</sup> − 1.",
+            "The red-black proof has exactly this shape: count the root, add twice what the hypothesis gives for each child, and simplify. Keep this template in mind for \"The book's proof by induction\" below."
+          ]
+        },
+        {
+          "h": "Balanced search trees and the red-black properties (Slides 9.1–9.3)",
+          "pts": [
+            "Slide 9.1 is the outline: red-black trees, the height of a red-black tree, rotations, insertion. (The slides are MIT 6.046J Lecture 10 by Erik Demaine, so their footers say L7.x.)",
+            "<b>Balanced search tree</b> (slide 9.2): a search-tree data structure for which a height of <b>O(lg n)</b> is guaranteed when implementing a dynamic set of n items.",
+            "Examples on slide 9.2: AVL trees, 2-3 trees, 2-3-4 trees, B-trees, red-black trees. A plain BST is not on the list: its height can reach n − 1.",
+            "A <b>red-black tree</b> (slide 9.3) is a BST with one extra <b>one-bit colour field</b> in each node: red or black. One bit is enough because there are only two colours.",
+            "The four red-black properties of slide 9.3:<ul><li>1. Every node is either red or black.</li><li>2. The root and the leaves (NILs) are black.</li><li>3. If a node is red, then its parent is black.</li><li>4. All simple paths from any node x to a descendant leaf have the same number of black nodes = <b>black-height(x)</b>.</li></ul>",
+            "Property 3 means <b>no two reds in a row</b> on any path. Saying it as \"a red node has black children\" (CLRS) is the same rule, since NIL leaves are black anyway.",
+            "A black node may have children of any colour (red, black, or one of each). Final Summer TF 6 (\"a black node must have only red children\"): <b>False</b>.",
+            "<b>Black-height bh(x)</b>: the number of black nodes on a path from x down to a leaf, <b>not counting x itself</b> but counting the black NIL at the end. Property 4 says every such path gives the same number, so bh(x) is well defined. bh(NIL) = 0.",
+            "CLRS lists five properties: it splits property 2 into \"the root is black\" and \"every leaf (NIL) is black\". Same content as the slides' four.",
+            "Why these rules give balance: property 4 makes all paths equally long in black nodes, and property 3 lets red nodes at most double a path. So no path is more than twice as long as another (proved on slides 9.9–9.15)."
+          ]
+        },
+        {
+          "h": "The slides' example tree and black-height (Slides 9.4–9.8)",
+          "pts": [
+            "The example tree has 8 keys. Black: 7 (root), 3, 10, 22. Red: 18, 8, 11, 26.<ul><li>7 has children 3 and 18</li><li>18 has children 10 and 22</li><li>10 has children 8 and 11</li><li>22 has only a right child, 26</li></ul>Every missing child is a black NIL: 9 NILs = n + 1.",
+            "Its height is <b>h = 4</b> (slide 9.4): the longest path 7 → 18 → 10 → 8 → NIL has 4 edges. The slides count height down to the NIL leaves.",
+            "It is a BST: inorder gives 3, 7, 8, 10, 11, 18, 22, 26.",
+            "<b>Property 1</b> (slide 9.5): each of the 8 nodes is red or black.",
+            "<b>Property 2</b> (slide 9.6): the root 7 is black, and all 9 NIL leaves are black.",
+            "<b>Property 3</b> (slide 9.7): the red nodes 18, 8, 11, 26 have the black parents 7, 10, 10, 22. No red node has a red parent.",
+            "<b>Property 4</b> (slide 9.8), from 7: 7 → 3 → NIL meets the blacks 3, NIL; 7 → 18 → 10 → 8 → NIL meets 10, NIL; 7 → 18 → 22 → 26 → NIL meets 22, NIL. Always 2 blacks: <b>bh(7) = 2</b>.",
+            "The other values on slide 9.8: <b>bh(18) = 2</b> (paths meet 10 or 22, then a NIL), bh(10) = 1, bh(8) = 1 (only the NIL below it), and bh(NIL) = 0.",
+            "A red node has the same black-height as its parent here (bh(18) = bh(7) = 2) because x itself is never counted: the colour of x does not change bh(x), only the colours below it.",
+            "Unlisted values worked the same way ‡: bh(3) = bh(22) = bh(11) = bh(26) = 1."
           ],
           "fig": [
             "ag-9-props"
           ],
           "figAt": {
-            "ag-9-props": 1
+            "ag-9-props": 4
           },
           "figH": {
             "ag-9-props": "The slides' example tree, checked against the four red-black properties"
           }
         },
         {
-          "h": "Proof of Height Bound: h ≤ 2 lg(n + 1) (Slides 9.9–9.16)",
-          "pts": [
-            "<b>Theorem (Slide 9.9 & Midterm 2025 Q3)</b>: A red-black tree with $n$ internal keys has height $h \\le 2 \\lg(n + 1)$.",
-            "<b>Proof via 2-3-4 Tree Merging (Slides 9.9–9.15)</b>:<ul><li>Merge every red node into its black parent to form a <b>2-3-4 tree</b> where every internal node has $2, 3,$ or $4$ children and all leaves have the exact same depth $h' = bh(\\text{root})$.</li><li>Because Property 3 forbids two consecutive red nodes on any path, at most half the nodes on any root-to-leaf path are red, so $h' \\ge h/2$.</li><li>A tree with $n$ internal nodes has exactly $n + 1$ `NIL` leaves, and a 2-3-4 tree of uniform depth $h'$ has at least $2^{h'}$ leaves: $n + 1 \\ge 2^{h'} \\ge 2^{h/2}$.</li><li>Taking $\\lg$ of both sides: $\\lg(n + 1) \\ge h/2 \\implies \\mathbf{h \\le 2 \\lg(n + 1) = O(\\lg n)}$.</li></ul>",
-            "<b>Proof by Mathematical Induction (CLRS & Lec 10 Slide 5–6)</b>:<ul><li>Prove by induction on height that the subtree rooted at any node $x$ contains at least $2^{bh(x)} - 1$ internal nodes.</li><li><b>Base case ($h=0$)</b>: $x$ is `NIL`, $bh(x)=0$, and $2^0 - 1 = 0$ internal nodes.</li><li><b>Inductive step</b>: Each child of $x$ has black-height at least $bh(x) - 1$, so by the inductive hypothesis each child's subtree has $\\ge 2^{bh(x)-1} - 1$ internal nodes. Total internal nodes in $x$'s subtree $\\ge 2(2^{bh(x)-1} - 1) + 1 = 2^{bh(x)} - 1$. At the root, $bh(\\text{root}) \\ge h/2 \\implies n \\ge 2^{h/2} - 1 \\implies h \\le 2\\lg(n+1)$.</li></ul>",
-            "<b>Corollary (Slide 9.16 & Midterm 2019 Q4 / 2020 Q4)</b>: All dynamic-set queries (`SEARCH`, `MINIMUM`, `MAXIMUM`, `SUCCESSOR`, `PREDECESSOR`) run in $O(h) = \\mathbf{O(\\lg n)}$ worst-case time!<ul><li>`TREE-MAXIMUM(x)`: `while right[x] ≠ NIL do x ← right[x]; return x`.</li><li>`TREE-PREDECESSOR(x)`: If `left[x] ≠ NIL`, return `TREE-MAXIMUM(left[x])`; else climb up `y ← p[x]` while `y ≠ NIL and x = left[y]`, then return `y`.</li></ul>"
-          ],
+          "h": "Height of a red-black tree: the 2-3-4 intuition (Slides 9.9–9.15)",
           "formula": [
-            "Subtree Internal Nodes Bound: n ≥ 2^(bh(root)) − 1 ≥ 2^(h/2) − 1  ⇒  h ≤ 2 lg(n + 1) = O(lg n)"
+            "h′ ≥ h/2      (≤ half red)",
+            "n + 1 ≥ 2^h′  (leaves)",
+            "⇒ lg(n + 1) ≥ h′ ≥ h/2",
+            "⇒ h ≤ 2 lg(n + 1)"
           ],
-          "code": "TREE-MAXIMUM(x)\n1  while right[x] ≠ NIL\n2      do x ← right[x]\n3  return x\n\nTREE-PREDECESSOR(x)\n1  if left[x] ≠ NIL\n2     then return TREE-MAXIMUM(left[x])\n3  y ← p[x]\n4  while y ≠ NIL and x = left[y]\n5      do x ← y\n6         y ← p[y]\n7  return y",
+          "pts": [
+            "<b>Theorem</b> (slide 9.9): a red-black tree with n keys has height <b>h ≤ 2 lg(n + 1)</b>. So h = O(lg n): red-black trees are balanced. Asked in Midterm 2025 Q3.",
+            "The slides give the <b>intuition</b>; the book's induction proof is the next section. Intuition: <b>merge every red node into its black parent</b> (slides 9.9–9.13 do it step by step).",
+            "Merging is always possible: by property 3 a red node's parent is black, so every red node has a black node to join. Each black node absorbs 0, 1 or 2 red children.",
+            "In the example: red 18 merges into 7, giving the node {7, 18}; reds 8 and 11 merge into 10, giving {8, 10, 11}; red 26 merges into 22, giving {22, 26}; 3 stays alone.",
+            "This produces a tree in which each node has <b>2, 3, or 4 children</b> (slide 9.14): a black node with no red children keeps 2, with one red child it has 3, with two it has 4. Example: {3} has 2, {22, 26} has 3, {8, 10, 11} has 4, {7, 18} has 3.",
+            "The <b>2-3-4 tree has uniform depth h′</b> of leaves (slide 9.14): each level of the new tree is one black node of the old one, and property 4 gives every path the same number of blacks, so all leaves end at depth <b>h′ = bh(root)</b>. Example: h′ = 2.",
+            "<b>h′ ≥ h/2</b> (slide 9.15): no two reds are adjacent, so at most half the nodes on any root-to-leaf path are red; removing them (merging) leaves at least half the length. Example: h′ = 2 ≥ 4/2.",
+            "The slide says \"at most half the <i>leaves</i> on any path are red\": it means <b>nodes</b>. Leaves are NILs and always black (property 2).",
+            "Leaf count: merging only moves red nodes, so the leaves are still the <b>n + 1</b> NILs (slide 9.15). A 2-3-4 tree of depth h′ has at least 2<sup>h′</sup> leaves, so <b>n + 1 ≥ 2<sup>h′</sup></b>. Example: 9 ≥ 4.",
+            "Take lg of both sides: lg(n + 1) ≥ h′ ≥ h/2, so <b>h ≤ 2 lg(n + 1)</b>. Example: 4 ≤ 2 lg 9 ≈ 6.34.",
+            "Size check: with n = 1,000,000 keys a red-black tree has height at most 2 lg(1,000,001) ≈ 39.9, so h ≤ 39 counted down to the NILs, against 1,000,000 for a plain BST built from sorted keys (999,999 edges between keys, plus the edge to a NIL) ‡."
+          ],
           "fig": [
             "ag-9-merge"
           ],
@@ -9448,25 +16640,160 @@ window.COURSES.algo = {
           }
         },
         {
-          "h": "Rotations & RB-INSERT Cases 1, 2 & 3 (Slides 9.17–9.29)",
+          "h": "The book's proof by induction (Slide 9.9, Midterm 2025 Q3)",
+          "formula": [
+            "keys under x ≥ 2^bh(x) − 1",
+            "base: bh(NIL) = 0, 2^0 − 1 = 0",
+            "step: 2(2^(bh(x)−1) − 1) + 1",
+            "      = 2^bh(x) − 1",
+            "bh(root) ≥ h/2",
+            "⇒ n ≥ 2^(h/2) − 1",
+            "⇒ h ≤ 2 lg(n + 1)"
+          ],
           "pts": [
-            "<b>Rotations (Slide 9.18)</b>: `LEFT-ROTATE(A)` and `RIGHT-ROTATE(B)` restructure pointers locally in $\\mathbf{O(1)}$ time while strictly preserving the BST inorder key ordering ($\\alpha \\le A \\le \\beta \\le B \\le \\gamma$).",
-            "<b>`RB-INSERT(T, x)` Overview & Cases 1–3 (Slides 9.19–9.29)</b>: Insert $x$ using standard BST insertion and color $x$ <b>RED</b> (so Property 4 black-height is preserved, and only Property 3 ”red parent of red $x$” or Property 2 ”root is red” can be violated). While `color[p[x]] == RED`:<ul><li><b>Case 1 (Uncle $y$ is RED)</b>: Recolor parent and uncle `BLACK`, recolor grandparent `RED`, and move pointer $x$ up to grandparent (`x ← p[p[x]]`). Costs $O(1)$ per level up the tree, 0 rotations.</li><li><b>Case 2 (Uncle $y$ is BLACK and $x$ forms a zig-zag triangle with $p[x]$ and $p[p[x]]$)</b>: Rotate `p[x]` to transform the triangle into a straight line (Case 3).</li><li><b>Case 3 (Uncle $y$ is BLACK and $x$ forms a straight line with $p[x]$ and $p[p[x]]$)</b>: Recolor `p[x]` `BLACK`, grandparent `RED`, and rotate grandparent. <b>Terminates immediately!</b></li><li><b>Total Insertion Cost</b>: $O(\\lg n)$ time and <b>at most 2 rotations</b>!</li></ul>"
+            "Slide 9.9 says \"The book uses induction. Read carefully.\" This is that proof (CLRS Lemma 13.1) ‡. It is the full answer to Midterm 2025 Q3 (5 points).",
+            "<b>Lemma</b>: the subtree rooted at any node x contains at least <b>2<sup>bh(x)</sup> − 1</b> internal nodes (keys). Proof by induction on the height of x.",
+            "<b>Base case</b>: height 0 means x is a NIL leaf. Then bh(x) = 0 and 2<sup>0</sup> − 1 = 0, and the subtree indeed has 0 internal nodes.",
+            "<b>Child fact</b>: an internal node x has two children. A child c has bh(c) = bh(x) if c is red, or bh(c) = bh(x) − 1 if c is black (c itself is then one of the blacks counted in bh(x)). Either way <b>bh(c) ≥ bh(x) − 1</b>.",
+            "<b>Inductive step</b>: each child has smaller height, so by the hypothesis its subtree has at least 2<sup>bh(x)−1</sup> − 1 internal nodes. With x itself: at least 2(2<sup>bh(x)−1</sup> − 1) + 1 = 2<sup>bh(x)</sup> − 1. Lemma proved.",
+            "On the example ‡: bh(18) = 2 and its subtree has 6 keys ≥ 2<sup>2</sup> − 1 = 3; bh(10) = 1 and it has 3 keys ≥ 1; the root has 8 keys ≥ 3.",
+            "<b>Black-height vs height</b>: on any path from the root to a leaf, property 3 forbids two reds in a row, so at least half of the nodes after the root are black. Hence bh(root) ≥ h/2.",
+            "<b>Conclusion</b>: apply the lemma at the root: n ≥ 2<sup>bh(root)</sup> − 1 ≥ 2<sup>h/2</sup> − 1. Add 1: n + 1 ≥ 2<sup>h/2</sup>. Take lg: lg(n + 1) ≥ h/2, so <b>h ≤ 2 lg(n + 1)</b>.",
+            "The two proofs match: the 2-3-4 depth h′ is exactly bh(root), and \"n + 1 ≥ 2<sup>h′</sup> leaves\" is the lemma at the root written with leaves instead of internal nodes."
           ],
           "fig": [
-            "algo-rbt-sim",
-            "ag-9-rotate",
-            "ag-9-insert15",
-            "ag-9-cases"
+            "ag-9-induct"
           ],
           "figAt": {
-            "ag-9-rotate": 0,
-            "ag-9-insert15": 1,
-            "ag-9-cases": 1
+            "ag-9-induct": 4
           },
           "figH": {
-            "ag-9-rotate": "RIGHT-ROTATE(B) and LEFT-ROTATE(A) keep the inorder order",
-            "ag-9-insert15": "Inserting x = 15 into the example tree, step by step",
+            "ag-9-induct": "The induction lemma checked on the slides' tree: keys under x ≥ 2<sup>bh(x)</sup> − 1"
+          }
+        },
+        {
+          "h": "Query operations in O(lg n) (Slide 9.16)",
+          "code": "TREE-MAXIMUM(x)\n1  while right[x] ≠ NIL\n2      do x ← right[x]\n3  return x\n\nTREE-PREDECESSOR(x)\n1  if left[x] ≠ NIL\n2     then return TREE-MAXIMUM(left[x])\n3  y ← p[x]\n4  while y ≠ NIL and x = left[y]\n5      do x ← y\n6         y ← p[y]\n7  return y",
+          "pts": [
+            "<b>Corollary</b> (slide 9.16): the queries SEARCH, MIN, MAX, SUCCESSOR and PREDECESSOR all run in <b>O(lg n)</b> time on a red-black tree with n nodes.",
+            "Why: they are the ordinary BST walks (they never look at colours), each costs O(h), and the theorem gives h ≤ 2 lg(n + 1) = O(lg n).",
+            "Worst case, not average: the bound holds for every red-black tree, whatever the insertion order.",
+            "<b>MAXIMUM</b> on the example tree: 7 → 18 → 22 → 26, right[26] = NIL, so the maximum is 26 ‡. Minimum: 7 → 3 ‡.",
+            "<b>PREDECESSOR</b> on the example ‡: PREDECESSOR(18) = MAX of its left subtree {10, 8, 11} = 11. PREDECESSOR(8): 8 is the left child of 10, climb; 10 is the left child of 18, climb; 18 is the right child of 7, stop: 7.",
+            "Midterm 2019 Q4 / 2020 Q4 ask for the red-black properties plus pseudocode for the maximum and the predecessor: the two routines in the code box.",
+            "Ordered queries are why red-black trees are often preferred over hash tables (Final 2021 Q23, Final 2022 Q37): a hash table has no key order (no min, max, successor, predecessor) and needs costly resizing; a red-black tree answers all of them in O(lg n) worst case."
+          ]
+        },
+        {
+          "h": "Modifying operations and rotations (Slides 9.17–9.18)",
+          "pts": [
+            "INSERT and DELETE change the tree (slide 9.17) in three ways:<ul><li>the operation itself (the BST insert or delete)</li><li><b>colour changes</b></li><li>restructuring the links of the tree via <b>rotations</b></li></ul>",
+            "A <b>rotation</b> (slide 9.18) turns an edge between a node and its child the other way. Picture: B with left child A; A has subtrees α and β; B's right subtree is γ.",
+            "<b>RIGHT-ROTATE(B)</b>: A moves up into B's place, B becomes A's right child, and β moves from A's right to B's left. α stays under A, γ stays under B.",
+            "<b>LEFT-ROTATE(A)</b> is the inverse: it turns A over B back into B over A.",
+            "Rotations maintain the <b>inorder ordering</b> of keys: for a ∈ α, b ∈ β, c ∈ γ, <b>a ≤ A ≤ b ≤ B ≤ c</b> in both pictures. Read either tree left to right and you get α, A, β, B, γ. So the BST property survives.",
+            "Why β must move: β holds keys between A and B. After the rotation those keys must be right of A and left of B, which is exactly B's free left slot.",
+            "A rotation can be performed in <b>O(1)</b> time (slide 9.18): only a constant number of pointers change (B's link from its parent, the A–B link, and β's parent), whatever the size of the subtrees. Lecture 10 gives the pointer-level code ‡.",
+            "A rotation changes the depths: after RIGHT-ROTATE(B), α moves up one level and γ moves down one level. That is how rotations shorten long paths.",
+            "Final 2021 Q37 and Final Summer Q16: the basic restructuring operation that keeps red-black trees balanced is the <b>rotation</b>."
+          ],
+          "fig": [
+            "ag-9-rotate"
+          ],
+          "figAt": {
+            "ag-9-rotate": 2
+          },
+          "figH": {
+            "ag-9-rotate": "RIGHT-ROTATE(B) and LEFT-ROTATE(A) keep the inorder order"
+          }
+        },
+        {
+          "h": "Insertion idea and the example: insert x = 15 (Slides 9.19–9.23)",
+          "pts": [
+            "<b>IDEA</b> (slide 9.19): insert x in the tree (ordinary BST insert). Colour x <b>red</b>. Only red-black property 3 might be violated. Move the violation up the tree by recolouring until it can be fixed with rotations and recolouring.",
+            "Why <b>red</b>: a red node adds no black to any path, so every black-height stays the same and property 4 holds. A black x would add one black to the paths through x only, breaking property 4 everywhere above it.",
+            "What can break: property 3 if x's parent is red (two reds in a row). And property 2 if x is the new root of an empty tree; the last line of RB-INSERT fixes that.",
+            "Slide 9.19 starts from the example tree of slide 9.4 (7, 3, 18, 10, 8, 11, 22, 26).",
+            "<b>Insert x = 15</b> (slide 9.20): BST walk 7 → 18 (15 > 7) → 10 (15 < 18) → 11 (15 > 10) → right of 11 (15 > 11). 15 becomes the right child of 11, coloured red. Slide 9.20 shows this tree, before any fixing.",
+            "Violation: 15 and its parent 11 are both red. The uncle of 15 (the other child of 10) is 8, which is <b>red</b>: this is <b>Case 1</b>.",
+            "<b>Recolour</b> (shown on slide 9.21): 11 and 8 become black, 10 becomes red. Black-heights do not change: paths through 10 used to meet black 10, now they meet black 8 or 11 instead. The violation moves up: x ← 10.",
+            "Now 10 and its parent 18 are both red. The uncle of 10 (the other child of 7) is 3, which is black. 10 is a left child while 18 is a right child: a zig-zag, so <b>Case 2</b> (mirror side, because 18 is a right child).",
+            "<b>RIGHT-ROTATE(18)</b> (slide 9.21; result on slide 9.22): 10 moves up under 7, 18 becomes 10's right child, and 10's old right subtree (11 with 15) becomes 18's left subtree. 10 keeps 8 on its left. Now 18 (x) is a right child of 10, which is a right child of 7: a straight line, <b>Case 3</b>.",
+            "<b>LEFT-ROTATE(7) and recolour</b> (slide 9.22; result on slide 9.23): 10 becomes the root and is coloured black; 7 becomes its left child and is coloured red. 7 keeps 3 and takes 8 as its right child.",
+            "Final tree (slide 9.23): root 10 (black); 7 (red) with 3 and 8 (black); 18 (red) with 11 and 22 (black); 15 (red) right of 11; 26 (red) right of 22. All properties hold, bh(10) = 2, height still 4.",
+            "Count for this insert: one Case 1 (recolouring only), then Case 2 and Case 3: <b>2 rotations</b> in total.",
+            "Mirror cases: the pseudocode is written for \"p[x] is a left child\"; in this example p[x] was a right child twice, so left and right are swapped (RIGHT-ROTATE in Case 2, LEFT-ROTATE in Case 3). Lecture 10 numbers these mirror cases 4–6."
+          ],
+          "fig": [
+            "ag-9-insert15"
+          ],
+          "figAt": {
+            "ag-9-insert15": 4
+          },
+          "figH": {
+            "ag-9-insert15": "Inserting x = 15 into the example tree, step by step"
+          }
+        },
+        {
+          "h": "RB-INSERT pseudocode, Cases 1–3 and analysis (Slides 9.24–9.29)",
+          "table": [
+            [
+              "uncle y",
+              "shape",
+              "case",
+              "action",
+              "rotations"
+            ],
+            [
+              "red",
+              "any",
+              "Case 1",
+              "recolour, x ← p[p[x]]",
+              "0"
+            ],
+            [
+              "black",
+              "zig-zag (x inside)",
+              "Case 2 → Case 3",
+              "rotate p[x], then rotate p[p[x]] and recolour",
+              "2"
+            ],
+            [
+              "black",
+              "straight line (x outside)",
+              "Case 3",
+              "recolour, rotate p[p[x]]",
+              "1"
+            ]
+          ],
+          "code": "RB-INSERT(T, x)\n  TREE-INSERT(T, x)\n  color[x] ← RED   ⊳ only RB property 3 can be violated\n  while x ≠ root[T] and color[p[x]] = RED\n      do if p[x] = left[p[p[x]]]\n          then y ← right[p[p[x]]]   ⊳ y = aunt/uncle of x\n               if color[y] = RED\n                 then 〈Case 1〉\n                 else if x = right[p[x]]\n                        then 〈Case 2〉   ⊳ Case 2 falls into Case 3\n                      〈Case 3〉\n          else 〈\"then\" clause with \"left\" and \"right\" swapped〉\n  color[root[T]] ← BLACK",
+          "pts": [
+            "<b>Pseudocode</b> (slide 9.24): TREE-INSERT, colour x red, then loop <b>while x is not the root and p[x] is red</b>. The loop body chooses a case by looking at the uncle y = the other child of the grandparent p[p[x]].",
+            "p[p[x]] always exists inside the loop: p[x] is red, and the root is black, so p[x] is not the root and has a parent.",
+            "The code is written for <b>p[x] a left child</b> (then y = right[p[p[x]]]). If p[x] is a right child, the \"else\" runs the same code with left and right swapped (the x = 15 example).",
+            "<b>Graphical notation</b> (slide 9.25): a triangle denotes a subtree with a black root, and all the triangles have the same black-height. So the pictures stay correct for any tree size.",
+            "<b>Case 1</b> (slide 9.26): the uncle y is <b>red</b>. Picture: C black with red children A and D = y; x = B is a red child of A. (Or the children of A are swapped: x left of A is handled the same way.)",
+            "Case 1 action: <b>recolour</b>: A and D black, C red. \"Push C's black onto A and D.\" No rotation.",
+            "Why Case 1 is safe: every path through C met exactly one black among C and A (or D) before, and still does after, so black-heights are unchanged and property 3 holds below C.",
+            "Then <b>recurse with new x = C</b>, since C's parent may be red. x moves up 2 levels per Case 1.",
+            "<b>Case 2</b> (slide 9.27): the uncle y is black and x = B is the right child of A, while A is a left child (a zig-zag). Action: LEFT-ROTATE(A); A becomes the left child of B and the new x.",
+            "Why Case 2 is safe: it rotates between two red nodes A and B, so no black node moves onto or off any path; black-heights stay the same. It does not fix anything: it <b>transforms to Case 3</b>. In the code x ← p[x] before the rotation, and Case 3 always runs right after (\"Case 2 falls into Case 3\").",
+            "<b>Case 3</b> (slide 9.28): the uncle y is black and x = A is the left child of B, which is a left child of C (a straight line). Action: RIGHT-ROTATE(C) and recolour: B black, C red.",
+            "After Case 3, B is black on top with red children A and C, over four black-rooted triangles: black-heights are as before and no red has a red parent. <b>Done!</b> No more violations of property 3 are possible, and the loop stops because p[x] = B is black.",
+            "Which case applies is summed up in the table of this section: the uncle's colour decides first, then the shape of x, p[x], p[p[x]].",
+            "Last line: <code>color[root[T]] ← BLACK</code>. Case 1 can colour the root red (when C is the root); this restores property 2 and adds 1 to every path, so property 4 still holds.",
+            "<b>Analysis</b> (slide 9.29): go up the tree performing Case 1, which only recolours nodes, O(1) each, at most O(h) = O(lg n) times. If Case 2 or Case 3 occurs, perform 1 or 2 rotations and terminate.",
+            "Running time: <b>O(lg n) with O(1) rotations</b> (at most 2). Midterm 2016 Q3 / 2017 Q5 / 2018 Q3: red-black tree search, insert and delete are O(lg n) worst case.",
+            "<b>RB-DELETE</b> has the same asymptotic running time and number of rotations as RB-INSERT (slide 9.29, see textbook): O(lg n), at most 3 rotations in CLRS ‡. It is Lecture 11."
+          ],
+          "fig": [
+            "ag-9-cases",
+            "algo-rbt-sim"
+          ],
+          "figAt": {
+            "ag-9-cases": 3
+          },
+          "figH": {
             "ag-9-cases": "RB-INSERT pseudocode and the pictures of Cases 1, 2 and 3"
           }
         }
@@ -9474,43 +16801,187 @@ window.COURSES.algo = {
       "cards": [
         [
           "Red-Black Tree 5 Properties",
-          "1. Nodes are red or black; 2. Root is black; 3. NIL leaves are black; 4. Red node has black children (no two consecutive reds); 5. All paths from x to NIL leaves have the same black-height bh(x)."
+          "Slides (4): 1. every node red or black; 2. root and NIL leaves black; 3. a red node has a black parent (no two reds in a row); 4. all paths from x down to a leaf have the same number of blacks, bh(x). CLRS counts 5 by splitting property 2 (root black, leaves black)."
         ],
         [
           "Red-Black Tree Height Bound",
-          "h ≤ 2 lg(n + 1) because n ≥ 2^(bh(root)) − 1 and bh(root) ≥ h/2."
+          "h ≤ 2 lg(n + 1), because n ≥ 2<sup>bh(root)</sup> − 1 and bh(root) ≥ h/2. So h = O(lg n)."
         ],
         [
           "RB-INSERT Rotations Bound",
-          "RB-INSERT takes O(lg n) time and performs at most 2 rotations (Case 2 + Case 3)."
+          "O(lg n) time and at most 2 rotations (Case 2 + Case 3); Case 1 only recolours."
         ],
         [
           "Why Red-Black Trees Are Preferred Over Hash Tables (Final Q23)",
-          "Because hash tables suffer from expensive O(n) resizing spikes and cannot support ordered operations (min, max, predecessor, successor, range queries), whereas RB-trees guarantee O(lg n) worst-case ordered operations."
+          "Hash tables need costly resizing and keep no key order; red-black trees give min, max, successor, predecessor (ordered queries) in O(lg n) worst case."
         ],
         [
-          "Red-Black Tree Properties & Black-Height (Slides 9.1–9.8) — Core Principle & Complexity",
-          "<b>Balanced Search Trees (Slide 9.2)</b>: Guarantee tree height $h = O(\\lg n)$ for a dynamic set of $n$ items (unlike standard BSTs whose worst-case height is $\\Theta(n)$ on sorted input). Examples: AVL trees, 2-3 trees, 2-3-4 trees, B-trees, Red-Black trees. <b>Red-Black Properties (Slide 9.3 & Lec 10 Slide 3)</b>: A BST with one extra color bit (`RED` or `BLACK`) per node satisfying:<ul><li><b>1. Color Property</b>: Every node is either <b>red</b> or <b>black</b>.</li><li><b>2. Root & Leaf Property</b>: The <b>root</b> is black, and every <b>leaf (`NIL` sentinel)</b> is black.</li><li><b>3. Red Property (No Two Consecutive Reds)</b>: If a node is red, then its parent (and both of its children) are black.</li><li><b>4. Black-Height Property</b>: For each node $x$, all simple paths from $x$ to descendant `NIL` leaves contain the <b>same number of black nodes</b>, called the <b>black-height $bh(x)$</b> (not counting $x$ itself).</li></ul>"
+          "Red-Black Tree Properties & Black-Height (Slides 9.1–9.8): main result",
+          "bh(x) = number of black nodes from x down to a leaf, x not counted, NIL counted. Slides' tree: bh(7) = bh(18) = 2, bh(10) = bh(8) = 1, bh(NIL) = 0."
         ],
         [
-          "Proof of Height Bound: h ≤ 2 lg(n + 1) (Slides 9.9–9.16) — Core Principle & Complexity",
-          "<b>Theorem (Slide 9.9 & Midterm 2025 Q3)</b>: A red-black tree with $n$ internal keys has height $h \\le 2 \\lg(n + 1)$. <b>Proof via 2-3-4 Tree Merging (Slides 9.9–9.15)</b>:<ul><li>Merge every red node into its black parent to form a <b>2-3-4 tree</b> where every internal node has $2, 3,$ or $4$ children and all leaves have the exact same depth $h' = bh(\\text{root})$.</li><li>Because Property 3 forbids two consecutive red nodes on any path, at most half the nodes on any root-to-leaf path are red, so $h' \\ge h/2$.</li><li>A tree with $n$ internal nodes has exactly $n + 1$ `NIL` leaves, and a 2-3-4 tree of uniform depth $h'$ has at least $2^{h'}$ leaves: $n + 1 \\ge 2^{h'} \\ge 2^{h/2}$.</li><li>Taking $\\lg$ of both sides: $\\lg(n + 1) \\ge h/2 \\implies \\mathbf{h \\le 2 \\lg(n + 1) = O(\\lg n)}$.</li></ul>"
+          "Proof of Height Bound: h ≤ 2 lg(n + 1) (Slides 9.9–9.16): main result",
+          "Merge reds into black parents → 2-3-4 tree with uniform leaf depth h′ ≥ h/2 and n + 1 leaves ≥ 2<sup>h′</sup> ⇒ h ≤ 2 lg(n + 1)."
         ],
         [
-          "Rotations & RB-INSERT Cases 1, 2 & 3 (Slides 9.17–9.29) — Core Principle & Complexity",
-          "<b>Rotations (Slide 9.18)</b>: `LEFT-ROTATE(A)` and `RIGHT-ROTATE(B)` restructure pointers locally in $\\mathbf{O(1)}$ time while strictly preserving the BST inorder key ordering ($\\alpha \\le A \\le \\beta \\le B \\le \\gamma$). <b>`RB-INSERT(T, x)` Overview & Cases 1–3 (Slides 9.19–9.29)</b>: Insert $x$ using standard BST insertion and color $x$ <b>RED</b> (so Property 4 black-height is preserved, and only Property 3 ”red parent of red $x$” or Property 2 ”root is red” can be violated). While `color[p[x]] == RED`:<ul><li><b>Case 1 (Uncle $y$ is RED)</b>: Recolor parent and uncle `BLACK`, recolor grandparent `RED`, and move pointer $x$ up to grandparent (`x ← p[p[x]]`). Costs $O(1)$ per level up the tree, 0 rotations.</li><li><b>Case 2 (Uncle $y$ is BLACK and $x$ forms a zig-zag triangle with $p[x]$ and $p[p[x]]$)</b>: Rotate `p[x]` to transform the triangle into a straight line (Case 3).</li><li><b>Case 3 (Uncle $y$ is BLACK and $x$ forms a straight line with $p[x]$ and $p[p[x]]$)</b>: Recolor `p[x]` `BLACK`, grandparent `RED`, and rotate grandparent. <b>Terminates immediately!</b></li><li><b>Total Insertion Cost</b>: $O(\\lg n)$ time and <b>at most 2 rotations</b>!</li></ul>"
+          "Rotations & RB-INSERT Cases 1, 2 & 3 (Slides 9.17–9.29): main result",
+          "Rotations are O(1) and keep inorder order. Insert red, then: uncle red → Case 1 recolour and move up; uncle black → Case 2 (zig-zag) rotate into Case 3, Case 3 rotate grandparent and stop."
+        ],
+        [
+          "Balanced search tree (slide 9.2)",
+          "A search tree whose height is guaranteed O(lg n) for a dynamic set of n items. Examples: AVL, 2-3, 2-3-4, B-trees, red-black trees."
+        ],
+        [
+          "Uncle of x",
+          "The sibling of x's parent = the other child of the grandparent p[p[x]]. RB-INSERT picks its case by the uncle's colour."
+        ],
+        [
+          "Depth vs height of a node",
+          "Depth = edges from the root down to it. Height = edges on the longest path down to a leaf. Tree height = height of the root."
+        ],
+        [
+          "NIL leaves / sentinel",
+          "Every empty child pointer is a black leaf NIL; n keys give n + 1 NILs. In code one shared black node T.nil stands for all of them."
+        ],
+        [
+          "BST property",
+          "Every key in x's left subtree ≤ key[x] ≤ every key in x's right subtree (whole subtrees, not just children)."
+        ],
+        [
+          "Inorder traversal",
+          "Left subtree, node, right subtree. On a BST it prints the keys sorted. Θ(n)."
+        ],
+        [
+          "Cost of SEARCH, INSERT, MIN, MAX, SUCCESSOR, PREDECESSOR in a BST",
+          "O(h): one path down (or up). In a red-black tree h = O(lg n), so O(lg n)."
+        ],
+        [
+          "SUCCESSOR(x)",
+          "If right[x] ≠ NIL: TREE-MINIMUM(right[x]). Else climb until coming up from a left child; that ancestor is the answer."
+        ],
+        [
+          "PREDECESSOR(x)",
+          "If left[x] ≠ NIL: TREE-MAXIMUM(left[x]). Else climb until coming up from a right child."
+        ],
+        [
+          "Height of a BST built from sorted input",
+          "n − 1 (a chain), so operations cost Θ(n)."
+        ],
+        [
+          "Most nodes in a binary tree of height h",
+          "2<sup>h+1</sup> − 1 (level d has ≤ 2<sup>d</sup> nodes)."
+        ],
+        [
+          "2-3-4 tree",
+          "Nodes with 1, 2 or 3 keys and 2, 3 or 4 children; all leaves at the same depth. Depth h′ ⇒ at least 2<sup>h′</sup> leaves."
+        ],
+        [
+          "Number of NIL leaves of a tree with n keys",
+          "n + 1."
+        ],
+        [
+          "Red-black property 3",
+          "If a node is red, its parent is black: no two reds in a row. A black node may have children of any colour."
+        ],
+        [
+          "Example tree of slide 9.4: height and bh(root)",
+          "h = 4 (7 → 18 → 10 → 8 → NIL), bh(7) = 2, n = 8."
+        ],
+        [
+          "Induction lemma for red-black trees",
+          "The subtree at x has ≥ 2<sup>bh(x)</sup> − 1 internal nodes; step: 2(2<sup>bh(x)−1</sup> − 1) + 1 = 2<sup>bh(x)</sup> − 1."
+        ],
+        [
+          "Why bh(root) ≥ h/2",
+          "Property 3: no two reds in a row, so at least half the nodes on any root-to-leaf path are black."
+        ],
+        [
+          "Rotation cost and what it keeps",
+          "O(1) (constant number of pointers); keeps the inorder order a ≤ A ≤ b ≤ B ≤ c."
+        ],
+        [
+          "RIGHT-ROTATE(B), where does β go?",
+          "From A's right child to B's left child."
+        ],
+        [
+          "Why colour the new node red?",
+          "Red adds no black, so black-heights (property 4) stay; only property 3 (red parent) can break."
+        ],
+        [
+          "RB-INSERT Case 1",
+          "Uncle y red: colour p[x] and y black, grandparent red, x ← grandparent. No rotation."
+        ],
+        [
+          "RB-INSERT Case 2",
+          "Uncle black, x an inside child (zig-zag): x ← p[x], rotate x (LEFT-ROTATE if p is a left child). Falls into Case 3."
+        ],
+        [
+          "RB-INSERT Case 3",
+          "Uncle black, x an outside child (straight line): p[x] black, grandparent red, rotate the grandparent. Done."
+        ],
+        [
+          "Last line of RB-INSERT",
+          "color[root[T]] ← BLACK (restores property 2 if Case 1 coloured the root red)."
+        ],
+        [
+          "Insert 15 into the slides' tree: cases and result",
+          "Case 1 (uncle 8 red), Case 2 RIGHT-ROTATE(18), Case 3 LEFT-ROTATE(7); new root 10, 2 rotations."
+        ],
+        [
+          "RB-DELETE cost (slide 9.29)",
+          "Same as RB-INSERT: O(lg n) with O(1) rotations."
         ]
       ],
       "qa": [
         [
           "Prove that a Red-Black Tree with n keys has height h ≤ 2 lg(n + 1) (Midterm 2025 Q3).",
-          "1. First prove by induction on height that any node $x$’s subtree contains at least $2^{bh(x)} - 1$ internal nodes: For $x = \\text{NIL}$, $bh(x)=0$ and $2^0 - 1 = 0$. For an internal node $x$ with two children, each child has black-height at least $bh(x)-1$, so by the inductive hypothesis the subtree at $x$ has at least $2(2^{bh(x)-1} - 1) + 1 = 2^{bh(x)} - 1$ internal nodes.<br>2. By Property 3 (no two consecutive red nodes), at least half of the nodes on any simple path from the root to a leaf must be black, so $bh(\\text{root}) \\ge h/2$.<br>3. Therefore, $n \\ge 2^{bh(\\text{root})} - 1 \\ge 2^{h/2} - 1 \\implies n + 1 \\ge 2^{h/2} \\implies \\lg(n+1) \\ge h/2 \\implies \\mathbf{h \\le 2\\lg(n+1)}$.",
+          "<b>1. Lemma</b>: the subtree rooted at any node x has at least 2<sup>bh(x)</sup> − 1 internal nodes. Induction on the height of x.<br>• Base: height 0 means x = NIL, bh(x) = 0, and 2<sup>0</sup> − 1 = 0 internal nodes.<br>• Step: x has two children; each child c has bh(c) = bh(x) (c red) or bh(x) − 1 (c black), so bh(c) ≥ bh(x) − 1. Each child has smaller height, so by the hypothesis its subtree has ≥ 2<sup>bh(x)−1</sup> − 1 internal nodes. Adding x: ≥ 2(2<sup>bh(x)−1</sup> − 1) + 1 = 2<sup>bh(x)</sup> − 1.<br><b>2.</b> Property 3 (a red node has a black parent) forbids two reds in a row, so at least half the nodes on any root-to-leaf path are black: bh(root) ≥ h/2.<br><b>3.</b> At the root: n ≥ 2<sup>bh(root)</sup> − 1 ≥ 2<sup>h/2</sup> − 1 ⇒ n + 1 ≥ 2<sup>h/2</sup> ⇒ lg(n + 1) ≥ h/2 ⇒ <b>h ≤ 2 lg(n + 1)</b>.<br>(The slides' intuition: merging reds into black parents gives a 2-3-4 tree of depth h′ = bh(root) ≥ h/2 with n + 1 ≥ 2<sup>h′</sup> leaves.)",
           "Midterm 2025 Q3 & Lecture 9 · Slides 9.9–9.15"
         ],
         [
           "What are the properties of a Red-Black Tree, and how can you get the maximum of the tree and the predecessor of any key? Write pseudocode for both functions.",
-          "<b>Properties</b>: (1) Every node is red or black; (2) Root is black; (3) Every `NIL` leaf is black; (4) If a node is red, both its children are black; (5) Every simple path from a node to a descendant leaf contains the same number of black nodes.<br><b>Maximum (`O(lg n)`)</b>: Start at root and follow `right` pointers until `right[x] == NIL`.<br><b>Predecessor (`O(lg n)`)</b>: If `left[x] != NIL`, return `TREE-MAXIMUM(left[x])`; otherwise climb parent pointers until coming from a right child.",
+          "<b>Properties</b>: (1) every node is red or black; (2) the root and the leaves (NILs) are black; (3) if a node is red, its parent is black (no two reds in a row); (4) all simple paths from any node x to a descendant leaf contain the same number of black nodes, bh(x). (CLRS splits (2) and counts five.)<br><b>Maximum</b>, O(h) = O(lg n): follow right pointers.<br><code>TREE-MAXIMUM(x): while right[x] ≠ NIL do x ← right[x]; return x</code><br><b>Predecessor</b>, O(lg n): if x has a left subtree, the answer is its maximum; otherwise climb until we come up from a right child.<br><code>TREE-PREDECESSOR(x): if left[x] ≠ NIL then return TREE-MAXIMUM(left[x]); y ← p[x]; while y ≠ NIL and x = left[y] do x ← y; y ← p[y]; return y</code><br>Example on the slides' tree: the maximum is 26 (7 → 18 → 22 → 26); PREDECESSOR(18) = 11, PREDECESSOR(8) = 7.",
           "Midterm 2019 Q4, Midterm 2020 Q4 & Undated Midterm Q4"
+        ],
+        [
+          "For each algorithm, state its worst-case running time: (1) Binary Search, (2) Insertion Sort, (3) Merge Sort, (4) Counting Sort, (5) Heap Sort, (6) Red-Black Tree operations.",
+          "(1) Binary search Θ(lg n); (2) insertion sort Θ(n<sup>2</sup>); (3) merge sort Θ(n lg n); (4) counting sort Θ(n + k); (5) heap sort Θ(n lg n); (6) red-black tree SEARCH, INSERT, DELETE (and MIN, MAX, SUCCESSOR, PREDECESSOR): <b>O(lg n)</b>, because the height is at most 2 lg(n + 1) and each operation walks O(h), with at most 2 rotations per insert.",
+          "Midterm 2016 Q3 / 2017 Q5 / 2018 Q3"
+        ],
+        [
+          "Check the four red-black properties on the example tree of slide 9.4 and give the black-height of every node.",
+          "Tree: 7 (black root) with 3 (black) and 18 (red); 18 with 10 (black) and 22 (black); 10 with 8 and 11 (red); 22 with right child 26 (red); 9 NIL leaves.<br>(1) every node is red or black. (2) root 7 and all NILs are black. (3) the reds 18, 8, 11, 26 have black parents 7, 10, 10, 22. (4) every path from 7 meets 2 blacks: 7→3→NIL (3, NIL), 7→18→10→8→NIL (10, NIL), 7→18→22→26→NIL (22, NIL).<br>Black-heights: bh(7) = 2, bh(18) = 2, bh(3) = bh(10) = bh(22) = 1, bh(8) = bh(11) = bh(26) = 1, bh(NIL) = 0. Height h = 4.",
+          "Lecture 9 · Slides 9.3–9.8"
+        ],
+        [
+          "Explain the slides' intuition for h ≤ 2 lg(n + 1) on the example tree.",
+          "1. Merge each red node into its black parent (possible because a red node's parent is black): {7, 18}, {3}, {8, 10, 11}, {22, 26}.<br>2. Each new node has 2, 3 or 4 children (a black node with 0, 1 or 2 red children): a 2-3-4 tree.<br>3. All leaves have the same depth h′ = bh(root) (property 4): here h′ = 2.<br>4. h′ ≥ h/2 because at most half the nodes on a path are red: 2 ≥ 4/2.<br>5. The leaves are still the n + 1 = 9 NILs, and a 2-3-4 tree of depth h′ has ≥ 2<sup>h′</sup> leaves: 9 ≥ 4.<br>6. lg(n + 1) ≥ h′ ≥ h/2 ⇒ h ≤ 2 lg(n + 1): 4 ≤ 6.34.",
+          "Lecture 9 · Slides 9.9–9.15"
+        ],
+        [
+          "What is a rotation, why does it keep the BST property, and what does it cost?",
+          "RIGHT-ROTATE(B), with A the left child of B (A has subtrees α, β; B has γ): A takes B's place, B becomes A's right child, β moves from A's right to B's left. LEFT-ROTATE(A) undoes it.<br>Inorder is α, A, β, B, γ before and after, so for a ∈ α, b ∈ β, c ∈ γ: a ≤ A ≤ b ≤ B ≤ c holds in both trees; the BST property is kept.<br>Only a constant number of pointers change (parent link of the top, the A–B link, β's parent), so a rotation is <b>O(1)</b>.",
+          "Lecture 9 · Slide 9.18"
+        ],
+        [
+          "Trace the insertion of x = 15 into the example red-black tree.",
+          "1. BST insert: 7 → 18 → 10 → 11, 15 becomes the right child of 11, coloured red. 11 is red: property 3 broken.<br>2. p[x] = 11 is a right child of 10; uncle = 8 is red: <b>Case 1</b>: 11 and 8 black, 10 red, x ← 10.<br>3. p[x] = 18 is red and a right child of 7; uncle = 3 is black; 10 is a left child (zig-zag): <b>Case 2</b> (mirror): x ← 18, RIGHT-ROTATE(18).<br>4. Now 18 is the right child of 10, which is the right child of 7: <b>Case 3</b> (mirror): colour 10 black, 7 red, LEFT-ROTATE(7).<br>5. Result: root 10 (black); 7 (red) with 3, 8 (black); 18 (red) with 11, 22 (black); 15 red under 11, 26 red under 22. bh(root) = 2. 2 rotations.",
+          "Lecture 9 · Slides 9.19–9.23"
+        ],
+        [
+          "Why is a newly inserted node coloured red, and which properties can then be violated?",
+          "A red node adds no black node to any path, so all black-heights are unchanged and property 4 still holds; property 1 holds trivially. Only property 3 can break (the new node's parent is red), plus property 2 if the new node is the root of an empty tree, which the last line <code>color[root[T]] ← BLACK</code> fixes. Colouring it black would add a black to some paths only, breaking property 4, which is much harder to repair.",
+          "Lecture 9 · Slides 9.19, 9.24"
+        ],
+        [
+          "Describe RB-INSERT Cases 1, 2 and 3 and show that insertion takes O(lg n) time with at most 2 rotations.",
+          "Loop while p[x] is red; y = uncle of x.<br>• <b>Case 1</b>, y red: colour p[x] and y black, p[p[x]] red, x ← p[p[x]]. Black-heights unchanged; the violation moves up 2 levels.<br>• <b>Case 2</b>, y black and x a right child of a left child (zig-zag): x ← p[x], LEFT-ROTATE(x). Rotating two reds changes no black-height; now it is Case 3.<br>• <b>Case 3</b>, y black and x a left child of a left child: colour p[x] black, p[p[x]] red, RIGHT-ROTATE(p[p[x]]). p[x] is now black, so the loop ends.<br>(Mirror with left/right swapped when p[x] is a right child.)<br><b>Cost</b>: TREE-INSERT is O(lg n); Case 1 repeats at most O(h) = O(lg n) times with O(1) work each; Case 2 and 3 happen at most once, then the loop stops: ≤ 2 rotations. Total O(lg n).",
+          "Lecture 9 · Slides 9.24–9.29"
+        ],
+        [
+          "Why does a plain BST need balancing? Give an example.",
+          "All BST operations cost O(h). The height depends on the insertion order: inserting 1, 2, …, 7 in sorted order makes every key the right child of the previous one, a chain of height n − 1 = 6, so a search may visit all n nodes: Θ(n). The same keys inserted as 4, 2, 6, 1, 3, 5, 7 give height 2. A balanced tree (like a red-black tree) guarantees O(lg n) height whatever the order, so every operation is O(lg n).",
+          "Background · Final 2022 Q26"
         ]
       ],
       "quiz": [
@@ -9519,19 +16990,19 @@ window.COURSES.algo = {
           "o": [
             [
               "Dynamic programming",
-              "Incorrect."
+              "Dynamic programming is an algorithm design method (storing subproblem answers), not an operation that restructures a tree."
             ],
             [
               "Binary sort",
-              "Incorrect."
+              "There is no \"binary sort\" step in red-black trees; balancing is done by recolouring and rotating, never by sorting the keys."
             ],
             [
               "Depth-first search",
-              "Incorrect."
+              "DFS is a way to visit graph or tree nodes; it changes no links, so it cannot restore balance."
             ],
             [
               "Rotation",
-              "Correct! Final 2021 Q37 & Final Summer Q16: Left and Right Rotations are the O(1) pointer restructuring operations in Red-Black Trees."
+              "Correct (Final 2021 Q37, Final Summer Q16): slides 9.17–9.18, a rotation relinks a node and its child in O(1) time and keeps the inorder order."
             ]
           ],
           "a": 3,
@@ -9542,44 +17013,834 @@ window.COURSES.algo = {
           "o": [
             [
               "No, they are never preferred",
-              "Incorrect."
+              "Wrong: when key order matters (min, max, successor, range queries) or worst-case guarantees matter, red-black trees are the better choice."
             ],
             [
               "Because of resizing issues in hash tables and better key ordering (min, max, predecessor, successor) in Red-Black Trees",
-              "Correct! Final 2021 Q23 & Final 2022 Q37: Red-Black Trees avoid hash table resizing spikes and maintain keys in sorted order for O(lg n) predecessor/successor/range queries."
+              "Correct (Final 2021 Q23, Final 2022 Q37): a hash table keeps no key order and needs costly resizing; a red-black tree gives ordered queries in O(lg n) worst case (slide 9.16)."
             ],
             [
               "Because Red-Black Trees use O(1) total memory",
-              "Both use O(n) memory."
+              "Both structures store all n keys, so both use Θ(n) memory; a red-black tree even adds a colour bit and pointers per node."
             ],
             [
               "Because Red-Black Trees do not use pointers",
-              "Red-Black Trees use left, right, and parent pointers."
+              "A red-black tree node has left, right and parent pointers (rotations relink them), so this is false."
             ]
           ],
           "a": 1,
           "src": "Exam · Final 2021 Q23 & Final 2022 Q37"
+        },
+        {
+          "q": "A Heap is an example of a _____________, while the access time of an unbalanced Binary Search Tree may degrade in the worst case up to _____________.",
+          "o": [
+            [
+              "Complete binary tree; O(n)",
+              "Correct (Final 2022 Q25 & Q26): a binary heap is a complete binary tree, and an unbalanced BST can become a chain of height n − 1 (sorted input), so access costs O(n)."
+            ],
+            [
+              "Spanning tree; O(n log n)",
+              "A spanning tree belongs to graphs (MST), not heaps; and one BST access walks one path, at most n nodes, never n log n."
+            ],
+            [
+              "Sparse tree; O(n²)",
+              "\"Sparse tree\" is not what a heap is, and one access walks a single path of at most n nodes, so O(n²) is far too big."
+            ],
+            [
+              "Binary search tree; O(1)",
+              "A heap does not keep the BST order (only parent ≥ children), and O(1) is impossible for a degenerate tree where the key may be n levels down."
+            ]
+          ],
+          "a": 0,
+          "src": "Exam · Final Exam 2022 Q25 & Q26"
+        },
+        {
+          "q": "Printing every node in a balanced binary search tree takes Θ(lg n) time.",
+          "o": [
+            [
+              "True",
+              "Not true: printing must output all n keys, so it cannot take less than n steps; lg n is the cost of one search path, not of visiting every node."
+            ],
+            [
+              "False",
+              "Correct, it is False: an inorder traversal visits each of the n nodes once, so printing takes Θ(n) in any BST, balanced or not."
+            ]
+          ],
+          "a": 1,
+          "src": "Exam · Final Summer TF 5"
+        },
+        {
+          "q": "In a Red-Black Tree, a black node must have only red children.",
+          "o": [
+            [
+              "True",
+              "Not true: no property restricts the children of a black node. In the slides' tree, black 7 has a black child 3 and a red child 18, and black 3 has only NIL (black) leaves."
+            ],
+            [
+              "False",
+              "Correct, it is False: property 3 restricts red nodes only (a red node's parent is black). A black node may have red or black children, e.g. 7 with children 3 (black) and 18 (red)."
+            ]
+          ],
+          "a": 1,
+          "src": "Exam · Final Summer TF 6"
+        },
+        {
+          "q": "We do not have to make any key comparisons to find the minimum or maximum node of a Binary Search Tree.",
+          "o": [
+            [
+              "True",
+              "Correct, it is True: TREE-MINIMUM just follows left pointers until left is NIL (TREE-MAXIMUM follows right pointers); only pointers are tested, never keys."
+            ],
+            [
+              "False",
+              "Not false: the BST property already puts the smallest key at the far left and the largest at the far right, so no key needs comparing."
+            ]
+          ],
+          "a": 0,
+          "src": "Exam · Final Summer TF 13"
+        },
+        {
+          "q": "In the example red-black tree of slide 9.8, what is the black-height of the root 7?",
+          "o": [
+            [
+              "1",
+              "This counts only the NIL and forgets the black node on the way down, e.g. 3 on the path 7 → 3 → NIL, or 10 on 7 → 18 → 10 → 8 → NIL."
+            ],
+            [
+              "2",
+              "Correct: every path from 7 to a leaf meets exactly 2 black nodes after 7: (3, NIL), (10, NIL) or (22, NIL). Slide 9.8 writes bh = 2 at 7."
+            ],
+            [
+              "3",
+              "This counts 7 itself. Black-height never counts the starting node x, only the black nodes below it, NIL included."
+            ],
+            [
+              "4",
+              "4 is the height h of the tree (edges on the longest path to a NIL), not the number of black nodes on a path."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 9 · Slide 8"
+        },
+        {
+          "q": "In the same example tree (slide 9.8), what is bh(18)?",
+          "o": [
+            [
+              "2",
+              "Correct: from 18 every path meets a black child (10 or 22) and then a black NIL: 2 blacks. The red colour of 18 itself does not count."
+            ],
+            [
+              "1",
+              "This misses one of the two blacks: from 18 the paths meet the black node 10 or 22 and then also the black NIL."
+            ],
+            [
+              "3",
+              "This counts both 10 and 22, but a single path from 18 goes through only one of them; each path meets one black child and one NIL."
+            ],
+            [
+              "0",
+              "bh = 0 belongs to a NIL leaf only; any internal node has at least the NIL below it, so bh ≥ 1."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 9 · Slide 8"
+        },
+        {
+          "q": "Which statement is red-black property 3 as written on slide 9.3?",
+          "o": [
+            [
+              "If a node is red, then its parent is black",
+              "Correct: slide 9.3, property 3. It forbids two reds in a row on any path, which gives bh(root) ≥ h/2."
+            ],
+            [
+              "If a node is black, then both its children are red",
+              "Wrong: nothing restricts the children of a black node; this is the false statement of Final Summer TF 6."
+            ],
+            [
+              "Every path from the root has the same number of red nodes",
+              "The slides fix the number of black nodes on each path (property 4); the number of reds may differ from path to path."
+            ],
+            [
+              "The root and the leaves are red",
+              "Property 2 says the opposite: the root and the leaves (NILs) are black."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 9 · Slide 3"
+        },
+        {
+          "q": "A red-black tree has n = 8 keys. How many NIL leaves does it have (slide 9.15)?",
+          "o": [
+            [
+              "8",
+              "This counts one leaf per key, but n nodes have 2n child pointers of which only n − 1 point to real nodes, leaving n + 1 for NILs."
+            ],
+            [
+              "16",
+              "16 = 2n counts every child pointer; n − 1 = 7 of them point to real nodes, so only 9 point to NIL."
+            ],
+            [
+              "9",
+              "Correct: n + 1 = 9 NIL leaves (slide 9.15 \"the number of leaves in each tree is n + 1\"); the slides' tree indeed shows 9 NILs."
+            ],
+            [
+              "7",
+              "7 = n − 1 is the number of edges between real nodes, not the number of NIL leaves."
+            ]
+          ],
+          "a": 2,
+          "src": "Lecture 9 · Slide 15"
+        },
+        {
+          "q": "After merging every red node of the example tree into its black parent (slides 9.9–9.14), which node of the 2-3-4 tree has 4 children?",
+          "o": [
+            [
+              "{7, 18}",
+              "{7, 18} has two keys, so 3 children: {3}, {8, 10, 11}, {22, 26}."
+            ],
+            [
+              "{22, 26}",
+              "{22, 26} has two keys and 3 children (3 NIL leaves): 22 absorbed only one red child."
+            ],
+            [
+              "{3}",
+              "3 has no red children, so it stays a 2-node with its 2 NIL leaves."
+            ],
+            [
+              "{8, 10, 11}",
+              "Correct: black 10 absorbs both red children 8 and 11, giving 3 keys and 4 children (the 4 NILs under 8 and 11)."
+            ]
+          ],
+          "a": 3,
+          "src": "Lecture 9 · Slide 14"
+        },
+        {
+          "q": "Why is h′ ≥ h/2 in the slides' proof (slide 9.15)?",
+          "o": [
+            [
+              "Because at most half the nodes on any root-to-leaf path are red, and merging removes only red nodes",
+              "Correct: property 3 forbids two reds in a row, so at least half the path survives merging. (The slide says \"leaves\"; it means nodes.)"
+            ],
+            [
+              "Because every 2-3-4 node has at most 4 children",
+              "The child count bounds the number of leaves (≤ 4<sup>h′</sup>), not the relation between the path lengths h and h′."
+            ],
+            [
+              "Because there are n + 1 leaves",
+              "n + 1 leaves gives n + 1 ≥ 2<sup>h′</sup>, the next step of the proof; it says nothing about h compared with h′."
+            ],
+            [
+              "Because rotations take O(1) time",
+              "Rotations are used for insertion (slide 9.18); the height theorem is about any red-black tree and needs no rotations."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 9 · Slide 15"
+        },
+        {
+          "q": "What is the largest height a red-black tree with n = 15 keys can have, by the theorem of slide 9.9?",
+          "o": [
+            [
+              "4",
+              "4 = lg 16 is roughly the height of the best possible tree, not the guaranteed upper bound; the bound is twice that."
+            ],
+            [
+              "8",
+              "Correct: h ≤ 2 lg(n + 1) = 2 lg 16 = 2 · 4 = 8."
+            ],
+            [
+              "15",
+              "15 = n would be a chain of a plain BST; property 3 and 4 make that impossible for a red-black tree."
+            ],
+            [
+              "16",
+              "16 = n + 1 is the number of NIL leaves, not a height bound; the bound uses lg of it."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 9 · Slide 9"
+        },
+        {
+          "q": "Rotations maintain which relation for a ∈ α, b ∈ β, c ∈ γ (slide 9.18)?",
+          "o": [
+            [
+              "a ≤ b ≤ A ≤ B ≤ c",
+              "This puts β left of A, but β is A's right subtree (keys between A and B), so b ≥ A."
+            ],
+            [
+              "A ≤ a ≤ b ≤ B ≤ c",
+              "α is A's left subtree, so its keys are ≤ A, not ≥ A."
+            ],
+            [
+              "a ≤ A ≤ b ≤ B ≤ c",
+              "Correct: the inorder order α, A, β, B, γ is the same before and after the rotation, so the BST property survives."
+            ],
+            [
+              "a ≤ A ≤ B ≤ b ≤ c",
+              "This puts β right of B, but β is moved to B's left subtree, so its keys are ≤ B."
+            ]
+          ],
+          "a": 2,
+          "src": "Lecture 9 · Slide 18"
+        },
+        {
+          "q": "How long does a rotation take on a tree with n nodes?",
+          "o": [
+            [
+              "O(lg n)",
+              "O(lg n) is a whole walk down the tree; a rotation changes only a few pointers at one place and needs no walk."
+            ],
+            [
+              "O(n)",
+              "A rotation never visits the nodes inside α, β, γ; the subtrees move as whole blocks with their roots."
+            ],
+            [
+              "O(1)",
+              "Correct (slide 9.18): a constant number of pointers change (the parent link, the A–B link and β's parent), whatever the size of the subtrees."
+            ],
+            [
+              "O(h²)",
+              "Nothing in a rotation depends on the height; it is local to two nodes and their three subtrees."
+            ]
+          ],
+          "a": 2,
+          "src": "Lecture 9 · Slide 18"
+        },
+        {
+          "q": "Inserting x = 15 into the example tree: which case applies first (slides 9.20–9.21)?",
+          "o": [
+            [
+              "Case 1, because the uncle 8 is red",
+              "Correct: 15's parent 11 is red, and the uncle (the other child of 10) is 8, red. So recolour 8 and 11 black, 10 red, and move x up to 10."
+            ],
+            [
+              "Case 2, because 15 is a right child",
+              "Case 2 requires a black uncle; here the uncle 8 is red, so it is Case 1. (Case 2 does happen next, at 10.)"
+            ],
+            [
+              "Case 3, because 15 and 11 are both right children",
+              "Case 3 also requires a black uncle; with the uncle 8 red only recolouring (Case 1) is done."
+            ],
+            [
+              "No case: 15 is red and nothing is violated",
+              "15 has the red parent 11: two reds in a row break property 3, so the loop must run."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 9 · Slide 20"
+        },
+        {
+          "q": "After the recolouring in the x = 15 example, which operation comes next (slide 9.21)?",
+          "o": [
+            [
+              "LEFT-ROTATE(10)",
+              "x = 10 is a left child of the right child 18, so the mirror Case 2 rotates the parent 18 to the right, not 10 to the left."
+            ],
+            [
+              "RIGHT-ROTATE(18)",
+              "Correct: 10 and 18 are red, the uncle 3 is black, and 10 is an inside (left) child of the right child 18: mirror Case 2, RIGHT-ROTATE(18)."
+            ],
+            [
+              "LEFT-ROTATE(7)",
+              "LEFT-ROTATE(7) is the Case 3 step and comes second, after the zig-zag 7, 18, 10 has been straightened."
+            ],
+            [
+              "Recolour 18 and 3 black",
+              "That would be Case 1, which needs a red uncle; the uncle of 10 is 3, which is black."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 9 · Slide 21"
+        },
+        {
+          "q": "Which node is the root after inserting 15 into the example tree (slide 9.23)?",
+          "o": [
+            [
+              "7",
+              "7 was the root before; LEFT-ROTATE(7) moves it down to be the left child of 10 and colours it red."
+            ],
+            [
+              "18",
+              "18 was rotated down by RIGHT-ROTATE(18); it ends as the red right child of 10."
+            ],
+            [
+              "10",
+              "Correct: after RIGHT-ROTATE(18) and LEFT-ROTATE(7), 10 is on top and is coloured black (slide 9.23)."
+            ],
+            [
+              "15",
+              "A new key enters as a leaf; 15 stays a red leaf under 11. Rotations never brought it near the top."
+            ]
+          ],
+          "a": 2,
+          "src": "Lecture 9 · Slide 23"
+        },
+        {
+          "q": "Why does RB-INSERT colour the new node x red (slides 9.19, 9.24)?",
+          "o": [
+            [
+              "So that black-heights do not change and only property 3 can be violated",
+              "Correct: a red node adds no black to any path, so property 4 holds; the only possible problem is a red parent (property 3)."
+            ],
+            [
+              "So that the root stays black",
+              "The root's colour is not affected by a red leaf below it; the last line color[root[T]] ← BLACK guards the root."
+            ],
+            [
+              "Because red nodes take less memory",
+              "The colour is one bit either way (slide 9.3); red and black nodes have the same size."
+            ],
+            [
+              "So that no rotation is ever needed",
+              "A red x may still have a red parent, and then Cases 2 and 3 do rotate (2 rotations in the x = 15 example)."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 9 · Slide 19"
+        },
+        {
+          "q": "In RB-INSERT, Case 1 applies when:",
+          "o": [
+            [
+              "the uncle y of x is red",
+              "Correct (slides 9.24, 9.26): with a red uncle, recolour parent and uncle black and the grandparent red, then x ← grandparent."
+            ],
+            [
+              "the uncle y is black and x is a right child",
+              "That is Case 2 (black uncle, zig-zag), which rotates the parent."
+            ],
+            [
+              "the uncle y is black and x is a left child",
+              "That is Case 3 (black uncle, straight line), which rotates the grandparent and ends the loop."
+            ],
+            [
+              "x is the root",
+              "When x is the root the loop does not run at all; the last line just colours the root black."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 9 · Slide 26"
+        },
+        {
+          "q": "After which case does RB-INSERT stop immediately (slide 9.28)?",
+          "o": [
+            [
+              "Case 1",
+              "Case 1 only recolours and moves x up to the grandparent, which may have a red parent: the loop can continue."
+            ],
+            [
+              "Case 2",
+              "Case 2 does not fix the violation; it only turns the zig-zag into a straight line and falls into Case 3."
+            ],
+            [
+              "Case 3",
+              "Correct: after RIGHT-ROTATE(C) and recolouring, B is black with red children: \"Done! No more violations of RB property 3 are possible.\""
+            ],
+            [
+              "None: the loop always runs to the root",
+              "Only Case 1 climbs; Cases 2 and 3 end the loop at once (slide 9.29: \"perform 1 or 2 rotations, and terminate\")."
+            ]
+          ],
+          "a": 2,
+          "src": "Lecture 9 · Slide 28"
+        },
+        {
+          "q": "What is the most rotations one RB-INSERT can perform (slide 9.29)?",
+          "o": [
+            [
+              "0",
+              "Case 1 alone uses 0 rotations, but Cases 2 and 3 do rotate (x = 15 needed 2)."
+            ],
+            [
+              "2",
+              "Correct: Case 1 only recolours; Case 2 rotates once and falls into Case 3, which rotates once and terminates. So at most 2."
+            ],
+            [
+              "O(lg n)",
+              "O(lg n) is the most Case 1 recolourings; rotations happen only in the final Case 2 / Case 3 step, at most 2."
+            ],
+            [
+              "3",
+              "3 rotations is the CLRS bound for RB-DELETE; insertion needs at most 2."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 9 · Slide 29"
+        },
+        {
+          "q": "Which of these is NOT given on slide 9.2 as an example of a balanced search tree?",
+          "o": [
+            [
+              "AVL tree",
+              "AVL trees are on slide 9.2: they guarantee O(lg n) height by keeping subtree heights within 1."
+            ],
+            [
+              "Plain binary search tree",
+              "Correct: a plain BST has no balancing; sorted input makes it a chain of height n − 1, so it is not balanced."
+            ],
+            [
+              "B-tree",
+              "B-trees are on slide 9.2 (they generalise 2-3-4 trees to large nodes)."
+            ],
+            [
+              "2-3-4 tree",
+              "2-3-4 trees are on slide 9.2, and slide 9.14 builds one from a red-black tree."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 9 · Slide 2"
+        },
+        {
+          "q": "The queries SEARCH, MIN, MAX, SUCCESSOR and PREDECESSOR on a red-black tree with n nodes run in (slide 9.16):",
+          "o": [
+            [
+              "O(1)",
+              "Each query walks a path in the tree, which can have about lg n levels; it is not constant."
+            ],
+            [
+              "O(n)",
+              "O(n) is the worst case of a plain BST; the red-black height bound 2 lg(n + 1) prevents it."
+            ],
+            [
+              "O(n lg n)",
+              "That is the cost of sorting n keys; a single query walks one path."
+            ],
+            [
+              "O(lg n)",
+              "Correct: each query is O(h) and h ≤ 2 lg(n + 1), so O(lg n) in the worst case."
+            ]
+          ],
+          "a": 3,
+          "src": "Lecture 9 · Slide 16"
         }
       ],
       "extra": [
         {
-          "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 9?",
+          "q": "The keys 5, 3, 8, 1, 4, 7, 9 are inserted in this order into an empty BST. What is the height of the tree, in edges between keys (not counting NIL leaves)?",
           "o": [
             [
-              "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-              "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
+              "2",
+              "Correct: 5 is the root, 3 and 8 its children, and 1, 4, 7, 9 the leaves at depth 2."
             ],
             [
-              "The algorithm requires O(2ⁿ) exponential space in the best case",
-              "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
+              "3",
+              "3 counts the levels of keys (or the edges down to the NILs, the convention of slide 9.4); the question counts edges between keys only, which gives 2."
             ],
             [
-              "The algorithm only works when n ≤ 10",
-              "False — Asymptotic analysis applies as n → ∞."
+              "6",
+              "6 = n − 1 is the height of a chain, which only sorted (or reverse-sorted) input produces."
             ],
             [
-              "Correctness does not depend on loop invariants or optimal substructure",
-              "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
+              "7",
+              "7 = n is the number of keys; a tree with n keys has height at most n − 1."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "In the BST built from 50, 30, 70, 20, 40, 60, 80, what is SUCCESSOR(40)?",
+          "o": [
+            [
+              "50",
+              "Correct: 40 has no right subtree, so climb: 40 is a right child of 30, climb; 30 is a left child of 50, stop. Answer 50."
+            ],
+            [
+              "30",
+              "30 is the parent of 40 but is smaller (40 is its right child); the climb continues past it."
+            ],
+            [
+              "60",
+              "60 is the successor of 50, not of 40; you would get it by also taking the minimum of 50's right subtree."
+            ],
+            [
+              "None",
+              "40 is not the maximum (80 is), so it has a successor; the climb finds 50."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "The keys 10, 20, 30, 40, 50 are inserted in this order into an empty plain BST. What is its height?",
+          "o": [
+            [
+              "2",
+              "2 = ⌊lg 5⌋ is the best possible height; sorted input gives the worst one."
+            ],
+            [
+              "4",
+              "Correct: each key goes right of the previous one, a chain of height n − 1 = 4. A search for 50 visits all 5 nodes."
+            ],
+            [
+              "5",
+              "5 counts nodes on the chain, but height counts edges: 4."
+            ],
+            [
+              "3",
+              "No branching happens with sorted input, so the tree has a single path of 4 edges."
+            ]
+          ],
+          "a": 1
+        },
+        {
+          "q": "A subtree has black-height bh(x) = 3. At least how many keys (internal nodes) does it contain?",
+          "o": [
+            [
+              "3",
+              "This confuses bh with the number of keys; the lemma gives 2<sup>bh(x)</sup> − 1."
+            ],
+            [
+              "8",
+              "8 = 2<sup>3</sup> is the number of leaves of a perfect tree of black height 3, one more than its keys."
+            ],
+            [
+              "7",
+              "Correct: the lemma gives ≥ 2<sup>bh(x)</sup> − 1 = 2<sup>3</sup> − 1 = 7 internal nodes (an all-black perfect tree of height 3)."
+            ],
+            [
+              "6",
+              "6 = 2 · 3 confuses the bound with doubling the black-height; the bound is exponential: 2<sup>3</sup> − 1."
+            ]
+          ],
+          "a": 2
+        },
+        {
+          "q": "A red-black tree stores n = 1023 keys. What height bound does h ≤ 2 lg(n + 1) give?",
+          "o": [
+            [
+              "10",
+              "10 = lg 1024 is the minimum possible height, not the guaranteed maximum; the bound doubles it."
+            ],
+            [
+              "20",
+              "Correct: 2 lg(1023 + 1) = 2 lg 1024 = 2 · 10 = 20."
+            ],
+            [
+              "1022",
+              "1022 = n − 1 is the worst height of a plain BST, which red-black trees rule out."
+            ],
+            [
+              "40",
+              "40 would be 4 lg(n + 1); the theorem has the factor 2."
+            ]
+          ],
+          "a": 1
+        },
+        {
+          "q": "How many NIL leaves does a red-black tree with 20 keys have?",
+          "o": [
+            [
+              "20",
+              "One per key is too few: the n − 1 = 19 parent links use 19 of the 40 child pointers, leaving 21 for NILs."
+            ],
+            [
+              "40",
+              "40 = 2n counts all child pointers, but 19 of them point to real nodes."
+            ],
+            [
+              "19",
+              "19 = n − 1 is the number of edges between real nodes."
+            ],
+            [
+              "21",
+              "Correct: n + 1 = 21 NIL leaves, whatever the shape of the tree."
+            ]
+          ],
+          "a": 3
+        },
+        {
+          "q": "Into the slides' original example tree (7, 3, 18, 10, 8, 11, 22, 26) we insert 1. What does RB-INSERT do after placing 1?",
+          "o": [
+            [
+              "Nothing: 1 becomes the red left child of black 3, so no property is broken",
+              "Correct: the walk 7 → 3 puts 1 left of 3; its parent 3 is black, so the while loop does not run. 0 rotations."
+            ],
+            [
+              "Case 1 recolouring",
+              "Case 1 needs a red parent and a red uncle; the parent 3 is black, so the loop never starts."
+            ],
+            [
+              "One rotation at 3",
+              "Rotations happen only in Cases 2 and 3, which need a red parent; 3 is black."
+            ],
+            [
+              "Colour 1 black",
+              "1 stays red: a black 1 would give the paths through it one extra black and break property 4."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Into the slides' original example tree we insert 27. Which case applies, and how many rotations happen?",
+          "o": [
+            [
+              "Case 1, 0 rotations",
+              "Case 1 needs a red uncle; the uncle of 27 is the left child of 22, a black NIL."
+            ],
+            [
+              "Case 2 then Case 3, 2 rotations",
+              "27 is the right child of 26, which is the right child of 22: a straight line, not a zig-zag, so Case 2 is skipped."
+            ],
+            [
+              "Case 3 (mirror), 1 rotation: LEFT-ROTATE(22)",
+              "Correct: 7 → 18 → 22 → 26, 27 right of red 26; uncle NIL is black and the line is straight: colour 26 black, 22 red, LEFT-ROTATE(22)."
+            ],
+            [
+              "No case, 0 rotations",
+              "27's parent 26 is red, so property 3 is broken and the loop must run."
+            ]
+          ],
+          "a": 2
+        },
+        {
+          "q": "Into the slides' original example tree we insert 9. Which sequence of cases follows?",
+          "o": [
+            [
+              "Case 1, then Case 2 (mirror) and Case 3 (mirror): 2 rotations",
+              "Correct: 9 goes right of red 8; the uncle 11 is red, Case 1 makes 10 red; then 10 under red 18 with black uncle 3 is a zig-zag: RIGHT-ROTATE(18), LEFT-ROTATE(7)."
+            ],
+            [
+              "Case 2 then Case 3 only",
+              "First the uncle of 9 must be checked: it is 11, red, so Case 1 comes first."
+            ],
+            [
+              "Case 1 only",
+              "After Case 1, x = 10 still has the red parent 18 with a black uncle 3, so rotations are needed."
+            ],
+            [
+              "Case 3 only, LEFT-ROTATE(7)",
+              "The violation at 10 and 18 is a zig-zag (10 is a left child of the right child 18), so Case 2 must straighten it first."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "After inserting 15 (final tree of slide 9.23), we insert 14. How many rotations does RB-INSERT perform?",
+          "o": [
+            [
+              "0",
+              "14 lands as the left child of red 15, so property 3 is broken and the uncle (left of 11) is a black NIL: rotations are needed."
+            ],
+            [
+              "1",
+              "One rotation is enough only for a straight line; 14 is a left child of 15, which is a right child of 11: a zig-zag."
+            ],
+            [
+              "2",
+              "Correct: walk 10 → 18 → 11 → 15, 14 left of 15; black uncle and zig-zag: RIGHT-ROTATE(15) (Case 2), then LEFT-ROTATE(11) (Case 3). 14 ends black with red 11 and 15."
+            ],
+            [
+              "3",
+              "RB-INSERT never needs more than 2 rotations: Case 2 once and Case 3 once."
+            ]
+          ],
+          "a": 2
+        },
+        {
+          "q": "After RIGHT-ROTATE(B), where B had left child A with subtrees α (left) and β (right), and B had right subtree γ, which subtree has a new parent?",
+          "o": [
+            [
+              "α",
+              "α stays the left subtree of A; it only moves up one level with A."
+            ],
+            [
+              "β",
+              "Correct: β moves from A's right child to B's left child; it holds the keys between A and B."
+            ],
+            [
+              "γ",
+              "γ stays the right subtree of B; it only moves down one level with B."
+            ],
+            [
+              "None of them",
+              "A rotation must move β, otherwise B would have no left subtree and A two right-side children."
+            ]
+          ],
+          "a": 1
+        },
+        {
+          "q": "In the slides' example tree, what is PREDECESSOR(8)?",
+          "o": [
+            [
+              "7",
+              "Correct: 8 has no left child; 8 is a left child of 10, climb; 10 is a left child of 18, climb; 18 is a right child of 7, stop: 7."
+            ],
+            [
+              "3",
+              "3 is smaller than 7, so it cannot be the next smaller key before 8; 7 lies between them."
+            ],
+            [
+              "10",
+              "10 is larger than 8 (its parent from the right side); a predecessor is smaller."
+            ],
+            [
+              "None",
+              "8 is not the minimum (3 is), so a predecessor exists."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "In a red-black tree, a red node x has two children. What are their colours?",
+          "o": [
+            [
+              "Both black",
+              "Correct: a red child would have a red parent, which property 3 forbids, so both children (possibly NILs) are black."
+            ],
+            [
+              "Both red",
+              "Two reds in a row are exactly what property 3 forbids."
+            ],
+            [
+              "One red, one black",
+              "The red child would have a red parent, breaking property 3."
+            ],
+            [
+              "Any colours",
+              "Only black nodes may have children of any colour; red nodes must have black children."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "A plain BST with 1,000 keys was built from sorted input. A red-black tree holds the same keys. Roughly how many levels can a search visit in each, at worst?",
+          "o": [
+            [
+              "1,000 and 20",
+              "Correct: the chain has height 999 (1,000 nodes on the path); the red-black tree has height ≤ 2 lg 1001 ≈ 19.9, so about 20 nodes."
+            ],
+            [
+              "10 and 10",
+              "10 ≈ lg 1000 is the best possible height; the sorted BST is a chain, far from it."
+            ],
+            [
+              "1,000 and 1,000",
+              "The red-black height bound 2 lg(n + 1) holds whatever the insertion order."
+            ],
+            [
+              "500 and 10",
+              "The sorted chain uses every key on one path (not half), and the red-black bound is 2 lg(n + 1), about 20, not lg n."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "In the RB-INSERT loop, why does p[p[x]] always exist?",
+          "o": [
+            [
+              "Because p[x] is red and the root is black, so p[x] is not the root",
+              "Correct: the loop runs only while p[x] is red; the root is black (property 2), so p[x] has a parent."
+            ],
+            [
+              "Because x is always a leaf",
+              "x moves up in Case 1 and can be an internal node; that is not the reason."
+            ],
+            [
+              "Because the tree has at least 3 nodes",
+              "The tree could be tiny; what guarantees a grandparent is that a red parent cannot be the black root."
+            ],
+            [
+              "Because of the sentinel T.nil",
+              "The sentinel is the parent of the root; if p[x] were the root, p[p[x]] would be T.nil, which the loop never reaches."
             ]
           ],
           "a": 0
@@ -9589,7 +17850,7 @@ window.COURSES.algo = {
     {
       "n": 10,
       "code": "Lec 10",
-      "title": "Lecture 10: Red-Black Trees Deep Dive — Coloring Exercises, Pointer Rotations & Symmetric Insertion Cases 1–6",
+      "title": "Lecture 10: Red-Black Trees in Depth: Colouring, the Insertion Problem, Rotations and Insert Cases 1-6",
       "videos": [
         {
           "id": "jDM6_TnYIqE",
@@ -9613,74 +17874,548 @@ window.COURSES.algo = {
       ],
       "notes": [
         {
-          "h": "Coloring Red-Black Trees & Insertion Problem Trace (Slides 10.1–10.19)",
+          "h": "Before you start: binary search trees and pointer code",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
           "pts": [
-            "<b>Coloring Exercise on `{7, 5, 9, 12}` (Slide 10.8 & Final 2019 Credit Q3)</b>: Root `7` is <b>BLACK</b>; children `5` and `9` are <b>BLACK</b> (each having black-height $1$ to `NIL`); child `12` (under `9`) must be <b>RED</b> so that every path from root `7` to `NIL` has the exact same black-height ($bh(7) = 2$, counting `5/9` and `NIL`).",
-            "<b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of red `11` (after the recoloring, `9` is red and `8`, `12` are black). Red breaks Property 3 (red `11` with a red child) and black breaks Property 4 (black-height), so <b>no color works</b>: the tree is too imbalanced and its <b>structure must change</b> (rotations) to allow recoloring, in $O(\\lg n)$ time (Slide 10.19).</li></ul>"
+            "A <b>binary tree</b> is made of nodes; each node has at most two children, a left one and a right one. The top node is the <b>root</b>. Example: in slide 10.8's tree the root is 7, its children are 5 and 9, and 12 is the right child of 9.",
+            "A <b>binary search tree (BST)</b> keeps its keys in order: for every node, all keys in its left subtree are smaller and all keys in its right subtree are larger. Slide 10.8's tree: 5 &lt; 7, and 9, 12 &gt; 7; under 9, 12 &gt; 9.",
+            "<b>Inorder</b> traversal (left subtree, then the node, then the right subtree) lists a BST's keys in sorted order: 5, 7, 9, 12. Any change of shape (a rotation) is allowed only if it keeps this order.",
+            "<b>BST insert</b> (`treeInsert`): start at the root, go left if the new key is smaller, right if it is larger, until you fall off the tree; the new node goes in that empty spot as a leaf. Insert 8 into slide 10.8's tree: 8 &gt; 7 go right, 8 &lt; 9 go left, 9 has no left child, so 8 becomes 9's left child.",
+            "The <b>height</b> h of a node is the number of edges on the longest path from it down to a leaf. Search, Minimum, Maximum, Successor and insert walk one path, so they cost O(h). A balanced tree has h = O(lg n); keys inserted in sorted order (1, 2, 3, …) make a chain with h = n − 1, so O(n).",
+            "In code each node is a record with five fields: `key`, `left`, `right`, `p` (the parent) and `color`. The fields `left`, `right` and `p` are <b>pointers</b>: they hold the address of another node.",
+            "Three notations for the same thing: `x->p` (C arrow, slides 10.25–10.30), `p[x]` (slide 10.24) and `x.p` (CLRS, 3rd ed.) all mean \"the parent of x\". `a->f` means: go to the node that a points to and read its field f.",
+            "<b>Reading a pointer chain</b>: read left to right, one hop per arrow. `x->p->p->right` = start at x, go to its parent, then to the parent's parent (the <b>grandparent</b>), then take that node's right child. Slide 10.16's tree with x = 11: `x->p` = 12, `x->p->p` = 9, `x->p->p->right` = 12, `x->p->p->left` = 8.",
+            "The <b>uncle</b> of x is the grandparent's other child (the parent's sibling). If `x->p == x->p->p->left` the uncle is `x->p->p->right`; otherwise it is `x->p->p->left`. With x = 11 above, `x->p->p->right` is the parent 12 itself, so the uncle is `x->p->p->left` = 8.",
+            "<b>Parent links</b>: every edge is stored twice, once going down in the parent (`9->right = 12`) and once going up in the child (`12->p = 9`). Code that moves a node must update both pointers of every edge it changes, or the tree becomes inconsistent.",
+            "<b>Sentinel `T.nil`</b>: instead of NULL, every missing child and the root's parent point to one shared dummy node `T.nil` whose color is BLACK. The slides' \"leaf (NULL pointer)\" is this node. It lets the code read `y->color` when the uncle y is \"no node\": it simply reads BLACK."
           ],
           "fig": [
-            "ag-10-bh",
-            "ag-10-color",
+            "ag-10-ptrs"
+          ],
+          "figAt": {
+            "ag-10-ptrs": 7
+          },
+          "figH": {
+            "ag-10-ptrs": "Reading x->p->p->right on the tree of slide 10.16: fields, parent links and T.nil"
+          }
+        },
+        {
+          "h": "Before you start: red-black properties, black-height and mirror cases",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "pts": [
+            "A <b>red-black tree</b> is a BST in which each node also stores a colour, red or black, and the colours must obey five rules that keep the height O(lg n) (Lecture 9).",
+            "The five <b>red-black properties</b> (numbered as on slide 10.3):<ul><li>1. Every node is either red or black.</li><li>2. Every leaf (NULL pointer, `T.nil`) is black.</li><li>3. If a node is red, both its children are black.</li><li>4. Every path from a node to a descendant leaf contains the same number of black nodes.</li><li>5. The root is always black.</li></ul>",
+            "Two consequences the slides note: from #2, every real node has 2 children (some may be NIL); from #3, a path can never have two red nodes in a row.",
+            "<b>Black-height</b> bh(x): the number of black nodes on a path from x down to a leaf, not counting x itself but counting the NIL leaf. Property 4 makes it the same on every path. Slide 10.4: bh(7) = 2, bh(18) = 2, bh(10) = 1, bh(8) = 1, a NIL has bh 0.",
+            "Worked count, slide 10.4: from 7 the path 7 → 18 → 10 → 8 → NIL meets 18 (red), 10 (black), 8 (red), NIL (black): 2 blacks, so bh(7) = 2. From 18 (red) the same path meets 10 and NIL: bh(18) = 2 too.",
+            "A <b>mirror image</b> (symmetric case) swaps every left with right, in the picture and in the code: \"x is the left child of a left child\" becomes \"x is the right child of a right child\", and `leftRotate` becomes `rightRotate`. The five properties never mention left or right, so the mirror of a correct fix is also correct. Slide 10.31's Cases 4-6 are the mirrors of Cases 1-3.",
+            "A <b>Δ</b> (triangle) in the case pictures of slides 10.27–10.30 stands for a whole subtree (maybe just NIL). \"All Δ's are equal-black-height subtrees\" means each has the same bh, so we can compare black counts along paths without knowing what is inside."
+          ]
+        },
+        {
+          "h": "Before you start: a method to colour a given tree",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "pts": [
+            "Exams give an uncoloured BST and ask you to colour it (slide 10.8; asked in Final 2019 Credit Q3). The method below works on such trees; s and L are path lengths counted in real nodes (NILs not counted).",
+            "The colouring method:<ul><li>1. List every path from the root to a NIL and count its real nodes. Let s = the shortest, L = the longest.</li><li>2. If L &gt; 2s, stop: no colouring exists.</li><li>3. Colour the root black (#5); NILs are black (#2).</li><li>4. Colour one shortest path all black. Now every path must have exactly b = s black real nodes.</li><li>5. On each longer path with r nodes, exactly r − b nodes are red, never two in a row. Start with the longest path: it has the fewest choices.</li><li>6. Check #3 and #4 at every node, not just the root. If it fails, try b = s − 1 (b may not go below ⌈L/2⌉); if no b works, the tree has no colouring.</li></ul>",
+            "Why L ≤ 2s: the root is black and reds cannot touch, so a path of r nodes has at least ⌈r/2⌉ black nodes; a shortest path has at most s. All paths have the same black count, so ⌈L/2⌉ ≤ s.",
+            "Slide 10.4's tree (7; 3; 18; 10, 22; 8, 11, 26): s = 2 (7 → 3), L = 4 (7 → 18 → 10 → 8). Colour 7 and 3 black, so b = 2.",
+            "Slide 10.4, continued: 7 → 18 → 10 → 8 needs 2 reds that do not touch below black 7, so 18 and 8 are red and 10 is black; the same path through 11 makes 11 red. 18 is red, so 22 is black; 7 → 18 → 22 → 26 then needs a second red: 26. This is exactly slide 10.4's colouring, and the only one.",
+            "Slide 10.16's tree (after inserting 8 and 11): s = 2 (7 → 5), L = 4 (7 → 9 → 12 → 11). b = 2: 9 and 11 red, 12 black, and 8 black (child of red 9). This is the recolouring the slide shows.",
+            "Slide 10.19's tree (after putting 10 under 11): s = 2 but L = 5 (7 → 9 → 12 → 11 → 10). 5 &gt; 2 × 2, so no colouring exists: this is why the slide says \"no color! Tree is too imbalanced\"."
+          ],
+          "fig": [
+            "ag-10-paint"
+          ],
+          "figAt": {
+            "ag-10-paint": 1
+          },
+          "figH": {
+            "ag-10-paint": "The colouring method, step by step, on the trees of slides 10.8, 10.4, 10.16 and 10.19"
+          }
+        },
+        {
+          "h": "Review: red-black trees and their properties (Slides 10.2–10.4)",
+          "pts": [
+            "Slide 10.2: red-black trees are binary search trees <b>augmented</b> with a node colour, and their operations are designed to guarantee height h = O(lg n).",
+            "Already done (Lecture 9): the properties were described and proved to give h = O(lg n). Next (this lecture): the operations on red-black trees, mainly insertion.",
+            "Slide 10.3 lists the five properties with two notes: #2 means every \"real\" node has 2 children; #3 means you can't have 2 consecutive reds on a path.",
+            "Slide 10.4's example (from CLRS): root 7 black (bh = 2); 3 black; 18 red (bh = 2); 10 and 22 black (bh = 1); 8, 11, 26 red (bh = 1); every NIL has bh = 0.",
+            "Checking #4 on slide 10.4: every path from 7 down to a NIL meets exactly 2 black nodes below 7. For example 7 → 3 → NIL (3, NIL), 7 → 18 → 10 → 8 → NIL (10, NIL), 7 → 18 → 22 → NIL (22, NIL), 7 → 18 → 22 → 26 → NIL (22, NIL).",
+            "Exam (Final Summer Q22): \"the root and the leaves (NIL) are black\" is always true (#5 and #2). Exam (Final Summer Q6, False): a black node need not have only red children; in slide 10.4 black 7 has a black child 3 and a red child 18."
+          ]
+        },
+        {
+          "h": "Black-height and the height bound (Slides 10.5–10.7)",
+          "pts": [
+            "Slide 10.5: <b>black-height</b> = the number of black nodes on a path to a leaf (the node itself not counted, the NIL counted).",
+            "Minimum black-height of a node with height h: <b>bh ≥ h/2</b>. By #3 no two reds are adjacent, so at least half of the nodes on any downward path are black. Slide 10.4: 7 has h = 4 (7 → 18 → 10 → 8 → NIL, counting the edge down to the NIL leaf, as the proof does) and bh = 2 = 4/2.",
+            "<b>Theorem</b> (slide 10.5): a red-black tree with n internal nodes has height h ≤ 2 lg(n + 1). It is proved by induction (in detail in Lecture 9).",
+            "Lemma used: the subtree rooted at x has at least 2<sup>bh(x)</sup> − 1 internal nodes. Base: x = NIL has bh 0 and 2<sup>0</sup> − 1 = 0 nodes. Step: each child has bh ≥ bh(x) − 1 (a black child counts one less, a red child the same), so x's subtree has ≥ 2(2<sup>bh(x)−1</sup> − 1) + 1 = 2<sup>bh(x)</sup> − 1.",
+            "Slide 10.6, at the root: n ≥ 2<sup>bh(root)</sup> − 1 ≥ 2<sup>h/2</sup> − 1, so lg(n + 1) ≥ h/2 and <b>h ≤ 2 lg(n + 1)</b>. Thus h = O(lg n). Asked as a proof in Midterm 2025 Q3.",
+            "Numbers: slide 10.4 has n = 8 and h = 4 ≤ 2 lg 9 ≈ 6.34. A tree of 15 keys has h ≤ 2 lg 16 = 8 ‡.",
+            "Slide 10.7, corollary: Minimum(), Maximum(), Successor(), Predecessor() and Search() take O(lg n) time: each walks one root-to-leaf path, O(h) = O(lg n). Asked in Final 2021 Q22, Final 2022 Q36 and Midterm 2016 Q3 / 2017 Q5 / 2018 Q3.",
+            "Insert() and Delete() will also take O(lg n) time, but need special care since they modify the tree: a plain BST insert or delete can break #3 or #4.",
+            "Exam (Final Summer Q5, False): printing every node of a balanced BST takes Θ(n), not Θ(lg n), because it must visit all n nodes; the O(lg n) bounds are for operations that walk one path."
+          ],
+          "formula": [
+            "bh(x) ≥ h(x) / 2",
+            "nodes in subtree(x) ≥ 2^bh(x) − 1",
+            "n ≥ 2^bh(root) − 1",
+            "n ≥ 2^(h/2) − 1",
+            "lg(n + 1) ≥ h/2",
+            "h ≤ 2 lg(n + 1)   so   h = O(lg n)"
+          ],
+          "fig": [
+            "ag-10-bh"
+          ],
+          "figAt": {
+            "ag-10-bh": 1
+          },
+          "figH": {
+            "ag-10-bh": "Review: black-height and why h ≤ 2 lg(n + 1)"
+          }
+        },
+        {
+          "h": "Colouring exercise: colour this tree (Slide 10.8)",
+          "pts": [
+            "Slide 10.8: \"Color this tree\": the BST with root 7, children 5 and 9, and 12 as the right child of 9 (9's left child is NIL). Asked in Final 2019 Credit Q3.",
+            "Step 1, paths: 7 → 5 → NIL (2 real nodes), 7 → 9 → NIL (2), 7 → 9 → 12 → NIL (3). So s = 2, L = 3, and 3 ≤ 2 × 2: a colouring can exist.",
+            "Step 2: the root 7 is black (#5); every NIL is black (#2).",
+            "Step 3: make the shortest paths all black: 5 is black (path 7 → 5) and 9 is black (path 7 → 9 → NIL). Every path must now have 2 black real nodes.",
+            "Step 4: 7 → 9 → 12 has one node too many, so 12 must be <b>red</b>. Its children are NILs (black), so #3 holds.",
+            "Step 5, check every node: bh(12) = 1, bh(9) = 1, bh(5) = 1, bh(7) = 2. Every path from 7 meets 2 black nodes below 7 (5 or 9, and the NIL). Answer: 7, 5, 9 black; 12 red (the slide draws 12 red).",
+            "Why it is the only colouring ‡: 12 black gives the path through 12 one black too many; 9 red forces 12 black and then 9 → NIL and 9 → 12 → NIL differ; 5 red makes bh(7) = 1, which forces 9 red, again impossible.",
+            "This is also the tree rbInsert builds from the keys 7, 5, 9, 12 inserted into an empty tree: 12 triggers Case 4 and the root is recoloured black (full run in the Cases 4-6 section) ‡."
+          ],
+          "fig": [
+            "ag-10-color"
+          ],
+          "figAt": {
+            "ag-10-color": 0
+          },
+          "figH": {
+            "ag-10-color": "Colour this tree: tap the nodes of 7, 5, 9, 12 and check the five properties"
+          }
+        },
+        {
+          "h": "The problem with insertion: inserting 8 and 11 (Slides 10.9–10.16)",
+          "pts": [
+            "Slides 10.9–10.19 insert 8, then 11, then 10 into slide 10.8's coloured tree, each time asking: where does it go (BST insert), and what colour should it be?",
+            "<b>Insert 8, where?</b> (slide 10.9): 8 &gt; 7 go right to 9; 8 &lt; 9 go left; 9's left is NIL, so 8 becomes the left child of 9 (slide 10.10).",
+            "<b>What colour?</b> (slides 10.10–10.11): <b>red</b>. Its parent 9 is black, so #3 holds; a red node adds no black to any path, so #4 holds. Black would fail #4: 7 → 9 → 8 → NIL would meet 3 blacks below 7 (9, 8, NIL) against 2 elsewhere.",
+            "<b>Insert 11, where?</b> (slides 10.12–10.13): 11 &gt; 7 right, 11 &gt; 9 right, 11 &lt; 12 left; 12's left is NIL, so 11 becomes the left child of 12.",
+            "<b>Can't be red! (#3)</b> (slide 10.14): its parent 12 is red, and a red node must have black children.",
+            "<b>Can't be black! (#4)</b> (slide 10.15): 7 → 9 → 12 → 11 → NIL would meet 3 blacks below 7 (9, 11, NIL) while 7 → 5 → NIL meets 2 (5, NIL).",
+            "<b>Solution: recolour the tree</b> (slide 10.16): 11 red, 12 and 8 black, 9 red. Now 7 → 9 → 12 → 11 → NIL meets 12 and NIL (2 blacks), the same as every other path, and red 9 has black children 8 and 12.",
+            "This recolouring is exactly rbInsert's Case 4 (the mirror of Case 1, because the parent 12 is a right child): x = 11, red parent 12, red uncle 8, so parent and uncle turn black and the grandparent 9 red. Then x = 9, whose parent 7 is black, so the loop stops."
+          ],
+          "fig": [
             "ag-10-problem"
           ],
           "figAt": {
-            "ag-10-bh": 0,
-            "ag-10-color": 0,
-            "ag-10-problem": 1
+            "ag-10-problem": 0
           },
           "figH": {
-            "ag-10-bh": "Review: black-height and why h ≤ 2 lg(n + 1)",
-            "ag-10-color": "Colour this tree: tap the nodes of 7, 5, 9, 12 and check the five properties",
             "ag-10-problem": "The problem with insertion: where do 8, 11 and 10 go, and what colour?"
           }
         },
         {
-          "h": "Pointer-Level Rotation Pseudocode & Insertion Cases 1–6 (Slides 10.20–10.32)",
+          "h": "The problem with insertion: inserting 10 (Slides 10.17–10.19)",
           "pts": [
-            "<b>`rightRotate(y)` Pointer Manipulation (Slide 10.21)</b>: Let `x = y->left`. Set `y->left = x->right` (and if `x->right != NIL`, `x->right->p = y`); set `x->p = y->p` (updating `root` or `y->p`'s child pointer); finally set `x->right = y` and `y->p = x`.",
-            "<b>Symmetric Insertion Cases 1–6 (Slides 10.25–10.31)</b>:<ul><li>When `x->p` is a <b>left child</b> of `x->p->p`, let uncle `y = x->p->p->right`:<ul><li><b>Case 1 (`y` is RED)</b>: Recolor `x->p` and `y` BLACK, `x->p->p` RED, set `x = x->p->p`.</li><li><b>Case 2 (`y` is BLACK, `x` is right child)</b>: Set `x = x->p`, `leftRotate(x)` $\\rightarrow$ becomes Case 3.</li><li><b>Case 3 (`y` is BLACK, `x` is left child)</b>: Recolor `x->p` BLACK, `x->p->p` RED, `rightRotate(x->p->p)`.</li></ul></li><li>When `x->p` is a <b>right child</b> of `x->p->p`, Cases 4, 5, 6 are the exact left-right mirror images!</li></ul>"
+            "<b>Insert 10, where?</b> (slides 10.17–10.18): 10 &gt; 7, 10 &gt; 9, 10 &lt; 12, 10 &lt; 11: it becomes the left child of 11.",
+            "Red breaks #3: its parent 11 is red.",
+            "Black breaks #4: 7 → 9 → 12 → 11 → 10 → NIL would meet 3 blacks below 7 (12, 10, NIL) against 2 on 7 → 5 → NIL.",
+            "Recolouring other nodes does not help either: <b>\"A: no color! Tree is too imbalanced\"</b> (slide 10.19). The path to 10 has 5 real nodes and the path to 5 only 2; 5 &gt; 2 × 2, so this shape has no valid colouring at all.",
+            "So we <b>must change the tree structure</b> to allow recolouring. Goal (slide 10.19): restructure the tree in O(lg n) time. The tool is the rotation (next slides).",
+            "Preview ‡: rbInsert handles 10 with Case 3. The parent 11 is red and is the left child of 12; the uncle `12->right` is NIL (black); 10 is a left child. So 11 turns black, 12 red, and rightRotate(12): 9's right child becomes 11 (black) with red children 10 and 12."
+          ]
+        },
+        {
+          "h": "Rotation: what it does and the pointer code (Slides 10.20–10.21)",
+          "pts": [
+            "Slide 10.20: our basic operation for changing tree structure is called <b>rotation</b>. `rightRotate(y)` lifts y's left child x into y's place and puts y under x as its right child; `leftRotate(x)` is the reverse.",
+            "The picture: before, y is on top with left child x and right subtree C; x has subtrees A (left) and B (right). After rightRotate(y): x is on top with left subtree A and right child y; y has subtrees B (left) and C (right).",
+            "<b>Does rotation preserve inorder key ordering?</b> (slide 10.20) Yes. Inorder before: A, x, B, y, C. After: A, x, B, y, C. B moves from x's right to y's left, and it still lies between x and y, so the BST property holds.",
+            "Slide 10.21, \"A lot of pointer manipulation\":<ul><li>x keeps its left child (A)</li><li>y keeps its right child (C)</li><li>x's right child (B) becomes y's left child</li><li>x's and y's parents change</li></ul>",
+            "Three edges change (y–B replaces x–B, x–y is turned upside down, the old parent of y now points to x), and each edge is two pointers (down and up), so rightRotate writes 6 pointers. The table lists them.",
+            "The code ‡ (CLRS's RIGHT-ROTATE in the slides' arrow syntax; the slides only ask \"what would the code actually do?\"), line by line:<ul><li>`x = y->left`: remember x before y->left is overwritten.</li><li>`y->left = x->right`: B becomes y's left child (down pointer).</li><li>`if (x->right != NIL) x->right->p = y`: B's up pointer (skipped when B is empty).</li><li>`x->p = y->p`: x takes y's parent (up pointer).</li><li>the `if / else if / else`: the parent's down pointer that pointed to y now points to x; if y was the root, x becomes the root.</li><li>`x->right = y`, then `y->p = x`: y goes under x.</li></ul>",
+            "Order matters: `y->p` is read (to fix the parent) before the last line overwrites it, and x is saved first.",
+            "<b>What is the running time?</b> (slide 10.21) <b>O(1)</b>: a fixed number of pointer changes, however large A, B and C are; whole subtrees move with one pointer each.",
+            "`leftRotate(x)` is the mirror image (swap left and right, and the names x and y). leftRotate(x) after rightRotate(y) gives back the original tree."
           ],
-          "code": "rbInsert(x) {\n  treeInsert(x);\n  x->color = RED;\n  while (x != root && x->p->color == RED) {\n    if (x->p == x->p->p->left) {\n      y = x->p->p->right;           // y is uncle of x\n      if (y->color == RED) {        // Case 1: uncle is RED\n        x->p->color = BLACK;\n        y->color = BLACK;\n        x->p->p->color = RED;\n        x = x->p->p;\n      } else {\n        if (x == x->p->right) {     // Case 2: zig-zag triangle\n          x = x->p;\n          leftRotate(x);\n        }\n        x->p->color = BLACK;        // Case 3: straight line\n        x->p->p->color = RED;\n        rightRotate(x->p->p);\n      }\n    } else { /* Cases 4-6: symmetric with left <-> right */ }\n  }\n  root->color = BLACK;\n}",
+          "table": [
+            [
+              "Pointer",
+              "Before rightRotate(y)",
+              "After"
+            ],
+            [
+              "y->left",
+              "x",
+              "B"
+            ],
+            [
+              "B->p",
+              "x",
+              "y"
+            ],
+            [
+              "x->p",
+              "y",
+              "old y->p"
+            ],
+            [
+              "old parent's child field",
+              "y",
+              "x"
+            ],
+            [
+              "x->right",
+              "B",
+              "y"
+            ],
+            [
+              "y->p",
+              "old parent",
+              "x"
+            ],
+            [
+              "x->left",
+              "A",
+              "A (kept)"
+            ],
+            [
+              "y->right",
+              "C",
+              "C (kept)"
+            ]
+          ],
+          "code": "rightRotate(y)            // ‡ not on the slides (CLRS)\n x = y->left;\n y->left = x->right;\n if (x->right != NIL) x->right->p = y;\n x->p = y->p;\n if (y->p == NIL) root = x;\n else if (y == y->p->left) y->p->left = x;\n else y->p->right = x;\n x->right = y;\n y->p = x;\n\nleftRotate(x)             // ‡ mirror image\n y = x->right;\n x->right = y->left;\n if (y->left != NIL) y->left->p = x;\n y->p = x->p;\n if (x->p == NIL) root = y;\n else if (x == x->p->left) x->p->left = y;\n else x->p->right = y;\n y->left = x;\n x->p = y;",
           "fig": [
-            "ag-10-rotptr",
-            "ag-10-rotex",
+            "ag-10-rotptr"
+          ],
+          "figAt": {
+            "ag-10-rotptr": 4
+          },
+          "figH": {
+            "ag-10-rotptr": "rightRotate(y), one pointer change at a time"
+          }
+        },
+        {
+          "h": "Rotation example: rotate left about 9 (Slides 10.22–10.23)",
+          "pts": [
+            "Slide 10.22's tree (the shape after inserting 8 and 11, drawn without colours): 7 with children 5 and 9; 9 with children 8 and 12; 12 with left child 11.",
+            "\"Rotate left about 9\" = leftRotate(9): x = 9, its right child y = 12, and B = 12's left child = 11.",
+            "The pointer changes, in code order:<ul><li>`9->right = 11` and `11->p = 9` (B moves under 9)</li><li>`12->p = 7`, and since 9 was 7's right child, `7->right = 12`</li><li>`12->left = 9` and `9->p = 12`</li></ul>",
+            "Result (slide 10.23): 7 with children 5 and 12; 12 has left child 9 and no right child; 9 has children 8 and 11.",
+            "Inorder is 5, 7, 8, 9, 11, 12 before and after: the rotation changed the shape, not the order.",
+            "A rotation alone does not fix colours ‡: slide 10.23's shape has no valid colouring (7 → 12 → NIL forces 12 black with b = 2, and then 9 and 8 on 7 → 12 → 9 → 8 would both have to be red). That is why rbInsert always recolours together with its rotations."
+          ],
+          "fig": [
+            "ag-10-rotex"
+          ],
+          "figAt": {
+            "ag-10-rotex": 0
+          },
+          "figH": {
+            "ag-10-rotex": "Rotation example: rotate left about 9"
+          }
+        },
+        {
+          "h": "Insertion: the basic idea and why the new node is red (Slide 10.24)",
+          "pts": [
+            "Slide 10.24, the basic idea: insert x into the tree (plain BST insert), colour x <b>red</b>.",
+            "Why red: a red node adds no black node to any path, so #4 (equal black counts) cannot break. Only property 3 might be violated, and only if p[x] (x's parent) is red.",
+            "Why not black: a new black leaf adds one black to the paths through it and to no other path, so #4 would break on every insert into a non-empty tree. Slide 10.10's 8 coloured black would give 7 → 9 → 8 → NIL 3 blacks against 2.",
+            "One more case ‡: inserting into an empty tree makes x a red root (#5 broken); colouring the root black at the end fixes it.",
+            "If #3 is violated, <b>move the violation up the tree</b> until a place is found where it can be fixed: recolouring (Case 1) pushes the red-red pair 2 levels up; a rotation (Cases 2-3) removes it.",
+            "Total time <b>O(lg n)</b>: treeInsert walks one path, O(lg n); the fix-up climbs at most the height of the tree with O(1) work per step.",
+            "At most 2 rotations per insertion ‡: Cases 1 and 4 only recolour, and after Case 2 + Case 3 (or 5 + 6) the loop ends."
+          ]
+        },
+        {
+          "h": "The rbInsert code, line by line (Slides 10.25–10.26)",
+          "pts": [
+            "`treeInsert(x); x->color = RED;`: put x in as a BST leaf and colour it red (the idea of slide 10.24).",
+            "The comment \"Move violation of #3 up tree, maintaining #4 as invariant\": every step of the loop keeps #4 true; the only fault is one red x with a red parent.",
+            "`while (x!=root && x->p->color == RED)`: repeat while x has a red parent. Stop when x is the root or x's parent is black.",
+            "Why `x->p->p` exists inside the loop ‡: x's parent is red and the root is black (thanks to CLRS's final `root->color = BLACK`), so the red parent is not the root and has a parent. In the slides' version, which lacks that line, the root can be red, and then `x->p->p` can be the sentinel NIL.",
+            "`if (x->p == x->p->p->left)`: is the parent a left child? Then the uncle is `y = x->p->p->right` and Cases 1-3 apply. The last `else` (parent is a right child) is \"same as above, but with right and left exchanged\": Cases 4-6.",
+            "<b>Case 1</b>, `if (y->color == RED)` (slide 10.26: \"Case 1: uncle is RED\"): parent black, uncle black, grandparent red, `x = x->p->p`.",
+            "`else // y->color == BLACK`: <b>Case 2</b> if x is a right child (`x = x->p; leftRotate(x);`), and then always <b>Case 3</b> (`x->p->color = BLACK; x->p->p->color = RED; rightRotate(x->p->p);`). Case 3 is not inside an else, so Case 2 falls into it.",
+            "Missing line (slide omission): the slide's code has no `root->color = BLACK` at the end, which CLRS has. Without it the root can stay red: inserting 12 into 7 (black) with red children 5 and 9 runs Case 4, makes 7 red, and the loop stops because x = 7 is the root. The first insert into an empty tree also leaves a red root. Worse, a red root breaks the next insert: e.g. after inserting 7 alone (red root), inserting 5 enters the loop with `x->p->p` = NIL. So the slides' code really needs that last line.",
+            "Naming ‡: CLRS (3rd ed.) calls the loop RB-INSERT-FIXUP, writes z for x, and calls the mirror cases 1-3 again; the slides number them 4-6. Use the slides' numbering in the exam."
+          ],
+          "code": "rbInsert(x)\n treeInsert(x);\n x->color = RED;\n // Move violation of #3 up tree, maintaining #4 as invariant:\n while (x!=root && x->p->color == RED)\n if (x->p == x->p->p->left)\n     y = x->p->p->right;\n     if (y->color == RED)\n          x->p->color = BLACK;\n          y->color = BLACK;\n          x->p->p->color = RED;       // Case 1: uncle is RED\n          x = x->p->p;\n     else    // y->color == BLACK\n          if (x == x->p->right)\n              x = x->p;\n              leftRotate(x);          // Case 2\n          x->p->color = BLACK;\n          x->p->p->color = RED;\n          rightRotate(x->p->p);       // Case 3\n else     // x->p == x->p->p->right\n     (same as above, but with\n      \"right\" & \"left\" exchanged)",
+          "fig": [
             "ag-10-cases"
           ],
           "figAt": {
-            "ag-10-rotptr": 0,
-            "ag-10-rotex": 0,
-            "ag-10-cases": 1
+            "ag-10-cases": 5
           },
           "figH": {
-            "ag-10-rotptr": "rightRotate(y), one pointer change at a time",
-            "ag-10-rotex": "Rotation example: rotate left about 9",
             "ag-10-cases": "rbInsert: Cases 1, 2, 3 with the code, and the symmetric Cases 4-6"
           }
+        },
+        {
+          "h": "Case 1: the uncle is red (Slides 10.27–10.28)",
+          "pts": [
+            "Situation (slide 10.27): x = B is red and the right child of A; A (the parent) is red and the left child of C; C (the grandparent) is black; the uncle y = D is red. All Δ's have equal black-height.",
+            "Action: A black, D black, C red, then `x = x->p->p`: C becomes the new x. Only colours change, no pointers.",
+            "Why #4 still holds: before, a path from C down into any Δ met exactly one black node on the way (C); after, it meets exactly one (A or D). Paths from above C see the same count too.",
+            "Why the loop continues: C is now red, and C's parent may be red. The violation moved 2 levels up; \"the while loop now continues with x's grandparent as the new x\".",
+            "Slide 10.28: the same action when x = B is the <b>left</b> child of A. Case 1 looks only at the uncle's colour, not at which side x is on.",
+            "Example: inserting 11 (slide 10.16) is the mirror, Case 4: 12 and 8 black, 9 red, x = 9; 9's parent 7 is black, so the loop stops.",
+            "Each Case 1 step is O(1) and moves x up 2 levels, so it repeats at most about h/2 times: O(lg n) ‡."
+          ]
+        },
+        {
+          "h": "Cases 2 and 3: the uncle is black (Slides 10.29–10.30)",
+          "pts": [
+            "<b>Case 2</b> (slide 10.29): the uncle y is black and x = B is a <b>right</b> child of A, while A is the left child of C. The path C → A → B bends (a \"zig-zag\" ‡).",
+            "Code: `x = x->p; leftRotate(x);` then continue with the Case 3 code. So x becomes A and the rotation lifts B above A.",
+            "Effect: B is now C's left child and A is B's left child, so x = A is a left child of a left child: Case 2 is transformed into Case 3.",
+            "Why #4 holds: the rotation moves only the red nodes A and B, so each Δ still has exactly the same black nodes above it (C): all downward paths contain the same number of black nodes.",
+            "<b>Case 3</b> (slide 10.30): the uncle y is black and x = A is a <b>left</b> child of B, which is the left child of C: a straight line.",
+            "Code: `x->p->color = BLACK; x->p->p->color = RED; rightRotate(x->p->p);` (\"change colors; rotate right\").",
+            "Effect: B (now black) is on top, with red children A and C; C keeps the uncle Δ y as its right subtree.",
+            "Why #4 holds: before, every path from the top met one black (C) above the Δ's; after, it meets one black (B). The top node is black before and after, so nothing above changes.",
+            "The loop ends: x's parent B is black, so the while test fails. Case 2 + Case 3 use at most 2 rotations.",
+            "Example: inserting 10 into slide 10.19's tree is Case 3 directly (10 is already a left child, so Case 2 is skipped): 11 black, 12 red, rightRotate(12). Result: 7 (B); 9 (R) with children 8 (B) and 11 (B); 11 with children 10 (R) and 12 (R). Every path from 7 has 2 blacks below 7."
+          ]
+        },
+        {
+          "h": "Cases 4-6: the mirror image, and a full run (Slide 10.31)",
+          "pts": [
+            "Slide 10.31: Cases 1-3 hold if x's parent is a <b>left</b> child. If x's parent is a <b>right</b> child, Cases 4-6 are symmetric (swap left for right).",
+            "The mirror cases (code ‡ below):<ul><li><b>Case 4</b> (mirror of 1): the uncle `y = x->p->p->left` is red: parent and uncle black, grandparent red, `x = x->p->p`.</li><li><b>Case 5</b> (mirror of 2): uncle black and x is a <b>left</b> child: `x = x->p; rightRotate(x);`, then Case 6.</li><li><b>Case 6</b> (mirror of 3): uncle black and x is a right child: parent black, grandparent red, `leftRotate(x->p->p)`.</li></ul>",
+            "Full run with the slides' keys ‡ (rbInsert plus `root->color = BLACK`), part 1, building slide 10.8's tree from empty:<ul><li>7: the root, red, then recoloured black.</li><li>5: left of 7, red; parent black, done.</li><li>9: right of 7, red; done.</li><li>12: right of 9; red parent 9 is a right child and the uncle 5 is red: Case 4 (9, 5 black, 7 red, x = 7 = root); root back to black. This is slide 10.8's tree.</li></ul>",
+            "Full run, part 2, the slides' keys 8, 11, 10:<ul><li>8: left of 9, red; parent 9 black, done (slide 10.11).</li><li>11: left of 12; red parent 12 is a right child, uncle 8 red: Case 4 (12, 8 black, 9 red, x = 9); parent 7 black, done (slide 10.16).</li><li>10: left of 11; red parent 11 is a left child of 12, uncle NIL black, x a left child: Case 3 (11 black, 12 red, rightRotate(12)); done.</li></ul>",
+            "Final tree: 7 (B) with children 5 (B) and 9 (R); 9 with children 8 (B) and 11 (B); 11 with children 10 (R) and 12 (R). bh(7) = 2, and all five properties hold.",
+            "Case 6 example ‡: insert 13 into slide 10.8's tree. Its parent 12 is red and a right child, the uncle `9->left` is NIL (black), 13 is a right child: 12 black, 9 red, leftRotate(9). Result: 7 (B) with 5 (B) and 12 (B); 12 with 9 (R) and 13 (R).",
+            "Case 5 then 6 example ‡: insert 10 into slide 10.8's tree. 10 is the left child of red 12 (a right child), the uncle is NIL: Case 5 sets x = 12 and rightRotate(12), lifting 10; then Case 6: 10 black, 9 red, leftRotate(9). Result: 7 (B) with 5 (B) and 10 (B); 10 with 9 (R) and 12 (R)."
+          ],
+          "code": "else     // x->p == x->p->p->right   (‡ written out)\n     y = x->p->p->left;\n     if (y->color == RED)\n          x->p->color = BLACK;\n          y->color = BLACK;\n          x->p->p->color = RED;       // Case 4\n          x = x->p->p;\n     else    // y->color == BLACK\n          if (x == x->p->left)\n              x = x->p;\n              rightRotate(x);         // Case 5\n          x->p->color = BLACK;\n          x->p->p->color = RED;\n          leftRotate(x->p->p);        // Case 6\nroot->color = BLACK;   // ‡ CLRS, missing on the slide",
+          "fig": [
+            "ag-10-run"
+          ],
+          "figAt": {
+            "ag-10-run": 3
+          },
+          "figH": {
+            "ag-10-run": "rbInsert run key by key on 7, 5, 9, 12, 8, 11, 10 (or your own keys), with the case that fires"
+          }
+        },
+        {
+          "h": "Deletion (Slide 10.32)",
+          "pts": [
+            "\"And you thought insertion was tricky…\": deleting can remove a black node, which breaks #4 on all paths that went through it, so the repair is harder than for insertion.",
+            "RB delete is not covered in class in this lecture (slide 10.32); it still runs in O(lg n) (slide 10.7). Lecture 11 goes through rbDelete and its fix-up cases."
+          ]
         }
       ],
       "cards": [
         [
           "Coloring {7 (root), 5 (left), 9 (right), 12 (right of 9)}",
-          "7: BLACK, 5: BLACK, 9: BLACK, 12: RED (so every root-to-NIL path has 2 black nodes besides root)."
+          "7, 5, 9 black; 12 red. Every path from 7 meets 2 black nodes below 7 (counting the NIL), so bh(7) = 2. It is the only valid colouring (slide 10.8, Final 2019 Credit Q3)."
         ],
         [
           "RB-INSERT Case 1 vs. Cases 2 & 3",
-          "Case 1 (Uncle is RED): recolor parent & uncle BLACK, grandparent RED, and move x up. Cases 2 & 3 (Uncle is BLACK): 1 or 2 rotations + recolor, then loop terminates."
+          "Case 1 (uncle red): recolour parent and uncle black, grandparent red, x = grandparent; the loop may go on. Cases 2 & 3 (uncle black): one or two rotations plus recolouring, then the loop ends."
         ],
         [
-          "Coloring Red-Black Trees & Insertion Problem Trace (Slides 10.1–10.19) — Core Principle & Complexity",
-          "<b>Coloring Exercise on `{7, 5, 9, 12}` (Slide 10.8 & Final 2019 Credit Q3)</b>: Root `7` is <b>BLACK</b>; children `5` and `9` are <b>BLACK</b> (each having black-height $1$ to `NIL`); child `12` (under `9`) must be <b>RED</b> so that every path from root `7` to `NIL` has the exact same black-height ($bh(7) = 2$, counting `5/9` and `NIL`). <b>Step-by-Step Insertion Trace on `{7, 5, 9, 12}` (Slides 10.9–10.19)</b>:<ul><li><b>Insert `8`</b>: Goes as left child of `9`, colored <b>RED</b> (parent `9` is black $\\implies$ valid!).</li><li><b>Insert `11`</b>: Goes as left child of red `12`. Coloring `11` red violates Property 3 (red `12` has red child `11`), while coloring `11` black violates Property 4 (black-height). Since uncle `8` is also <b>RED</b> (Case 1), we recolor parent `12` and uncle `8` <b>BLACK</b> and grandparent `9` <b>RED</b>!</li><li><b>Insert `10`</b>: Goes as left child of red `11` (after the recoloring, `9` is red and `8`, `12` are black). Red breaks Property 3 (red `11` with a red child) and black breaks Property 4 (black-height), so <b>no color works</b>: the tree is too imbalanced and its <b>structure must change</b> (rotations) to allow recoloring, in $O(\\lg n)$ time (Slide 10.19).</li></ul>"
+          "Coloring Red-Black Trees & Insertion Problem Trace (Slides 10.1–10.19): Core Principle & Complexity",
+          "Insert as a red leaf. 8 under black 9: red, nothing to fix. 11 under red 12: red breaks #3, black breaks #4, so recolour (12, 8 black, 9 red). 10 under red 11: no colour works, so the structure must change (rotation), in O(lg n)."
         ],
         [
-          "Pointer-Level Rotation Pseudocode & Insertion Cases 1–6 (Slides 10.20–10.32) — Core Principle & Complexity",
-          "<b>`rightRotate(y)` Pointer Manipulation (Slide 10.21)</b>: Let `x = y->left`. Set `y->left = x->right` (and if `x->right != NIL`, `x->right->p = y`); set `x->p = y->p` (updating `root` or `y->p`'s child pointer); finally set `x->right = y` and `y->p = x`. <b>Symmetric Insertion Cases 1–6 (Slides 10.25–10.31)</b>:<ul><li>When `x->p` is a <b>left child</b> of `x->p->p`, let uncle `y = x->p->p->right`:<ul><li><b>Case 1 (`y` is RED)</b>: Recolor `x->p` and `y` BLACK, `x->p->p` RED, set `x = x->p->p`.</li><li><b>Case 2 (`y` is BLACK, `x` is right child)</b>: Set `x = x->p`, `leftRotate(x)` $\\rightarrow$ becomes Case 3.</li><li><b>Case 3 (`y` is BLACK, `x` is left child)</b>: Recolor `x->p` BLACK, `x->p->p` RED, `rightRotate(x->p->p)`.</li></ul></li><li>When `x->p` is a <b>right child</b> of `x->p->p`, Cases 4, 5, 6 are the exact left-right mirror images!</li></ul>"
+          "Pointer-Level Rotation Pseudocode & Insertion Cases 1–6 (Slides 10.20–10.32): Core Principle & Complexity",
+          "rightRotate(y): x = y->left moves up, x->right becomes y->left, x takes y's parent, y becomes x->right: 6 pointer writes, O(1), inorder unchanged. Insert fix-up: uncle red → recolour (Case 1/4); uncle black → rotate (Case 2/5) and recolour + rotate (Case 3/6)."
+        ],
+        [
+          "The 5 red-black properties",
+          "1 every node red or black; 2 every leaf (NULL) black; 3 a red node has two black children; 4 every path from a node to a descendant leaf has the same number of blacks; 5 the root is black."
+        ],
+        [
+          "Black-height bh(x)",
+          "Number of black nodes on a path from x down to a leaf, not counting x, counting the NIL. Same on every path by #4. Slide 10.4: bh(7) = 2, bh(10) = 1."
+        ],
+        [
+          "Minimum black-height of a node of height h",
+          "bh ≥ h/2, because no two reds are adjacent (#3), so at least half the nodes on a path are black."
+        ],
+        [
+          "Height bound theorem",
+          "A red-black tree with n internal nodes has height h ≤ 2 lg(n + 1), so h = O(lg n). Proof by induction (Midterm 2025 Q3)."
+        ],
+        [
+          "Lemma behind the height bound",
+          "The subtree rooted at x has at least 2<sup>bh(x)</sup> − 1 internal nodes; at the root n ≥ 2<sup>bh</sup> − 1 ≥ 2<sup>h/2</sup> − 1."
+        ],
+        [
+          "Which operations are O(lg n) by the corollary (slide 10.7)?",
+          "Minimum, Maximum, Successor, Predecessor, Search: each walks one path of length O(lg n). Insert and Delete are O(lg n) too but need special care."
+        ],
+        [
+          "Why do Insert and Delete need special care?",
+          "They modify the tree, so a plain BST insert/delete can break property 3 or 4; they must recolour and rotate."
+        ],
+        [
+          "T.nil sentinel",
+          "One shared black dummy node used for every NIL child and for the root's parent; lets code read y->color even when y is \"no node\"."
+        ],
+        [
+          "What is x->p->p->right?",
+          "The right child of x's grandparent: the uncle when x->p is a left child, but x->p itself when x->p is a right child."
+        ],
+        [
+          "Uncle of x",
+          "The other child of x's grandparent: x->p->p->right if x->p is a left child, else x->p->p->left."
+        ],
+        [
+          "Why is the inserted node coloured red?",
+          "A red node adds no black to any path, so #4 cannot break; only #3 may break, and only if its parent is red. Black would break #4 every time."
+        ],
+        [
+          "Which property can rbInsert's first two lines violate?",
+          "Only #3 (if p[x] is red); plus #5 if the tree was empty (red root)."
+        ],
+        [
+          "Rotation",
+          "The basic O(1) operation that changes tree structure (rightRotate / leftRotate) while preserving the inorder key order."
+        ],
+        [
+          "rightRotate(y) in words (slide 10.21)",
+          "x keeps its left child; y keeps its right child; x's right child becomes y's left child; x's and y's parents change."
+        ],
+        [
+          "Running time of a rotation",
+          "O(1): a fixed number of pointer changes (6 pointer writes), whatever the subtree sizes."
+        ],
+        [
+          "Rotate left about 9 (slides 10.22–10.23)",
+          "12 takes 9's place under 7; 9 becomes 12's left child; 12's old left child 11 becomes 9's right child. Inorder 5, 7, 8, 9, 11, 12 unchanged."
+        ],
+        [
+          "Insert 8 into slide 10.8's tree",
+          "Left child of 9, coloured red; parent 9 is black, so nothing is violated."
+        ],
+        [
+          "Insert 11 after 8: why neither colour, and the fix",
+          "Red breaks #3 (parent 12 red); black breaks #4 (one extra black on its paths). Fix: recolour 12 and 8 black, 9 red (Case 4)."
+        ],
+        [
+          "Insert 10 after 8 and 11 (slide 10.19)",
+          "No colour works: the tree is too imbalanced (path of 5 nodes vs 2); must change the structure (rotation) in O(lg n). rbInsert: Case 3, rightRotate(12)."
+        ],
+        [
+          "Case 2 (x->p a left child)",
+          "Uncle black, x a right child: x = x->p; leftRotate(x). Turns it into Case 3."
+        ],
+        [
+          "Case 3 (x->p a left child)",
+          "Uncle black, x a left child: x->p black, x->p->p red, rightRotate(x->p->p). The loop ends."
+        ],
+        [
+          "Cases 4-6",
+          "Used when x's parent is a right child: mirror images of Cases 1-3 (swap left and right). Case 4 recolours, Case 5 rightRotate(x->p), Case 6 leftRotate(x->p->p)."
+        ],
+        [
+          "Test before colouring a tree",
+          "Longest root-to-NIL path ≤ 2 × shortest (in real nodes). If not, no colouring exists (slide 10.19: 5 > 2 × 2)."
+        ],
+        [
+          "What is missing at the end of the slide's rbInsert?",
+          "root->color = BLACK (CLRS). Without it Case 1/4 or the first insert can leave a red root."
+        ],
+        [
+          "What does a Δ mean in the case pictures?",
+          "A whole subtree; all Δ's have equal black-height, so black counts along paths can be compared."
+        ],
+        [
+          "Rotations per insertion",
+          "At most 2 (Case 2 + Case 3, or 5 + 6); Case 1/4 only recolours ‡."
+        ],
+        [
+          "Mirror image (symmetric case)",
+          "The same case with every left and right swapped, in the picture and in the code; it is correct because the properties do not mention sides."
         ]
       ],
       "qa": [
         [
           "Color the following Red-Black Tree (Final 2019 Credit Q3 & Lec 10 Slide 8): Root 7 with left child 5 and right child 9, where 9 has right child 12.",
-          "• <b>Root `7`</b>: Must be <b>BLACK</b> (Property 2/5).<br>• <b>Node `5` (left child of `7`)</b>: Has two `NIL` children, while `9` has child `12`. If `12` is colored <b>RED</b>, it adds $0$ to the black-height along the right path, allowing both `5` and `9` to be colored <b>BLACK</b> (so every root-to-`NIL` path has black-height $2$).",
+          "• Paths from 7 to a NIL: 7 → 5 (2 real nodes), 7 → 9 (2, through 9's empty left), 7 → 9 → 12 (3).<br>• Root 7 is <b>black</b> (#5); NILs are black (#2).<br>• The shortest paths set the black count at 2: <b>5 black</b>, <b>9 black</b>.<br>• 7 → 9 → 12 has one node too many, so <b>12 is red</b> (its NIL children are black, so #3 holds).<br>• Check: bh(12) = bh(9) = bh(5) = 1, bh(7) = 2; every path from 7 meets 2 blacks below 7.<br>• It is the only valid colouring: 12 black adds a black; 9 red forces 12 black and unequal paths under 9; 5 red forces bh(7) = 1, impossible on the right.",
           "Final 2019 Credit Q3 & Lecture 10 · Slide 10.8"
+        ],
+        [
+          "What is the minimum black-height of a node with height h?",
+          "bh ≥ h/2. By property 3 no red node has a red child, so on any downward path at most every second node is red: at least half the nodes (counting the black NIL) are black. Example (slide 10.4): 7 has h = 4 and bh = 2.",
+          "Lecture 10 · Slide 10.5"
+        ],
+        [
+          "Prove that a Red-Black Tree with n keys has height h ≤ 2 lg(n + 1).",
+          "1. Lemma, by induction on the height of x: the subtree rooted at x has ≥ 2<sup>bh(x)</sup> − 1 internal nodes. Base: x = NIL, bh = 0, 2<sup>0</sup> − 1 = 0. Step: each child has bh ≥ bh(x) − 1, so the subtree has ≥ 2(2<sup>bh(x)−1</sup> − 1) + 1 = 2<sup>bh(x)</sup> − 1.<br>2. By property 3 at least half the nodes on any root-to-leaf path are black, so bh(root) ≥ h/2.<br>3. n ≥ 2<sup>bh(root)</sup> − 1 ≥ 2<sup>h/2</sup> − 1, so lg(n + 1) ≥ h/2, so <b>h ≤ 2 lg(n + 1)</b> = O(lg n).",
+          "Midterm 2025 Q3 · Lecture 10 · Slides 10.5–10.6"
+        ],
+        [
+          "State the worst-case running time of Red-Black Tree operations.",
+          "O(lg n) for Search, Minimum, Maximum, Successor, Predecessor, Insert and Delete. Reason: the height is at most 2 lg(n + 1); the queries walk one path, and Insert/Delete walk one path plus O(lg n) recolouring steps and at most a constant number of rotations (O(1) each).",
+          "Midterm 2016 Q3 / 2017 Q5 / 2018 Q3 · Lecture 10 · Slide 10.7"
+        ],
+        [
+          "Insert 8 into the tree of slide 10.8 (7, 5, 9 black, 12 red). Where does it go, and what colour should it be?",
+          "Where: 8 &gt; 7 go right, 8 &lt; 9 go left; 9's left is NIL, so 8 is the left child of 9. Colour: <b>red</b>. Its parent 9 is black (#3 holds) and a red node changes no black count (#4 holds). Black would make 7 → 9 → 8 → NIL have 3 blacks below 7 against 2.",
+          "Lecture 10 · Slides 10.9–10.11"
+        ],
+        [
+          "Next insert 11. Where does it go, and what colour?",
+          "Where: 11 &gt; 7, 11 &gt; 9, 11 &lt; 12: the left child of 12. Red is impossible (#3: parent 12 is red). Black is impossible (#4: 7 → 9 → 12 → 11 → NIL would have 3 blacks below 7, 7 → 5 → NIL has 2). Solution: recolour the tree: 11 red, 12 and 8 black, 9 red. This is rbInsert's Case 4 (red uncle 8); x moves to 9, whose parent 7 is black, so it stops.",
+          "Lecture 10 · Slides 10.12–10.16"
+        ],
+        [
+          "Next insert 10. Where does it go, and what colour?",
+          "Where: 10 &gt; 7, 10 &gt; 9, 10 &lt; 12, 10 &lt; 11: the left child of 11. Red breaks #3 (11 is red); black breaks #4 (3 blacks below 7 on its path vs 2). No recolouring works either: the path to 10 has 5 nodes and the path to 5 only 2 (5 &gt; 2 × 2). <b>No colour</b>: the tree is too imbalanced, we must change the structure (rotate) to allow recolouring, in O(lg n). rbInsert does Case 3: 11 black, 12 red, rightRotate(12).",
+          "Lecture 10 · Slides 10.17–10.19"
+        ],
+        [
+          "Does rotation preserve inorder key ordering?",
+          "Yes. For rightRotate(y) with x = y->left and subtrees A, B, C: inorder before = A, x, B, y, C; after = A, x, B, y, C. B moves from x's right to y's left but still lies between x and y, so the BST property holds. Example: rotate left about 9 keeps 5, 7, 8, 9, 11, 12.",
+          "Lecture 10 · Slide 10.20"
+        ],
+        [
+          "What would the code for rightRotate() actually do?",
+          "A lot of pointer manipulation: x keeps its left child, y keeps its right child, x's right child becomes y's left child, x's and y's parents change. Code (CLRS): <code>x = y->left; y->left = x->right; if (x->right != NIL) x->right->p = y; x->p = y->p; if (y->p == NIL) root = x; else if (y == y->p->left) y->p->left = x; else y->p->right = x; x->right = y; y->p = x;</code>",
+          "Lecture 10 · Slides 10.20–10.21"
+        ],
+        [
+          "What is the running time of a rotation?",
+          "O(1). It changes a fixed number of pointers (6 writes) whatever the sizes of the subtrees A, B, C; each subtree moves as one block by changing one pointer to it.",
+          "Lecture 10 · Slide 10.21"
+        ],
+        [
+          "Rotate left about 9 in the tree of slide 10.22 (7; 5, 9; 8, 12; 11 under 12).",
+          "leftRotate(9): x = 9, y = 12, B = 11. 9->right = 11, 11->p = 9; 12->p = 7, 7->right = 12; 12->left = 9, 9->p = 12. Result: 7 with children 5 and 12; 12 with left child 9; 9 with children 8 and 11. Inorder stays 5, 7, 8, 9, 11, 12.",
+          "Lecture 10 · Slides 10.22–10.23"
+        ],
+        [
+          "Why does rbInsert colour the new node red, and which property can then be violated?",
+          "Red adds no black to any path, so #4 stays true; only #3 can break, when p[x] is red (and #5 if the tree was empty). Black would break #4 on every insert. The violation is moved up the tree until it can be fixed; total O(lg n).",
+          "Lecture 10 · Slide 10.24"
+        ],
+        [
+          "Explain rbInsert Cases 1, 2 and 3 (x's parent is a left child).",
+          "• <b>Case 1</b>, uncle y red: parent and uncle black, grandparent red, x = grandparent (violation moves 2 levels up; same action whether x is a left or right child).<br>• <b>Case 2</b>, uncle black and x a right child: x = x->p; leftRotate(x), which makes it Case 3.<br>• <b>Case 3</b>, uncle black and x a left child: parent black, grandparent red, rightRotate(grandparent); the loop ends.<br>Each case keeps #4: all downward paths keep the same number of blacks.",
+          "Lecture 10 · Slides 10.27–10.30"
+        ],
+        [
+          "Write the code for Cases 4-6 (x's parent is a right child).",
+          "<code>y = x->p->p->left; if (y->color == RED) { x->p->color = BLACK; y->color = BLACK; x->p->p->color = RED; x = x->p->p; } else { if (x == x->p->left) { x = x->p; rightRotate(x); } x->p->color = BLACK; x->p->p->color = RED; leftRotate(x->p->p); }</code> It is Cases 1-3 with left and right exchanged.",
+          "Lecture 10 · Slide 10.31"
+        ],
+        [
+          "Insert 7, 5, 9, 12, 8, 11, 10 into an empty red-black tree, naming the case at each step.",
+          "7: root, red, then root->color = BLACK. 5, 9: red children of 7, no fix. 12: right of 9, uncle 5 red: Case 4 (9, 5 black, 7 red), root back to black (slide 10.8's tree). 8: left of 9, parent black, no fix. 11: left of 12, uncle 8 red: Case 4 (12, 8 black, 9 red), stops at 9 (parent 7 black). 10: left of 11, parent 11 a left child, uncle NIL black, x a left child: Case 3 (11 black, 12 red, rightRotate(12)). Final: 7B; 5B, 9R; 8B, 11B; 10R, 12R. (The slides show the steps from 8 on.)",
+          "Lecture 10 · Slides 10.8–10.31"
         ]
       ],
       "quiz": [
@@ -9689,19 +18424,19 @@ window.COURSES.algo = {
           "o": [
             [
               "The root is red",
-              "The root is always black."
+              "Wrong: property 5 says the root is always black. A red root would also be fixed at once by colouring it black."
             ],
             [
               "The root and leaves (NIL) are black",
-              "Correct! Final Summer Q22: Property 2 states that both the root and all NIL leaves are black."
+              "Correct (Final Summer Q22): property 5 makes the root black and property 2 makes every leaf (NULL pointer, T.nil) black."
             ],
             [
               "All simple paths from a node to the leaves contain the same total number of red and black nodes",
-              "Only the number of BLACK nodes (black-height) is equal on all paths, not the combined count of red + black nodes."
+              "Wrong: property 4 equalises only the BLACK nodes. In slide 10.4, 7 → 3 → NIL has 2 nodes below 7 but 7 → 18 → 10 → 8 → NIL has 4."
             ],
             [
               "A black node must have only red children",
-              "Final Summer Q6 (False): A black node can have black children, red children, or one of each."
+              "Wrong (Final Summer Q6 is False): only a red node has a rule about its children. In slide 10.4 black 7 has a black child 3."
             ]
           ],
           "a": 1,
@@ -9712,44 +18447,857 @@ window.COURSES.algo = {
           "o": [
             [
               "Insertion, deletion, finding predecessor, and finding successor (as well as search, min, max)",
-              "Correct! Final 2021 Q22 & Final 2022 Q36: Because height is O(log n), all dynamic-set dictionary operations run in O(log n) time."
+              "Correct (Final 2021 Q22, Final 2022 Q36): the height is ≤ 2 lg(n + 1), so every operation that walks one path, plus Insert/Delete with their fix-ups, is O(lg n)."
             ],
             [
               "Only insertion",
-              "All dictionary operations run in O(log n)."
+              "Wrong: slide 10.7 lists Minimum, Maximum, Successor, Predecessor and Search as O(lg n) too; Delete is O(lg n) as well."
             ],
             [
               "Only finding predecessor and successor",
-              "Insertion and deletion also run in O(log n)."
+              "Wrong: Search, Min, Max, Insert and Delete also run in O(lg n), since all of them follow one root-to-leaf path."
             ],
             [
               "Printing every node in the tree",
-              "Final Summer Q5 (False): Printing every node in an n-node balanced tree visits all n nodes and takes Θ(n) time, not Θ(log n)."
+              "Wrong (Final Summer Q5 is False): printing visits all n nodes, so it takes Θ(n) however balanced the tree is."
             ]
           ],
           "a": 0,
           "src": "Exam · Final 2021 Q22, Final 2022 Q36 & Final Summer Q5"
+        },
+        {
+          "q": "True or false: in a Red-Black Tree, a black node must have only red children.",
+          "o": [
+            [
+              "True",
+              "Wrong: property 3 constrains only RED nodes (their children must be black). Nothing restricts a black node: in slide 10.4, black 10 has red children but black 7 has a black child 3."
+            ],
+            [
+              "False",
+              "Correct (official answer False): a black node may have red or black children or one of each; e.g. slide 10.8's answer has black 9 with a NIL (black) child and red child 12."
+            ]
+          ],
+          "a": 1,
+          "src": "Exam · Final Summer Q6"
+        },
+        {
+          "q": "True or false: printing every node in a balanced binary search tree takes Θ(lg n) time.",
+          "o": [
+            [
+              "True",
+              "Wrong: Θ(lg n) is the cost of walking ONE path (search, min, successor). Printing must output all n keys, so it cannot be faster than n steps."
+            ],
+            [
+              "False",
+              "Correct (official answer False): an inorder walk visits every one of the n nodes once, so it takes Θ(n), even when the height is O(lg n)."
+            ]
+          ],
+          "a": 1,
+          "src": "Exam · Final Summer Q5"
+        },
+        {
+          "q": "What is the worst-case running time of Search, Insert and Delete in a red-black tree with n nodes?",
+          "o": [
+            [
+              "O(lg n)",
+              "Correct (Midterm 2018 Q3 official key): the height is ≤ 2 lg(n + 1), and Insert/Delete add only O(lg n) recolourings and O(1) rotations."
+            ],
+            [
+              "O(n)",
+              "Wrong: O(n) is the worst case of an UNBALANCED BST (a chain). The red-black properties forbid chains because the height stays ≤ 2 lg(n + 1)."
+            ],
+            [
+              "O(1)",
+              "Wrong: O(1) is the cost of one rotation, not of a whole operation; finding the place of a key needs a walk of O(lg n) nodes."
+            ],
+            [
+              "O(n lg n)",
+              "Wrong: that is the cost of n insertions (building the tree) or of sorting, not of one operation."
+            ]
+          ],
+          "a": 0,
+          "src": "Midterm 2016 Q3 / 2017 Q5 / 2018 Q3"
+        },
+        {
+          "q": "A red-black tree with n internal nodes has height at most:",
+          "o": [
+            [
+              "2 lg(n + 1)",
+              "Correct (slides 10.5–10.6): n ≥ 2<sup>h/2</sup> − 1 gives lg(n + 1) ≥ h/2, so h ≤ 2 lg(n + 1)."
+            ],
+            [
+              "lg(n + 1)",
+              "Wrong: that is the height of a perfectly balanced tree. Red nodes can double the length of a path, so the bound has a factor 2."
+            ],
+            [
+              "n − 1",
+              "Wrong: n − 1 is the height of a chain, the worst case of a plain BST; property 3 and 4 rule chains out."
+            ],
+            [
+              "h/2",
+              "Wrong: h/2 is the lower bound on the black-height bh(root), not a bound on the height."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slides 10.5–10.6"
+        },
+        {
+          "q": "What is the minimum black-height of a node with height h?",
+          "o": [
+            [
+              "h/2",
+              "Correct (slide 10.5): by #3 no two reds are adjacent, so at least half of the nodes on a downward path are black: bh ≥ h/2."
+            ],
+            [
+              "h",
+              "Wrong: bh = h only if every node on the path is black; red nodes are allowed, so bh can be smaller."
+            ],
+            [
+              "lg h",
+              "Wrong: nothing logarithmic appears here; the reds can at most halve the black count, they cannot shrink it to lg h."
+            ],
+            [
+              "1",
+              "Wrong: bh = 1 would allow a long path with many reds in a row, which property 3 forbids for any h ≥ 3."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.5"
+        },
+        {
+          "q": "Colour slide 10.8's tree (root 7; children 5 and 9; 12 the right child of 9). Which node is red?",
+          "o": [
+            [
+              "12",
+              "Correct: 7 → 5 and 7 → 9 have 2 nodes, so every path has 2 black real nodes; 7 → 9 → 12 has 3, so its extra node 12 must be red."
+            ],
+            [
+              "9",
+              "Wrong: a red 9 forces 12 black (#3), and then 9 → NIL (1 black) and 9 → 12 → NIL (2 blacks) break #4."
+            ],
+            [
+              "5",
+              "Wrong: a red 5 makes 7 → 5 → NIL have 1 black below 7, so the right side would also need 1, forcing 9 red, which fails as shown."
+            ],
+            [
+              "7",
+              "Wrong: 7 is the root, and property 5 says the root is always black."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.8"
+        },
+        {
+          "q": "Insert 8 into slide 10.8's tree. Where does it go and what colour is it?",
+          "o": [
+            [
+              "Left child of 9, red",
+              "Correct (slides 10.10–10.11): 8 > 7, 8 < 9, so it lands at 9's empty left; red is fine because 9 is black and a red node adds no black."
+            ],
+            [
+              "Left child of 9, black",
+              "Wrong colour: a black 8 would give 7 → 9 → 8 → NIL 3 blacks below 7 against 2 on every other path (#4)."
+            ],
+            [
+              "Left child of 12, red",
+              "Wrong place: 8 &lt; 9, so the walk turns left at 9 and never reaches 12. (11 is the key that goes under 12.)"
+            ],
+            [
+              "Right child of 5, red",
+              "Wrong place: 8 > 7, so the walk turns right at the root; 5 is in the left subtree with keys smaller than 7."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slides 10.9–10.11"
+        },
+        {
+          "q": "After 8, key 11 is inserted as the left child of red 12. Why can't 11 be red?",
+          "o": [
+            [
+              "Property 3: its parent 12 is red",
+              "Correct (slide 10.14): a red node must have two black children, so a red 11 under red 12 makes two reds in a row."
+            ],
+            [
+              "Property 4: black counts differ",
+              "Wrong: that is why 11 cannot be BLACK (slide 10.15). A red node changes no black count."
+            ],
+            [
+              "Property 5: the root must be black",
+              "Wrong: 11 is a leaf deep in the tree, not the root; #5 is about the root 7 only."
+            ],
+            [
+              "Property 2: leaves must be black",
+              "Wrong: property 2 is about the NIL leaves (NULL pointers), not about real nodes like 11."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.14"
+        },
+        {
+          "q": "Why can't 11 be black there?",
+          "o": [
+            [
+              "Property 4: the path through 11 would have one black too many",
+              "Correct (slide 10.15): 7 → 9 → 12 → 11 → NIL would meet 3 blacks below 7 (9, 11, NIL) while 7 → 5 → NIL meets 2."
+            ],
+            [
+              "Property 3: a black node may not have a red parent",
+              "Wrong: #3 restricts the children of red nodes; a black child under red 12 is exactly what #3 wants."
+            ],
+            [
+              "Property 1: 11 would have no colour",
+              "Wrong: black is a colour; property 1 only says each node is red or black."
+            ],
+            [
+              "Property 5: the root must be black",
+              "Wrong: the root 7 stays black whatever colour 11 gets; the problem is the black count on 11's paths."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.15"
+        },
+        {
+          "q": "Slide 10.16 solves the insertion of 11 by recolouring. Which colouring does it give?",
+          "o": [
+            [
+              "9 red; 8 and 12 black; 11 red",
+              "Correct: this is Case 4 (red uncle 8): parent 12 and uncle 8 black, grandparent 9 red. Every path from 7 again meets 2 blacks below 7."
+            ],
+            [
+              "9 black; 8 and 12 red; 11 black",
+              "Wrong: that is the old colouring with 11 black, which breaks #4 (3 blacks on the path through 11)."
+            ],
+            [
+              "7 red; 9 black; 12 black; 11 red",
+              "Wrong: the root must stay black (#5); the slide never touches 7."
+            ],
+            [
+              "All of 9, 8, 12, 11 black",
+              "Wrong: the paths through 9 would then meet 3 or 4 blacks below 7 while 7 → 5 → NIL meets 2 (#4)."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.16"
+        },
+        {
+          "q": "Slide 10.19: what colour can 10 (left child of red 11) be?",
+          "o": [
+            [
+              "No colour: the tree is too imbalanced, its structure must change",
+              "Correct: red breaks #3, black breaks #4, and the 5-node path vs the 2-node path 7 → 5 makes every recolouring fail; a rotation is needed, in O(lg n)."
+            ],
+            [
+              "Red, after recolouring 11 black",
+              "Wrong: 11 black (with 12 black above it) adds a black to the paths through 11 only, so #4 breaks; the path is simply too long."
+            ],
+            [
+              "Black",
+              "Wrong: a black 10 gives 7 → 9 → 12 → 11 → 10 → NIL 3 blacks below 7 against 2 on 7 → 5 → NIL (#4)."
+            ],
+            [
+              "Red, with no change",
+              "Wrong: its parent 11 is red, so a red 10 breaks property 3 (two reds in a row)."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.19"
+        },
+        {
+          "q": "True or false: a rotation preserves the inorder ordering of the keys.",
+          "o": [
+            [
+              "True",
+              "Correct (slide 10.20): inorder is A, x, B, y, C both before and after rightRotate(y); B stays between x and y."
+            ],
+            [
+              "False",
+              "Wrong: if a rotation changed the order, the tree would stop being a BST; rotations are used precisely because they keep it (5, 7, 8, 9, 11, 12 on slides 10.22–10.23)."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.20"
+        },
+        {
+          "q": "In rightRotate(y) with x = y->left, what happens to x's right child?",
+          "o": [
+            [
+              "It becomes y's left child",
+              "Correct (slide 10.21): B moves from x's right to y's left; y->left = x->right and B->p = y."
+            ],
+            [
+              "It stays x's right child",
+              "Wrong: x's right slot is needed for y itself (x->right = y). It is x's LEFT child A that x keeps."
+            ],
+            [
+              "It becomes y's right child",
+              "Wrong: y keeps its right child C (slide 10.21); B goes to y's left, the slot x left free."
+            ],
+            [
+              "It becomes the new root",
+              "Wrong: x takes y's place (and becomes the root only if y was the root); B moves down under y."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.21"
+        },
+        {
+          "q": "What is the running time of a rotation?",
+          "o": [
+            [
+              "O(1)",
+              "Correct (slide 10.21): a constant number of pointer changes (6 writes), independent of the subtree sizes."
+            ],
+            [
+              "O(lg n)",
+              "Wrong: O(lg n) is the cost of walking a path (insert, search); one rotation does not walk at all."
+            ],
+            [
+              "O(n)",
+              "Wrong: subtrees A, B, C move as whole blocks by changing one pointer each; no node inside them is visited."
+            ],
+            [
+              "O(h²)",
+              "Wrong: no loop at all in rotate; the code is a straight list of about 10 assignments."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.21"
+        },
+        {
+          "q": "Rotate left about 9 in slide 10.22's tree (9 has children 8 and 12; 12 has left child 11). Which is the result?",
+          "o": [
+            [
+              "12 under 7; 9 is 12's left child; 9's children are 8 and 11",
+              "Correct (slide 10.23): leftRotate(9) lifts 9's right child 12, and 12's old left child 11 becomes 9's right child."
+            ],
+            [
+              "8 under 7; 9 is 8's right child",
+              "Wrong: that is rightRotate(9), which lifts the LEFT child 8. A left rotation lifts the right child."
+            ],
+            [
+              "12 under 7; 9 is 12's left child; 11 is 12's right child",
+              "Wrong: 11 cannot stay at 12, because 12's left slot is taken by 9; and 11 &lt; 12 could not be its right child."
+            ],
+            [
+              "11 under 7 with children 9 and 12",
+              "Wrong: that needs two rotations (it is the shape a double rotation would give); one left rotation only lifts 12."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slides 10.22–10.23"
+        },
+        {
+          "q": "After treeInsert(x) and x->color = RED, which red-black property might be violated?",
+          "o": [
+            [
+              "Only property 3, if x's parent is red",
+              "Correct (slide 10.24): a red node adds no black, so #4 holds; the only possible fault is a red-red pair x and p[x]."
+            ],
+            [
+              "Only property 4",
+              "Wrong: #4 breaks if the new node is BLACK; that is exactly why rbInsert colours it red."
+            ],
+            [
+              "Properties 3 and 4 together",
+              "Wrong: colouring x red keeps every black count, so #4 is safe; only #3 is at risk."
+            ],
+            [
+              "None: a red leaf never breaks anything",
+              "Wrong: slide 10.14 shows it: 11 red under red 12 breaks #3."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.24"
+        },
+        {
+          "q": "In rbInsert, with x->p a left child, what is y = x->p->p->right?",
+          "o": [
+            [
+              "The uncle of x",
+              "Correct: x->p->p is the grandparent, and its right child is the parent's sibling, the uncle (slide 10.26 tests its colour for Case 1)."
+            ],
+            [
+              "The parent of x",
+              "Wrong here: x->p is the LEFT child, so the right child of the grandparent is the other child. (It would be the parent if x->p were a right child.)"
+            ],
+            [
+              "The grandparent of x",
+              "Wrong: the grandparent is x->p->p itself; ->right takes one more hop down."
+            ],
+            [
+              "The sibling of x",
+              "Wrong: x's sibling is x->p's other child (x->p->right or ->left), one level lower than the uncle."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slides 10.25–10.26"
+        },
+        {
+          "q": "Case 1 of rbInsert applies when:",
+          "o": [
+            [
+              "x's uncle is red",
+              "Correct (slide 10.26: \"Case 1: uncle is RED\"): then recolouring alone works: parent and uncle black, grandparent red."
+            ],
+            [
+              "x's uncle is black and x is a right child",
+              "Wrong: that is Case 2 (slide 10.29), which needs a left rotation."
+            ],
+            [
+              "x's uncle is black and x is a left child",
+              "Wrong: that is Case 3 (slide 10.30): recolour and rotate right."
+            ],
+            [
+              "x's parent is black",
+              "Wrong: then the while loop does not even run, because nothing is violated."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slides 10.26–10.27"
+        },
+        {
+          "q": "What does Case 1 do?",
+          "o": [
+            [
+              "Parent and uncle black, grandparent red, x = grandparent",
+              "Correct (slide 10.27): only colours change, #4 is preserved, and the loop continues two levels higher."
+            ],
+            [
+              "Parent black, grandparent red, rightRotate(grandparent)",
+              "Wrong: that is Case 3. Case 1 never rotates; with a red uncle a recolouring suffices."
+            ],
+            [
+              "x = x->p; leftRotate(x)",
+              "Wrong: that is Case 2, used when the uncle is BLACK and x is a right child."
+            ],
+            [
+              "x black and stop",
+              "Wrong: a black x adds a black to its paths and breaks #4; rbInsert never recolours x itself black."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slides 10.27–10.28"
+        },
+        {
+          "q": "Case 2 (uncle black, x a right child) does:",
+          "o": [
+            [
+              "x = x->p; leftRotate(x), turning it into Case 3",
+              "Correct (slide 10.29): the left rotation makes x (now the old parent) a left child, and the code continues with Case 3."
+            ],
+            [
+              "x = x->p; rightRotate(x)",
+              "Wrong: that is Case 5, the mirror used when x's parent is a RIGHT child and x a left child."
+            ],
+            [
+              "Recolour parent and uncle black",
+              "Wrong: that is Case 1, which needs a RED uncle."
+            ],
+            [
+              "rightRotate(x->p->p) only",
+              "Wrong: a right rotation of the grandparent on a bent path would leave the red-red pair; first straighten it with leftRotate."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.29"
+        },
+        {
+          "q": "Case 3 (uncle black, x a left child of a left child) does:",
+          "o": [
+            [
+              "x->p black, x->p->p red, rightRotate(x->p->p)",
+              "Correct (slide 10.30): \"change colors; rotate right\". B ends black on top with red children A and C, and the loop stops."
+            ],
+            [
+              "x->p black, x->p->p red, leftRotate(x->p->p)",
+              "Wrong: that is Case 6, the mirror for a right child of a right child."
+            ],
+            [
+              "x->p red, x->p->p black, rightRotate(x->p)",
+              "Wrong colours and wrong node: the rotation is about the grandparent, and the parent becomes BLACK."
+            ],
+            [
+              "Only recolour, no rotation",
+              "Wrong: with a black uncle recolouring alone breaks #4; the rotation is needed (slide 10.19 shows why)."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.30"
+        },
+        {
+          "q": "When do Cases 4-6 apply?",
+          "o": [
+            [
+              "When x's parent is a right child",
+              "Correct (slide 10.31): Cases 1-3 hold if x's parent is a left child; otherwise the symmetric Cases 4-6 (left and right swapped)."
+            ],
+            [
+              "When x's uncle is NIL",
+              "Wrong: a NIL uncle is simply black (T.nil), which leads to Case 2/3 or 5/6 depending on the side."
+            ],
+            [
+              "When x is the root",
+              "Wrong: when x is the root the while loop stops; no case applies."
+            ],
+            [
+              "After a deletion",
+              "Wrong: these are insertion cases. Deletion has its own fix-up (not covered here, slide 10.32)."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.31"
+        },
+        {
+          "q": "Slide 10.7: which operations follow directly from h = O(lg n) with no special care?",
+          "o": [
+            [
+              "Minimum, Maximum, Successor, Predecessor, Search",
+              "Correct: they only read the tree and walk one path, so they cost O(h) = O(lg n)."
+            ],
+            [
+              "Insert and Delete",
+              "Wrong: they also take O(lg n), but the slide says they need special care because they modify the tree."
+            ],
+            [
+              "Rotations",
+              "Wrong: rotations are O(1) and are tools used inside Insert/Delete, not consequences of the height bound."
+            ],
+            [
+              "Printing all keys",
+              "Wrong: printing visits all n nodes, Θ(n) (Final Summer Q5)."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 10 · Slide 10.7"
         }
       ],
       "extra": [
         {
-          "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 10?",
+          "q": "In slide 10.4's tree, what is bh(18)? (18 is red; below it 10 black with red children 8, 11; 22 black with red child 26.)",
           "o": [
             [
-              "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-              "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
+              "2",
+              "Correct: from 18 a path meets 10 (or 22) and the NIL: 2 blacks. 18 itself is not counted (and it is red anyway)."
             ],
             [
-              "The algorithm requires O(2ⁿ) exponential space in the best case",
-              "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
+              "3",
+              "Wrong: this counts 18 too. bh(x) never counts x itself, and 18 is red, so it would not count anyway."
             ],
             [
-              "The algorithm only works when n ≤ 10",
-              "False — Asymptotic analysis applies as n → ∞."
+              "1",
+              "Wrong: this forgets the NIL leaf. The NIL is black and is counted, so the path 18 → 10 → 8 → NIL gives 2."
             ],
             [
-              "Correctness does not depend on loop invariants or optimal substructure",
-              "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
+              "4",
+              "Wrong: 4 is the number of edges on the path 18 → 10 → 8 → NIL plus one; bh counts black nodes only."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "A red-black tree has 15 internal nodes. What is the largest height the theorem allows?",
+          "o": [
+            [
+              "8",
+              "Correct: h ≤ 2 lg(n + 1) = 2 lg 16 = 2 × 4 = 8."
+            ],
+            [
+              "4",
+              "Wrong: lg(n + 1) = 4 is the height of a perfect tree; the theorem allows twice that because of red nodes."
+            ],
+            [
+              "15",
+              "Wrong: 15 (or 14) is the height of a chain, which the red-black properties rule out."
+            ],
+            [
+              "7.8",
+              "Wrong: this uses 2 lg 15 ≈ 7.81; the bound is 2 lg(n + 1) with n + 1 = 16."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "By the lemma, a node with black-height 3 has at least how many internal nodes in its subtree?",
+          "o": [
+            [
+              "7",
+              "Correct: the lemma says size ≥ 2<sup>bh</sup> − 1, and with bh = 3 that is 2<sup>3</sup> − 1 = 8 − 1 = 7 internal nodes."
+            ],
+            [
+              "8",
+              "Wrong: 2<sup>3</sup> = 8 forgets the − 1 (a bh-1 node can have just 1 internal node: 2<sup>1</sup> − 1 = 1)."
+            ],
+            [
+              "3",
+              "Wrong: bh itself is not a node count; each black level at least doubles the count."
+            ],
+            [
+              "15",
+              "Wrong: 15 = 2<sup>4</sup> − 1 is the bound for bh = 4, one black level more than asked."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Using the colouring method on slide 10.19's tree, why does no colouring exist?",
+          "o": [
+            [
+              "Longest path 5 nodes > 2 × shortest path 2 nodes",
+              "Correct: a 5-node path starting with a black root has at least ⌈5/2⌉ = 3 blacks, but the path 7 → 5 can hold at most 2."
+            ],
+            [
+              "11 and 12 are both red",
+              "Wrong: that is a fault of the current colours only; the question is whether ANY colouring exists, and the path lengths decide it."
+            ],
+            [
+              "The tree has an even number of nodes",
+              "Wrong: node count parity has nothing to do with it; slide 10.4's tree has 8 nodes and is valid."
+            ],
+            [
+              "The root has only one child",
+              "Wrong: 7 has two children (5 and 9); and NIL children are allowed anyway."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "In slide 10.16's tree with x = 11, what is x->p->p->right?",
+          "o": [
+            [
+              "12, the parent of x",
+              "Correct: x->p = 12, x->p->p = 9, and 9's right child is 12. That is why the code first tests whether x->p is a left child."
+            ],
+            [
+              "8, the uncle",
+              "Wrong: 8 is 9's LEFT child, x->p->p->left. The uncle is x->p->p->right only when x->p is a left child."
+            ],
+            [
+              "9, the grandparent",
+              "Wrong: 9 is x->p->p; ->right moves one more step down."
+            ],
+            [
+              "NIL",
+              "Wrong: 12->right is NIL, but the chain asks for the right child of 9, not of 12."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Inserting 10 into slide 10.19's situation (parent 11 red, a left child of 12, uncle NIL): which case does rbInsert apply?",
+          "o": [
+            [
+              "Case 3",
+              "Correct: x->p = 11 is a left child, uncle 12->right = NIL is black, and 10 is a left child, so no Case 2: recolour 11 black, 12 red, rightRotate(12)."
+            ],
+            [
+              "Case 1",
+              "Wrong: Case 1 needs a red uncle; the uncle here is NIL (T.nil), which is black."
+            ],
+            [
+              "Case 2",
+              "Wrong: Case 2 needs x to be a RIGHT child; 10 &lt; 11 is a left child."
+            ],
+            [
+              "Case 6",
+              "Wrong: Cases 4-6 are used when x's parent is a RIGHT child; 11 is 12's left child."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "After rbInsert(10) on slide 10.19's tree, which node is 9's right child?",
+          "o": [
+            [
+              "11 (black), with red children 10 and 12",
+              "Correct: Case 3 colours 11 black, 12 red and rightRotate(12) lifts 11 into 12's place under 9."
+            ],
+            [
+              "12 (black), with left child 11",
+              "Wrong: that is the tree before the fix; the rotation moves 12 down."
+            ],
+            [
+              "10 (black), with children 11 and 12",
+              "Wrong: 10 &lt; 11 &lt; 12 means 10 cannot have 11 as a child on both sides; one right rotation lifts 11, not 10."
+            ],
+            [
+              "11 (red), with black children 10 and 12",
+              "Wrong colours: Case 3 makes the new top black (11) and the two below red, keeping 2 blacks below 7."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Insert 7, 5, 9, 12 into an empty red-black tree with rbInsert. Which case fires when 12 is inserted?",
+          "o": [
+            [
+              "Case 4 (the uncle 5 is red)",
+              "Correct: 12's parent 9 is red and a right child, the uncle 7->left = 5 is red, so the mirror of Case 1 recolours 9, 5 black and 7 red, then the root is recoloured black."
+            ],
+            [
+              "Case 1",
+              "Wrong number: Case 1 is for a parent that is a LEFT child; 9 is 7's right child, so the mirror Case 4 is used."
+            ],
+            [
+              "Case 6",
+              "Wrong: Case 6 needs a BLACK uncle (and rotates); here the uncle 5 is red, so recolouring is enough."
+            ],
+            [
+              "No fix is needed",
+              "Wrong: 12 is red under red 9, which breaks property 3."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Insert 13 into slide 10.8's tree (7, 5, 9 black, 12 red). What happens?",
+          "o": [
+            [
+              "Case 6: 12 black, 9 red, leftRotate(9)",
+              "Correct: 13 is a right child of red 12, which is a right child; the uncle 9->left is NIL (black). Result: 12 under 7 with red children 9 and 13."
+            ],
+            [
+              "Case 4: recolour 12 and 9",
+              "Wrong: Case 4 needs a red uncle; 13's uncle is 9->left = NIL, which is black."
+            ],
+            [
+              "Case 5, then Case 6",
+              "Wrong: Case 5 is for a LEFT child under a right child (a bend); 13 &gt; 12 makes a straight line."
+            ],
+            [
+              "No fix: 13 is red under black 9",
+              "Wrong: 13 goes under 12 (13 &gt; 12), and 12 is red."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Insert 10 into slide 10.8's tree (without 8 and 11). Which cases fire?",
+          "o": [
+            [
+              "Case 5, then Case 6",
+              "Correct: 10 is the left child of red 12, a right child, with a NIL uncle: rightRotate(12) (Case 5), then 10 black, 9 red, leftRotate(9) (Case 6). 10 ends on top."
+            ],
+            [
+              "Case 2, then Case 3",
+              "Wrong: Cases 2-3 are for a parent that is a LEFT child; 12 is 9's right child, so the mirrors 5-6 are used."
+            ],
+            [
+              "Case 6 only",
+              "Wrong: 10 is a LEFT child of 12, a bend, so it must first be straightened by Case 5."
+            ],
+            [
+              "Case 4",
+              "Wrong: the uncle (9->left) is NIL, black, so recolouring alone is not allowed."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "rightRotate(y) with x = y->left: which pointer does NOT change?",
+          "o": [
+            [
+              "x->left",
+              "Correct: x keeps its left child A (slide 10.21). Likewise y->right keeps C."
+            ],
+            [
+              "x->right",
+              "Wrong: x->right changes from B to y, because y goes under x as its right child."
+            ],
+            [
+              "y->left",
+              "Wrong: y->left changes from x to B (x's old right child)."
+            ],
+            [
+              "y->p",
+              "Wrong: y->p changes from its old parent to x (\"x's and y's parents change\")."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "How many pointer writes does rightRotate(y) do when B is not NIL and y is not the root?",
+          "o": [
+            [
+              "6",
+              "Correct: y->left, B->p, x->p, the old parent's child field, x->right and y->p: three edges, two pointers each."
+            ],
+            [
+              "3",
+              "Wrong: 3 is the number of edges that change; each edge is stored twice (down and up), so 6 writes."
+            ],
+            [
+              "4",
+              "Wrong: this forgets the parent links (B->p and y->p or x->p); every changed edge needs its up pointer too."
+            ],
+            [
+              "n",
+              "Wrong: subtrees move as blocks; the count is a constant, which is why rotation is O(1)."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Start from root 7 (black) with red children 5 and 9, and insert 12 with the slide's rbInsert code (it has no final root->color = BLACK). What is wrong afterwards?",
+          "o": [
+            [
+              "The root 7 is red",
+              "Correct: the parent 9 and uncle 5 are both red, so Case 4 colours 9 and 5 black and 7 red, and x moves up to 7. x is the root, so the loop stops, and with no root->color = BLACK line the root stays red."
+            ],
+            [
+              "12 is black",
+              "Wrong: 12 is inserted red, and Case 4 recolours its parent 9, its uncle 5 and the grandparent 7, never x itself, so 12 stays red."
+            ],
+            [
+              "9 and 12 are both red",
+              "Wrong: Case 4 turns the parent 9 black, so the red-red pair between 9 and 12 is gone after the fix."
+            ],
+            [
+              "Nothing, the tree is valid",
+              "Wrong: the root 7 ends up red, which breaks the root-is-black property. Only CLRS's last line root->color = BLACK repairs it, and the slide's code has no such line."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Why is the T.nil sentinel useful in rbInsert?",
+          "o": [
+            [
+              "y->color can be read even when the uncle is \"no node\": it is BLACK",
+              "Correct: T.nil is a real node with color BLACK, so Case 1's test y->color == RED needs no NULL check."
+            ],
+            [
+              "It stores the number of nodes",
+              "Wrong: T.nil holds no data; its only important field is its black colour (and a parent pointer)."
+            ],
+            [
+              "It makes the tree balanced",
+              "Wrong: balance comes from the five properties and the fix-up cases, not from the sentinel."
+            ],
+            [
+              "It is red, so new nodes can attach to it",
+              "Wrong: leaves are BLACK by property 2; a red T.nil would break #3 under every red node."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Which shape after a single rotation can still have no valid colouring, as slide 10.23 shows?",
+          "o": [
+            [
+              "7; 5, 12; 9 under 12; 8, 11 under 9",
+              "Correct: 7 → 12 → NIL has 2 nodes, forcing 12 black, so 7 → 12 → 9 → 8 would need red 9 and red 8 in a row: impossible. Rotations need recolouring too."
+            ],
+            [
+              "7; 5, 9; 8, 12 (before adding 11)",
+              "Wrong: this shape can be coloured (e.g. 5, 9 black, 8, 12 red; 7 black)."
+            ],
+            [
+              "7; 5, 9; 12 under 9",
+              "Wrong: this is slide 10.8's tree, coloured validly with 12 red."
+            ],
+            [
+              "7; 5, 9; 8, 11 under 9; 10, 12 under 11",
+              "Wrong: this is the final tree after rbInsert(10) (Case 3), valid with 9, 10, 12 red and 7, 5, 8, 11 black."
             ]
           ],
           "a": 0
@@ -9759,7 +19307,7 @@ window.COURSES.algo = {
     {
       "n": 11,
       "code": "Lec 11",
-      "title": "Lecture 11: Red-Black Trees — Full Insertion Traces (Exam Workouts) & Deletion Fixup (rbTreeFix Cases 1–4)",
+      "title": "Lecture 11: Red-Black Trees, Insertion Traces (with Exam Workouts) and Deletion with rbTreeFix Cases 1–4",
       "videos": [
         {
           "id": "O3hI9FdxFOM",
@@ -9778,53 +19326,439 @@ window.COURSES.algo = {
       ],
       "notes": [
         {
-          "h": "Complete Slide & Exam Insertion Traces (Slides 11.1–11.14)",
+          "h": "Before you start: deleting a key from a plain binary search tree",
           "pts": [
-            "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(B), 93(R)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `71`, colored <b>RED</b> (parent black $\\implies$ valid).</li><li><b>Insert `82`</b>: Placed as left child of red `93` under black `71`, with red uncle `65` $\\implies$ <b>Case 1 (Uncle `65` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED (its parent `47` is black, so the loop stops).</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `93`, with a `NIL` (black) uncle and `87` an inner child $\\implies$ <b>Case 2 then Case 3</b>: left-rotate `82`, then recolor `87` BLACK and `93` RED and right-rotate `93`. Result: `71`(R) with children `65`(B) and `87`(B), and `87` has red children `82` and `93`.</li></ul>",
-            "<b>Final Exam Workout 1: Insert `(2, 1, 4, 5, 9, 3, 6, 7)` into an Empty Red-Black Tree (Final 2016 Q4 & Final 5 Q4)</b>:<ul><li>1. <b>Insert `2`</b>: `2(B)` is root.</li><li>2. <b>Insert `1`</b>: Left child of `2`, colored `1(R)`.</li><li>3. <b>Insert `4`</b>: Right child of `2`, colored `4(R)`. Tree: `2(B)` with children `1(R), 4(R)`.</li><li>4. <b>Insert `5`</b>: Right child of `4(R)`. Uncle `1(R)` is RED (<b>Case 1</b>) $\\implies$ recolor `1(B), 4(B)`, grandparent `2` stays `2(B)` (root).</li><li>5. <b>Insert `9`</b>: Right child of `5(R)` under `4(B)` with `NIL(B)` uncle (<b>Case 3 RR line</b>) $\\implies$ left-rotate `4(B)` and recolor `5(B)` and `4(R), 9(R)`.</li><li>6. <b>Insert `3`</b>: Left child of `4(R)` under `5(B)` with red uncle `9(R)` (<b>Case 1</b>) $\\implies$ recolor `4(B), 9(B)` and `5(R)`.</li><li>7. <b>Insert `6`</b>: Left child of `9(B)`, colored `6(R)`.</li><li>8. <b>Insert `7`</b>: Right child of `6(R)` under `9(B)` with `NIL(B)` uncle (<b>Case 2 LR triangle $\\to$ Case 3</b>) $\\implies$ left-rotate `6(R)`, right-rotate `9(B)`, recolor `7(B)` and `9(R)`!</li></ul>",
-            "<b>Final Exam Workout 2: Insert `(5, 1, 4, 10, 9, 20, 6, 7)` (Final 2018 I Q4, Final 2018 II Q7 & Exam Examples Q7)</b>:<ul><li>1. `5(B)` $\\to$ 2. `1(R)` left of `5` $\\to$ 3. `4(R)` right of `1(R)` (<b>Case 2+3 LR</b>: left-rotate `1`, right-rotate `5` $\\to$ root becomes `4(B)` with `1(R)` and `5(R)`!).</li><li>4. `10(R)` right of `5(R)` (<b>Case 1</b>: recolor `1(B), 5(B)`).</li><li>5. `9(R)` left of `10(R)` (<b>Case 2+3 RL</b>: right-rotate `10`, left-rotate `5` $\\to$ `9(B)` with `5(R), 10(R)`).</li><li>6. `20(R)` right of `10(R)` (<b>Case 1</b>: recolor `5(B), 10(B), 9(R)`).</li><li>7. `6(R)` right of `5(B)` $\\to$ 8. `7(R)` right of `6(R)` (<b>Case 3 RR</b>: left-rotate `5(B)` $\\to$ `6(B)` with `5(R), 7(R)`). Final root `4(B)` has $bh = 2$.</li></ul>"
+            "A <b>binary search tree</b> (BST) keeps, at every node, smaller keys in the left subtree and larger keys in the right subtree. Example: root 50; left child 30 (children 20 and 40, and 40 has a left child 35); right child 70 (children 60 and 80).",
+            "An <b>inorder walk</b> (left subtree, node, right subtree) lists the keys in sorted order: 20, 30, 35, 40, 50, 60, 70, 80. Any deletion must keep this order sorted.",
+            "To delete key k, first <b>search</b> for its node z: compare k with the current key, go left if smaller, right if larger. Delete 60: 60 > 50 go right, 60 < 70 go left, found.",
+            "What happens next depends on how many real children z has. There are three cases:<ul><li><b>Leaf</b> (no children): cut it off; its parent's pointer becomes NIL. Delete 60: 70's left pointer becomes NIL.</li><li><b>One child</b>: splice z out; its only child moves up into z's place. Delete 40: its child 35 becomes 30's right child.</li><li><b>Two children</b>: z cannot be cut out (two subtrees, one free pointer). Copy a neighbour key into z and delete that neighbour instead.</li></ul>",
+            "Why case 2 is safe: 35 was inside 30's right subtree, so 35 > 30 and 35 < 50. Putting 35 where 40 was keeps every BST comparison true.",
+            "The neighbour in case 3 is the <b>inorder predecessor</b> (the largest key in z's left subtree: go left once, then right until there is no right child) or the <b>inorder successor</b> (the smallest key in the right subtree: go right once, then left until there is no left child).",
+            "Example, delete 50: predecessor = 40 (left to 30, right to 40, 40 has no right child). Copy 40 into the root node, then delete the old 40 node: it has one child (35), so case 2 applies. Inorder afterwards: 20, 30, 35, 40, 60, 70, 80. With the successor, 60 would go to the root instead.",
+            "Key fact: the predecessor has <b>no right child</b> (otherwise that child would be larger) and the successor has no left child. So the node really removed has <b>at most one real child</b>. Slide 11.15 relies on exactly this.",
+            "Which one the slides use: the code on slide 11.25 says <code>y = successor(z); // or predecessor</code>, and all three deletion examples (slides 11.17-11.29) use the <b>predecessor</b>. The notes follow the examples: predecessor.",
+            "Finding the predecessor or the successor needs no key comparisons, only \"go left / go right until NIL\" (asked in Final Summer Q13, see the quiz). Each walk is at most the height of the tree."
+          ],
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "fig": [
+            "ag-11-bstdel"
+          ],
+          "figAt": {
+            "ag-11-bstdel": 7
+          },
+          "figH": {
+            "ag-11-bstdel": "Plain BST deletion: a leaf, a node with one child, a node with two children (predecessor)"
+          }
+        },
+        {
+          "h": "Before you start: TRANSPLANT, the replacement node x, its sibling and its nephews",
+          "pts": [
+            "<b>TRANSPLANT</b> (CLRS name ‡) means: replace the subtree rooted at node y by the subtree rooted at node x. Two pointers change: y's parent now points to x, and x's parent becomes y's parent. If y was the root, x becomes the root.",
+            "The slides do not call it TRANSPLANT, but slide 11.26 does exactly this: <code>x.setParent(y.getParent())</code>, then <code>y.getParent().setLeft(x)</code> or <code>setRight(x)</code>, or <code>root = x</code> when y was the root.",
+            "A <b>parent pointer</b> is a link from each node up to its parent (<code>getParent()</code> / <code>setParent()</code> in the slides; null for the root). Child pointers go down, parent pointers go up, and every pointer change must update both directions.",
+            "Example: left-rotating 82 (slides 11.8 → 11.9) changes the parent of 87 (from 82 to 93) and of 82 (from 93 to 87); 87's left subtree, if it existed, would get 82 as its new parent. Forgetting one of these breaks the later walks up the tree (x = x.getParent()).",
+            "In the slides' <code>rbDelete</code>, <b>z</b> is the node holding the key to delete.",
+            "<b>y</b> is the node that is physically removed: z itself if z has at most one child, otherwise z's predecessor / successor.",
+            "<b>x</b> is y's only child, the replacement node that moves into y's place.",
+            "If y has no real child, x would be null. The slides then create a <b>pretend node</b>: a black node with no data (<code>new TreeNode&lt;T&gt;(null)</code>, colour black) that stands in for the NIL leaf, so the fix-up has a real object with a parent pointer to work on. It is detached again at the end (slide 11.26).",
+            "The <b>sibling</b> of x is the other child of x's parent. CLRS calls it <b>w</b> ‡. Careful with letters in this lecture: the slides' <code>rbTreeFix</code> code calls the sibling <b>y</b> (a new meaning; in <code>rbDelete</code> y was the removed node), and the case pictures on slides 11.33-11.36 call it z or w.",
+            "The sibling's two children are x's <b>nephews</b>. The <b>near nephew</b> is the one on x's side (if x is a left child: the sibling's left child); the <b>far nephew</b> is on the other side (the sibling's right child).",
+            "Example (deletion example 3 after the first fix step, slide 11.28): x is the pretend node, left child of 47. Its sibling is 65, and x's nephews are 65's two NIL children, both black.",
+            "NIL leaves count as <b>black</b> (property 2), so a missing child is a black nephew. The slides' code writes <code>y.getLeft().getColor()</code>; read it as \"black if the child is NIL\" ‡."
+          ],
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
+        },
+        {
+          "h": "Before you start: the extra black token, and why only black deletions need fixing",
+          "pts": [
+            "The course's four red-black properties (Lecture 9): <ul><li>1. Every node is either red or black.</li><li>2. The root and the leaves (NILs) are black.</li><li>3. If a node is red, its parent is black (no two reds in a row).</li><li>4. All simple paths from any node x to a descendant leaf have the same number of black nodes, the <b>black-height</b> bh(x).</li></ul>",
+            "Slide 11.16 uses these numbers: removing a black node breaks <b>property 4</b>; a doubly black node breaks <b>property 1</b>.",
+            "Count black nodes on every path from the root to a NIL leaf in the slides' deletion tree (47; 32; 71 red with 65 and 87; 87 with red 82 and 93): every path has 3 (NIL included). Example: on the path 47, 71 (red, not counted), 65, NIL the black nodes are 47, 65 and NIL: 3 of them.",
+            "<b>Counting convention</b>: in these notes \"black nodes on a root-to-NIL path\" includes the root and the NIL leaf; the black-height bh(x) of Lecture 9 does not count x itself. So bh(root) = (black nodes on a root-to-NIL path) − 1: here every path has 3, so bh(47) = 2. The workouts' \"bh(root) = 2\" uses the same rule.",
+            "<b>Removing a red node</b> changes no count (red nodes are never counted), cannot put two reds in a row (its parent is black and its child, if any, is black), and is never the root. So no property breaks (slide 11.15).",
+            "<b>Removing a black node</b> y takes one black node off every path that went through y. Delete 32: the path 47 → NIL (where 32 was) now has 2 black nodes, all other paths 3. Property 4 is broken.",
+            "The repair idea (slide 11.16): pretend the replacement node x carries an <b>extra black token</b> ■, i.e. it counts as one more black. Then every path through x has 3 again, so property 4 holds.",
+            "If x is red, \"red + token\" means: just colour x black. If x is already black, x would count as two blacks: it is <b>doubly black</b>, which is not a legal colour (property 1). <code>rbTreeFix</code> moves the token up or removes it by recolouring and rotating.",
+            "Small check: in deletion example 2 the removed node 65 is black and its child 51 is red. 51 gets the token and is red, so it is simply coloured black: every path through it counts 3 again."
+          ],
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "fig": [
+            "ag-11-bhpath"
+          ],
+          "figAt": {
+            "ag-11-bhpath": 7
+          },
+          "figH": {
+            "ag-11-bhpath": "Black nodes on every path: removing a red node, a black leaf, and a black node with a red child"
+          }
+        },
+        {
+          "h": "Before you start: recap of rotations and the three insertion cases",
+          "pts": [
+            "A <b>rotation</b> changes the shape of a subtree in O(1) pointer changes and keeps the inorder order. <code>leftRotate(x)</code>: x's right child z moves up, x becomes z's left child, and z's old left subtree becomes x's right subtree. <code>rightRotate</code> is the mirror.",
+            "Example (slides 11.8 → 11.9): left-rotate 82, whose right child is 87: 87 takes 82's place under 93 and 82 becomes 87's left child. Inorder 82, 87, 93 is unchanged.",
+            "<b>rbInsert</b> (Lecture 9): insert x as in a BST, colour it <b>red</b> (so black-heights do not change), then fix while x's parent is red. The <b>uncle</b> is the parent's sibling (the code calls it y).",
+            "The cases when the parent p is a left child of the grandparent g:<ul><li><b>Case 1</b>, uncle red: colour p and the uncle black, g red, and continue from x = g.</li><li><b>Case 2</b>, uncle black and x a right child (zig-zag): x = p, left-rotate x. Now it is Case 3.</li><li><b>Case 3</b>, uncle black and x a left child (straight line): colour p black, g red, right-rotate g. Done.</li></ul>",
+            "When p is a <b>right</b> child, everything is mirrored (left ↔ right). Lecture 10 numbers the mirrors Case 4, 5, 6; these notes write \"Case 1 / 2 / 3 (mirror)\".",
+            "A NIL uncle counts as <b>black</b>. That is why inserting under a node with no sibling usually leads to Case 2 or 3.",
+            "Finally the root is coloured black (<code>root.setColor(black)</code>), which repairs property 2 if Case 1 coloured the root red."
+          ],
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
+        },
+        {
+          "h": "Insertion example: insert 65, 82, 87 (Slides 11.1–11.11)",
+          "pts": [
+            "Start tree (slide 11.1): root <b>47</b> black; left child 32 black; right child 71 black; <b>93</b> red, the right child of 71. All other children are NIL (black dots on the slide). Every root-to-NIL path has 3 black nodes.",
+            "The handwritten photo in the corner of slide 11.1 (a recursion tree for T(n) = 2T(n/2) + 4n) is a leftover from the recurrences lecture; it is not part of red-black trees.",
+            "<b>Insert 65</b> (slides 11.1-11.2): 65 > 47 go right, 65 < 71 go left: 65 becomes 71's left child, coloured red. Its parent 71 is black, so the while loop does not run. Done, no case.",
+            "<b>Insert 82</b> (slides 11.3-11.4): 82 > 47, 82 > 71, 82 < 93: 82 becomes the left child of 93, red. Now 82 and its parent 93 are both red (property 3 broken).",
+            "The parent 93 is a right child of 71, so the uncle is 71's left child, <b>65, which is red</b>: <b>Case 1</b> (mirror side; recolouring is the same on both sides).",
+            "Case 1 (slide 11.5, \"change nodes' colors\"): colour 93 and 65 <b>black</b>, colour the grandparent 71 <b>red</b>, x = 71. The parent of 71 is 47, black, so the loop stops. Tree: 47; 32; 71 red with black 65 and black 93; 82 red under 93.",
+            "Why Case 1 keeps property 4: 71 gives its black to both children, so every path through 71 still has the same number of black nodes.",
+            "<b>Insert 87</b> (slides 11.6-11.7): 87 > 47, > 71, < 93, > 82: 87 becomes the right child of 82, red. 87 and its parent 82 are both red.",
+            "The parent 82 is the left child of 93; the uncle is 93's right child, <b>NIL, black</b>. 87 is a right child of a left child (zig-zag): <b>Case 2</b>.",
+            "Case 2 (slide 11.8 → 11.9): x = 82, left-rotate 82. Now 87 is 93's left child and 82 is 87's left child: a straight line, which is <b>Case 3</b>. Colours do not change in Case 2.",
+            "Case 3 (slide 11.10, \"change nodes' colors\", then the arrow at 93): colour the parent 87 <b>black</b>, the grandparent 93 <b>red</b>, then right-rotate 93.",
+            "Result (slide 11.11): 47 black root; 32 black; 71 red with children 65 black and 87 black; 87 has red children 82 and 93. Every root-to-NIL path has 3 black nodes, no red node has a red child.",
+            "This result tree is the start tree of deletion examples 1 and 3 (slides 11.17 and 11.22)."
           ],
           "fig": [
-            "algo-rbt-sim",
             "ag-11-ins",
-            "ag-11-lrot",
-            "ag-11-exam1",
+            "algo-rbt-sim"
+          ],
+          "figAt": {
+            "ag-11-ins": 11,
+            "algo-rbt-sim": 11
+          },
+          "figH": {
+            "ag-11-ins": "Insertion example: insert 65, 82, 87 into the slides' tree"
+          }
+        },
+        {
+          "h": "The leftRotate and rbInsert code (Slides 11.12–11.14)",
+          "pts": [
+            "Slide 11.12 gives <code>leftRotate(root, x)</code> with parent pointers. It returns the (possibly new) root. Precondition: x's right child z is a proper node with a value.",
+            "Its steps:<ul><li><code>z = x.getRight()</code>.</li><li><code>x.setRight(z.getLeft())</code>, and if that subtree exists, set its parent to x.</li><li><code>z.setLeft(x)</code>: move x down.</li><li><code>z.setParent(x.getParent())</code>, then hang z where x hung (left or right child of x's old parent), or <code>root = z</code> if x was the root.</li><li><code>x.setParent(z)</code>; return root.</li></ul>",
+            "Traced on the left rotation of 82 in the insertion example: z = 87; 87 has no left child, so 82's right pointer becomes null; 82 becomes 87's left child; 87's parent becomes 93; 82 was 93's left child, so 93's left child becomes 87; 82's parent becomes 87. The root (47) is unchanged.",
+            "Every line is a constant amount of work: a rotation is <b>O(1)</b>. <code>rightRotate</code> is the same code with left and right swapped.",
+            "Slides 11.13-11.14 give <code>rbInsert</code>: <code>bstInsert</code>, colour red, then the while loop <code>while (x != root and x.getParent().getColor() == red)</code>. Slide 11.13 fills in the uncle-red branch (Case 1), slide 11.14 the uncle-black branch (Cases 2 and 3).",
+            "In the code, <code>if (x == x.getParent().getRight()) { x = x.getParent(); root = left_rotate(root,x); }</code> is Case 2; the three lines after it (parent black, grandparent red, <code>right_rotate</code> of the grandparent) are Case 3. The else branch \"symmetric to if\" handles a parent that is a right child.",
+            "Slide 11.14 names the parameter <code>newNode</code> but the body uses <code>x</code> (the slide shows <code>bstInsert(root,newNode)</code> then <code>x.setColor(red)</code>); read x = newNode, as on slide 11.13.",
+            "Cost: the BST insert walks down one path, O(h). Case 1 moves x up two levels per iteration, so it repeats at most O(h) times; Cases 2 and 3 end the loop after at most 2 rotations. With h = O(lg n), rbInsert is <b>O(lg n)</b>."
+          ],
+          "code": "TreeNode<T> rbInsert(TreeNode<T> root,TreeNode<T> x)\n// returns a new root\n{\n  root=bstInsert(root,x); // a modification of BST insertItem\n  x.setColor(red);\n  while (x != root and x.getParent().getColor() == red) {\n    if (x.getParent() == x.getParent().getParent().getLeft()) {\n      //parent is left child\n      y = x.getParent().getParent().getRight() //uncle of x\n      if (y.getColor() == red) { // uncle is red\n        x.getParent().setColor(black);\n        y.setColor(black);\n        x.getParent().getParent().setColor(red);\n        x = x.getParent().getParent();\n      } else { // uncle is black\n        if (x == x.getParent().getRight()) {\n          x = x.getParent();\n          root = left_rotate(root,x);\n        }\n        x.getParent().setColor(black);\n        x.getParent().getParent().setColor(red);\n        root = right_rotate(root,x.getParent().getParent());\n      }\n    } else\n      // ... symmetric to if\n  } // end while\n  root.setColor(black);\n  return root;\n}",
+          "fig": [
+            "ag-11-lrot"
+          ],
+          "figAt": {
+            "ag-11-lrot": 2
+          },
+          "figH": {
+            "ag-11-lrot": "The leftRotate code, traced on the left rotation of 82"
+          }
+        },
+        {
+          "h": "Exam workout 1: insert 2, 1, 4, 5, 9, 3, 6, 7 into an empty tree (Final 2016 Q4 & Final 5 Q4)",
+          "pts": [
+            "Asked in Final 2016 Q4 and Final 5 Q4. Use the rbInsert of slides 11.13-11.14; at each step name the case.",
+            "<b>Insert 2</b>: empty tree, 2 is the root, inserted red; the loop does not run (x is the root) and <code>root.setColor(black)</code> makes it black.",
+            "<b>Insert 1</b>: 1 < 2, left child of 2, red. Parent 2 is black: no case. <b>Insert 4</b>: 4 > 2, right child of 2, red. Parent black: no case. Tree: 2 black with red children 1 and 4.",
+            "<b>Insert 5</b>: 5 > 2, 5 > 4: right child of 4, red. Parent 4 is red; the uncle 1 is <b>red</b>: <b>Case 1</b>. Colour 4 and 1 black, 2 red; x = 2 is the root, the loop stops and the root is coloured black again.",
+            "After 5: 2 black; 1 black; 4 black with right child 5 red. The black-height of the root grew from 1 to 2: Case 1 reaching the root is the only way an insertion makes the tree's black-height grow ‡.",
+            "<b>Insert 9</b>: 9 > 2, > 4, > 5: right child of 5, red. Parent 5 is red and a right child of 4; the uncle (4's left child) is <b>NIL, black</b>; 9 is a right child too (straight line): <b>Case 3 (mirror)</b>.",
+            "Case 3 (mirror): colour 5 black, 4 red, left-rotate 4. Tree: 2; 1 black; 5 black with red children 4 and 9.",
+            "<b>Insert 3</b>: 3 > 2, 3 < 5, 3 < 4: left child of 4, red. Parent 4 red; uncle 9 is <b>red</b>: <b>Case 1</b>. Colour 4 and 9 black, 5 red; x = 5, whose parent 2 is black, so the loop stops.",
+            "<b>Insert 6</b>: 6 > 2, > 5, < 9: left child of 9, red. Parent 9 is black: no case.",
+            "<b>Insert 7</b>: 7 > 2, > 5, < 9, > 6: right child of 6, red. Parent 6 is red and the left child of 9; the uncle (9's right child) is NIL, black; 7 is a right child (zig-zag): <b>Case 2</b>, then Case 3.",
+            "Case 2: x = 6, left-rotate 6 (7 moves up, 6 becomes its left child). Case 3: colour 7 black and 9 red, right-rotate 9.",
+            "<b>Final tree</b>: root 2 black; left 1 black; right 5 red. 5 has left child 4 black (with left child 3 red) and right child 7 black (with red children 6 and 9). bh(root) = 2.",
+            "Check: path 2 → 1 → NIL has black 1 and NIL (2 below the root); path 2 → 5 → 7 → 9 → NIL has 7 and NIL (2). All paths agree."
+          ],
+          "callout": "Past-exam workout. It is not on the slides; it uses the slides' rbInsert exactly.",
+          "fig": [
+            "ag-11-exam1"
+          ],
+          "figAt": {
+            "ag-11-exam1": 11
+          },
+          "figH": {
+            "ag-11-exam1": "rbInsert step by step: insert 2, 1, 4, 5, 9, 3, 6, 7 (or your own keys)"
+          }
+        },
+        {
+          "h": "Exam workout 2: insert 5, 1, 4, 10, 9, 20, 6, 7 (Final 2018 I Q4, Final 2018 II Q7 & Exam Examples Q7)",
+          "pts": [
+            "Asked in Final 2018 I Q4, Final 2018 II Q7 and Exam Examples Q7.",
+            "<b>Insert 5</b>: root, coloured black. <b>Insert 1</b>: left child of 5, red; parent black: no case.",
+            "<b>Insert 4</b>: 4 < 5, 4 > 1: right child of 1, red. Parent 1 is red and a left child; the uncle (5's right child) is NIL, black; 4 is a right child (zig-zag): Case 2, then Case 3.",
+            "Case 2: x = 1, left-rotate 1 (4 moves up). Case 3: colour 4 black and 5 red, right-rotate 5. Tree: root 4 black with red children 1 and 5.",
+            "<b>Insert 10</b>: 10 > 4, > 5: right child of 5, red. Parent 5 red; uncle 1 <b>red</b>: <b>Case 1</b>. Colour 5 and 1 black, 4 red; x = 4 is the root, so it is coloured black again.",
+            "<b>Insert 9</b>: 9 > 4, > 5, < 10: left child of 10, red. Parent 10 is red and a right child of 5; uncle (5's left child) NIL, black; 9 is a left child (zig-zag): <b>Case 2 (mirror)</b>, then Case 3 (mirror).",
+            "Case 2 (mirror): x = 10, right-rotate 10. Case 3 (mirror): colour 9 black, 5 red, left-rotate 5. Tree: 4; 1 black; 9 black with red children 5 and 10.",
+            "<b>Insert 20</b>: 20 > 4, > 9, > 10: right child of 10, red. Parent 10 red; uncle 5 <b>red</b>: <b>Case 1</b>. Colour 10 and 5 black, 9 red; x = 9, parent 4 is black, stop.",
+            "<b>Insert 6</b>: 6 > 4, < 9, > 5: right child of 5, red. Parent 5 is black: no case.",
+            "<b>Insert 7</b>: 7 > 4, < 9, > 5, > 6: right child of 6, red. Parent 6 is red and a right child of 5; uncle (5's left child) <b>NIL, black</b>; 7 is a right child (straight line): <b>Case 3 (mirror)</b>: colour 6 black, 5 red, left-rotate 5.",
+            "<b>Final tree</b>: root 4 black; left 1 black; right 9 red. 9 has left child 6 black (red children 5 and 7) and right child 10 black (right child 20 red). bh(root) = 2.",
+            "A shorter one, Final Summer Q29: insert 1, 2, 3, 4. 1 is the root (black); 2 is its right child, red; 3 goes right of 2: uncle NIL, straight line, <b>Case 3 (mirror)</b>: 2 black, 1 red, left-rotate 1.",
+            "Then 4 goes right of 3: uncle 1 is red, <b>Case 1</b>: 1 and 3 black, 2 red, then the root is coloured black. Final: 2 black, children 1 and 3 black, 4 red under 3."
+          ],
+          "callout": "Past-exam workout. It is not on the slides; it uses the slides' rbInsert exactly.",
+          "fig": [
             "ag-11-exam2"
           ],
           "figAt": {
-            "ag-11-ins": 0,
-            "ag-11-lrot": 0,
-            "ag-11-exam1": 1,
-            "ag-11-exam2": 2
+            "ag-11-exam2": 10
           },
           "figH": {
-            "ag-11-ins": "Insertion example: insert 65, 82, 87 into the slides' tree",
-            "ag-11-lrot": "The leftRotate code, traced on the left rotation of 82",
-            "ag-11-exam1": "rbInsert step by step: insert 2, 1, 4, 5, 9, 3, 6, 7 (or your own keys)",
             "ag-11-exam2": "rbInsert step by step: insert 5, 1, 4, 10, 9, 20, 6, 7"
           }
         },
         {
-          "h": "Red-Black Tree Deletion & Doubly-Black Fixup (`rbTreeFix` Cases 1–4, Slides 11.15–11.39)",
+          "h": "Red-black tree deletion: the method (Slides 11.15–11.16)",
           "pts": [
-            "<b>Deletion Overview (Slides 11.15–11.16)</b>: Standard BST deletion reduces deleting a 2-child node to deleting its inorder successor/predecessor `y` (which has at most one real child `x`).<ul><li>If the removed node `y` was <b>RED</b>, no Red-Black properties are violated—done!</li><li>If `y` was <b>BLACK</b>, removing it reduces the black-height along paths through `y`, so we pass an <b>”extra black token”</b> to `x` (the child replacing `y`) and call `rbTreeFix(root, x)`.</li></ul>",
-            "<b>Four Cases of `rbTreeFix(root, x)` (Slides 11.30–11.38)</b>: Let `y` be `x`’s sibling:<ul><li><b>Case (1): `x` is RED</b> (has a red color + extra black token): Simply color `x` <b>BLACK</b> and terminate!</li><li><b>Case (2): `x` is BLACK and sibling `y` is RED</b>: Color `y` BLACK and `x.parent` RED, rotate `x.parent` toward `x`, and update `y` to `x`’s new (now guaranteed BLACK) sibling $\\rightarrow$ falls into Case 3 or 4.</li><li><b>Case (3): `x` is BLACK, sibling `y` is BLACK, and BOTH nephews (`y.left`, `y.right`) are BLACK</b>: Color `y` RED and move the extra black token up to `x = x.parent` (loop continues, or stops if `x` is red via Case 1).</li><li><b>Case (4): `x` is BLACK, sibling `y` is BLACK, and AT LEAST ONE nephew is RED</b>:<ul><li><b>Subcase 4(i)</b> (far nephew is BLACK, near nephew is RED): Color near nephew BLACK, `y` RED, rotate `y` away from `x` $\\rightarrow$ transforms into Subcase 4(ii).</li><li><b>Subcase 4(ii)</b> (far nephew is RED): Color `y` with `x.parent`’s color, color `x.parent` BLACK, color far nephew BLACK, rotate `x.parent` toward `x`, and remove the extra black token completely (<b>terminates after at most 3 rotations total!</b>).</li></ul></li></ul>"
+            "Step 1 (slide 11.15): use the <b>standard BST deletion</b>. If the node has two non-null children, its data is replaced by its successor's or predecessor's data and <b>its colour stays the same</b>. Then the successor / predecessor node is removed.",
+            "Let <b>y</b> be the node actually removed. If y was <b>red</b>, no property can be violated: just remove it.",
+            "Otherwise (y black): remove it and call the tree-fix algorithm <code>rbTreeFix</code> on y's child <b>x</b>, the node that took y's position.",
+            "The removed node has <b>at most one real (non-null) child</b>. If it has one, rbTreeFix runs on that child. If it has none, x is a <b>black pretend (null) child</b>.",
+            "Slide 11.16: rbTreeFix treats x as having an <b>extra black token</b>. This corrects the violation of property 4 caused by removing a black node.",
+            "If x is <b>red</b>, just colour it black. If x is black, it becomes <b>doubly black</b>, a violation of property 1.",
+            "The token is pushed up the tree until:<ul><li>a red node is reached, which is made black;</li><li>the root is reached (the token is dropped: every path loses one black, so property 4 holds again);</li><li>or it can be removed by rotating and recolouring.</li></ul>"
+          ]
+        },
+        {
+          "h": "Deletion examples 1 and 2: delete 87, delete 71 (Slides 11.17–11.21)",
+          "pts": [
+            "Example 1 starts from the insertion result (example 2 adds a red 51 under 65, see below): 47 black; 32 black; 71 red with 65 black and 87 black; 87 has red children 82 and 93.",
+            "<b>Example 1, delete 87</b> (slide 11.17): 87 has two children, so find its <b>predecessor</b>: go left to 82, which has no right child. Predecessor = 82.",
+            "Slide 11.18: replace 87's data with 82 (the node stays <b>black</b>), then remove the old 82 node. It was <b>red</b>: \"Predecessor red: no violation\". Done.",
+            "Result: 47; 32; 71 red with 65 black and 82 black; 82 has right child 93 red. Every root-to-NIL path still has 3 black nodes.",
+            "<b>Example 2, delete 71</b> (slide 11.19): a slightly different tree, 65 now has a red left child <b>51</b>. 71 is red with two children.",
+            "Predecessor of 71: go left to 65, which has no right child. Predecessor = <b>65</b>, which is <b>black</b> and has one child, 51.",
+            "Slide 11.20, \"Replace with predecessor, attach predecessor's child\": 71's node gets the data 65 and stays red; the old 65 node (y) is removed and its child x = 51 is attached in its place (left child of the new 65).",
+            "y was black, so every path through 51 lost a black node: rbTreeFix(51) runs. x = 51 is <b>red</b>: <b>case (1)</b>, the loop does not run and <code>x.setColor(black)</code> colours it black.",
+            "Slide 11.21, \"Fix tree by coloring predecessor's child black\". Result: 47; 32; 65 red with 51 black and 87 black; 87 has red 82 and 93.",
+            "With the successor rule instead ‡: in example 1 the successor of 87 is 93 (red, no fix); in example 2 it is 82 (red, no fix, and 51 stays red). Same validity, different trees: in an exam, follow the rule asked for."
           ],
           "fig": [
-            "ag-11-delex",
-            "ag-11-fixcases",
-            "ag-11-delsim",
-            "ag-11-eff"
+            "ag-11-delex"
           ],
           "figAt": {
-            "ag-11-delex": 0,
-            "ag-11-fixcases": 1,
-            "ag-11-delsim": 1
+            "ag-11-delex": 8
           },
           "figH": {
-            "ag-11-delex": "Deletion examples 1-3: delete 87, 71 and 32",
-            "ag-11-fixcases": "The four cases of rbTreeFix, with the code",
-            "ag-11-delsim": "Try your own: delete keys and watch rbTreeFix",
+            "ag-11-delex": "Deletion examples 1-3: delete 87, 71 and 32"
+          }
+        },
+        {
+          "h": "Deletion example 3: delete 32, rbTreeFix cases (2) then (3) (Slides 11.22–11.24, 11.27–11.29)",
+          "pts": [
+            "Start tree (slide 11.22): the insertion result again (47; 32; 71 red with 65 and 87; 87 with red 82 and 93). <b>Delete 32</b>: it is black with no real children. (The \"Example 3\" tab of the deletion visual in the previous section runs the same trace with the code's wording.)",
+            "Slide 11.23: 32 has fewer than two children, so it is y itself. x is the removed node's child: both are NIL, so x is a black <b>pretend</b> node. Remove 32 and attach x to 47 (its left child).",
+            "Slide 11.24: y = 32 was black, so call <code>rbTreeFix</code> on x. The path 47 → x has only 2 black nodes against 3 elsewhere: x carries the black token and is black, so it is <b>doubly black</b>.",
+            "Slide 11.27, first loop iteration: x is a left child; its sibling y = <b>71 is red</b>: <b>case (2)</b>. Make y black and y's parent 47 red, then <b>left-rotate</b> x's parent 47.",
+            "Slide 11.28: 71 is now the black root, 47 is its red left child, and 47's right child is 65 (71's old left subtree). x is still 47's left child; its <b>new sibling y = 65</b> is black.",
+            "Case (2) did not remove the token; it turned the red sibling into a black one so that case (3) or (4) can finish (slide 11.33 remark).",
+            "Next: sibling 65 is black and both of x's nephews (65's two NIL children) are black: <b>case (3)</b>. Colour y = 65 <b>red</b> and move the token up: x = 47.",
+            "Slide 11.29, \"Assign x its parent, and color it black\": the loop test sees x = 47 <b>red</b>, so the loop stops and <code>x.setColor(black)</code> colours 47 black (case (1)). The pretend node is detached.",
+            "Final tree: root 71 black; 47 black with right child 65 red; 87 black with red children 82 and 93. Every root-to-NIL path has 3 black nodes (71, 47 or 87, NIL).",
+            "Why this order finishes quickly: after case (2) the parent is red, so if case (3) follows, x becomes that red parent and the loop ends at once."
+          ],
+          "fig": [
+            "ag-11-ex3"
+          ],
+          "figAt": {
+            "ag-11-ex3": 8
+          },
+          "figH": {
+            "ag-11-ex3": "Deletion example 3: delete 32, with the black count on every path"
+          }
+        },
+        {
+          "h": "The rbDelete code (Slides 11.25–11.26)",
+          "pts": [
+            "Find y, the node to remove: <code>if (z.getLeft() == null || z.getRight() == null) y = z;</code> otherwise <code>y = successor(z); // or predecessor</code> and <code>z.setItem(y.getItem)</code> moves y's data into z (z keeps its colour).",
+            "Find x, y's only child: <code>if (y.getRight() != null) x = y.getRight(); else x = y.getLeft();</code>. If x is null, create a pretend node with no data and colour it black.",
+            "Detach x from y and attach it to y's parent (TRANSPLANT): <code>x.setParent(y.getParent())</code>; if y was the root, <code>root = x</code>; otherwise x becomes the left or right child of y's parent, on the side where y was.",
+            "<code>if (y.getColor() == black) root = rbTreeFix(root, x);</code>: the fix runs only when a black node was removed. A red y needs nothing (slide 11.15).",
+            "Clean-up: <code>if (x.getItem() == null)</code> (x is a pretend node), set its parent's left or right pointer back to null. Then return the root.",
+            "Cost: the BST part walks one path (O(h)), the pointer work is O(1), and rbTreeFix is O(h). So rbDelete is <b>O(lg n)</b>."
+          ],
+          "code": "TreeNode<T> rbDelete(TreeNode<T> root,TreeNode<T> z)\n//return new root, z contains item to be deleted\n{\n  TreeNode<T> x,y;\n  // find node y, which is going to be removed\n  if (z.getLeft() == null || z.getRight() == null)\n    y = z;\n  else {\n    y = successor(z); // or predecessor\n    z.setItem(y.getItem); // move data from y to z\n  }\n  // find child x of y\n  if (y.getRight() != null)\n    x = y.getRight();\n  else\n    x = y.getLeft();\n  // Note x might be null; create a pretend node\n  if (x == null) {\n    x = new TreeNode<T>(null);\n    x.setColor(black);\n  }\n  x.setParent(y.getParent()); // detach x from y\n  if (y.getParent() == null)\n    // if y was the root, x is a new root\n    root = x;\n  else\n    // Atttach x to y's parent\n    if (y == y.getParent().getLeft()) // left child\n      y.getParent().setLeft(x);\n    else\n      y.getParent().setRight(x);\n  if (y.getColor() == black)\n    root=rbTreeFix(root,x);\n  if (x.getItem() == null) // x is a pretend node\n    if (x==x.getParent().getLeft())\n      x.getParent().setLeft(null);\n    else\n      x.getParent().setRight(null);\n  return root;\n}"
+        },
+        {
+          "h": "The four cases of rbTreeFix (Slides 11.30, 11.33–11.36)",
+          "pts": [
+            "In all cases x holds the black token. Cases are checked in this order; the pictures show x as a left child, and each has a mirror for x as a right child.",
+            "<b>Case (1), x is red</b> (slide 11.30): the simplest case. Colour x black and remove the token: done. In the remaining cases x is black with the token, i.e. doubly black.",
+            "<b>Case (2), x's sibling is red</b> (slide 11.33): then x's parent is black (a red sibling cannot have a red parent). Swap the colours of the parent and the sibling (sibling black, parent red) and rotate the parent towards x (<code>Left_rotate</code> when x is a left child).",
+            "Case (2) remarks: the roots of the sibling's subtrees C and D are black, and C becomes x's new sibling, so it is black. The token stays on x; in the next step, case (3) or (4), the algorithm finishes.",
+            "<b>Case (3), sibling black and both nephews black</b> (slide 11.35): colour the sibling <b>red</b> and pass the token one level up to the parent (x = parent). The parent may be any colour (dashed on the slide).",
+            "Why case (3) works: the sibling's subtree loses one black (sibling red), x's subtree gives up its extra black: both sides of the parent are now one short, so the parent carries the token. If the parent is red, case (1) ends it; otherwise the loop continues higher.",
+            "<b>Case (4), sibling black and at least one nephew red</b> (slide 11.36): the token is removed completely.<ul><li><b>Subcase (i)</b>, far nephew black (so the near nephew is red): swap the colours of the sibling and the near nephew, rotate the sibling away from x (<code>Right_rotate(w)</code> on the slide). Now the new far nephew is red: subcase (ii).</li><li><b>Subcase (ii)</b>, far nephew red: the sibling takes the parent's colour, the parent becomes black, the far nephew becomes black, rotate the parent towards x (<code>Left_rotate(y)</code> on the slide). The token is removed.</li></ul>",
+            "<b>Mirror of case (4)</b> (x a right child, slide 11.36 bottom row): the near nephew is the sibling's right child and the far nephew its left child. Subcase (i), far (left) nephew black: near nephew black, sibling red, <b>left</b>-rotate the sibling. Subcase (ii): recolour as above, then <b>right</b>-rotate the parent.",
+            "The mirrors of cases (2) and (3) (bottom rows of slides 11.33 and 11.35) swap left and right the same way: case (2) right-rotates the parent; case (3) is unchanged (sibling red, token up).",
+            "Letters on the top rows differ from the code: on slides 11.33 and 11.35 the parent is y, the token node x and the sibling z; on slide 11.36 the parent is y, the sibling w and the near nephew z. In the code the sibling is always y.",
+            "Letters on the <b>bottom rows</b> (mirrors) change again. On 11.33 and 11.35 the token sits on <b>z</b> (the right child) and the sibling is <b>x</b>: so \"Right_rotate(y), colors of x and y were swapped\" and, on 11.35, \"x is coloured red\" mean the sibling, not the token node.",
+            "On the bottom row of 11.36 the parent is z, the token is on w, the sibling is x and the near nephew y: subcase (i) is <code>Left_rotate(x)</code> (colours of x and y swapped), subcase (ii) is <code>Right_rotate(z)</code> (colours of z and y swapped, far nephew x black).",
+            "Example of subcase (ii) directly ‡: delete 65 from the insertion result tree. x is a pretend node (left child of red 71); the sibling 87 is black and its far nephew 93 is red: 87 becomes red (71's colour), 71 black, 93 black, left-rotate 71.",
+            "Result of that example: under 47 the right subtree is 87 red, with children 71 black (right child 82 red) and 93 black. Every root-to-NIL path still has 3 black nodes ‡.",
+            "How long it takes: case (3) moves the token up one level per iteration, at most the height O(lg n). Cases (2) and (4) do a constant number of rotations and lead to the end. Total at most 3 rotations ‡ and <b>O(lg n)</b> time."
+          ],
+          "table": [
+            [
+              "Case",
+              "When (x has the token)",
+              "Do",
+              "Then"
+            ],
+            [
+              "(1)",
+              "x red",
+              "x black",
+              "done"
+            ],
+            [
+              "(2)",
+              "sibling red",
+              "sibling black, parent red, rotate parent",
+              "(3) or (4)"
+            ],
+            [
+              "(3)",
+              "sibling black, both nephews black",
+              "sibling red, x = parent",
+              "loop one level up"
+            ],
+            [
+              "(4)(i)",
+              "sibling black, far nephew black",
+              "near nephew black, sibling red, rotate sibling",
+              "(4)(ii)"
+            ],
+            [
+              "(4)(ii)",
+              "sibling black, far nephew red",
+              "sibling = parent colour, parent and far nephew black, rotate parent",
+              "done"
+            ]
+          ],
+          "fig": [
+            "ag-11-fixcases"
+          ],
+          "figAt": {
+            "ag-11-fixcases": 11
+          },
+          "figH": {
+            "ag-11-fixcases": "The four cases of rbTreeFix, with the code"
+          }
+        },
+        {
+          "h": "The same cases in another form: the photographed deletion rules (Slides 11.31–11.32)",
+          "pts": [
+            "Slides 11.31-11.32 are photos of a second, common way to state RB deletion with a \"double black\" (DB) node and seven cases. The photo calls them Case 1-7; here they are called Rule 1-7 so they do not clash with rbTreeFix cases (1)-(4). They describe the same algorithm; the table matches them.",
+            "Rule 1, \"If the node is Red, just delete it\" = slide 11.15: a red removed node needs no fix.",
+            "Rule 2, \"If the node is Black and has a single Red child, replace the node with the child\" = rbTreeFix <b>case (1)</b>: the red child takes the token and is coloured black (example 2 with 65 and 51).",
+            "\"If the node is Black and its children are also Black, upon deletion Double Black (DB) is formed\" = x is black with the token. Rule 3, \"If the root is DB, just remove DB\" = the loop stops at the root.",
+            "Rule 4, DB's sibling black and its children black: remove DB, add black to the parent (red becomes black, black becomes DB), make the sibling red = <b>case (3)</b> (followed by case (1) if the parent was red).",
+            "Rule 5, DB's sibling red: swap the colours of parent and sibling, rotate the parent in DB's direction, re-apply the cases = <b>case (2)</b>.",
+            "Rule 6, sibling black, far child black, near child red: swap the colours of the sibling and its near child, rotate the sibling away from DB, apply rule 7 = <b>case (4)(i)</b>.",
+            "Rule 7, sibling black and its far child red: swap the colours of the parent and the sibling, rotate the parent in DB's direction, remove DB, colour the red far child black = <b>case (4)(ii)</b>."
+          ],
+          "table": [
+            [
+              "Photo \"Case\" (slides 11.31-11.32)",
+              "Slides' rbTreeFix"
+            ],
+            [
+              "1: node red, just delete",
+              "no fix (slide 11.15)"
+            ],
+            [
+              "2: black node, single red child",
+              "case (1)"
+            ],
+            [
+              "3: root is DB",
+              "loop ends at the root"
+            ],
+            [
+              "4: sibling black, its children black",
+              "case (3)"
+            ],
+            [
+              "5: sibling red",
+              "case (2)"
+            ],
+            [
+              "6: far child black, near child red",
+              "case (4)(i)"
+            ],
+            [
+              "7: far child red",
+              "case (4)(ii)"
+            ]
+          ]
+        },
+        {
+          "h": "The rbTreeFix code (Slides 11.37–11.38)",
+          "pts": [
+            "The loop <code>while (x != root &amp;&amp; x.getColor() == black)</code> runs while x is doubly black (\"not case (1)\"). The code shown is for x a <b>left</b> child; the else branch is the symmetric code.",
+            "<code>y = x.getParent().getRight()</code>: y is x's sibling. If y is red: <b>case (2)</b>: <code>y.setColor(black)</code>, parent red (\"p was black\"), <code>left_rotate(root, x.getParent())</code>, then <code>y = x.getParent().getRight()</code>, the new sibling.",
+            "If both of y's children are black: <b>case (3)</b>: <code>y.setColor(red); x = x.getParent();</code>.",
+            "Else <b>case (4)</b>. If <code>y.getRight()</code> (the far nephew) is black: <b>subcase (i)</b>: near nephew <code>y.getLeft()</code> black, y red, <code>right_rotate(root, y)</code>, and y = the new sibling.",
+            "<b>Subcase (ii)</b>: <code>y.setColor(x.getParent().getColor())</code>, parent black, far nephew <code>y.getRight()</code> black, <code>left_rotate(root, x.getParent())</code>, and <code>x = root; // we can finish</code>.",
+            "After the loop: <code>x.setColor(black)</code>. This line is case (1) when x stopped on a red node, and it keeps the root black when x reached the root."
+          ],
+          "code": "TreeNode<T> rbTreeFix(TreeNode<T> root,TreeNode<T> x)\n//return new root; x is a node with the black token\n{\n  while (x != root && x.getColor() == black) // not case (1)\n    if (x == x.getParent().getLeft()) { // x is left child\n      y = x.getParent().getRight(); // y is x's sibling\n      if (y.getColor() == red) { // case (2)\n        y.setColor(black);\n        x.getParent().setColor(red); // p was black\n        root = left_rotate(root,x.getParent());\n        y = x.getParent().getRight(); // new sibling\n      }\n      if (y.getLeft().getColor() == black &&\n          y.getRight().getColor() == black) {\n        // nephews are black - case (3)\n        y.setColor(red);\n        x = x.getParent();\n      } else { // case (4)\n        if (y.getRight().getColor() == black) {\n          // subcase (i)\n          y.getLeft().setColor(black);\n          y.setColor(red);\n          root = right_rotate(root,y);\n          y = x.getParent().getRight();\n        }\n        // subcase (ii)\n        y.setColor(x.getParent().getColor());\n        x.getParent().setColor(black);\n        y.getRight().setColor(black);\n        root = left_rotate(root, x.getParent());\n        x = root; // we can finish\n      }\n    } else {\n      … // x is right child - symmetric\n    }\n  // end while loop\n  x.setColor(black);\n  return root;\n}",
+          "fig": [
+            "ag-11-delsim"
+          ],
+          "figAt": {
+            "ag-11-delsim": 5
+          },
+          "figH": {
+            "ag-11-delsim": "Try your own: delete keys and watch rbTreeFix"
+          }
+        },
+        {
+          "h": "RB trees efficiency (Slide 11.39)",
+          "pts": [
+            "All operations (search, insert, delete) work in time <b>O(height)</b>, and the height of a red-black tree is O(log n) (proved in Lecture 9: h ≤ 2 lg(n + 1)).",
+            "Hence all operations work in <b>O(log n)</b>: much more efficient than a linked-list or array implementation of a sorted list.",
+            "A sorted array searches in O(log n) (binary search) but inserting or deleting shifts up to n elements: O(n). A sorted linked list has no random access, so even search is O(n).",
+            "Example ‡: with n = 10<sup>6</sup> keys, lg n ≈ 20, so an RB tree has at most 2 lg(n + 1) ≈ 40 levels; a sorted list may need up to 10<sup>6</sup> steps. An unbalanced BST can also degrade to a chain of n nodes: O(n) (Final 2022 Q26).",
+            "Worst-case running times asked in Midterm 2016 Q3 / 2017 Q5 / 2018 Q3: red-black tree search, insert and delete are all O(lg n). Printing all n keys is still Θ(n) (Final Summer Q5)."
+          ],
+          "table": [
+            [
+              "Sorted list",
+              "Search",
+              "Insertion",
+              "Deletion"
+            ],
+            [
+              "with arrays",
+              "O(log n)",
+              "O(n)",
+              "O(n)"
+            ],
+            [
+              "with linked list",
+              "O(n)",
+              "O(n)",
+              "O(n)"
+            ],
+            [
+              "with RB trees",
+              "O(log n)",
+              "O(log n)",
+              "O(log n)"
+            ]
+          ],
+          "fig": [
+            "ag-11-eff"
+          ],
+          "figH": {
             "ag-11-eff": "RB trees efficiency: sorted arrays, linked lists and RB trees compared"
           }
         }
@@ -9832,30 +19766,179 @@ window.COURSES.algo = {
       "cards": [
         [
           "Inserting (1, 2, 3, 4) into a Red-Black Tree (Final Summer Q29)",
-          "1(B) → 2(R) → 3(R) triggers left-rotate on 1 giving root 2(B) with 1(R), 3(R) → 4(R) triggers Case 1 recoloring 1(B), 3(B) with 4(R) as right child of 3(B)."
+          "1 root (black); 2 red right child; 3: uncle NIL, straight line, Case 3 (mirror): left-rotate 1, so 2 black with red 1 and 3; 4: uncle 1 red, Case 1: 1 and 3 black. Final: 2 black, 1 and 3 black, 4 red right child of 3."
         ],
         [
           "Why Deleting a RED Node Needs No Fixup",
-          "Removing a red node with at most 1 child does not change the number of black nodes on any path, cannot create two consecutive reds, and never removes the root."
+          "Red nodes are not counted in black-heights, so no path loses a black node (property 4 holds); its parent and child are black, so no red-red pair appears (property 3); a red node is never the root (property 2)."
         ],
         [
           "Four Cases of RB-DELETE Fixup (rbTreeFix)",
-          "Case 1: x is red (color black, done); Case 2: sibling y is red (rotate parent, y becomes black); Case 3: sibling y & both nephews black (color y red, push token to parent); Case 4: sibling y black & ≥1 nephew red (1–2 rotations, done)."
+          "(1) x red: colour it black, done. (2) sibling red: sibling black, parent red, rotate parent towards x. (3) sibling black, both nephews black: sibling red, token up to the parent. (4) sibling black, a nephew red: (i) far nephew black: rotate sibling; (ii) far nephew red: recolour, rotate parent, done."
         ],
         [
-          "Complete Slide & Exam Insertion Traces (Slides 11.1–11.14) — Core Principle & Complexity",
-          "<b>Slide Trace: Inserting `65, 82, 87` into `{47(B), 32(B), 71(B), 93(R)}` (Slides 11.1–11.11)</b>:<ul><li><b>Insert `65`</b>: Placed as left child of black `71`, colored <b>RED</b> (parent black $\\implies$ valid).</li><li><b>Insert `82`</b>: Placed as left child of red `93` under black `71`, with red uncle `65` $\\implies$ <b>Case 1 (Uncle `65` is RED)</b>: recolor `65` and `93` BLACK, recolor grandparent `71` RED (its parent `47` is black, so the loop stops).</li><li><b>Insert `87`</b>: Placed as right child of red `82` under black `93`, with a `NIL` (black) uncle and `87` an inner child $\\implies$ <b>Case 2 then Case 3</b>: left-rotate `82`, then recolor `87` BLACK and `93` RED and right-rotate `93`. Result: `71`(R) with children `65`(B) and `87`(B), and `87` has red children `82` and `93`.</li></ul> <b>Final Exam Workout 1: Insert `(2, 1, 4, 5, 9, 3, 6, 7)` into an Empty Red-Black Tree (Final 2016 Q4 & Final 5 Q4)</b>:<ul><li>1. <b>Insert `2`</b>: `2(B)` is root.</li><li>2. <b>Insert `1`</b>: Left child of `2`, colored `1(R)`.</li><li>3. <b>Insert `4`</b>: Right child of `2`, colored `4(R)`. Tree: `2(B)` with children `1(R), 4(R)`.</li><li>4. <b>Insert `5`</b>: Right child of `4(R)`. Uncle `1(R)` is RED (<b>Case 1</b>) $\\implies$ recolor `1(B), 4(B)`, grandparent `2` stays `2(B)` (root).</li><li>5. <b>Insert `9`</b>: Right child of `5(R)` under `4(B)` with `NIL(B)` uncle (<b>Case 3 RR line</b>) $\\implies$ left-rotate `4(B)` and recolor `5(B)` and `4(R), 9(R)`.</li><li>6. <b>Insert `3`</b>: Left child of `4(R)` under `5(B)` with red uncle `9(R)` (<b>Case 1</b>) $\\implies$ recolor `4(B), 9(B)` and `5(R)`.</li><li>7. <b>Insert `6`</b>: Left child of `9(B)`, colored `6(R)`.</li><li>8. <b>Insert `7`</b>: Right child of `6(R)` under `9(B)` with `NIL(B)` uncle (<b>Case 2 LR triangle $\\to$ Case 3</b>) $\\implies$ left-rotate `6(R)`, right-rotate `9(B)`, recolor `7(B)` and `9(R)`!</li></ul>"
+          "Complete Slide & Exam Insertion Traces (Slides 11.1–11.14): core principle & complexity",
+          "Each insert: BST insert, colour red, then fix while the parent is red: uncle red → Case 1 (recolour, go up 2 levels); uncle black → Case 2 (zig-zag rotation) then Case 3 (recolour + rotation, stop). O(lg n) time, at most 2 rotations."
         ],
         [
-          "Red-Black Tree Deletion & Doubly-Black Fixup (`rbTreeFix` Cases 1–4, Slides 11.15–11.39) — Core Principle & Complexity",
-          "<b>Deletion Overview (Slides 11.15–11.16)</b>: Standard BST deletion reduces deleting a 2-child node to deleting its inorder successor/predecessor `y` (which has at most one real child `x`).<ul><li>If the removed node `y` was <b>RED</b>, no Red-Black properties are violated—done!</li><li>If `y` was <b>BLACK</b>, removing it reduces the black-height along paths through `y`, so we pass an <b>”extra black token”</b> to `x` (the child replacing `y`) and call `rbTreeFix(root, x)`.</li></ul> <b>Four Cases of `rbTreeFix(root, x)` (Slides 11.30–11.38)</b>: Let `y` be `x`’s sibling:<ul><li><b>Case (1): `x` is RED</b> (has a red color + extra black token): Simply color `x` <b>BLACK</b> and terminate!</li><li><b>Case (2): `x` is BLACK and sibling `y` is RED</b>: Color `y` BLACK and `x.parent` RED, rotate `x.parent` toward `x`, and update `y` to `x`’s new (now guaranteed BLACK) sibling $\\rightarrow$ falls into Case 3 or 4.</li><li><b>Case (3): `x` is BLACK, sibling `y` is BLACK, and BOTH nephews (`y.left`, `y.right`) are BLACK</b>: Color `y` RED and move the extra black token up to `x = x.parent` (loop continues, or stops if `x` is red via Case 1).</li><li><b>Case (4): `x` is BLACK, sibling `y` is BLACK, and AT LEAST ONE nephew is RED</b>:<ul><li><b>Subcase 4(i)</b> (far nephew is BLACK, near nephew is RED): Color near nephew BLACK, `y` RED, rotate `y` away from `x` $\\rightarrow$ transforms into Subcase 4(ii).</li><li><b>Subcase 4(ii)</b> (far nephew is RED): Color `y` with `x.parent`’s color, color `x.parent` BLACK, color far nephew BLACK, rotate `x.parent` toward `x`, and remove the extra black token completely (<b>terminates after at most 3 rotations total!</b>).</li></ul></li></ul>"
+          "Red-Black Tree Deletion & Doubly-Black Fixup (`rbTreeFix` Cases 1–4, Slides 11.15–11.39): core principle & complexity",
+          "BST-delete; if the removed node y was black, its child x gets an extra black token and rbTreeFix runs: the token moves up (case 3), is absorbed by a red node (case 1) or is removed by case (4); case (2) only prepares a black sibling. At most 3 rotations ‡, O(lg n) time."
+        ],
+        [
+          "BST deletion: the three cases",
+          "Leaf: remove it (parent pointer → NIL). One child: the child takes its place. Two children: copy the predecessor (or successor) into the node, then delete that node, which has at most one child."
+        ],
+        [
+          "Inorder predecessor of a node with a left subtree",
+          "The largest key in its left subtree: go left once, then right until there is no right child. It has no right child."
+        ],
+        [
+          "Which neighbour do the slides' deletion examples use?",
+          "The predecessor (slides 11.18, 11.20). The rbDelete code says \"successor(z); // or predecessor\"."
+        ],
+        [
+          "In rbDelete: z, y, x",
+          "z holds the key to delete; y is the node physically removed (z, or its predecessor / successor); x is y's only child (or a black pretend node) that takes y's place."
+        ],
+        [
+          "Pretend node",
+          "A black node with no data created when the removed node has no real child, so rbTreeFix has a node x with a parent; detached at the end of rbDelete."
+        ],
+        [
+          "TRANSPLANT (replacing y by x)",
+          "x.parent = y.parent; y's parent points to x on y's side; if y was the root, x becomes the root."
+        ],
+        [
+          "Extra black token",
+          "A black counted once more on x, so paths through x get back the black node removed with y (property 4 holds again)."
+        ],
+        [
+          "Doubly black",
+          "A black node x carrying the token: counts as two blacks, which violates property 1 (slide 11.16)."
+        ],
+        [
+          "Removing a black node breaks which property?",
+          "Property 4 (all paths from a node to its leaves have the same number of black nodes)."
+        ],
+        [
+          "Where does the black token stop?",
+          "At a red node (coloured black), at the root (dropped), or when rotations and recolouring remove it (case 4)."
+        ],
+        [
+          "Near and far nephew (x a left child)",
+          "Near = sibling's left child; far = sibling's right child."
+        ],
+        [
+          "rbTreeFix case (2) result",
+          "The new sibling is black (it was a black child of the red sibling) and the parent is red; case (3) or (4) then finishes."
+        ],
+        [
+          "rbTreeFix case (3) action",
+          "Colour the sibling red, x = x.parent: the black token is passed one level up."
+        ],
+        [
+          "rbTreeFix case (4)(i) action",
+          "Near nephew black, sibling red, rotate the sibling away from x (right_rotate when x is a left child): now the far nephew is red."
+        ],
+        [
+          "rbTreeFix case (4)(ii) action",
+          "Sibling takes the parent's colour, parent black, far nephew black, rotate the parent towards x, x = root (token removed)."
+        ],
+        [
+          "Maximum rotations in rbTreeFix",
+          "3 (case 2: one, then case 4: up to two) ‡; case 3 only recolours."
+        ],
+        [
+          "Insertion example result (slide 11.11)",
+          "47 black; 32 black; 71 red with 65 black and 87 black; 87 with red 82 and 93."
+        ],
+        [
+          "Insert 82 into the slides' tree: case?",
+          "Case 1: the uncle 65 is red. 65 and 93 black, 71 red; 71's parent 47 is black, stop."
+        ],
+        [
+          "Insert 87 into the slides' tree: cases?",
+          "Case 2 (left-rotate 82), then Case 3 (87 black, 93 red, right-rotate 93): the uncle is NIL (black) and 87 is a zig-zag child."
+        ],
+        [
+          "Deletion example 1 (delete 87)",
+          "Predecessor 82 is copied into 87's node; the removed 82 is red: no violation."
+        ],
+        [
+          "Deletion example 2 (delete 71)",
+          "Predecessor 65 (black) is copied; its child 51 takes its place; case (1): 51 is coloured black."
+        ],
+        [
+          "Deletion example 3 (delete 32)",
+          "x = pretend node; case (2) (sibling 71 red): left-rotate 47; case (3) (sibling 65, NIL nephews): 65 red, x = 47 red → black. Root 71."
+        ],
+        [
+          "leftRotate precondition (slide 11.12)",
+          "The right child of x is a proper node (with a value); it returns the new root."
+        ],
+        [
+          "Exam workout 1 final tree (2, 1, 4, 5, 9, 3, 6, 7)",
+          "2 black; 1 black; 5 red; 5 has 4 black (left child 3 red) and 7 black (children 6 and 9 red)."
+        ],
+        [
+          "Exam workout 2 final tree (5, 1, 4, 10, 9, 20, 6, 7)",
+          "4 black; 1 black; 9 red; 9 has 6 black (children 5 and 7 red) and 10 black (right child 20 red)."
+        ],
+        [
+          "RB tree vs sorted array / linked list (slide 11.39)",
+          "Array: search O(log n), insert / delete O(n). Linked list: all O(n). RB tree: all O(log n)."
         ]
       ],
       "qa": [
         [
           "Insert the numbers (2, 1, 4, 5, 9, 3, 6, 7) step-by-step into an initially empty Red-Black Tree and show the color of each node.",
-          "1. <b>Insert 2</b>: Root `2(B)`.<br>2. <b>Insert 1, 4</b>: `2(B)` with left `1(R)` and right `4(R)`.<br>3. <b>Insert 5</b>: Right of `4(R)`; uncle `1(R)` is red (Case 1) $\\to$ `1(B), 4(B)`, `5(R)`.<br>4. <b>Insert 9</b>: Right of `5(R)`; uncle `NIL` is black (Case 3) $\\to$ left-rotate `4(B)`, so `5(B)` has children `4(R), 9(R)`.<br>5. <b>Insert 3</b>: Left of `4(R)`; uncle `9(R)` is red (Case 1) $\\to$ `4(B), 9(B)`, `5(R)`.<br>6. <b>Insert 6</b>: Left of `9(B)` as `6(R)`.<br>7. <b>Insert 7</b>: Right of `6(R)` under `9(B)` (Case 2+3 LR) $\\to$ left-rotate `6`, right-rotate `9`, recolor `7(B)` with children `6(R), 9(R)`.<br><b>Final Tree</b>: Root `2(B)` (left `1(B)`, right `5(R)`); `5(R)` has left `4(B)` (left `3(R)`) and right `7(B)` (left `6(R)`, right `9(R)`).",
+          "Use rbInsert (slides 11.13-11.14):<br>1. <b>2</b>: root, coloured black.<br>2. <b>1</b>: left child of 2, red, parent black: no case.<br>3. <b>4</b>: right child of 2, red: no case.<br>4. <b>5</b>: right child of 4. Uncle 1 red: <b>Case 1</b>: 1 and 4 black, 2 red, then root 2 black again.<br>5. <b>9</b>: right child of 5. Uncle NIL (black), straight line: <b>Case 3 (mirror)</b>: 5 black, 4 red, left-rotate 4. Now 5 black with red 4 and 9.<br>6. <b>3</b>: left child of 4. Uncle 9 red: <b>Case 1</b>: 4 and 9 black, 5 red; 5's parent 2 is black, stop.<br>7. <b>6</b>: left child of 9 (black): no case.<br>8. <b>7</b>: right child of 6. Uncle NIL (black), zig-zag: <b>Case 2</b> (left-rotate 6), then <b>Case 3</b> (7 black, 9 red, right-rotate 9).<br><b>Final tree</b>: 2 (B); left 1 (B); right 5 (R). 5 has left 4 (B) with left child 3 (R), and right 7 (B) with children 6 (R) and 9 (R). bh(root) = 2.",
           "Final 2016 Q4 & Final 5 Q4"
+        ],
+        [
+          "Insert the numbers (5, 1, 4, 10, 9, 20, 6, 7) step by step into an initially empty red-black tree; name the case at each step.",
+          "1. <b>5</b>: root, black.<br>2. <b>1</b>: left of 5, red: no case.<br>3. <b>4</b>: right of 1. Uncle NIL, zig-zag: <b>Case 2</b> (left-rotate 1), <b>Case 3</b> (4 black, 5 red, right-rotate 5). Root 4 with red 1 and 5.<br>4. <b>10</b>: right of 5. Uncle 1 red: <b>Case 1</b>: 1, 5 black, 4 red → root black.<br>5. <b>9</b>: left of 10. Uncle NIL, zig-zag: <b>Case 2 (mirror)</b> (right-rotate 10), <b>Case 3 (mirror)</b> (9 black, 5 red, left-rotate 5). 9 black with red 5 and 10.<br>6. <b>20</b>: right of 10. Uncle 5 red: <b>Case 1</b>: 5, 10 black, 9 red; parent 4 black, stop.<br>7. <b>6</b>: right of 5 (black): no case.<br>8. <b>7</b>: right of 6. Uncle NIL, straight line: <b>Case 3 (mirror)</b>: 6 black, 5 red, left-rotate 5.<br><b>Final</b>: 4 (B); 1 (B); 9 (R) with 6 (B) [children 5 (R), 7 (R)] and 10 (B) [right child 20 (R)]. bh(root) = 2.",
+          "Final 2018 I Q4, Final 2018 II Q7 & Exam Examples Q7"
+        ],
+        [
+          "Insert 1, 2, 3, 4 into an empty red-black tree. Give the final tree with colours.",
+          "1: root, black. 2: right child of 1, red, parent black. 3: right child of 2; uncle NIL (black), straight line: <b>Case 3 (mirror)</b>: 2 black, 1 red, left-rotate 1 → 2 (B) with 1 (R), 3 (R). 4: right child of 3; uncle 1 red: <b>Case 1</b>: 1 and 3 black, 2 red, then the root is coloured black. <b>Final</b>: 2 (B) with children 1 (B) and 3 (B); 4 (R) is the right child of 3.",
+          "Final Summer Q29"
+        ],
+        [
+          "Insert 65, 82 and 87 into the red-black tree with root 47 (black), children 32 (black) and 71 (black), and 93 (red) as the right child of 71. Name each case.",
+          "<b>65</b>: left child of 71, red; parent black: no fix.<br><b>82</b>: left child of 93, red; parent 93 red, uncle 65 red: <b>Case 1</b>: 65 and 93 black, 71 red; 47 is black, stop.<br><b>87</b>: right child of 82; parent 82 red, uncle (93's right) NIL black, zig-zag: <b>Case 2</b>: left-rotate 82; then <b>Case 3</b>: 87 black, 93 red, right-rotate 93.<br><b>Result</b>: 47 (B); 32 (B); 71 (R) with 65 (B) and 87 (B); 87 has 82 (R) and 93 (R).",
+          "Lecture 11 · Slides 11.1–11.11"
+        ],
+        [
+          "Explain how a node is deleted from a red-black tree and when rbTreeFix is called.",
+          "First standard BST deletion. If the node z has two children, its data is replaced by its predecessor's (or successor's) and its colour stays; that node y is removed instead. y has at most one real child x (or x is a black pretend node). x is attached to y's parent. If y was <b>red</b>, no property breaks: done. If y was <b>black</b>, every path through it lost a black node (property 4): x gets an extra black token and rbTreeFix(root, x) runs. If x is red it is coloured black; if black it is doubly black and the token is pushed up until a red node, the root, or a rotation removes it.",
+          "Lecture 11 · Slides 11.15–11.16"
+        ],
+        [
+          "Delete 87, then (separately) 71 from the slides' trees (examples 1 and 2). Explain each step.",
+          "<b>Delete 87</b> (tree 47; 32; 71 R with 65 B and 87 B; 87 with 82 R, 93 R): two children, predecessor 82. Copy 82 into 87's node (stays black), remove the old 82: it is red, no violation.<br><b>Delete 71</b> (same tree with 51 R as left child of 65): predecessor 65 (black, child 51). Copy 65 into 71's node (stays red), remove the old 65 and attach 51 in its place. 65 was black → rbTreeFix(51): 51 is red, case (1): colour it black. Result: 47; 32; 65 R with 51 B and 87 B; 87 with 82 R, 93 R.",
+          "Lecture 11 · Slides 11.17–11.21"
+        ],
+        [
+          "Delete 32 from the tree 47 (B); 32 (B); 71 (R) with 65 (B) and 87 (B); 87 with 82 (R) and 93 (R). Show every rbTreeFix step.",
+          "32 has no real child, so it is removed itself and x = a black pretend node, attached as 47's left child. 32 was black → rbTreeFix(x).<br>1. x is a left child, sibling 71 is <b>red</b>: <b>case (2)</b>: 71 black, 47 red, left-rotate 47. 71 is now the root; 47 (red) has left x and right 65. New sibling 65 is black.<br>2. Sibling 65 has two NIL (black) children: <b>case (3)</b>: 65 red, x = 47.<br>3. x = 47 is red: the loop stops, x.setColor(black) (case (1)). Pretend node detached.<br><b>Result</b>: 71 (B); 47 (B) with right child 65 (R); 87 (B) with 82 (R), 93 (R). All paths have 3 black nodes.",
+          "Lecture 11 · Slides 11.22–11.29"
+        ],
+        [
+          "State the four cases of rbTreeFix (x a left child) and what each does.",
+          "<b>(1)</b> x red: colour x black; done.<br><b>(2)</b> x black, sibling red: sibling black, parent red, left-rotate parent; new sibling is black → case (3) or (4).<br><b>(3)</b> sibling black, both nephews black: sibling red, x = parent (token one level up).<br><b>(4)</b> sibling black, at least one nephew red: (i) if the far (right) nephew is black: near nephew black, sibling red, right-rotate sibling; (ii) sibling takes the parent's colour, parent black, far nephew black, left-rotate parent, x = root: the token is removed. For x a right child, swap left and right.",
+          "Lecture 11 · Slides 11.30–11.38"
+        ],
+        [
+          "Why does rbTreeFix run in O(lg n) time?",
+          "Case (3) is the only case that loops again: it moves the token up one level, so it repeats at most the height h times. Case (2) leads to case (3) with a red parent (which ends at once) or to case (4); case (4) ends the loop. So there are O(h) recolourings and at most 3 rotations ‡, each O(1). With h ≤ 2 lg(n + 1), the fix (and rbDelete) is O(lg n).",
+          "Lecture 11 · Slides 11.33–11.39"
+        ],
+        [
+          "For each algorithm, state its worst-case running time: (1) Binary Search, (2) Insertion Sort, (3) Merge Sort, (4) Counting Sort, (5) Heap Sort, (6) Red-Black Tree operations.",
+          "1. Binary search: Θ(lg n).<br>2. Insertion sort: Θ(n<sup>2</sup>).<br>3. Merge sort: Θ(n lg n).<br>4. Counting sort: Θ(n + k) (Θ(n) when k = O(n)).<br>5. Heap sort: Θ(n lg n).<br>6. Red-black tree search / insert / delete: O(lg n), because every operation is O(height) and the height is O(lg n) (slide 11.39).",
+          "Midterm 2016 Q3 / 2017 Q5 / 2018 Q3"
         ]
       ],
       "quiz": [
@@ -9864,19 +19947,19 @@ window.COURSES.algo = {
           "o": [
             [
               "Insert a new node (the standard BST insertion phase of RB-Insert)",
-              "Correct! Final 2021 Q24 & Final 2022 Q38: This recursive function performs the standard BST insertion of node pt and links parent pointers before RB-Insert fixup."
+              "Correct (Final 2021 Q24, Final 2022 Q38). It walks left or right by comparing pt.data with root.data and hangs pt where it finds NULL, setting the parent pointer: this is bstInsert, the first line of rbInsert (slide 11.13)."
             ],
             [
               "Delete a node",
-              "Does not remove any node."
+              "Wrong: no pointer is ever set to remove a node. Every assignment links root.left or root.right to the result of a recursive call that finally returns the new node pt."
             ],
             [
               "Search for a node without modifying the tree",
-              "Assigns root.left and root.right and returns pt at NULL."
+              "Wrong: a search would only compare and return, but this code assigns root.left / root.right and parent pointers, and at NULL it returns pt, which links pt into the tree."
             ],
             [
               "Count the number of nodes",
-              "Returns a Node pointer, not an integer count."
+              "Wrong: a count would return an integer such as 1 + left + right. This function returns a Node (the subtree root, or pt at an empty spot)."
             ]
           ],
           "a": 0,
@@ -9887,44 +19970,735 @@ window.COURSES.algo = {
           "o": [
             [
               "Root is 1(B) with right chain 2(R) → 3(B) → 4(R)",
-              "Inserting 3 into 1(B)→2(R) triggers a left rotation at 1, making 2(B) the root."
+              "Wrong: inserting 3 makes 1 → 2 → 3 a straight line with a NIL (black) uncle, so Case 3 (mirror) left-rotates 1 and 2 becomes the root. A chain would also break property 3 or 4."
             ],
             [
               "Root is 2(B), with left child 1(B), right child 3(B), and 4(R) as right child of 3",
-              "Correct! Final Summer Q29: After 1,2,3 we have root 2(B) with 1(R) and 3(R). Inserting 4 under 3(R) triggers Case 1 (uncle 1 is red), recoloring 1 and 3 BLACK and keeping 4 RED!"
+              "Correct (Final Summer Q29). After 1, 2, 3: 2 black with red 1 and 3. 4 goes under red 3 with red uncle 1: Case 1 colours 1 and 3 black, 2 red, and the root is coloured black again."
             ],
             [
               "Root is 3(B), with left child 2(R) and right child 4(R)",
-              "2 becomes the root on the third insertion and remains the root when 4 only triggers Case 1 recoloring."
+              "Wrong: 3 never becomes the root. The rotation at the third insert lifts 2, and inserting 4 only recolours (Case 1). This option also loses key 1."
             ],
             [
               "Root is 2(B), with left child 1(R), right child 3(R), and 4(B) as right child of 3",
-              "New node 4 is inserted as RED and triggers Case 1 recoloring of 1 and 3 to BLACK."
+              "Wrong: a new node is always inserted red, and here Case 1 recolours 1 and 3 black, not 4. Black 4 under red 3 would give its path one more black node than the path to 1."
             ]
           ],
           "a": 1,
           "src": "Exam · Final Summer Q29 & Exam Examples Q29"
+        },
+        {
+          "q": "In a red-black tree, a black node must have only red children.",
+          "o": [
+            [
+              "True",
+              "Wrong: property 3 restricts red nodes (a red node's parent is black), not black ones. In the slide tree 47 is black with a black child 32, and after deletion example 3 the black root 71 has two black children."
+            ],
+            [
+              "False",
+              "Correct: a black node may have red or black children. Only a red node must have black children (property 3 / no two reds in a row)."
+            ]
+          ],
+          "a": 1,
+          "src": "Exam · Final Summer Q6"
+        },
+        {
+          "q": "We do not have to make any key comparisons to find the minimum or maximum node of a binary search tree.",
+          "o": [
+            [
+              "True",
+              "Correct: the minimum is reached by following left pointers until NIL and the maximum by right pointers. The predecessor used in the deletion examples is found the same way: one step left, then right until NIL."
+            ],
+            [
+              "False",
+              "Wrong: comparisons are needed only to search for a given key. The BST property already puts the smallest key at the end of the leftmost path, so no key has to be compared."
+            ]
+          ],
+          "a": 0,
+          "src": "Exam · Final Summer Q13"
+        },
+        {
+          "q": "Printing every node in a balanced binary search tree takes Θ(lg n) time.",
+          "o": [
+            [
+              "True",
+              "Wrong: O(lg n) is the cost of one search, insert or delete (slide 11.39), which visits one path. Printing must visit all n nodes, so it cannot be faster than n steps."
+            ],
+            [
+              "False",
+              "Correct: an inorder walk prints all n keys in Θ(n) time. The O(log n) bound of balanced trees is per single operation, not for listing the whole tree."
+            ]
+          ],
+          "a": 1,
+          "src": "Exam · Final Summer Q5"
+        },
+        {
+          "q": "A heap is an example of a _____, while the access time of an unbalanced binary search tree may degrade in the worst case up to _____.",
+          "o": [
+            [
+              "Complete binary tree; O(n)",
+              "Correct (Final 2022 Q25 & Q26): a binary heap is a complete binary tree (every level full except possibly the last, which is filled left to right), and an unbalanced BST can become a chain of n nodes, so access is O(n). That is why RB trees keep the height O(log n)."
+            ],
+            [
+              "Spanning tree; O(n log n)",
+              "Wrong: a spanning tree is a graph concept (it connects all vertices of a graph). A chain-shaped BST costs one step per level, n levels, so O(n), not O(n log n)."
+            ],
+            [
+              "Sparse tree; O(n²)",
+              "Wrong: \"sparse tree\" is not the heap's shape, and one access in a degenerate BST follows one path of at most n nodes: O(n), not O(n²)."
+            ],
+            [
+              "Binary search tree; O(1)",
+              "Wrong: a heap orders parent vs children, not left vs right, so it is not a BST. O(1) access would need hashing or direct addressing, not an unbalanced tree."
+            ]
+          ],
+          "a": 0,
+          "src": "Exam · Final 2022 Q25 & Q26"
+        },
+        {
+          "q": "Insert 82 into the tree 47 (B); 32 (B), 71 (B); 65 (R) left of 71, 93 (R) right of 71. Which case applies and what changes?",
+          "o": [
+            [
+              "Case 1: the uncle 65 is red, so 65 and 93 become black and 71 becomes red",
+              "Correct (slide 11.5): 82 becomes 93's left child; parent 93 and uncle 65 are both red, so they turn black and the grandparent 71 turns red. 71's parent 47 is black, so the loop stops."
+            ],
+            [
+              "Case 2: left-rotate 93",
+              "Wrong: Case 2 needs a black uncle. Here the uncle 65 is red, and Case 1 (recolouring only) is tried first; no rotation happens for 82."
+            ],
+            [
+              "Case 3: colour 93 black, 71 red, left-rotate 71",
+              "Wrong: Case 3 also needs a black uncle. With the red uncle 65, rotating would be unnecessary; Case 1 recolours and keeps the shape."
+            ],
+            [
+              "No case: 82's parent is black",
+              "Wrong: 82's parent is 93, which is red on slide 11.4, so 82 (red) and 93 form a red-red pair that must be fixed."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slide 11.5"
+        },
+        {
+          "q": "Inserting 87 (right child of red 82, which is the left child of black 93 with no right child). What does rbInsert do?",
+          "o": [
+            [
+              "Case 2 (left-rotate 82), then Case 3 (87 black, 93 red, right-rotate 93)",
+              "Correct (slides 11.8-11.11): the uncle is NIL, black, and 87 is a right child of a left child (zig-zag). Case 2 straightens it, Case 3 recolours and rotates the grandparent 93."
+            ],
+            [
+              "Case 1: colour 82 and the uncle black, 93 red",
+              "Wrong: Case 1 needs a red uncle, but 93's right child is NIL, which counts as black (property 2)."
+            ],
+            [
+              "Case 3 only: right-rotate 93",
+              "Wrong: right-rotating 93 directly with 87 as an inner (right) child would leave 87 under 93 still red-red. The zig-zag needs Case 2 first."
+            ],
+            [
+              "Case 2 only: left-rotate 82, then stop",
+              "Wrong: after Case 2, 87 and 82 are still both red (82 is now 87's red child). Case 3 must follow in the same iteration."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slides 11.8–11.10"
+        },
+        {
+          "q": "After inserting 65, 82, 87 (slide 11.11), what is the right subtree of 71?",
+          "o": [
+            [
+              "87 (black) with red children 82 and 93",
+              "Correct: Case 3 made 87 black and the old grandparent 93 red, and the right rotation of 93 put 82 left and 93 right of 87."
+            ],
+            [
+              "93 (black) with red children 82 and 87",
+              "Wrong: this ignores the rotations. 87 lies between 82 and 93, and Case 3 lifts the middle key 87 to the top of the three."
+            ],
+            [
+              "82 (black) with red children 87 and 93",
+              "Wrong: 82 would need both 87 and 93 in its right subtree; it is the smallest of the three and ends up as 87's left child."
+            ],
+            [
+              "87 (red) with black children 82 and 93",
+              "Wrong colours: Case 3 colours the new top 87 black and the old grandparent 93 red. A red 87 under red 71 would break property 3."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slide 11.11"
+        },
+        {
+          "q": "Deletion example 1: delete 87 (black, children 82 red and 93 red). Which node is physically removed and is a fix needed?",
+          "o": [
+            [
+              "The predecessor 82 is removed; it is red, so no fix is needed",
+              "Correct (slide 11.18): 87's data is replaced by its predecessor 82 (the node stays black), and the removed old 82 node is red: \"Predecessor red: no violation\"."
+            ],
+            [
+              "87's node is removed; it is black, so rbTreeFix runs",
+              "Wrong: a node with two children is not removed itself; only its data is replaced. The node removed is the predecessor, which is red here."
+            ],
+            [
+              "The successor 93 is removed and rbTreeFix runs",
+              "Wrong: the slides' examples use the predecessor. Even with the successor rule, 93 is red, so no fix would be needed."
+            ],
+            [
+              "82 is removed and its pretend child is coloured black by case (1)",
+              "Wrong: rbTreeFix is called only when the removed node is black (slide 11.26). 82 is red, so the fix is not called at all."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slide 11.18"
+        },
+        {
+          "q": "Deletion example 2: delete 71 (red), whose predecessor 65 is black with a red child 51. What happens?",
+          "o": [
+            [
+              "65 is copied into 71's node, the old 65 is removed, 51 takes its place and is coloured black (case 1)",
+              "Correct (slides 11.20-11.21): the removed node 65 is black, so rbTreeFix(51) runs; 51 is red, so case (1) just colours it black."
+            ],
+            [
+              "71's node is removed and 65 is coloured red",
+              "Wrong: 71 has two children, so only its data is replaced. The node 71 (holding 65 now) keeps its red colour."
+            ],
+            [
+              "51 becomes doubly black and case (3) runs",
+              "Wrong: 51 is red, and a red node with the token is just coloured black; doubly black means a black node with the token."
+            ],
+            [
+              "No fix: 71 was red",
+              "Wrong: what matters is the colour of the removed node y (the old 65 node, black), not of z = 71, whose node and colour stay."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slides 11.20–11.21"
+        },
+        {
+          "q": "Deletion example 3: after deleting 32, x is a black pretend node, left child of 47, and its sibling 71 is red. Which rbTreeFix case runs first?",
+          "o": [
+            [
+              "Case (2): 71 black, 47 red, left-rotate 47",
+              "Correct (slides 11.27-11.28): a red sibling is case (2). After the rotation 71 is the root and x's new sibling is the black 65."
+            ],
+            [
+              "Case (1): colour x black",
+              "Wrong: case (1) needs x red. x is a black pretend node with the token, i.e. doubly black."
+            ],
+            [
+              "Case (3): colour 71 red and move the token to 47",
+              "Wrong: case (3) needs a black sibling. 71 is red, so case (2) must first make the sibling black."
+            ],
+            [
+              "Case (4)(ii): rotate 47 and drop the token",
+              "Wrong: case (4) needs a black sibling with a red nephew; the sibling 71 is red here."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slide 11.27"
+        },
+        {
+          "q": "Continuing example 3: x's new sibling is 65 (black, two NIL children) and the parent 47 is red. What finishes the fix?",
+          "o": [
+            [
+              "Case (3): 65 red, x = 47; 47 is red so the loop stops and 47 is coloured black",
+              "Correct (slide 11.29): both nephews are NIL (black), so case (3) passes the token up to the red 47, which absorbs it (case (1)). The root is 71."
+            ],
+            [
+              "Case (4)(ii): rotate 47 again",
+              "Wrong: case (4) needs at least one red nephew; 65's children are NIL leaves, which are black."
+            ],
+            [
+              "Case (2) again with sibling 65",
+              "Wrong: case (2) needs a red sibling, and 65 is black. Case (2) also never repeats right after itself."
+            ],
+            [
+              "Nothing: the token was removed by the rotation",
+              "Wrong: case (2) only changes colours and shape; the token stays on x until case (3) passes it to 47."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slides 11.28–11.29"
+        },
+        {
+          "q": "Removing a red node from a red-black tree can violate property 4 (equal black counts on all paths).",
+          "o": [
+            [
+              "True",
+              "Wrong: black counts only count black nodes, so taking out a red node leaves every count unchanged (slide 11.15: \"If the removed node was red, no property could get violated\")."
+            ],
+            [
+              "False",
+              "Correct: a red node contributes nothing to black-heights, and its parent and child are black, so neither property 3 nor 4 can break."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 11 · Slide 11.15"
+        },
+        {
+          "q": "According to slide 11.16, a \"doubly black\" node violates which red-black property?",
+          "o": [
+            [
+              "Property 1: every node is either red or black",
+              "Correct: a black node with the extra token would count as two blacks, which is not one of the two allowed colours."
+            ],
+            [
+              "Property 4: equal black counts on all paths",
+              "Wrong: the token exists precisely to fix property 4 (counting it, all paths agree again). The cost is property 1."
+            ],
+            [
+              "Property 3: a red node has a black parent",
+              "Wrong: doubly black is about too much black, not about two reds in a row."
+            ],
+            [
+              "Property 2: the root is black",
+              "Wrong: the root is still black; when the token reaches the root it is simply dropped."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slide 11.16"
+        },
+        {
+          "q": "In rbTreeFix case (3) (sibling black, both nephews black), what happens?",
+          "o": [
+            [
+              "The sibling is coloured red and the token moves to x's parent",
+              "Correct (slide 11.35): both subtrees of the parent lose one black, so the parent carries the token; \"the black token is passed one level up\"."
+            ],
+            [
+              "The parent is rotated towards x and the token is removed",
+              "Wrong: that is case (4)(ii), which needs a red far nephew. Case (3) does no rotation."
+            ],
+            [
+              "The sibling is coloured black and the parent red",
+              "Wrong: that is case (2), for a red sibling. In case (3) the sibling is already black."
+            ],
+            [
+              "x is coloured red",
+              "Wrong: x stays black; only the token moves. On the mirrored picture the node coloured red is the sibling (x there), not the token node."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slide 11.35"
+        },
+        {
+          "q": "In rbTreeFix case (4)(ii) (x a left child, sibling y black, far nephew red), what does the code do?",
+          "o": [
+            [
+              "y gets the parent's colour, parent black, y.right black, left-rotate the parent, x = root",
+              "Correct (slide 11.38): this removes the token completely; x = root makes the loop end."
+            ],
+            [
+              "y.left black, y red, right-rotate y",
+              "Wrong: that is subcase (i), used when the far nephew y.right is black, to make a red far nephew."
+            ],
+            [
+              "y red, x = parent",
+              "Wrong: that is case (3), used only when both nephews are black."
+            ],
+            [
+              "y black, parent red, left-rotate the parent",
+              "Wrong: that is case (2), for a red sibling. In (4)(ii) the parent becomes black, not red."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slide 11.38"
+        },
+        {
+          "q": "In the slides' rbDelete, when z has two children, which node y is removed and which node is x?",
+          "o": [
+            [
+              "y = z's successor (or predecessor), its data moved into z; x = y's only child or a black pretend node",
+              "Correct (slide 11.25): such a y has at most one child, and x (possibly a pretend NIL node) takes y's place."
+            ],
+            [
+              "y = z; x = z's left child",
+              "Wrong: y = z only when z has at most one child. With two children, z's node keeps its place and colour and gets y's data."
+            ],
+            [
+              "y = z's parent; x = z",
+              "Wrong: the parent is never removed; it only gets a new child pointer when x is attached."
+            ],
+            [
+              "y = the root; x = the new root",
+              "Wrong: the root is replaced only when y happened to be the root (y.getParent() == null on slide 11.26)."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slide 11.25"
+        },
+        {
+          "q": "Slide 11.32 (photo) says: \"If DB's sibling is Red: swap colours of parent and sibling, rotate parent in DB direction, re-apply the cases.\" Which rbTreeFix case is this?",
+          "o": [
+            [
+              "Case (2)",
+              "Correct: red sibling → sibling black, parent red, rotate the parent towards x; then case (3) or (4) is applied (slide 11.33)."
+            ],
+            [
+              "Case (3)",
+              "Wrong: case (3) is the black sibling with black children (photo rule 4): colour the sibling red and push DB up."
+            ],
+            [
+              "Case (4)(i)",
+              "Wrong: (4)(i) is photo rule 6: a black sibling whose near child is red and far child black; it rotates the sibling, not the parent."
+            ],
+            [
+              "Case (1)",
+              "Wrong: case (1) is x red (photo rule 2, a black node with a red child): only a recolouring, no rotation."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slides 11.32–11.33"
+        },
+        {
+          "q": "According to slide 11.39, which implementation of a sorted list supports search, insertion and deletion all in O(log n)?",
+          "o": [
+            [
+              "Red-black tree",
+              "Correct: every operation is O(height) and the height is O(log n), so search, insertion and deletion are all O(log n)."
+            ],
+            [
+              "Sorted array",
+              "Wrong: search is O(log n) with binary search, but insertion and deletion shift elements: O(n)."
+            ],
+            [
+              "Sorted linked list",
+              "Wrong: without random access even search is O(n), and finding the place to insert or delete is O(n)."
+            ],
+            [
+              "Unbalanced binary search tree",
+              "Wrong: its height can be n (a chain), so each operation is O(n) in the worst case (Final 2022 Q26)."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slide 11.39"
+        },
+        {
+          "q": "Slide 11.12: what is the precondition of leftRotate(root, x)?",
+          "o": [
+            [
+              "The right child of x is a proper node (with a value)",
+              "Correct: the code starts with z = x.getRight() and moves z up; if z were null, z.getLeft() and z.setLeft(x) would fail."
+            ],
+            [
+              "The left child of x is a proper node",
+              "Wrong: that is rightRotate's precondition. leftRotate never reads x's left child."
+            ],
+            [
+              "x is the root",
+              "Wrong: the code handles any x; if x has a parent, z is hung on that parent's left or right, and only if x was the root does root = z."
+            ],
+            [
+              "x is red",
+              "Wrong: rotations ignore colours completely; recolouring is done separately by rbInsert and rbTreeFix."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 11 · Slide 11.12"
         }
       ],
       "extra": [
         {
-          "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 11?",
+          "q": "Plain BST with root 50; 30 (children 20, 40; 40 has left child 35); 70 (children 60, 80). Delete 50 using the predecessor. Which key ends up at the root?",
           "o": [
             [
-              "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-              "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
+              "40",
+              "Correct: the predecessor is the largest key in the left subtree: left to 30, then right to 40 (no right child). 40 is copied into the root, and its child 35 replaces it."
             ],
             [
-              "The algorithm requires O(2ⁿ) exponential space in the best case",
-              "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
+              "60",
+              "Wrong: 60 is the successor (smallest key in the right subtree). That is the other allowed rule, but the question asks for the predecessor."
             ],
             [
-              "The algorithm only works when n ≤ 10",
-              "False — Asymptotic analysis applies as n → ∞."
+              "35",
+              "Wrong: 35 is 40's child; it only moves up into 40's old position. The predecessor of 50 is 40, the largest key below 50."
             ],
             [
-              "Correctness does not depend on loop invariants or optimal substructure",
-              "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
+              "30",
+              "Wrong: 30 is just the left child; going right from it reaches the larger 40, so 30 is not the largest key in the left subtree."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "In a plain BST, the node to delete has exactly one child. What happens?",
+          "o": [
+            [
+              "Its child takes its place (the parent now points to the child)",
+              "Correct: the whole child subtree lies on the same side of the parent as the deleted node, so the BST order still holds."
+            ],
+            [
+              "It is replaced by its successor's key",
+              "Wrong: copying a neighbour key is only needed for two children; with one child, a single pointer change is enough."
+            ],
+            [
+              "The child is deleted too",
+              "Wrong: deleting one key must keep all other keys; the child subtree is reattached, not removed."
+            ],
+            [
+              "The node is coloured black",
+              "Wrong: a plain BST has no colours; colours only matter in the red-black fix-up."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Why does the node physically removed in BST deletion have at most one real child?",
+          "o": [
+            [
+              "Because it is either z with at most one child, or z's predecessor / successor, which has no right / left child",
+              "Correct: if the predecessor had a right child, that child would be larger and so would be the predecessor instead."
+            ],
+            [
+              "Because red-black trees never have nodes with two children",
+              "Wrong: most internal nodes have two children (e.g. 47 with 32 and 71). The point is which node gets removed."
+            ],
+            [
+              "Because the root is never removed",
+              "Wrong: the root can be removed (then x becomes the root, slide 11.26), and this does not limit the number of children."
+            ],
+            [
+              "Because leaves are always removed first",
+              "Wrong: the algorithm removes one chosen node per call, not leaves first."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "In the tree 47 (B); 32 (B); 71 (R) with 65 (B) and 87 (B); 87 with 82 (R) and 93 (R), how many black nodes (counting the NIL) lie on each root-to-NIL path, and how many on 47 → NIL right after removing 32?",
+          "o": [
+            [
+              "3 on every path; 2 on 47 → NIL after removing 32",
+              "Correct: e.g. 47, 65, NIL = 3. Without 32 the left path has only 47 and NIL, so one black is missing: property 4 breaks."
+            ],
+            [
+              "4 on every path; 3 after removing 32",
+              "Wrong: this counts the red 71 or 82/93; red nodes are never counted. 47 → 71 → 87 → 82 → NIL has blacks 47, 87, NIL = 3."
+            ],
+            [
+              "2 on every path; 1 after removing 32",
+              "Wrong: this forgets the NIL leaf, which is black and counted here. With the NIL the count is 3, and 2 after the removal."
+            ],
+            [
+              "3 on every path; still 3 after removing 32",
+              "Wrong: 32 is black, so every path through it loses one black node. Only removing a red node keeps the counts."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Insert 1, 2, 3, 4, 5 into an empty red-black tree. What is the final tree?",
+          "o": [
+            [
+              "2 (B); 1 (B); 4 (B) with red children 3 and 5",
+              "Correct: after 1-4 the tree is 2; 1 B; 3 B with red 4. 5 goes right of red 4 with NIL uncle (straight line): Case 3 (mirror): 4 black, 3 red, left-rotate 3."
+            ],
+            [
+              "2 (B); 1 (B); 3 (B) with right chain 4 (R) → 5 (R)",
+              "Wrong: two reds in a row (4, 5) break property 3; the fix must rotate at 3."
+            ],
+            [
+              "3 (B); 2 (R) with 1 (B); 4 (R) with 5 (B)",
+              "Wrong: inserting 5 only touches the subtree of 3; the root 2 does not change."
+            ],
+            [
+              "2 (B); 1 (R); 4 (R) with black children 3 and 5",
+              "Wrong colours: Case 3 colours the new middle 4 black and the old grandparent 3 red; and 1 is already black after inserting 4."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Insert 10, 20, 30, 15 into an empty red-black tree. Which cases are used, in order?",
+          "o": [
+            [
+              "30: Case 3 (mirror); 15: Case 1",
+              "Correct: 10, 20, 30 form a straight right line with NIL uncle (left-rotate 10, 20 becomes the root). 15 goes under red 10 with red uncle 30: Case 1, then the root is coloured black."
+            ],
+            [
+              "30: Case 1; 15: Case 3",
+              "Wrong: when 30 arrives, the uncle (10's left child) is NIL, black, so Case 1 cannot apply."
+            ],
+            [
+              "30: Case 2 then 3; 15: Case 2 then 3",
+              "Wrong: 30 is a right child of a right child (straight line), so no Case 2; and 15's uncle 30 is red, so 15 is Case 1."
+            ],
+            [
+              "30: Case 3 (mirror); 15: no case",
+              "Wrong: 15 becomes the right child of 10, which is red after the rotation, so a red-red fix (Case 1) is needed."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "What is bh(root), counting the NIL leaf but not the root, of the final tree of exam workout 1 (2, 1, 4, 5, 9, 3, 6, 7)?",
+          "o": [
+            [
+              "2",
+              "Correct: path 2 → 1 → NIL has black 1 and the NIL: 2. Every other path agrees, e.g. 2 → 5 (red) → 4 → 3 (red) → NIL: 4 and NIL."
+            ],
+            [
+              "3",
+              "Wrong: this also counts the root itself; bh(x) counts the black nodes below x (Lecture 9 convention)."
+            ],
+            [
+              "1",
+              "Wrong: this forgets the NIL leaf, which is black and is counted by the black-height definition."
+            ],
+            [
+              "4",
+              "Wrong: 4 counts every node below the root on the longest path (5, 7, 9, NIL), red ones included; only black nodes count, giving 7 and NIL = 2."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Delete 65 from the insertion result tree (47; 32; 71 R with 65 B and 87 B; 87 with 82 R, 93 R). Which rbTreeFix case runs?",
+          "o": [
+            [
+              "Case (4)(ii): the sibling 87 is black and its far nephew 93 is red",
+              "Correct: x is a pretend node, left child of 71. 87 takes 71's colour (red), 71 and 93 become black, left-rotate 71. Result under 47: 87 R with 71 B (child 82 R) and 93 B."
+            ],
+            [
+              "Case (1): no real fix is needed",
+              "Wrong: case (1) needs x red, but x is a black pretend node. And 65 is black, so the fix does run."
+            ],
+            [
+              "Case (3): both nephews are black",
+              "Wrong: 87's children 82 and 93 are both red, so case (4) applies."
+            ],
+            [
+              "Case (4)(i): the near nephew 82 is red",
+              "Wrong: subcase (i) is used only when the far nephew is black. Here the far nephew 93 is red, so the code goes straight to (ii)."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Delete 1 from exam workout 1's final tree (2 B; 1 B; 5 R with 4 B [left 3 R] and 7 B [6 R, 9 R]). Which cases run, in order?",
+          "o": [
+            [
+              "Case (2), then case (4)(i), then case (4)(ii)",
+              "Correct: sibling 5 red → case (2) (rotate 2). New sibling 4 is black with near nephew 3 red and far nephew NIL → (4)(i), then (4)(ii). Final: 5 B; 3 R with 2 B, 4 B; 7 B with 6 R, 9 R."
+            ],
+            [
+              "Case (2), then case (3)",
+              "Wrong: after case (2) the new sibling 4 has a red child 3, so not both nephews are black."
+            ],
+            [
+              "Case (3) only",
+              "Wrong: the first sibling 5 is red; case (3) needs a black sibling."
+            ],
+            [
+              "Case (4)(ii) only",
+              "Wrong: the first sibling is red (case (2) first), and after it the far nephew of 4 is NIL (black), so (4)(i) comes before (4)(ii)."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "What is the largest number of rotations rbTreeFix can perform in one deletion?",
+          "o": [
+            [
+              "3",
+              "Correct ‡: case (2) does 1 rotation, then case (4) does up to 2 ((i) and (ii)) and ends. Case (3) never rotates, and if it follows case (2) the loop ends at once."
+            ],
+            [
+              "O(lg n)",
+              "Wrong: only case (3) can repeat up the tree, and it only recolours. The number of rotations is a constant."
+            ],
+            [
+              "1",
+              "Wrong: a red sibling (case 2) followed by case (4)(i) and (ii) gives 3, as in deleting 1 from exam workout 1's tree."
+            ],
+            [
+              "2",
+              "Wrong: 2 is case (4) alone; a red sibling adds one more rotation first."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Case (3) runs and x's parent is red. What happens next?",
+          "o": [
+            [
+              "The loop stops: x is now the red parent and x.setColor(black) absorbs the token",
+              "Correct: this is what happens in deletion example 3 (47 becomes black). It is case (1) for the new x."
+            ],
+            [
+              "Case (2) runs on the parent",
+              "Wrong: the loop test x.getColor() == black fails for a red x, so no further case runs."
+            ],
+            [
+              "The token is dropped at the root",
+              "Wrong: the parent need not be the root; the token stops because the parent is red."
+            ],
+            [
+              "Case (3) runs again one level higher",
+              "Wrong: case (3) repeats only when the new x is black."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "Which node does the slides' rbTreeFix code call y?",
+          "o": [
+            [
+              "x's sibling (the parent's other child)",
+              "Correct: y = x.getParent().getRight() for x a left child. In rbDelete, y was the removed node, and in rbInsert y is the uncle: three different meanings."
+            ],
+            [
+              "The removed node",
+              "Wrong: that is y in rbDelete (slide 11.25); inside rbTreeFix the removed node is already gone."
+            ],
+            [
+              "x's parent",
+              "Wrong: on the case pictures of slides 11.33-11.35 the parent is labelled y, but the code uses x.getParent() for it."
+            ],
+            [
+              "x's uncle",
+              "Wrong: the uncle is y in rbInsert (slide 11.13); deletion looks at the sibling and the nephews."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "After deleting 32 (deletion example 3), what is the root of the tree?",
+          "o": [
+            [
+              "71",
+              "Correct: case (2) left-rotates 47, so 71 (coloured black) moves up to the root; case (3) then only recolours."
+            ],
+            [
+              "47",
+              "Wrong: 47 is rotated down to become 71's left child in case (2)."
+            ],
+            [
+              "65",
+              "Wrong: 65 moves to 47's right side and is coloured red by case (3); it never becomes the root."
+            ],
+            [
+              "87",
+              "Wrong: 87 stays 71's right child; no rotation involves it."
+            ]
+          ],
+          "a": 0
+        },
+        {
+          "q": "With the successor rule instead of the predecessor, deleting 87 from the insertion result tree removes which node, and is a fix needed?",
+          "o": [
+            [
+              "The node of 93 (red): no fix ‡",
+              "Correct: the successor of 87 is the smallest key in its right subtree, 93 (a red leaf). 93 is copied into 87's node (stays black) and the red node is removed."
+            ],
+            [
+              "The node of 82 (red): no fix",
+              "Wrong: 82 is the predecessor (used on slide 11.18), not the successor."
+            ],
+            [
+              "The node of 87 (black): rbTreeFix runs",
+              "Wrong: 87 has two children, so its node is not removed; only its data is replaced."
+            ],
+            [
+              "The node of 93: rbTreeFix case (3) runs",
+              "Wrong: 93 is red, and rbTreeFix is called only when the removed node is black."
             ]
           ],
           "a": 0
