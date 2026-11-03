@@ -2807,7 +2807,7 @@ window.COURSES.algo = {
                 "Slide 8.9: with random data any size works, but real data often has a pattern. Keys 10, 20, 30, 40, 50 with mod 4 give 2, 0, 2, 0, 2: of the four possible values 0, 1, 2, 3 only 0 and 2 are used, and they collide (the slide says \"3 possible values\").",
                 "With the prime 7: 10 mod 7 = 3, 20 mod 7 = 6, 30 mod 7 = 2, 40 mod 7 = 5, 50 mod 7 = 1. Five keys, five different slots, no collisions. (The slide shows 40 mod 7 = 4; since 40 = 5·7 + 5 it is 5.)",
                 "Why the prime helps ‡: all the keys are multiples of 10, and gcd(10, 4) = 2, so they can only reach every second slot of a table of 4. Since 7 shares no factor with 10, multiples of 10 reach every slot of a table of 7.",
-                "Exam rule: h(k) = k mod m with m a prime not close to an exact power of 2 (Final Q3 & Q4). With m = 157, key 172 goes to 172 mod 157 = 15 (Final Q5)."
+                "Exam rule: h(k) = k mod m with m a prime not close to an exact power of 2 (Final Q3 & Q4). With m = 157, key 172 goes to 172 mod 157 = 15 (Final 2 Q5)."
               ],
               "fig": [
                 "ag-8-mod-prime"
@@ -2826,14 +2826,14 @@ window.COURSES.algo = {
                 "Advantage: the value of n is not critical (it need not be prime). Disadvantage: slower than the division method (a multiplication, a fraction and a floor instead of one mod).",
                 "Slide 8.11, k = 123, n = 100, A = 0.618033: 123 × 0.618033 = 76.018059; mod 1 gives 0.018059; × 100 gives 1.8059; the floor gives <b>h(123) = 1</b>.",
                 "Slide 8.11, k = 150: 150 × 0.618033 = 92.70495; mod 1 gives 0.70495; × 100 gives 70.495; the floor gives <b>h(150) = 70</b>.",
-                "A = 0.618033 ≈ (√5 − 1)/2 is the value Knuth suggests ‡. In the binary implementation the table size is a power of 2, m = 2ᵖ ‡: p = 7 gives m = 2⁷ = 128 (Final Q6).",
+                "A = 0.618033 ≈ (√5 − 1)/2 is the value Knuth suggests ‡. In the binary implementation the table size is a power of 2, m = 2ᵖ ‡: p = 7 gives m = 2⁷ = 128 (Final 2 Q6).",
                 "<b>Mid-square method</b> (Slide 8.12): square the key and take the middle r digits as the hash value. r depends on the table size n: n = 10 → r = 1, n = 100 → r = 2, n = 1000 → r = 3 (the slide writes \"bits\"; it means decimal digits).",
                 "Advantage: far fewer collisions, because the middle digits of k² depend on every digit of k. Disadvantage: the square of a large key is hard to compute (it has twice as many digits).",
-                "Slide 8.13's examples:<ul><li>k = 120, n = 10: k² = 14400, middle digit 4, h(120) = 4.</li><li>k = 50, n = 100: k² = 2500, middle two digits 50, h(50) = 50.</li><li>k = 1234, n = 1000 (range 0 to 999; the slide shows 0→199): k² = 1522756, middle three 227, h(1234) = 227.</li><li>k = 110, n = 200 (range 0 to 199): k² = 12100, middle three 210 is out of range, so 210 % 200 = 10, h(110) = 10 (the slide writes h(50)).</li><li>k = 5642, n = 1000: k² = 31832164 has 8 digits, the middle four are 8321, and 8321 % 1000 = 321, h(5642) = 321.</li></ul>",
+                "Slide 8.13's examples:<ul><li>k = 120, n = 10: k² = 14400, middle digit 4, h(120) = 4.</li><li>k = 50, n = 100: k² = 2500, middle two digits 50, h(50) = 50.</li><li>k = 1234, n = 1000 (range 0 to 999; the slide shows 0→199): k² = 1522756, middle three 227, h(1234) = 227.</li><li>k = 110, n = 200 (range 0 to 199): k² = 12100, middle three 210 is out of range, so 210 % 200 = 10, h(110) = 10 (the slide writes h(50)).</li><li>k = 5642, n = 1000: k² = 31832164 has 8 digits, so no block of 3 sits exactly in the middle; the slide takes the middle four, 8321, and reduces it: 8321 % 1000 = 321, h(5642) = 321.</li></ul>",
                 "When the middle digits are too large for the table (the last two examples), take them mod n to bring them into the range.",
                 "<b>Folding method</b> (Slide 8.14): partition the key K into parts K1, K2, …, then add the parts together. The part size depends on the address size: key 12345678 with 3-digit addresses splits into 123, 456, 78; with 4-digit addresses into 1234, 5678.",
-                "<b>Fold-shifting</b> (Slide 8.15): add the parts as they are. Key 12345678, two-digit addresses (0 to 99): 12 + 34 + 56 + 78 = 180, and 180 % 100 = <b>80</b> is the location.",
-                "<b>Fold-boundary</b> (Slide 8.15): reverse the outer parts (first and last) before adding: 12 becomes 21 and 78 becomes 87, so 21 + 34 + 56 + 87 = 198, and 198 % 100 = <b>98</b> is the location.",
+                "<b>Fold-shifting</b> (Slide 8.15): add the parts as they are. Key 12345678, two-digit addresses (0 to 99): 12 + 34 + 56 + 78 = 180, and 180 % 100 = 80 is the location.",
+                "<b>Fold-boundary</b> (Slide 8.15): reverse the outer parts (first and last) before adding: 12 becomes 21 and 78 becomes 87, so 21 + 34 + 56 + 87 = 198, and 198 % 100 = 98 is the location.",
                 "The final % 100 keeps the sum inside the address range 0 to 99 (it drops the carry digit 1 of 180 and 198)."
               ],
               "fig": [
@@ -2859,7 +2859,8 @@ window.COURSES.algo = {
                 "No probability is involved ‡: it is a guaranteed bound on the total cost of any sequence, divided by the number of operations. A structure should not be labelled costly just because a rarely performed operation is costly.",
                 "Three common methods (Slide 8.16): the aggregate method, the accounting method and the potential method.",
                 "<b>Aggregate method</b> (Slide 8.17): find the total cost of n operations, then divide by n: amortized cost = Cost(n operations) / n = [Cost(normal operations) + Cost(expensive operations)] / n.",
-                "The example (Slide 8.18) is hash table insertions. A big table makes search fast but needs a lot of space; a small one fills up. The solution is a <b>dynamic array</b>: when the table is full, (1) allocate a table of twice the size, (2) copy the old contents into it, (3) free the old table. If there is space, just insert.",
+                "The example (Slide 8.18) is hash table insertions. How big should the table be? A big table makes search fast but needs a lot of space; a small one fills up.",
+                "The solution is a <b>dynamic array</b>: when the table is full, (1) allocate a table of twice the size, (2) copy the old contents into it, (3) free the old table. If there is space, just insert.",
                 "Slide 8.18's picture starts from an empty table of size 0. Item 1 gives size 1, item 2 size 2, item 3 size 4, item 5 size 8; the slide marks items 1, 2 and 4 \"Overflow\" because after them the table is full. The next overflow happens when we insert 9: the size becomes 16.",
                 "Simple analysis (Slide 8.19): one insertion costs O(n) in the worst case (copy everything), so n insertions cost n · O(n) = O(n²). That is a correct upper bound, but far from tight.",
                 "A deeper look (Slide 8.20): let cᵢ be the cost of the i-th insertion. cᵢ = i if i − 1 is an exact power of 2 (copy the i − 1 old items, write 1), and cᵢ = 1 otherwise.",
@@ -2867,25 +2868,28 @@ window.COURSES.algo = {
                 "Slide 8.21 splits each cost into 1 (the write every insertion pays) plus the copies of the doubling insertions: 1, 2, 4, 8.",
                 "Slide 8.22: Cost = (1 + 1 + 1 + … , n terms) + (1 + 2 + 4 + …) ≤ n + 2n, because the copies form a geometric series smaller than 2n. So n insertions cost O(3n) = O(n).",
                 "Written exactly ‡: Σ cᵢ (i = 1 to n) ≤ n + (2⁰ + 2¹ + … + 2ᵏ) with k = ⌊lg(n−1)⌋, and that sum is 2ᵏ⁺¹ − 1 < 2n, so the total is < n + 2n = 3n.",
-                "Slide 8.23: amortized cost = (1 + 2 + 3 + 1 + 5 + 1 + 1 + 1 + 9 + 1 + …) / n ≤ (n + 2n) / n = 3, so the amortized cost of one insertion is <b>O(1)</b>.",
+                "Slide 8.23: amortized cost = (1 + 2 + 3 + 1 + 5 + 1 + 1 + 1 + 9 + 1 + …) / n ≤ (n + 2n) / n = 3, so the amortized cost of one insertion is <b>O(1)</b>. (The slide's sum leaves out c₄ = 1 and c₈ = 1.)",
                 "Check ‡: for n = 10 the costs add up to 25 ≤ 30 = 3n; for n = 17 they add up to 48 ≤ 51, although insertion 17 alone costs 17.",
                 "Exam: the aggregate proof is asked in Midterm 2018 Q6 and Final 2019 Q2; Final Summer Q28 asks for the result (O(n) total, O(1) per insertion)."
+              ],
+              "formula": [
+                "Aggregate method (sizes 1, 2, 4, 8, …):",
+                "Total = n + Σ (j = 0 … ⌊lg(n−1)⌋) 2ʲ",
+                "      < n + 2n = 3n",
+                "Amortized cost = 3n / n = 3 = O(1)"
               ],
               "fig": [
                 "ag-8-aggregate",
                 "ag-8-costbars"
               ],
               "figAt": {
-                "ag-8-aggregate": 12,
-                "ag-8-costbars": 13
+                "ag-8-aggregate": 13,
+                "ag-8-costbars": 14
               },
               "figH": {
                 "ag-8-aggregate": "Aggregate method: ten insertions into a doubling table cost at most 3n",
                 "ag-8-costbars": "Cost of every insertion as a bar: rare tall bars, total never above 3n"
-              },
-              "formula": [
-                "Aggregate Method (Table Doubling 1, 2, 4, 8…): Total Cost = n + Σ (j = 0 … ⌊lg n⌋) 2ʲ < n + 2n = 3n ⇒ Amortized Cost = 3n / n = O(1)"
-              ]
+              }
             },
             {
               "h": "Accounting and potential methods (Slides 8.24–8.29)",
@@ -2904,8 +2908,17 @@ window.COURSES.algo = {
                 "Case 2 (Slide 8.28), expansion: the table held i − 1 = size items, the new size is 2(i − 1), and cᵢ = i (copy i − 1, write 1). ĉᵢ = i + (2i − 2(i−1)) − (2(i−1) − (i−1)) = i + 2 − (i − 1) = <b>3</b>.",
                 "The slide writes case 2 with i items already in the table (cost i + 1, size i → 2i), and its middle lines use 2i − 2i = 0 and 2(i−1) − i for the two potentials; both are 2 too small, the errors cancel and it still ends at 3.",
                 "Slide 8.29's table for 17 insertions: Φ = 1, 2, 2, 4, 2, 4, 6, 8, 2, 4, 6, 8, 10, 12, 14, 16, 2. The amortized cost is 3 every time, except the first: 1 + (1 − 0) = 2.",
+                "Slide 8.29's cost columns: \"cost of operation\" is always 1 (the write) and \"cost of doubling and copying\" is 1, 2, 4, 8, 16 at i = 2, 3, 5, 9, 17 (0 elsewhere); their sum is the total cost cᵢ.",
                 "Rows to check: i = 9: size 16, true cost 9, Φ₉ = 2·9 − 16 = 2, Φ₈ = 8, so ĉ₉ = 9 + (2 − 8) = 3. i = 17: size 32, true cost 17, Φ₁₇ = 34 − 32 = 2, Φ₁₆ = 16, so ĉ₁₇ = 17 + (2 − 16) = 3.",
                 "Conclusion: the total amortized cost of n insertions is at most 3n, and since Φₙ ≥ 0 = Φ₀ the true total is at most that too. All three methods give O(1) per insertion."
+              ],
+              "formula": [
+                "Accounting: charge 3 dollars per insert",
+                "  1 writes the item now",
+                "  1 saved to copy this item later",
+                "  1 saved to copy an older item",
+                "Potential: Φ(hᵢ) = 2i − sizeᵢ",
+                "  ĉᵢ = cᵢ + Φ(hᵢ) − Φ(hᵢ₋₁) = 3 = O(1)"
               ],
               "fig": [
                 "ag-8-accounting",
@@ -2915,17 +2928,13 @@ window.COURSES.algo = {
               "figAt": {
                 "ag-8-accounting": 6,
                 "ag-8-potential": 12,
-                "ag-8-potential-table": 14
+                "ag-8-potential-table": 15
               },
               "figH": {
                 "ag-8-accounting": "Accounting method: charge 3 dollars per insert and watch the bank",
                 "ag-8-potential": "Potential method: both cases give amortized cost 3",
                 "ag-8-potential-table": "Potential method table for 17 insertions, row by row"
-              },
-              "formula": [
-                "Accounting Method: Charge $3 per insert ($1 immediate write + $1 self-credit + $1 partner-credit)",
-                "Potential Method: Φ(Dᵢ) = 2·numᵢ − sizeᵢ ⇒ Amortized Cost ĉᵢ = cᵢ + Φ(Dᵢ) − Φ(Dᵢ₋₁) = 3 = O(1)"
-              ]
+              }
             },
             {
               "h": "Separate chaining and its analysis (Slides 8.30–8.37)",
@@ -2935,18 +2944,19 @@ window.COURSES.algo = {
                 "A <b>linked list</b> is a chain of nodes; each node holds one item and a pointer to the next node. The slot stores a pointer to the first node, and an empty slot stores NIL (no list) ‡.",
                 "Advantages (Slide 8.32): simple to implement; the table never fills up (we can always add to a chain); less sensitive to the hash function or load factor; mostly used when it is unknown how many keys will be inserted or deleted, and how often.",
                 "Disadvantages (Slide 8.32): poor cache performance (list nodes are scattered in memory); wasted space (some slots are never used); a long chain makes search O(n) in the worst case; extra space for the links.",
+                "A <b>cache</b> ‡ is a small fast memory next to the CPU. Reading T[j] also brings its neighbours T[j+1], T[j+2], … into the cache, so a later read of a neighbour is fast (a hit). Jumping to a far address, like the next node of a linked list, usually misses and waits for slow main memory.",
                 "Expected chain length (Slide 8.33): under simple uniform hashing each key lands in a given slot with probability 1/m, so the expected length of any chain is n/m = α, called the <b>load factor</b> of the table. n = 3, m = 3 gives α = 1; n = 6, m = 3 gives α = 2.",
                 "Searching (Slide 8.34) for e_w, with Hash(key(e_w)) = 2: computing the hash and jumping to slot 2 costs O(1); walking the chain costs its length, expected α. Expected time to search = <b>O(1 + α)</b>. On the slide every chain has 3 items, so α = 9/3 = 3.",
                 "Deleting (Slide 8.35): first search for e_w, O(1 + α), then unlink its node, O(1). Expected time to delete = O(1 + α).",
                 "Inserting (Slide 8.36): hash the key (1) and link the new node into the chain (1). Expected time to insert = 1 + 1, that is <b>O(1)</b>. Linking at the head of the list is O(1) whatever the chain length ‡.",
-                "If the table grows with the data, n = O(m), then α = O(1) and all three operations take O(1) on average. The load factor is the average chain length, simple uniform hashing means every slot is equally likely, and chains are linked lists (Final Q13–Q15).",
+                "If the table grows with the data ‡, n = O(m), then α = O(1) and all three operations take O(1) on average. The load factor is the average chain length, simple uniform hashing means every slot is equally likely, and chains are linked lists (Final Q13–Q15).",
                 "Worst case (Slide 8.37): all n elements are stored in one chain of length n. Expected time to search = O(1 + n) = O(n), and the same for delete. All keys in one slot give Θ(n) retrieval (Final Q7)."
               ],
               "fig": [
                 "ag-8-chaining"
               ],
               "figAt": {
-                "ag-8-chaining": 8
+                "ag-8-chaining": 9
               },
               "figH": {
                 "ag-8-chaining": "Separate chaining: load factor and the cost of search, delete and insert"
@@ -2959,15 +2969,16 @@ window.COURSES.algo = {
                 "Extended technique (Slide 8.38): each slot of the hash table holds a <b>binary search tree</b> (BST) instead of a linked list; the BST grows as data is inserted.",
                 "BST in short: for every node, keys in its left subtree are smaller and keys in its right subtree are larger. A search compares and goes left or right, walking one path, so it costs the tree's <b>height</b> (the longest root-to-leaf path).",
                 "Slide 8.38's picture: slot 0 holds the BST 50 with children 30 and 80, and 30 has children 10 and 40; slot 5 holds 55 with children 35 and 85, and 35 has right child 45. Searching 40 in slot 0: 50 (go left), 30 (go right), 40: 3 comparisons ‡.",
-                "Worst case (Slides 8.39–8.41): all n keys collide into one slot. Case 1, keys arrive sorted (10, 20, 30, 40, …): each new key goes to the same side, the tree becomes a path of n nodes (skewed), and operations take <b>O(n)</b>.",
+                "Worst case (Slides 8.39–8.41): all n keys collide into one slot. Case 1, keys arrive sorted (10, 20, 30, 40, …): each new key goes to the same side: descending keys build a left path, increasing keys (10, 20, 30, 40) a right path. The tree becomes a path of n nodes (skewed), and operations take <b>O(n)</b>.",
                 "Case 2, keys arrive unsorted (for example 50, 30, 10, 40, …): the tree stays bushy with near-minimum height, about lg n, so operations take <b>O(lg n)</b>.",
                 "Best case (Slides 8.42–8.43): the keys are equally distributed, so each BST holds about n/m keys. Case 1, sorted keys (skewed trees): expected height n/m, <b>O(n/m)</b>. Case 2, unsorted keys: <b>O(lg(n/m))</b>.",
                 "Slide 8.44: so BST chains improve every case except Case 1 of the worst case (the skewed tree). The fix is an <b>AVL tree</b>: a self-balancing BST in which, for every node, the heights of the left and right subtrees differ by at most one.",
                 "BalanceFactor = height(left subtree) − height(right subtree), and AVL keeps it at −1, 0 or 1. Slide 8.44: the root 40 has left height 2 and right height 3: |2 − 3| = 1, allowed. Slide 8.45: node 70 has left height 0 and right height 1 (its child 80): |0 − 1| = 1.",
-                "Slide 8.46: inserting 20, 30, 40 into one slot in that order gives the path 20 → 30 → 40, unbalanced (20 has balance factor 0 − 2 = −2). A <b>rotation</b> lifts the middle key 30 to the root with children 20 and 40: balanced.",
+                "Slide 8.46: inserting 20, 30, 40 into one slot in that order gives the path 20 → 30 → 40, unbalanced; the slide marks it \"Unbalanced Tree\". ‡ 20 has balance factor 0 − 2 = −2, and a <b>rotation</b> lifts the middle key 30 to the root with children 20 and 40: balanced.",
                 "So with AVL trees every operation is O(lg n), where n is the number of elements (Slide 8.46), even when all keys collide.",
                 "<b>Rehashing</b> (Slide 8.47): as long as the load factor does not become too large, the average time stays O(1). In separate chaining α can rise above 1 without hurting much; in the other schemes the cost grows once α reaches 0.75 or 0.5.",
-                "So the array size is doubled and all the values are hashed again, with a new hash function, into the new larger array. Steps: for every new entry check the load factor; if it is greater than the threshold, start rehashing: make a larger array, copy (rehash) all elements into it, and make it the new bucket array.",
+                "So the array size is doubled and all the values are hashed again, with a new hash function, into the new larger array.",
+                "Steps: for every new entry check the load factor; if it is greater than the threshold, start rehashing: make a larger array, copy (rehash) all elements into it, and make it the new bucket array.",
                 "Slide 8.47's example, threshold 2, m = 3, h(k) = k mod 3: 12 → 0, 10 → 1, 7 → 1, 14 → 2, 5 → 2. Insert 11 → slot 2: α = 6/3 = 2, not greater than 2. Insert 22: α = 7/3 = 2.33 > 2, so rehashing starts.",
                 "Slide 8.48: new size m = 6, h(k) = k mod 6: 12 → 0, 7 → 1, 14 → 2, 10 → 4, 22 → 4, 11 → 5, 5 → 5. New load factor 7/6 = 1.17, below the threshold. (The slide shows 1.67.)",
                 "A rehash costs O(n) once, but like table doubling it happens rarely, so its amortized cost per insertion is O(1) ‡."
@@ -2980,7 +2991,7 @@ window.COURSES.algo = {
               "figAt": {
                 "ag-8-bst-chains": 6,
                 "ag-8-avl": 10,
-                "ag-8-rehash": 14
+                "ag-8-rehash": 15
               },
               "figH": {
                 "ag-8-bst-chains": "A BST in every slot: worst case and best case",
@@ -2995,7 +3006,8 @@ window.COURSES.algo = {
                 "<b>Probing</b> (Slide 8.51): a collision is resolved by searching through alternate slots of the array, the <b>probe sequence</b>, until the target is reached. The hash function takes both the key and the probe number: h : U × {0, 1, …, m−1} → {0, 1, …, m−1} (universe of keys × trial count → slot in table).",
                 "h(k, 0) is the first slot tried, h(k, 1) the second, and so on. The probe sequence ⟨h(k, 0), h(k, 1), …, h(k, m−1)⟩ should be a permutation of {0, 1, …, m−1}: every slot is tried once, so an insert fails only when the table is really full.",
                 "Insert (Slide 8.52): compute h(k, i) for i = 0, 1, 2, … and keep probing until an empty slot (NIL) is found; put k there and return its index. If all m probes hit full slots, report \"Hash Table Overflow\".",
-                "Search (Slide 8.53): follow the same probe sequence; return j when T[j] = k; stop with \"not found\" (NIL) at an empty slot or after m probes. An empty slot proves k is absent: if k had been inserted, its insert would have stopped at that empty slot.",
+                "Search (Slide 8.53): follow the same probe sequence; return j when T[j] = k; stop with \"not found\" (NIL) at an empty slot or after m probes. (The slide writes \"until slot's key ≠ k\"; it means until the key equals k.)",
+                "An empty slot proves k is absent ‡: if k had been inserted, its insert would have stopped at that empty slot.",
                 "Delete (Slide 8.54): the key is first searched and then deleted. But if we simply empty its slot, a later search may stop there and miss keys that had probed past it. So deleted slots are marked specially as \"<b>deleted</b>\" (a tombstone).",
                 "Rules for the mark (Slide 8.54): insert can put a new item into a deleted slot; search does not stop at a deleted slot, it keeps probing. NIL means \"empty, never used\".",
                 "Three ways to probe (Slide 8.55): linear probing, quadratic probing, double hashing. All have the form h(k, i) = (h′(k) + f(i)) mod m: an ordinary hash function h′(k), an iteration term f(i) for the i-th probe, and mod the table size m."
@@ -3014,8 +3026,10 @@ window.COURSES.algo = {
                 "Insert 51 (Slide 8.64): h₀ = 51 mod 11 = 7 is taken, h₁ = 8 is marked Deleted, so insert reuses it: 51 goes to slot 8.",
                 "Time (Slide 8.65): the worst-case search in linear probing is O(table size). Even if only one element is present and all others were deleted, the \"deleted\" markers force the search through the whole table.",
                 "Advantages (Slide 8.66): easy to compute; best cache performance (the probes are neighbouring cells in memory); no extra memory, it uses the free space inside the table.",
-                "Disadvantage (Slide 8.66): <b>primary clustering</b>. Occupied slots form long runs; any key whose home slot falls in a run must walk to the end of it, and then makes it one longer. A free cell is always found if the table is big enough, but the time to find it can get large. In the slide's picture, a key with initial probe 52 walks over 52 to 56 before reaching the empty slot 57.",
-                "Exam (Final Q16): size 10, h(k) = k mod 10, linear probing, slots 2..7 hold 42, 23, 34, 52, 46, 33. The valid order is 46, 34, 42, 23, 52, 33: 52 probes 2, 3, 4 and lands in 5; 33 probes 3, 4, 5, 6 and lands in 7. Check any order by replaying the probes."
+                "Disadvantage (Slide 8.66): <b>primary clustering</b>. Many consecutive elements form groups, so it takes time to search an element or find an empty bucket.",
+                "Why the runs grow ‡: any key whose home slot falls in a run must walk to its end, and then makes it one longer.",
+                "A free cell is always found if the table is big enough, but the time to find it can get large. In the slide's picture, a key with initial probe 52 walks over 52 to 56 before reaching the empty slot 57.",
+                "Exam (Final 2 Q16): size 10, h(k) = k mod 10, linear probing, slots 2..7 hold 42, 23, 34, 52, 46, 33. The valid order is 46, 34, 42, 23, 52, 33: 52 probes 2, 3, 4 and lands in 5; 33 probes 3, 4, 5, 6 and lands in 7. Check any order by replaying the probes."
               ],
               "fig": [
                 "ag-8-linear"
@@ -3031,11 +3045,12 @@ window.COURSES.algo = {
               "h": "Quadratic probing and secondary clustering (Slides 8.67–8.79)",
               "pts": [
                 "<b>Quadratic probing</b> (Slide 8.67): when a collision occurs, in the i-th iteration try the bucket i² after the home slot. f(i) = i², so h(k, i) = (h′(k) + i²) mod m. (The slide calls f \"a linear function of i\"; i² is quadratic.)",
-                "Probe sequence (Slide 8.68): h(k), h(k) + 1·1, h(k) + 2·2, h(k) + 3·3, …, h(k) + i·i, all mod m. The jumps between probes grow (1, 3, 5, 7, …), so a key quickly leaves a crowded region.",
+                "Probe sequence (Slide 8.68): h(k), h(k) + 1·1, h(k) + 2·2, h(k) + 3·3, …, h(k) + i·i, all mod m. The jumps between probes grow (1, 3, 5, 7, …), so a key quickly leaves a crowded region ‡.",
                 "Slides 8.69–8.72, h(k) = k mod 11, keys 7, 36, 18, 62, 51:<ul><li>7 → slot 7; 36 → slot 3.</li><li>18: h₀ = 7 taken, h₁ = (18 + 1) mod 11 = 8, slot 8.</li><li>62: h₀ = 7 and h₁ = 8 taken, h₂ = (62 + 4) mod 11 = 66 mod 11 = 0, slot 0.</li><li>51: h₀ = 7, h₁ = 8, h₂ = 0 taken, h₃ = (51 + 9) mod 11 = 60 mod 11 = 5, slot 5.</li></ul>",
                 "Linear vs quadratic on the same keys (Slide 8.73): linear probing ends with 36 in slot 3 and one run 7, 18, 62, 51 in slots 7, 8, 9, 10; quadratic probing spreads them out: 62 in 0, 36 in 3, 51 in 5, 7 in 7, 18 in 8.",
                 "Advantages (Slide 8.74): average cache performance (between linear probing and double hashing); less clustering than linear probing (no primary clustering).",
-                "Disadvantage (Slide 8.74): two keys with the same initial probe position have the same probe sequence, since h(k1, 0) = h(k2, 0) implies h(k1, i) = h(k2, i). This milder form of clustering is called <b>secondary clustering</b>. Also, an element may be impossible to add because the computed index is never empty.",
+                "Disadvantage (Slide 8.74): two keys with the same initial probe position have the same probe sequence, since h(k1, 0) = h(k2, 0) implies h(k1, i) = h(k2, i). This milder form of clustering is called <b>secondary clustering</b>.",
+                "Also (Slide 8.74), an element may be impossible to add because the computed index is never empty.",
                 "Secondary clustering example (Slides 8.75–8.77), h(k) = k mod 10, keys 2, 12, 22, 32, 42, 52, all with home slot 2:<ul><li>2 → slot 2.</li><li>12: h₀ = 2 occupied, h₁ = 13 mod 10 = 3, slot 3.</li><li>22: 2 and 3 taken, h₂ = 26 mod 10 = 6, slot 6.</li><li>32: 2, 3, 6 taken, h₃ = 41 mod 10 = 1, slot 1.</li><li>42: 2, 3, 6, 1 taken, h₄ = 58 mod 10 = 8, slot 8.</li><li>52: 2, 3, 6, 1, 8 taken, h₅ = 77 mod 10 = 7, slot 7.</li></ul>",
                 "Insert 62 (Slide 8.78): after 2, 3, 6, 1, 8, 7 come h₆ = 98 mod 10 = 8, h₇ = 111 mod 10 = 1, h₈ = 126 mod 10 = 6, h₉ = 143 mod 10 = 3: all taken. Unable to insert, although slots 0, 4, 5, 9 are empty.",
                 "Why ‡: i² mod 10 only takes the values 0, 1, 4, 9, 6, 5, so starting from slot 2 the probes can only reach 2, 3, 6, 1, 8, 7: exactly the six full slots.",
@@ -3049,7 +3064,7 @@ window.COURSES.algo = {
               "figAt": {
                 "ag-8-quadratic": 2,
                 "ag-8-lin-quad": 3,
-                "ag-8-secondary": 7
+                "ag-8-secondary": 8
               },
               "figH": {
                 "ag-8-quadratic": "Quadratic probing on 7, 36, 18, 62, 51",
@@ -3117,13 +3132,14 @@ window.COURSES.algo = {
               "h": "Analysis of open addressing, rehashing, chaining vs open addressing (Slides 8.89–8.94)",
               "pts": [
                 "Slide 8.89's formula is an unreadable image. The theorem it states (CLRS Theorem 11.6) ‡: with load factor α = n/m < 1 and uniform hashing, the expected number of probes in an unsuccessful search is at most <b>1/(1 − α)</b>.",
+                "<b>Uniform hashing</b> ‡ (for open addressing): every key's probe sequence is equally likely to be any of the m! orders of the slots. It is stronger than simple uniform hashing, which only says that the first slot is equally likely.",
                 "Intuition ‡: the first probe always happens; it hits an occupied slot with probability α, so a second probe is needed; that one is occupied with probability about α again, and so on: 1 + α + α² + … = 1/(1 − α), a geometric sum.",
                 "Implications (Slide 8.90): if α is a constant, accessing an open-addressed hash table takes constant time. Half full: 1/(1 − 0.5) = 2 expected probes. 90% full: 1/(1 − 0.9) = 10 expected probes.",
                 "An insert costs the same as an unsuccessful search (it probes until an empty slot). A successful search needs at most (1/α) ln(1/(1 − α)) probes, about 1.39 at α = 0.5 ‡.",
                 "Rehashing for open addressing (Slide 8.91): when the table is too full, create a new table whose size is the prime closest to 2m (m = old size): compute the new table size, apply it to the hash function, compute the new hash value of each element, and insert it into the new table.",
                 "When to rehash (Slide 8.91): when the table is half full (λ = 0.5; λ is another name for the load factor), when an insertion fails, or when a chosen load factor is reached. Example ‡: m = 11 becomes the prime closest to 22, which is 23.",
                 "Separate chaining vs open addressing (Slide 8.92): see the table. In short, chaining is simpler, never fills up and deletes easily; open addressing has better cache performance and no links, but can fill up and needs care with clustering and load factor.",
-                "Cache misses (Slide 8.93): average cache misses per lookup against the load factor. Chaining stays at about 2 to 3 for every α; linear probing stays near 1 for small α but shoots up as α approaches 1 (above about 0.8 it is worse than chaining).",
+                "Cache misses (Slide 8.93): average cache misses per lookup against the load factor. Chaining stays at about 2 to 3 for every α; linear probing stays near 1 for small α but shoots up as α approaches 1 (the curves cross just below 0.9; above about 0.9 it is worse than chaining).",
                 "Recommendations (Slide 8.94):<ul><li>If open addressing is used, double hashing is preferred over quadratic probing.</li><li>If plenty of memory is available and the data won't expand, linear probing is simpler to implement.</li><li>If the number of items to insert is not known, separate chaining is preferable.</li><li>If deletion is required, use separate chaining.</li><li>When in doubt, use separate chaining.</li></ul>"
               ],
               "table": [
@@ -3178,8 +3194,8 @@ window.COURSES.algo = {
                 "ag-8-cache"
               ],
               "figAt": {
-                "ag-8-probes": 2,
-                "ag-8-cache": 7
+                "ag-8-probes": 3,
+                "ag-8-cache": 8
               },
               "figH": {
                 "ag-8-probes": "Expected probes 1/(1 − α): 2 when half full, 10 when 90% full",
@@ -3199,6 +3215,50 @@ window.COURSES.algo = {
                 "Chaining, m = 10: 0: [0, 30], 1: [1], 3: [13], 5: [55], 6: [16, 26], 8: [28], 9: [9]. m = 11: 0: [0, 55], 1: [1], 2: [13], 4: [26], 5: [16], 6: [28], 8: [30], 9: [9].",
                 "Lesson: 11 is prime, so every step h₂ = 1..7 is relatively prime to it and double hashing always reaches an empty slot; 10 is one of the \"bad\" non-prime sizes of Slide 8.8."
               ],
+              "viz": {
+                "type": "hash",
+                "title": "Midterm 2022 Q1: Hash Table (m = 11) on [0, 30, 1, 55, 16, 28, 13, 9, 26]",
+                "size": 11,
+                "method": "linear",
+                "ops": [
+                  [
+                    "insert",
+                    0
+                  ],
+                  [
+                    "insert",
+                    30
+                  ],
+                  [
+                    "insert",
+                    1
+                  ],
+                  [
+                    "insert",
+                    55
+                  ],
+                  [
+                    "insert",
+                    16
+                  ],
+                  [
+                    "insert",
+                    28
+                  ],
+                  [
+                    "insert",
+                    13
+                  ],
+                  [
+                    "insert",
+                    9
+                  ],
+                  [
+                    "insert",
+                    26
+                  ]
+                ]
+              },
               "table": [
                 [
                   "Slot",
@@ -3314,50 +3374,6 @@ window.COURSES.algo = {
               ],
               "figAt": {
                 "algo-hash-sim": 8
-              },
-              "viz": {
-                "type": "hash",
-                "title": "Midterm 2022 Q1: Hash Table (m = 11) on [0, 30, 1, 55, 16, 28, 13, 9, 26]",
-                "size": 11,
-                "method": "linear",
-                "ops": [
-                  [
-                    "insert",
-                    0
-                  ],
-                  [
-                    "insert",
-                    30
-                  ],
-                  [
-                    "insert",
-                    1
-                  ],
-                  [
-                    "insert",
-                    55
-                  ],
-                  [
-                    "insert",
-                    16
-                  ],
-                  [
-                    "insert",
-                    28
-                  ],
-                  [
-                    "insert",
-                    13
-                  ],
-                  [
-                    "insert",
-                    9
-                  ],
-                  [
-                    "insert",
-                    26
-                  ]
-                ]
               }
             }
           ],
@@ -3598,7 +3614,7 @@ window.COURSES.algo = {
                 ],
                 [
                   "15",
-                  "Right: h(k) = k mod m, and 172 = 1 · 157 + 15, so h(172) = 15 (Slide 8.7, Final Q5)."
+                  "Right: h(k) = k mod m, and 172 = 1 · 157 + 15, so h(172) = 15 (Slide 8.7, Final 2 Q5)."
                 ],
                 [
                   "17",
@@ -4234,7 +4250,7 @@ window.COURSES.algo = {
                 ],
                 [
                   "It must be a power of 2",
-                  "Wrong: with an even table size an even step reaches only part of the table (step 5 in m = 10 reaches 2 slots)."
+                  "Wrong: being a power of 2 is not the requirement; the step must be relatively prime to m. A power-of-2 step shares the factor 2 with an even m: step 2 (or 4) in m = 10 reaches only 10/2 = 5 slots."
                 ],
                 [
                   "It must be larger than the table size",
@@ -6240,7 +6256,10 @@ window.COURSES.algo = {
                 "A <b>binary search tree (BST)</b> keeps its keys in order: for every node, all keys in its left subtree are smaller and all keys in its right subtree are larger. Slide 10.8's tree: 5 &lt; 7, and 9, 12 &gt; 7; under 9, 12 &gt; 9.",
                 "<b>Inorder</b> traversal (left subtree, then the node, then the right subtree) lists a BST's keys in sorted order: 5, 7, 9, 12. Any change of shape (a rotation) is allowed only if it keeps this order.",
                 "<b>BST insert</b> (`treeInsert`): start at the root, go left if the new key is smaller, right if it is larger, until you fall off the tree; the new node goes in that empty spot as a leaf. Insert 8 into slide 10.8's tree: 8 &gt; 7 go right, 8 &lt; 9 go left, 9 has no left child, so 8 becomes 9's left child.",
-                "The <b>height</b> h of a node is the number of edges on the longest path from it down to a leaf. Search, Minimum, Maximum, Successor and insert walk one path, so they cost O(h). A balanced tree has h = O(lg n); keys inserted in sorted order (1, 2, 3, …) make a chain with h = n − 1, so O(n).",
+                "The <b>height</b> h of a node is the number of edges on the longest path from it down to a leaf. In this lecture the leaves are the NILs (T.nil), so we count the last edge down to the NIL: slide 10.4's root 7 has h = 4 (7 → 18 → 10 → 8 → NIL); counting real nodes only it would be 3.",
+                "Search, Minimum, Maximum, Successor and insert walk one path, so they cost O(h). A balanced tree has h = O(lg n); keys inserted in sorted order (1, 2, 3, …) make a chain, h = n (with the NIL edge), so O(n).",
+                "Recap of the BST queries (see Lecture 9, Before you start), on slide 10.4's tree:<ul><li><b>Minimum</b>: follow left pointers from the root: 7 → 3, min = 3.</li><li><b>Maximum</b>: follow right pointers: 7 → 18 → 22 → 26, max = 26.</li><li><b>Successor</b> (next larger key): if x has a right subtree, its minimum: successor(7) = 8. Otherwise go up until you arrive from a left child: successor(11) = 18 (11 is 10's right child, 10 is 18's left child).</li><li><b>Predecessor</b> (next smaller key), the mirror: predecessor(18) = max of its left subtree = 11.</li></ul>",
+                "<b>lg</b> means log<sub>2</sub>: lg 16 = 4 because 2<sup>4</sup> = 16, and lg 9 ≈ 3.17. A balanced tree of n keys has height about lg n because each level doubles the number of nodes (see Lecture 9, Before you start).",
                 "In code each node is a record with five fields: `key`, `left`, `right`, `p` (the parent) and `color`. The fields `left`, `right` and `p` are <b>pointers</b>: they hold the address of another node.",
                 "Three notations for the same thing: `x->p` (C arrow, slides 10.25–10.30), `p[x]` (slide 10.24) and `x.p` (CLRS, 3rd ed.) all mean \"the parent of x\". `a->f` means: go to the node that a points to and read its field f.",
                 "<b>Reading a pointer chain</b>: read left to right, one hop per arrow. `x->p->p->right` = start at x, go to its parent, then to the parent's parent (the <b>grandparent</b>), then take that node's right child. Slide 10.16's tree with x = 11: `x->p` = 12, `x->p->p` = 9, `x->p->p->right` = 12, `x->p->p->left` = 8.",
@@ -6252,7 +6271,7 @@ window.COURSES.algo = {
                 "ag-10-ptrs"
               ],
               "figAt": {
-                "ag-10-ptrs": 7
+                "ag-10-ptrs": 10
               },
               "figH": {
                 "ag-10-ptrs": "Reading x->p->p->right on the tree of slide 10.16: fields, parent links and T.nil"
@@ -6264,6 +6283,8 @@ window.COURSES.algo = {
               "pts": [
                 "A <b>red-black tree</b> is a BST in which each node also stores a colour, red or black, and the colours must obey five rules that keep the height O(lg n) (Lecture 9).",
                 "The five <b>red-black properties</b> (numbered as on slide 10.3):<ul><li>1. Every node is either red or black.</li><li>2. Every leaf (NULL pointer, `T.nil`) is black.</li><li>3. If a node is red, both its children are black.</li><li>4. Every path from a node to a descendant leaf contains the same number of black nodes.</li><li>5. The root is always black.</li></ul>",
+                "<b>Internal nodes</b> are the real (non-NIL) nodes that hold keys; the NILs are the leaves. Slide 10.4 has 8 internal nodes and 9 NIL leaves (a binary tree with n internal nodes always has n + 1 NIL leaves). The \"n\" of the height theorem counts internal nodes.",
+                "<b>Induction</b> (recap, see Lecture 9, Before you start): to prove a claim for every height, prove it for the smallest case (base), then show \"true for the children's heights ⇒ true one level up\" (step); together they cover every height. The height lemma's base is a NIL: bh = 0 and it has 2<sup>0</sup> − 1 = 0 internal nodes.",
                 "Two consequences the slides note: from #2, every real node has 2 children (some may be NIL); from #3, a path can never have two red nodes in a row.",
                 "<b>Black-height</b> bh(x): the number of black nodes on a path from x down to a leaf, not counting x itself but counting the NIL leaf. Property 4 makes it the same on every path. Slide 10.4: bh(7) = 2, bh(18) = 2, bh(10) = 1, bh(8) = 1, a NIL has bh 0.",
                 "Worked count, slide 10.4: from 7 the path 7 → 18 → 10 → 8 → NIL meets 18 (red), 10 (black), 8 (red), NIL (black): 2 blacks, so bh(7) = 2. From 18 (red) the same path meets 10 and NIL: bh(18) = 2 too.",
@@ -6277,7 +6298,7 @@ window.COURSES.algo = {
               "pts": [
                 "Exams give an uncoloured BST and ask you to colour it (slide 10.8; asked in Final 2019 Credit Q3). The method below works on such trees; s and L are path lengths counted in real nodes (NILs not counted).",
                 "The colouring method:<ul><li>1. List every path from the root to a NIL and count its real nodes. Let s = the shortest, L = the longest.</li><li>2. If L &gt; 2s, stop: no colouring exists.</li><li>3. Colour the root black (#5); NILs are black (#2).</li><li>4. Colour one shortest path all black. Now every path must have exactly b = s black real nodes.</li><li>5. On each longer path with r nodes, exactly r − b nodes are red, never two in a row. Start with the longest path: it has the fewest choices.</li><li>6. Check #3 and #4 at every node, not just the root. If it fails, try b = s − 1 (b may not go below ⌈L/2⌉); if no b works, the tree has no colouring.</li></ul>",
-                "Why L ≤ 2s: the root is black and reds cannot touch, so a path of r nodes has at least ⌈r/2⌉ black nodes; a shortest path has at most s. All paths have the same black count, so ⌈L/2⌉ ≤ s.",
+                "Why L ≤ 2s: the root is black and reds cannot touch, so a path of r nodes has at least ⌈r/2⌉ black nodes; a shortest path has at most s. All paths have the same black count, so ⌈L/2⌉ ≤ s. The test is necessary but not sufficient: slide 10.23's shape passes it (s = 2, L = 4) and still has no colouring, so steps 3-6 decide.",
                 "Slide 10.4's tree (7; 3; 18; 10, 22; 8, 11, 26): s = 2 (7 → 3), L = 4 (7 → 18 → 10 → 8). Colour 7 and 3 black, so b = 2.",
                 "Slide 10.4, continued: 7 → 18 → 10 → 8 needs 2 reds that do not touch below black 7, so 18 and 8 are red and 10 is black; the same path through 11 makes 11 red. 18 is red, so 22 is black; 7 → 18 → 22 → 26 then needs a second red: 26. This is exactly slide 10.4's colouring, and the only one.",
                 "Slide 10.16's tree (after inserting 8 and 11): s = 2 (7 → 5), L = 4 (7 → 9 → 12 → 11). b = 2: 9 and 11 red, 12 black, and 8 black (child of red 9). This is the recolouring the slide shows.",
@@ -6296,7 +6317,7 @@ window.COURSES.algo = {
             {
               "h": "Review: red-black trees and their properties (Slides 10.2–10.4)",
               "pts": [
-                "Slide 10.2: red-black trees are binary search trees <b>augmented</b> with a node colour, and their operations are designed to guarantee height h = O(lg n).",
+                "Slide 10.2: red-black trees are binary search trees <b>augmented</b> with a node colour (augmented = each node stores one extra field, here its colour), and their operations are designed to guarantee height h = O(lg n).",
                 "Already done (Lecture 9): the properties were described and proved to give h = O(lg n). Next (this lecture): the operations on red-black trees, mainly insertion.",
                 "Slide 10.3 lists the five properties with two notes: #2 means every \"real\" node has 2 children; #3 means you can't have 2 consecutive reds on a path.",
                 "Slide 10.4's example (from CLRS): root 7 black (bh = 2); 3 black; 18 red (bh = 2); 10 and 22 black (bh = 1); 8, 11, 26 red (bh = 1); every NIL has bh = 0.",
@@ -6469,7 +6490,7 @@ window.COURSES.algo = {
                 "The pointer changes, in code order:<ul><li>`9->right = 11` and `11->p = 9` (B moves under 9)</li><li>`12->p = 7`, and since 9 was 7's right child, `7->right = 12`</li><li>`12->left = 9` and `9->p = 12`</li></ul>",
                 "Result (slide 10.23): 7 with children 5 and 12; 12 has left child 9 and no right child; 9 has children 8 and 11.",
                 "Inorder is 5, 7, 8, 9, 11, 12 before and after: the rotation changed the shape, not the order.",
-                "A rotation alone does not fix colours ‡: slide 10.23's shape has no valid colouring (7 → 12 → NIL forces 12 black with b = 2, and then 9 and 8 on 7 → 12 → 9 → 8 would both have to be red). That is why rbInsert always recolours together with its rotations."
+                "A rotation alone does not fix colours ‡: slide 10.23's shape has no valid colouring, whatever colours 5 and 12 get: from 12 the paths 12 → NIL and 12 → 9 → 8 → NIL must meet the same number of blacks, so 9 and 8 would both have to be red, and they are adjacent (#3). That is why rbInsert always recolours together with its rotations."
               ],
               "fig": [
                 "ag-10-rotex"
@@ -6524,7 +6545,7 @@ window.COURSES.algo = {
                 "Action: A black, D black, C red, then `x = x->p->p`: C becomes the new x. Only colours change, no pointers.",
                 "Why #4 still holds: before, a path from C down into any Δ met exactly one black node on the way (C); after, it meets exactly one (A or D). Paths from above C see the same count too.",
                 "Why the loop continues: C is now red, and C's parent may be red. The violation moved 2 levels up; \"the while loop now continues with x's grandparent as the new x\".",
-                "Slide 10.28: the same action when x = B is the <b>left</b> child of A. Case 1 looks only at the uncle's colour, not at which side x is on.",
+                "Slide 10.28: the same action when x = B is the <b>left</b> child of A. Case 1 looks only at the uncle's colour, not at which side x is on. (The slide's right-hand picture still labels B as x after the change; the new x is C.)",
                 "Example: inserting 11 (slide 10.16) is the mirror, Case 4: 12 and 8 black, 9 red, x = 9; 9's parent 7 is black, so the loop stops.",
                 "Each Case 1 step is O(1) and moves x up 2 levels, so it repeats at most about h/2 times: O(lg n) ‡."
               ]
@@ -6541,7 +6562,7 @@ window.COURSES.algo = {
                 "Effect: B (now black) is on top, with red children A and C; C keeps the uncle Δ y as its right subtree.",
                 "Why #4 holds: before, every path from the top met one black (C) above the Δ's; after, it meets one black (B). The top node is black before and after, so nothing above changes.",
                 "The loop ends: x's parent B is black, so the while test fails. Case 2 + Case 3 use at most 2 rotations.",
-                "Example: inserting 10 into slide 10.19's tree is Case 3 directly (10 is already a left child, so Case 2 is skipped): 11 black, 12 red, rightRotate(12). Result: 7 (B); 9 (R) with children 8 (B) and 11 (B); 11 with children 10 (R) and 12 (R). Every path from 7 has 2 blacks below 7."
+                "Example: inserting 10 into slide 10.16's tree (10 lands under 11 as on slides 10.17–10.19) is Case 3 directly (10 is already a left child, so Case 2 is skipped): 11 black, 12 red, rightRotate(12). Result: 7 (B); 9 (R) with children 8 (B) and 11 (B); 11 with children 10 (R) and 12 (R). Every path from 7 has 2 blacks below 7."
               ]
             },
             {
@@ -6681,7 +6702,7 @@ window.COURSES.algo = {
             ],
             [
               "Test before colouring a tree",
-              "Longest root-to-NIL path ≤ 2 × shortest (in real nodes). If not, no colouring exists (slide 10.19: 5 > 2 × 2)."
+              "Longest root-to-NIL path ≤ 2 × shortest (in real nodes). If not, no colouring exists (slide 10.19: 5 > 2 × 2). Passing it is necessary, not sufficient (slide 10.23's shape passes and has none)."
             ],
             [
               "What is missing at the end of the slide's rbInsert?",
@@ -6913,7 +6934,7 @@ window.COURSES.algo = {
                 ],
                 [
                   "lg h",
-                  "Wrong: nothing logarithmic appears here; the reds can at most halve the black count, they cannot shrink it to lg h."
+                  "Wrong: lg h would allow many more reds than blacks on a path; #3 allows at most one red per black, so bh ≥ h/2, far more than lg h (h = 16: 8 vs 4)."
                 ],
                 [
                   "1",
@@ -7348,7 +7369,7 @@ window.COURSES.algo = {
                 ],
                 [
                   "4",
-                  "Wrong: 4 is the number of edges on the path 18 → 10 → 8 → NIL plus one; bh counts black nodes only."
+                  "Wrong: 4 is the number of nodes on 18 → 10 → 8 → NIL (red and black together); bh counts only the black nodes below 18."
                 ]
               ],
               "a": 0
@@ -7442,7 +7463,7 @@ window.COURSES.algo = {
               "a": 0
             },
             {
-              "q": "Inserting 10 into slide 10.19's situation (parent 11 red, a left child of 12, uncle NIL): which case does rbInsert apply?",
+              "q": "Insert 10 into slide 10.16's tree: it lands under red 11, a left child of 12, with uncle NIL (slides 10.17–10.19): which case does rbInsert apply?",
               "o": [
                 [
                   "Case 3",
@@ -7464,7 +7485,7 @@ window.COURSES.algo = {
               "a": 0
             },
             {
-              "q": "After rbInsert(10) on slide 10.19's tree, which node is 9's right child?",
+              "q": "After rbInsert(10) on slide 10.16's tree (10 lands under 11 as on slides 10.17–10.19), which node is 9's right child?",
               "o": [
                 [
                   "11 (black), with red children 10 and 12",
@@ -7476,7 +7497,7 @@ window.COURSES.algo = {
                 ],
                 [
                   "10 (black), with children 11 and 12",
-                  "Wrong: 10 &lt; 11 &lt; 12 means 10 cannot have 11 as a child on both sides; one right rotation lifts 11, not 10."
+                  "Wrong: 11 and 12 are both larger than 10, so they could not be its left and right children; Case 3's right rotation lifts 11 (the parent), not 10."
                 ],
                 [
                   "11 (red), with black children 10 and 12",
@@ -7644,7 +7665,7 @@ window.COURSES.algo = {
               "o": [
                 [
                   "7; 5, 12; 9 under 12; 8, 11 under 9",
-                  "Correct: 7 → 12 → NIL has 2 nodes, forcing 12 black, so 7 → 12 → 9 → 8 would need red 9 and red 8 in a row: impossible. Rotations need recolouring too."
+                  "Correct: from 12, the paths 12 → NIL and 12 → 9 → 8 → NIL must meet equally many blacks, so 9 and 8 would both be red and adjacent, whatever colour 12 or 5 has. Rotations need recolouring too."
                 ],
                 [
                   "7; 5, 9; 8, 12 (before adding 11)",
@@ -14448,7 +14469,7 @@ window.COURSES.algo = {
             "Slide 8.9: with random data any size works, but real data often has a pattern. Keys 10, 20, 30, 40, 50 with mod 4 give 2, 0, 2, 0, 2: of the four possible values 0, 1, 2, 3 only 0 and 2 are used, and they collide (the slide says \"3 possible values\").",
             "With the prime 7: 10 mod 7 = 3, 20 mod 7 = 6, 30 mod 7 = 2, 40 mod 7 = 5, 50 mod 7 = 1. Five keys, five different slots, no collisions. (The slide shows 40 mod 7 = 4; since 40 = 5·7 + 5 it is 5.)",
             "Why the prime helps ‡: all the keys are multiples of 10, and gcd(10, 4) = 2, so they can only reach every second slot of a table of 4. Since 7 shares no factor with 10, multiples of 10 reach every slot of a table of 7.",
-            "Exam rule: h(k) = k mod m with m a prime not close to an exact power of 2 (Final Q3 & Q4). With m = 157, key 172 goes to 172 mod 157 = 15 (Final Q5)."
+            "Exam rule: h(k) = k mod m with m a prime not close to an exact power of 2 (Final Q3 & Q4). With m = 157, key 172 goes to 172 mod 157 = 15 (Final 2 Q5)."
           ],
           "fig": [
             "ag-8-mod-prime"
@@ -14467,14 +14488,14 @@ window.COURSES.algo = {
             "Advantage: the value of n is not critical (it need not be prime). Disadvantage: slower than the division method (a multiplication, a fraction and a floor instead of one mod).",
             "Slide 8.11, k = 123, n = 100, A = 0.618033: 123 × 0.618033 = 76.018059; mod 1 gives 0.018059; × 100 gives 1.8059; the floor gives <b>h(123) = 1</b>.",
             "Slide 8.11, k = 150: 150 × 0.618033 = 92.70495; mod 1 gives 0.70495; × 100 gives 70.495; the floor gives <b>h(150) = 70</b>.",
-            "A = 0.618033 ≈ (√5 − 1)/2 is the value Knuth suggests ‡. In the binary implementation the table size is a power of 2, m = 2ᵖ ‡: p = 7 gives m = 2⁷ = 128 (Final Q6).",
+            "A = 0.618033 ≈ (√5 − 1)/2 is the value Knuth suggests ‡. In the binary implementation the table size is a power of 2, m = 2ᵖ ‡: p = 7 gives m = 2⁷ = 128 (Final 2 Q6).",
             "<b>Mid-square method</b> (Slide 8.12): square the key and take the middle r digits as the hash value. r depends on the table size n: n = 10 → r = 1, n = 100 → r = 2, n = 1000 → r = 3 (the slide writes \"bits\"; it means decimal digits).",
             "Advantage: far fewer collisions, because the middle digits of k² depend on every digit of k. Disadvantage: the square of a large key is hard to compute (it has twice as many digits).",
-            "Slide 8.13's examples:<ul><li>k = 120, n = 10: k² = 14400, middle digit 4, h(120) = 4.</li><li>k = 50, n = 100: k² = 2500, middle two digits 50, h(50) = 50.</li><li>k = 1234, n = 1000 (range 0 to 999; the slide shows 0→199): k² = 1522756, middle three 227, h(1234) = 227.</li><li>k = 110, n = 200 (range 0 to 199): k² = 12100, middle three 210 is out of range, so 210 % 200 = 10, h(110) = 10 (the slide writes h(50)).</li><li>k = 5642, n = 1000: k² = 31832164 has 8 digits, the middle four are 8321, and 8321 % 1000 = 321, h(5642) = 321.</li></ul>",
+            "Slide 8.13's examples:<ul><li>k = 120, n = 10: k² = 14400, middle digit 4, h(120) = 4.</li><li>k = 50, n = 100: k² = 2500, middle two digits 50, h(50) = 50.</li><li>k = 1234, n = 1000 (range 0 to 999; the slide shows 0→199): k² = 1522756, middle three 227, h(1234) = 227.</li><li>k = 110, n = 200 (range 0 to 199): k² = 12100, middle three 210 is out of range, so 210 % 200 = 10, h(110) = 10 (the slide writes h(50)).</li><li>k = 5642, n = 1000: k² = 31832164 has 8 digits, so no block of 3 sits exactly in the middle; the slide takes the middle four, 8321, and reduces it: 8321 % 1000 = 321, h(5642) = 321.</li></ul>",
             "When the middle digits are too large for the table (the last two examples), take them mod n to bring them into the range.",
             "<b>Folding method</b> (Slide 8.14): partition the key K into parts K1, K2, …, then add the parts together. The part size depends on the address size: key 12345678 with 3-digit addresses splits into 123, 456, 78; with 4-digit addresses into 1234, 5678.",
-            "<b>Fold-shifting</b> (Slide 8.15): add the parts as they are. Key 12345678, two-digit addresses (0 to 99): 12 + 34 + 56 + 78 = 180, and 180 % 100 = <b>80</b> is the location.",
-            "<b>Fold-boundary</b> (Slide 8.15): reverse the outer parts (first and last) before adding: 12 becomes 21 and 78 becomes 87, so 21 + 34 + 56 + 87 = 198, and 198 % 100 = <b>98</b> is the location.",
+            "<b>Fold-shifting</b> (Slide 8.15): add the parts as they are. Key 12345678, two-digit addresses (0 to 99): 12 + 34 + 56 + 78 = 180, and 180 % 100 = 80 is the location.",
+            "<b>Fold-boundary</b> (Slide 8.15): reverse the outer parts (first and last) before adding: 12 becomes 21 and 78 becomes 87, so 21 + 34 + 56 + 87 = 198, and 198 % 100 = 98 is the location.",
             "The final % 100 keeps the sum inside the address range 0 to 99 (it drops the carry digit 1 of 180 and 198)."
           ],
           "fig": [
@@ -14500,7 +14521,8 @@ window.COURSES.algo = {
             "No probability is involved ‡: it is a guaranteed bound on the total cost of any sequence, divided by the number of operations. A structure should not be labelled costly just because a rarely performed operation is costly.",
             "Three common methods (Slide 8.16): the aggregate method, the accounting method and the potential method.",
             "<b>Aggregate method</b> (Slide 8.17): find the total cost of n operations, then divide by n: amortized cost = Cost(n operations) / n = [Cost(normal operations) + Cost(expensive operations)] / n.",
-            "The example (Slide 8.18) is hash table insertions. A big table makes search fast but needs a lot of space; a small one fills up. The solution is a <b>dynamic array</b>: when the table is full, (1) allocate a table of twice the size, (2) copy the old contents into it, (3) free the old table. If there is space, just insert.",
+            "The example (Slide 8.18) is hash table insertions. How big should the table be? A big table makes search fast but needs a lot of space; a small one fills up.",
+            "The solution is a <b>dynamic array</b>: when the table is full, (1) allocate a table of twice the size, (2) copy the old contents into it, (3) free the old table. If there is space, just insert.",
             "Slide 8.18's picture starts from an empty table of size 0. Item 1 gives size 1, item 2 size 2, item 3 size 4, item 5 size 8; the slide marks items 1, 2 and 4 \"Overflow\" because after them the table is full. The next overflow happens when we insert 9: the size becomes 16.",
             "Simple analysis (Slide 8.19): one insertion costs O(n) in the worst case (copy everything), so n insertions cost n · O(n) = O(n²). That is a correct upper bound, but far from tight.",
             "A deeper look (Slide 8.20): let cᵢ be the cost of the i-th insertion. cᵢ = i if i − 1 is an exact power of 2 (copy the i − 1 old items, write 1), and cᵢ = 1 otherwise.",
@@ -14508,25 +14530,28 @@ window.COURSES.algo = {
             "Slide 8.21 splits each cost into 1 (the write every insertion pays) plus the copies of the doubling insertions: 1, 2, 4, 8.",
             "Slide 8.22: Cost = (1 + 1 + 1 + … , n terms) + (1 + 2 + 4 + …) ≤ n + 2n, because the copies form a geometric series smaller than 2n. So n insertions cost O(3n) = O(n).",
             "Written exactly ‡: Σ cᵢ (i = 1 to n) ≤ n + (2⁰ + 2¹ + … + 2ᵏ) with k = ⌊lg(n−1)⌋, and that sum is 2ᵏ⁺¹ − 1 < 2n, so the total is < n + 2n = 3n.",
-            "Slide 8.23: amortized cost = (1 + 2 + 3 + 1 + 5 + 1 + 1 + 1 + 9 + 1 + …) / n ≤ (n + 2n) / n = 3, so the amortized cost of one insertion is <b>O(1)</b>.",
+            "Slide 8.23: amortized cost = (1 + 2 + 3 + 1 + 5 + 1 + 1 + 1 + 9 + 1 + …) / n ≤ (n + 2n) / n = 3, so the amortized cost of one insertion is <b>O(1)</b>. (The slide's sum leaves out c₄ = 1 and c₈ = 1.)",
             "Check ‡: for n = 10 the costs add up to 25 ≤ 30 = 3n; for n = 17 they add up to 48 ≤ 51, although insertion 17 alone costs 17.",
             "Exam: the aggregate proof is asked in Midterm 2018 Q6 and Final 2019 Q2; Final Summer Q28 asks for the result (O(n) total, O(1) per insertion)."
+          ],
+          "formula": [
+            "Aggregate method (sizes 1, 2, 4, 8, …):",
+            "Total = n + Σ (j = 0 … ⌊lg(n−1)⌋) 2ʲ",
+            "      < n + 2n = 3n",
+            "Amortized cost = 3n / n = 3 = O(1)"
           ],
           "fig": [
             "ag-8-aggregate",
             "ag-8-costbars"
           ],
           "figAt": {
-            "ag-8-aggregate": 12,
-            "ag-8-costbars": 13
+            "ag-8-aggregate": 13,
+            "ag-8-costbars": 14
           },
           "figH": {
             "ag-8-aggregate": "Aggregate method: ten insertions into a doubling table cost at most 3n",
             "ag-8-costbars": "Cost of every insertion as a bar: rare tall bars, total never above 3n"
-          },
-          "formula": [
-            "Aggregate Method (Table Doubling 1, 2, 4, 8…): Total Cost = n + Σ (j = 0 … ⌊lg n⌋) 2ʲ < n + 2n = 3n ⇒ Amortized Cost = 3n / n = O(1)"
-          ]
+          }
         },
         {
           "h": "Accounting and potential methods (Slides 8.24–8.29)",
@@ -14545,8 +14570,17 @@ window.COURSES.algo = {
             "Case 2 (Slide 8.28), expansion: the table held i − 1 = size items, the new size is 2(i − 1), and cᵢ = i (copy i − 1, write 1). ĉᵢ = i + (2i − 2(i−1)) − (2(i−1) − (i−1)) = i + 2 − (i − 1) = <b>3</b>.",
             "The slide writes case 2 with i items already in the table (cost i + 1, size i → 2i), and its middle lines use 2i − 2i = 0 and 2(i−1) − i for the two potentials; both are 2 too small, the errors cancel and it still ends at 3.",
             "Slide 8.29's table for 17 insertions: Φ = 1, 2, 2, 4, 2, 4, 6, 8, 2, 4, 6, 8, 10, 12, 14, 16, 2. The amortized cost is 3 every time, except the first: 1 + (1 − 0) = 2.",
+            "Slide 8.29's cost columns: \"cost of operation\" is always 1 (the write) and \"cost of doubling and copying\" is 1, 2, 4, 8, 16 at i = 2, 3, 5, 9, 17 (0 elsewhere); their sum is the total cost cᵢ.",
             "Rows to check: i = 9: size 16, true cost 9, Φ₉ = 2·9 − 16 = 2, Φ₈ = 8, so ĉ₉ = 9 + (2 − 8) = 3. i = 17: size 32, true cost 17, Φ₁₇ = 34 − 32 = 2, Φ₁₆ = 16, so ĉ₁₇ = 17 + (2 − 16) = 3.",
             "Conclusion: the total amortized cost of n insertions is at most 3n, and since Φₙ ≥ 0 = Φ₀ the true total is at most that too. All three methods give O(1) per insertion."
+          ],
+          "formula": [
+            "Accounting: charge 3 dollars per insert",
+            "  1 writes the item now",
+            "  1 saved to copy this item later",
+            "  1 saved to copy an older item",
+            "Potential: Φ(hᵢ) = 2i − sizeᵢ",
+            "  ĉᵢ = cᵢ + Φ(hᵢ) − Φ(hᵢ₋₁) = 3 = O(1)"
           ],
           "fig": [
             "ag-8-accounting",
@@ -14556,17 +14590,13 @@ window.COURSES.algo = {
           "figAt": {
             "ag-8-accounting": 6,
             "ag-8-potential": 12,
-            "ag-8-potential-table": 14
+            "ag-8-potential-table": 15
           },
           "figH": {
             "ag-8-accounting": "Accounting method: charge 3 dollars per insert and watch the bank",
             "ag-8-potential": "Potential method: both cases give amortized cost 3",
             "ag-8-potential-table": "Potential method table for 17 insertions, row by row"
-          },
-          "formula": [
-            "Accounting Method: Charge $3 per insert ($1 immediate write + $1 self-credit + $1 partner-credit)",
-            "Potential Method: Φ(Dᵢ) = 2·numᵢ − sizeᵢ ⇒ Amortized Cost ĉᵢ = cᵢ + Φ(Dᵢ) − Φ(Dᵢ₋₁) = 3 = O(1)"
-          ]
+          }
         },
         {
           "h": "Separate chaining and its analysis (Slides 8.30–8.37)",
@@ -14576,18 +14606,19 @@ window.COURSES.algo = {
             "A <b>linked list</b> is a chain of nodes; each node holds one item and a pointer to the next node. The slot stores a pointer to the first node, and an empty slot stores NIL (no list) ‡.",
             "Advantages (Slide 8.32): simple to implement; the table never fills up (we can always add to a chain); less sensitive to the hash function or load factor; mostly used when it is unknown how many keys will be inserted or deleted, and how often.",
             "Disadvantages (Slide 8.32): poor cache performance (list nodes are scattered in memory); wasted space (some slots are never used); a long chain makes search O(n) in the worst case; extra space for the links.",
+            "A <b>cache</b> ‡ is a small fast memory next to the CPU. Reading T[j] also brings its neighbours T[j+1], T[j+2], … into the cache, so a later read of a neighbour is fast (a hit). Jumping to a far address, like the next node of a linked list, usually misses and waits for slow main memory.",
             "Expected chain length (Slide 8.33): under simple uniform hashing each key lands in a given slot with probability 1/m, so the expected length of any chain is n/m = α, called the <b>load factor</b> of the table. n = 3, m = 3 gives α = 1; n = 6, m = 3 gives α = 2.",
             "Searching (Slide 8.34) for e_w, with Hash(key(e_w)) = 2: computing the hash and jumping to slot 2 costs O(1); walking the chain costs its length, expected α. Expected time to search = <b>O(1 + α)</b>. On the slide every chain has 3 items, so α = 9/3 = 3.",
             "Deleting (Slide 8.35): first search for e_w, O(1 + α), then unlink its node, O(1). Expected time to delete = O(1 + α).",
             "Inserting (Slide 8.36): hash the key (1) and link the new node into the chain (1). Expected time to insert = 1 + 1, that is <b>O(1)</b>. Linking at the head of the list is O(1) whatever the chain length ‡.",
-            "If the table grows with the data, n = O(m), then α = O(1) and all three operations take O(1) on average. The load factor is the average chain length, simple uniform hashing means every slot is equally likely, and chains are linked lists (Final Q13–Q15).",
+            "If the table grows with the data ‡, n = O(m), then α = O(1) and all three operations take O(1) on average. The load factor is the average chain length, simple uniform hashing means every slot is equally likely, and chains are linked lists (Final Q13–Q15).",
             "Worst case (Slide 8.37): all n elements are stored in one chain of length n. Expected time to search = O(1 + n) = O(n), and the same for delete. All keys in one slot give Θ(n) retrieval (Final Q7)."
           ],
           "fig": [
             "ag-8-chaining"
           ],
           "figAt": {
-            "ag-8-chaining": 8
+            "ag-8-chaining": 9
           },
           "figH": {
             "ag-8-chaining": "Separate chaining: load factor and the cost of search, delete and insert"
@@ -14600,15 +14631,16 @@ window.COURSES.algo = {
             "Extended technique (Slide 8.38): each slot of the hash table holds a <b>binary search tree</b> (BST) instead of a linked list; the BST grows as data is inserted.",
             "BST in short: for every node, keys in its left subtree are smaller and keys in its right subtree are larger. A search compares and goes left or right, walking one path, so it costs the tree's <b>height</b> (the longest root-to-leaf path).",
             "Slide 8.38's picture: slot 0 holds the BST 50 with children 30 and 80, and 30 has children 10 and 40; slot 5 holds 55 with children 35 and 85, and 35 has right child 45. Searching 40 in slot 0: 50 (go left), 30 (go right), 40: 3 comparisons ‡.",
-            "Worst case (Slides 8.39–8.41): all n keys collide into one slot. Case 1, keys arrive sorted (10, 20, 30, 40, …): each new key goes to the same side, the tree becomes a path of n nodes (skewed), and operations take <b>O(n)</b>.",
+            "Worst case (Slides 8.39–8.41): all n keys collide into one slot. Case 1, keys arrive sorted (10, 20, 30, 40, …): each new key goes to the same side: descending keys build a left path, increasing keys (10, 20, 30, 40) a right path. The tree becomes a path of n nodes (skewed), and operations take <b>O(n)</b>.",
             "Case 2, keys arrive unsorted (for example 50, 30, 10, 40, …): the tree stays bushy with near-minimum height, about lg n, so operations take <b>O(lg n)</b>.",
             "Best case (Slides 8.42–8.43): the keys are equally distributed, so each BST holds about n/m keys. Case 1, sorted keys (skewed trees): expected height n/m, <b>O(n/m)</b>. Case 2, unsorted keys: <b>O(lg(n/m))</b>.",
             "Slide 8.44: so BST chains improve every case except Case 1 of the worst case (the skewed tree). The fix is an <b>AVL tree</b>: a self-balancing BST in which, for every node, the heights of the left and right subtrees differ by at most one.",
             "BalanceFactor = height(left subtree) − height(right subtree), and AVL keeps it at −1, 0 or 1. Slide 8.44: the root 40 has left height 2 and right height 3: |2 − 3| = 1, allowed. Slide 8.45: node 70 has left height 0 and right height 1 (its child 80): |0 − 1| = 1.",
-            "Slide 8.46: inserting 20, 30, 40 into one slot in that order gives the path 20 → 30 → 40, unbalanced (20 has balance factor 0 − 2 = −2). A <b>rotation</b> lifts the middle key 30 to the root with children 20 and 40: balanced.",
+            "Slide 8.46: inserting 20, 30, 40 into one slot in that order gives the path 20 → 30 → 40, unbalanced; the slide marks it \"Unbalanced Tree\". ‡ 20 has balance factor 0 − 2 = −2, and a <b>rotation</b> lifts the middle key 30 to the root with children 20 and 40: balanced.",
             "So with AVL trees every operation is O(lg n), where n is the number of elements (Slide 8.46), even when all keys collide.",
             "<b>Rehashing</b> (Slide 8.47): as long as the load factor does not become too large, the average time stays O(1). In separate chaining α can rise above 1 without hurting much; in the other schemes the cost grows once α reaches 0.75 or 0.5.",
-            "So the array size is doubled and all the values are hashed again, with a new hash function, into the new larger array. Steps: for every new entry check the load factor; if it is greater than the threshold, start rehashing: make a larger array, copy (rehash) all elements into it, and make it the new bucket array.",
+            "So the array size is doubled and all the values are hashed again, with a new hash function, into the new larger array.",
+            "Steps: for every new entry check the load factor; if it is greater than the threshold, start rehashing: make a larger array, copy (rehash) all elements into it, and make it the new bucket array.",
             "Slide 8.47's example, threshold 2, m = 3, h(k) = k mod 3: 12 → 0, 10 → 1, 7 → 1, 14 → 2, 5 → 2. Insert 11 → slot 2: α = 6/3 = 2, not greater than 2. Insert 22: α = 7/3 = 2.33 > 2, so rehashing starts.",
             "Slide 8.48: new size m = 6, h(k) = k mod 6: 12 → 0, 7 → 1, 14 → 2, 10 → 4, 22 → 4, 11 → 5, 5 → 5. New load factor 7/6 = 1.17, below the threshold. (The slide shows 1.67.)",
             "A rehash costs O(n) once, but like table doubling it happens rarely, so its amortized cost per insertion is O(1) ‡."
@@ -14621,7 +14653,7 @@ window.COURSES.algo = {
           "figAt": {
             "ag-8-bst-chains": 6,
             "ag-8-avl": 10,
-            "ag-8-rehash": 14
+            "ag-8-rehash": 15
           },
           "figH": {
             "ag-8-bst-chains": "A BST in every slot: worst case and best case",
@@ -14636,7 +14668,8 @@ window.COURSES.algo = {
             "<b>Probing</b> (Slide 8.51): a collision is resolved by searching through alternate slots of the array, the <b>probe sequence</b>, until the target is reached. The hash function takes both the key and the probe number: h : U × {0, 1, …, m−1} → {0, 1, …, m−1} (universe of keys × trial count → slot in table).",
             "h(k, 0) is the first slot tried, h(k, 1) the second, and so on. The probe sequence ⟨h(k, 0), h(k, 1), …, h(k, m−1)⟩ should be a permutation of {0, 1, …, m−1}: every slot is tried once, so an insert fails only when the table is really full.",
             "Insert (Slide 8.52): compute h(k, i) for i = 0, 1, 2, … and keep probing until an empty slot (NIL) is found; put k there and return its index. If all m probes hit full slots, report \"Hash Table Overflow\".",
-            "Search (Slide 8.53): follow the same probe sequence; return j when T[j] = k; stop with \"not found\" (NIL) at an empty slot or after m probes. An empty slot proves k is absent: if k had been inserted, its insert would have stopped at that empty slot.",
+            "Search (Slide 8.53): follow the same probe sequence; return j when T[j] = k; stop with \"not found\" (NIL) at an empty slot or after m probes. (The slide writes \"until slot's key ≠ k\"; it means until the key equals k.)",
+            "An empty slot proves k is absent ‡: if k had been inserted, its insert would have stopped at that empty slot.",
             "Delete (Slide 8.54): the key is first searched and then deleted. But if we simply empty its slot, a later search may stop there and miss keys that had probed past it. So deleted slots are marked specially as \"<b>deleted</b>\" (a tombstone).",
             "Rules for the mark (Slide 8.54): insert can put a new item into a deleted slot; search does not stop at a deleted slot, it keeps probing. NIL means \"empty, never used\".",
             "Three ways to probe (Slide 8.55): linear probing, quadratic probing, double hashing. All have the form h(k, i) = (h′(k) + f(i)) mod m: an ordinary hash function h′(k), an iteration term f(i) for the i-th probe, and mod the table size m."
@@ -14655,8 +14688,10 @@ window.COURSES.algo = {
             "Insert 51 (Slide 8.64): h₀ = 51 mod 11 = 7 is taken, h₁ = 8 is marked Deleted, so insert reuses it: 51 goes to slot 8.",
             "Time (Slide 8.65): the worst-case search in linear probing is O(table size). Even if only one element is present and all others were deleted, the \"deleted\" markers force the search through the whole table.",
             "Advantages (Slide 8.66): easy to compute; best cache performance (the probes are neighbouring cells in memory); no extra memory, it uses the free space inside the table.",
-            "Disadvantage (Slide 8.66): <b>primary clustering</b>. Occupied slots form long runs; any key whose home slot falls in a run must walk to the end of it, and then makes it one longer. A free cell is always found if the table is big enough, but the time to find it can get large. In the slide's picture, a key with initial probe 52 walks over 52 to 56 before reaching the empty slot 57.",
-            "Exam (Final Q16): size 10, h(k) = k mod 10, linear probing, slots 2..7 hold 42, 23, 34, 52, 46, 33. The valid order is 46, 34, 42, 23, 52, 33: 52 probes 2, 3, 4 and lands in 5; 33 probes 3, 4, 5, 6 and lands in 7. Check any order by replaying the probes."
+            "Disadvantage (Slide 8.66): <b>primary clustering</b>. Many consecutive elements form groups, so it takes time to search an element or find an empty bucket.",
+            "Why the runs grow ‡: any key whose home slot falls in a run must walk to its end, and then makes it one longer.",
+            "A free cell is always found if the table is big enough, but the time to find it can get large. In the slide's picture, a key with initial probe 52 walks over 52 to 56 before reaching the empty slot 57.",
+            "Exam (Final 2 Q16): size 10, h(k) = k mod 10, linear probing, slots 2..7 hold 42, 23, 34, 52, 46, 33. The valid order is 46, 34, 42, 23, 52, 33: 52 probes 2, 3, 4 and lands in 5; 33 probes 3, 4, 5, 6 and lands in 7. Check any order by replaying the probes."
           ],
           "fig": [
             "ag-8-linear"
@@ -14672,11 +14707,12 @@ window.COURSES.algo = {
           "h": "Quadratic probing and secondary clustering (Slides 8.67–8.79)",
           "pts": [
             "<b>Quadratic probing</b> (Slide 8.67): when a collision occurs, in the i-th iteration try the bucket i² after the home slot. f(i) = i², so h(k, i) = (h′(k) + i²) mod m. (The slide calls f \"a linear function of i\"; i² is quadratic.)",
-            "Probe sequence (Slide 8.68): h(k), h(k) + 1·1, h(k) + 2·2, h(k) + 3·3, …, h(k) + i·i, all mod m. The jumps between probes grow (1, 3, 5, 7, …), so a key quickly leaves a crowded region.",
+            "Probe sequence (Slide 8.68): h(k), h(k) + 1·1, h(k) + 2·2, h(k) + 3·3, …, h(k) + i·i, all mod m. The jumps between probes grow (1, 3, 5, 7, …), so a key quickly leaves a crowded region ‡.",
             "Slides 8.69–8.72, h(k) = k mod 11, keys 7, 36, 18, 62, 51:<ul><li>7 → slot 7; 36 → slot 3.</li><li>18: h₀ = 7 taken, h₁ = (18 + 1) mod 11 = 8, slot 8.</li><li>62: h₀ = 7 and h₁ = 8 taken, h₂ = (62 + 4) mod 11 = 66 mod 11 = 0, slot 0.</li><li>51: h₀ = 7, h₁ = 8, h₂ = 0 taken, h₃ = (51 + 9) mod 11 = 60 mod 11 = 5, slot 5.</li></ul>",
             "Linear vs quadratic on the same keys (Slide 8.73): linear probing ends with 36 in slot 3 and one run 7, 18, 62, 51 in slots 7, 8, 9, 10; quadratic probing spreads them out: 62 in 0, 36 in 3, 51 in 5, 7 in 7, 18 in 8.",
             "Advantages (Slide 8.74): average cache performance (between linear probing and double hashing); less clustering than linear probing (no primary clustering).",
-            "Disadvantage (Slide 8.74): two keys with the same initial probe position have the same probe sequence, since h(k1, 0) = h(k2, 0) implies h(k1, i) = h(k2, i). This milder form of clustering is called <b>secondary clustering</b>. Also, an element may be impossible to add because the computed index is never empty.",
+            "Disadvantage (Slide 8.74): two keys with the same initial probe position have the same probe sequence, since h(k1, 0) = h(k2, 0) implies h(k1, i) = h(k2, i). This milder form of clustering is called <b>secondary clustering</b>.",
+            "Also (Slide 8.74), an element may be impossible to add because the computed index is never empty.",
             "Secondary clustering example (Slides 8.75–8.77), h(k) = k mod 10, keys 2, 12, 22, 32, 42, 52, all with home slot 2:<ul><li>2 → slot 2.</li><li>12: h₀ = 2 occupied, h₁ = 13 mod 10 = 3, slot 3.</li><li>22: 2 and 3 taken, h₂ = 26 mod 10 = 6, slot 6.</li><li>32: 2, 3, 6 taken, h₃ = 41 mod 10 = 1, slot 1.</li><li>42: 2, 3, 6, 1 taken, h₄ = 58 mod 10 = 8, slot 8.</li><li>52: 2, 3, 6, 1, 8 taken, h₅ = 77 mod 10 = 7, slot 7.</li></ul>",
             "Insert 62 (Slide 8.78): after 2, 3, 6, 1, 8, 7 come h₆ = 98 mod 10 = 8, h₇ = 111 mod 10 = 1, h₈ = 126 mod 10 = 6, h₉ = 143 mod 10 = 3: all taken. Unable to insert, although slots 0, 4, 5, 9 are empty.",
             "Why ‡: i² mod 10 only takes the values 0, 1, 4, 9, 6, 5, so starting from slot 2 the probes can only reach 2, 3, 6, 1, 8, 7: exactly the six full slots.",
@@ -14690,7 +14726,7 @@ window.COURSES.algo = {
           "figAt": {
             "ag-8-quadratic": 2,
             "ag-8-lin-quad": 3,
-            "ag-8-secondary": 7
+            "ag-8-secondary": 8
           },
           "figH": {
             "ag-8-quadratic": "Quadratic probing on 7, 36, 18, 62, 51",
@@ -14758,13 +14794,14 @@ window.COURSES.algo = {
           "h": "Analysis of open addressing, rehashing, chaining vs open addressing (Slides 8.89–8.94)",
           "pts": [
             "Slide 8.89's formula is an unreadable image. The theorem it states (CLRS Theorem 11.6) ‡: with load factor α = n/m < 1 and uniform hashing, the expected number of probes in an unsuccessful search is at most <b>1/(1 − α)</b>.",
+            "<b>Uniform hashing</b> ‡ (for open addressing): every key's probe sequence is equally likely to be any of the m! orders of the slots. It is stronger than simple uniform hashing, which only says that the first slot is equally likely.",
             "Intuition ‡: the first probe always happens; it hits an occupied slot with probability α, so a second probe is needed; that one is occupied with probability about α again, and so on: 1 + α + α² + … = 1/(1 − α), a geometric sum.",
             "Implications (Slide 8.90): if α is a constant, accessing an open-addressed hash table takes constant time. Half full: 1/(1 − 0.5) = 2 expected probes. 90% full: 1/(1 − 0.9) = 10 expected probes.",
             "An insert costs the same as an unsuccessful search (it probes until an empty slot). A successful search needs at most (1/α) ln(1/(1 − α)) probes, about 1.39 at α = 0.5 ‡.",
             "Rehashing for open addressing (Slide 8.91): when the table is too full, create a new table whose size is the prime closest to 2m (m = old size): compute the new table size, apply it to the hash function, compute the new hash value of each element, and insert it into the new table.",
             "When to rehash (Slide 8.91): when the table is half full (λ = 0.5; λ is another name for the load factor), when an insertion fails, or when a chosen load factor is reached. Example ‡: m = 11 becomes the prime closest to 22, which is 23.",
             "Separate chaining vs open addressing (Slide 8.92): see the table. In short, chaining is simpler, never fills up and deletes easily; open addressing has better cache performance and no links, but can fill up and needs care with clustering and load factor.",
-            "Cache misses (Slide 8.93): average cache misses per lookup against the load factor. Chaining stays at about 2 to 3 for every α; linear probing stays near 1 for small α but shoots up as α approaches 1 (above about 0.8 it is worse than chaining).",
+            "Cache misses (Slide 8.93): average cache misses per lookup against the load factor. Chaining stays at about 2 to 3 for every α; linear probing stays near 1 for small α but shoots up as α approaches 1 (the curves cross just below 0.9; above about 0.9 it is worse than chaining).",
             "Recommendations (Slide 8.94):<ul><li>If open addressing is used, double hashing is preferred over quadratic probing.</li><li>If plenty of memory is available and the data won't expand, linear probing is simpler to implement.</li><li>If the number of items to insert is not known, separate chaining is preferable.</li><li>If deletion is required, use separate chaining.</li><li>When in doubt, use separate chaining.</li></ul>"
           ],
           "table": [
@@ -14819,8 +14856,8 @@ window.COURSES.algo = {
             "ag-8-cache"
           ],
           "figAt": {
-            "ag-8-probes": 2,
-            "ag-8-cache": 7
+            "ag-8-probes": 3,
+            "ag-8-cache": 8
           },
           "figH": {
             "ag-8-probes": "Expected probes 1/(1 − α): 2 when half full, 10 when 90% full",
@@ -14840,6 +14877,50 @@ window.COURSES.algo = {
             "Chaining, m = 10: 0: [0, 30], 1: [1], 3: [13], 5: [55], 6: [16, 26], 8: [28], 9: [9]. m = 11: 0: [0, 55], 1: [1], 2: [13], 4: [26], 5: [16], 6: [28], 8: [30], 9: [9].",
             "Lesson: 11 is prime, so every step h₂ = 1..7 is relatively prime to it and double hashing always reaches an empty slot; 10 is one of the \"bad\" non-prime sizes of Slide 8.8."
           ],
+          "viz": {
+            "type": "hash",
+            "title": "Midterm 2022 Q1: Hash Table (m = 11) on [0, 30, 1, 55, 16, 28, 13, 9, 26]",
+            "size": 11,
+            "method": "linear",
+            "ops": [
+              [
+                "insert",
+                0
+              ],
+              [
+                "insert",
+                30
+              ],
+              [
+                "insert",
+                1
+              ],
+              [
+                "insert",
+                55
+              ],
+              [
+                "insert",
+                16
+              ],
+              [
+                "insert",
+                28
+              ],
+              [
+                "insert",
+                13
+              ],
+              [
+                "insert",
+                9
+              ],
+              [
+                "insert",
+                26
+              ]
+            ]
+          },
           "table": [
             [
               "Slot",
@@ -14955,50 +15036,6 @@ window.COURSES.algo = {
           ],
           "figAt": {
             "algo-hash-sim": 8
-          },
-          "viz": {
-            "type": "hash",
-            "title": "Midterm 2022 Q1: Hash Table (m = 11) on [0, 30, 1, 55, 16, 28, 13, 9, 26]",
-            "size": 11,
-            "method": "linear",
-            "ops": [
-              [
-                "insert",
-                0
-              ],
-              [
-                "insert",
-                30
-              ],
-              [
-                "insert",
-                1
-              ],
-              [
-                "insert",
-                55
-              ],
-              [
-                "insert",
-                16
-              ],
-              [
-                "insert",
-                28
-              ],
-              [
-                "insert",
-                13
-              ],
-              [
-                "insert",
-                9
-              ],
-              [
-                "insert",
-                26
-              ]
-            ]
           }
         }
       ],
@@ -15239,7 +15276,7 @@ window.COURSES.algo = {
             ],
             [
               "15",
-              "Right: h(k) = k mod m, and 172 = 1 · 157 + 15, so h(172) = 15 (Slide 8.7, Final Q5)."
+              "Right: h(k) = k mod m, and 172 = 1 · 157 + 15, so h(172) = 15 (Slide 8.7, Final 2 Q5)."
             ],
             [
               "17",
@@ -15875,7 +15912,7 @@ window.COURSES.algo = {
             ],
             [
               "It must be a power of 2",
-              "Wrong: with an even table size an even step reaches only part of the table (step 5 in m = 10 reaches 2 slots)."
+              "Wrong: being a power of 2 is not the requirement; the step must be relatively prime to m. A power-of-2 step shares the factor 2 with an even m: step 2 (or 4) in m = 10 reaches only 10/2 = 5 slots."
             ],
             [
               "It must be larger than the table size",
@@ -17881,7 +17918,10 @@ window.COURSES.algo = {
             "A <b>binary search tree (BST)</b> keeps its keys in order: for every node, all keys in its left subtree are smaller and all keys in its right subtree are larger. Slide 10.8's tree: 5 &lt; 7, and 9, 12 &gt; 7; under 9, 12 &gt; 9.",
             "<b>Inorder</b> traversal (left subtree, then the node, then the right subtree) lists a BST's keys in sorted order: 5, 7, 9, 12. Any change of shape (a rotation) is allowed only if it keeps this order.",
             "<b>BST insert</b> (`treeInsert`): start at the root, go left if the new key is smaller, right if it is larger, until you fall off the tree; the new node goes in that empty spot as a leaf. Insert 8 into slide 10.8's tree: 8 &gt; 7 go right, 8 &lt; 9 go left, 9 has no left child, so 8 becomes 9's left child.",
-            "The <b>height</b> h of a node is the number of edges on the longest path from it down to a leaf. Search, Minimum, Maximum, Successor and insert walk one path, so they cost O(h). A balanced tree has h = O(lg n); keys inserted in sorted order (1, 2, 3, …) make a chain with h = n − 1, so O(n).",
+            "The <b>height</b> h of a node is the number of edges on the longest path from it down to a leaf. In this lecture the leaves are the NILs (T.nil), so we count the last edge down to the NIL: slide 10.4's root 7 has h = 4 (7 → 18 → 10 → 8 → NIL); counting real nodes only it would be 3.",
+            "Search, Minimum, Maximum, Successor and insert walk one path, so they cost O(h). A balanced tree has h = O(lg n); keys inserted in sorted order (1, 2, 3, …) make a chain, h = n (with the NIL edge), so O(n).",
+            "Recap of the BST queries (see Lecture 9, Before you start), on slide 10.4's tree:<ul><li><b>Minimum</b>: follow left pointers from the root: 7 → 3, min = 3.</li><li><b>Maximum</b>: follow right pointers: 7 → 18 → 22 → 26, max = 26.</li><li><b>Successor</b> (next larger key): if x has a right subtree, its minimum: successor(7) = 8. Otherwise go up until you arrive from a left child: successor(11) = 18 (11 is 10's right child, 10 is 18's left child).</li><li><b>Predecessor</b> (next smaller key), the mirror: predecessor(18) = max of its left subtree = 11.</li></ul>",
+            "<b>lg</b> means log<sub>2</sub>: lg 16 = 4 because 2<sup>4</sup> = 16, and lg 9 ≈ 3.17. A balanced tree of n keys has height about lg n because each level doubles the number of nodes (see Lecture 9, Before you start).",
             "In code each node is a record with five fields: `key`, `left`, `right`, `p` (the parent) and `color`. The fields `left`, `right` and `p` are <b>pointers</b>: they hold the address of another node.",
             "Three notations for the same thing: `x->p` (C arrow, slides 10.25–10.30), `p[x]` (slide 10.24) and `x.p` (CLRS, 3rd ed.) all mean \"the parent of x\". `a->f` means: go to the node that a points to and read its field f.",
             "<b>Reading a pointer chain</b>: read left to right, one hop per arrow. `x->p->p->right` = start at x, go to its parent, then to the parent's parent (the <b>grandparent</b>), then take that node's right child. Slide 10.16's tree with x = 11: `x->p` = 12, `x->p->p` = 9, `x->p->p->right` = 12, `x->p->p->left` = 8.",
@@ -17893,7 +17933,7 @@ window.COURSES.algo = {
             "ag-10-ptrs"
           ],
           "figAt": {
-            "ag-10-ptrs": 7
+            "ag-10-ptrs": 10
           },
           "figH": {
             "ag-10-ptrs": "Reading x->p->p->right on the tree of slide 10.16: fields, parent links and T.nil"
@@ -17905,6 +17945,8 @@ window.COURSES.algo = {
           "pts": [
             "A <b>red-black tree</b> is a BST in which each node also stores a colour, red or black, and the colours must obey five rules that keep the height O(lg n) (Lecture 9).",
             "The five <b>red-black properties</b> (numbered as on slide 10.3):<ul><li>1. Every node is either red or black.</li><li>2. Every leaf (NULL pointer, `T.nil`) is black.</li><li>3. If a node is red, both its children are black.</li><li>4. Every path from a node to a descendant leaf contains the same number of black nodes.</li><li>5. The root is always black.</li></ul>",
+            "<b>Internal nodes</b> are the real (non-NIL) nodes that hold keys; the NILs are the leaves. Slide 10.4 has 8 internal nodes and 9 NIL leaves (a binary tree with n internal nodes always has n + 1 NIL leaves). The \"n\" of the height theorem counts internal nodes.",
+            "<b>Induction</b> (recap, see Lecture 9, Before you start): to prove a claim for every height, prove it for the smallest case (base), then show \"true for the children's heights ⇒ true one level up\" (step); together they cover every height. The height lemma's base is a NIL: bh = 0 and it has 2<sup>0</sup> − 1 = 0 internal nodes.",
             "Two consequences the slides note: from #2, every real node has 2 children (some may be NIL); from #3, a path can never have two red nodes in a row.",
             "<b>Black-height</b> bh(x): the number of black nodes on a path from x down to a leaf, not counting x itself but counting the NIL leaf. Property 4 makes it the same on every path. Slide 10.4: bh(7) = 2, bh(18) = 2, bh(10) = 1, bh(8) = 1, a NIL has bh 0.",
             "Worked count, slide 10.4: from 7 the path 7 → 18 → 10 → 8 → NIL meets 18 (red), 10 (black), 8 (red), NIL (black): 2 blacks, so bh(7) = 2. From 18 (red) the same path meets 10 and NIL: bh(18) = 2 too.",
@@ -17918,7 +17960,7 @@ window.COURSES.algo = {
           "pts": [
             "Exams give an uncoloured BST and ask you to colour it (slide 10.8; asked in Final 2019 Credit Q3). The method below works on such trees; s and L are path lengths counted in real nodes (NILs not counted).",
             "The colouring method:<ul><li>1. List every path from the root to a NIL and count its real nodes. Let s = the shortest, L = the longest.</li><li>2. If L &gt; 2s, stop: no colouring exists.</li><li>3. Colour the root black (#5); NILs are black (#2).</li><li>4. Colour one shortest path all black. Now every path must have exactly b = s black real nodes.</li><li>5. On each longer path with r nodes, exactly r − b nodes are red, never two in a row. Start with the longest path: it has the fewest choices.</li><li>6. Check #3 and #4 at every node, not just the root. If it fails, try b = s − 1 (b may not go below ⌈L/2⌉); if no b works, the tree has no colouring.</li></ul>",
-            "Why L ≤ 2s: the root is black and reds cannot touch, so a path of r nodes has at least ⌈r/2⌉ black nodes; a shortest path has at most s. All paths have the same black count, so ⌈L/2⌉ ≤ s.",
+            "Why L ≤ 2s: the root is black and reds cannot touch, so a path of r nodes has at least ⌈r/2⌉ black nodes; a shortest path has at most s. All paths have the same black count, so ⌈L/2⌉ ≤ s. The test is necessary but not sufficient: slide 10.23's shape passes it (s = 2, L = 4) and still has no colouring, so steps 3-6 decide.",
             "Slide 10.4's tree (7; 3; 18; 10, 22; 8, 11, 26): s = 2 (7 → 3), L = 4 (7 → 18 → 10 → 8). Colour 7 and 3 black, so b = 2.",
             "Slide 10.4, continued: 7 → 18 → 10 → 8 needs 2 reds that do not touch below black 7, so 18 and 8 are red and 10 is black; the same path through 11 makes 11 red. 18 is red, so 22 is black; 7 → 18 → 22 → 26 then needs a second red: 26. This is exactly slide 10.4's colouring, and the only one.",
             "Slide 10.16's tree (after inserting 8 and 11): s = 2 (7 → 5), L = 4 (7 → 9 → 12 → 11). b = 2: 9 and 11 red, 12 black, and 8 black (child of red 9). This is the recolouring the slide shows.",
@@ -17937,7 +17979,7 @@ window.COURSES.algo = {
         {
           "h": "Review: red-black trees and their properties (Slides 10.2–10.4)",
           "pts": [
-            "Slide 10.2: red-black trees are binary search trees <b>augmented</b> with a node colour, and their operations are designed to guarantee height h = O(lg n).",
+            "Slide 10.2: red-black trees are binary search trees <b>augmented</b> with a node colour (augmented = each node stores one extra field, here its colour), and their operations are designed to guarantee height h = O(lg n).",
             "Already done (Lecture 9): the properties were described and proved to give h = O(lg n). Next (this lecture): the operations on red-black trees, mainly insertion.",
             "Slide 10.3 lists the five properties with two notes: #2 means every \"real\" node has 2 children; #3 means you can't have 2 consecutive reds on a path.",
             "Slide 10.4's example (from CLRS): root 7 black (bh = 2); 3 black; 18 red (bh = 2); 10 and 22 black (bh = 1); 8, 11, 26 red (bh = 1); every NIL has bh = 0.",
@@ -18110,7 +18152,7 @@ window.COURSES.algo = {
             "The pointer changes, in code order:<ul><li>`9->right = 11` and `11->p = 9` (B moves under 9)</li><li>`12->p = 7`, and since 9 was 7's right child, `7->right = 12`</li><li>`12->left = 9` and `9->p = 12`</li></ul>",
             "Result (slide 10.23): 7 with children 5 and 12; 12 has left child 9 and no right child; 9 has children 8 and 11.",
             "Inorder is 5, 7, 8, 9, 11, 12 before and after: the rotation changed the shape, not the order.",
-            "A rotation alone does not fix colours ‡: slide 10.23's shape has no valid colouring (7 → 12 → NIL forces 12 black with b = 2, and then 9 and 8 on 7 → 12 → 9 → 8 would both have to be red). That is why rbInsert always recolours together with its rotations."
+            "A rotation alone does not fix colours ‡: slide 10.23's shape has no valid colouring, whatever colours 5 and 12 get: from 12 the paths 12 → NIL and 12 → 9 → 8 → NIL must meet the same number of blacks, so 9 and 8 would both have to be red, and they are adjacent (#3). That is why rbInsert always recolours together with its rotations."
           ],
           "fig": [
             "ag-10-rotex"
@@ -18165,7 +18207,7 @@ window.COURSES.algo = {
             "Action: A black, D black, C red, then `x = x->p->p`: C becomes the new x. Only colours change, no pointers.",
             "Why #4 still holds: before, a path from C down into any Δ met exactly one black node on the way (C); after, it meets exactly one (A or D). Paths from above C see the same count too.",
             "Why the loop continues: C is now red, and C's parent may be red. The violation moved 2 levels up; \"the while loop now continues with x's grandparent as the new x\".",
-            "Slide 10.28: the same action when x = B is the <b>left</b> child of A. Case 1 looks only at the uncle's colour, not at which side x is on.",
+            "Slide 10.28: the same action when x = B is the <b>left</b> child of A. Case 1 looks only at the uncle's colour, not at which side x is on. (The slide's right-hand picture still labels B as x after the change; the new x is C.)",
             "Example: inserting 11 (slide 10.16) is the mirror, Case 4: 12 and 8 black, 9 red, x = 9; 9's parent 7 is black, so the loop stops.",
             "Each Case 1 step is O(1) and moves x up 2 levels, so it repeats at most about h/2 times: O(lg n) ‡."
           ]
@@ -18182,7 +18224,7 @@ window.COURSES.algo = {
             "Effect: B (now black) is on top, with red children A and C; C keeps the uncle Δ y as its right subtree.",
             "Why #4 holds: before, every path from the top met one black (C) above the Δ's; after, it meets one black (B). The top node is black before and after, so nothing above changes.",
             "The loop ends: x's parent B is black, so the while test fails. Case 2 + Case 3 use at most 2 rotations.",
-            "Example: inserting 10 into slide 10.19's tree is Case 3 directly (10 is already a left child, so Case 2 is skipped): 11 black, 12 red, rightRotate(12). Result: 7 (B); 9 (R) with children 8 (B) and 11 (B); 11 with children 10 (R) and 12 (R). Every path from 7 has 2 blacks below 7."
+            "Example: inserting 10 into slide 10.16's tree (10 lands under 11 as on slides 10.17–10.19) is Case 3 directly (10 is already a left child, so Case 2 is skipped): 11 black, 12 red, rightRotate(12). Result: 7 (B); 9 (R) with children 8 (B) and 11 (B); 11 with children 10 (R) and 12 (R). Every path from 7 has 2 blacks below 7."
           ]
         },
         {
@@ -18322,7 +18364,7 @@ window.COURSES.algo = {
         ],
         [
           "Test before colouring a tree",
-          "Longest root-to-NIL path ≤ 2 × shortest (in real nodes). If not, no colouring exists (slide 10.19: 5 > 2 × 2)."
+          "Longest root-to-NIL path ≤ 2 × shortest (in real nodes). If not, no colouring exists (slide 10.19: 5 > 2 × 2). Passing it is necessary, not sufficient (slide 10.23's shape passes and has none)."
         ],
         [
           "What is missing at the end of the slide's rbInsert?",
@@ -18554,7 +18596,7 @@ window.COURSES.algo = {
             ],
             [
               "lg h",
-              "Wrong: nothing logarithmic appears here; the reds can at most halve the black count, they cannot shrink it to lg h."
+              "Wrong: lg h would allow many more reds than blacks on a path; #3 allows at most one red per black, so bh ≥ h/2, far more than lg h (h = 16: 8 vs 4)."
             ],
             [
               "1",
@@ -18989,7 +19031,7 @@ window.COURSES.algo = {
             ],
             [
               "4",
-              "Wrong: 4 is the number of edges on the path 18 → 10 → 8 → NIL plus one; bh counts black nodes only."
+              "Wrong: 4 is the number of nodes on 18 → 10 → 8 → NIL (red and black together); bh counts only the black nodes below 18."
             ]
           ],
           "a": 0
@@ -19083,7 +19125,7 @@ window.COURSES.algo = {
           "a": 0
         },
         {
-          "q": "Inserting 10 into slide 10.19's situation (parent 11 red, a left child of 12, uncle NIL): which case does rbInsert apply?",
+          "q": "Insert 10 into slide 10.16's tree: it lands under red 11, a left child of 12, with uncle NIL (slides 10.17–10.19): which case does rbInsert apply?",
           "o": [
             [
               "Case 3",
@@ -19105,7 +19147,7 @@ window.COURSES.algo = {
           "a": 0
         },
         {
-          "q": "After rbInsert(10) on slide 10.19's tree, which node is 9's right child?",
+          "q": "After rbInsert(10) on slide 10.16's tree (10 lands under 11 as on slides 10.17–10.19), which node is 9's right child?",
           "o": [
             [
               "11 (black), with red children 10 and 12",
@@ -19117,7 +19159,7 @@ window.COURSES.algo = {
             ],
             [
               "10 (black), with children 11 and 12",
-              "Wrong: 10 &lt; 11 &lt; 12 means 10 cannot have 11 as a child on both sides; one right rotation lifts 11, not 10."
+              "Wrong: 11 and 12 are both larger than 10, so they could not be its left and right children; Case 3's right rotation lifts 11 (the parent), not 10."
             ],
             [
               "11 (red), with black children 10 and 12",
@@ -19285,7 +19327,7 @@ window.COURSES.algo = {
           "o": [
             [
               "7; 5, 12; 9 under 12; 8, 11 under 9",
-              "Correct: 7 → 12 → NIL has 2 nodes, forcing 12 black, so 7 → 12 → 9 → 8 would need red 9 and red 8 in a row: impossible. Rotations need recolouring too."
+              "Correct: from 12, the paths 12 → NIL and 12 → 9 → 8 → NIL must meet equally many blacks, so 9 and 8 would both be red and adjacent, whatever colour 12 or 5 has. Rotations need recolouring too."
             ],
             [
               "7; 5, 9; 8, 12 (before adding 11)",
