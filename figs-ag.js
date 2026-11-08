@@ -4590,7 +4590,7 @@
       { en: 'Recursive definition: F<sub>0</sub> = 0, F<sub>1</sub> = 1, F<sub>n</sub> = F<sub>n−1</sub> + F<sub>n−2</sub> for n ≥ 2.' },
       { en: `Naive recursion: F<sub>5</sub> already makes ${T.nodes.length} calls, and F<sub>3</sub> is computed 2 times, F<sub>2</sub> 3 times. The calls grow like Ω(φ<sup>n</sup>), φ = (1 + √5)/2: exponential.` },
       { en: 'Bottom-up: compute F<sub>0</sub>, F<sub>1</sub>, F<sub>2</sub>, … in order, each the sum of the two before. Θ(n) time.' },
-      { en: `Naive recursive squaring: F<sub>n</sub> = φ<sup>n</sup>/√5 rounded to the nearest integer, Θ(lg n) time. Unreliable: in double-precision floating point it first goes wrong at n = ${fail ? fail.k : '?'}.` }
+      { en: `Naive recursive squaring: F<sub>n</sub> = φ<sup>n</sup>/√5 rounded to the nearest integer, Θ(lg n) time. Unreliable: in double-precision floating point, using a built-in power function, it first goes wrong at n = ${fail ? fail.k : '?'}.` }
     ];
     const [i, ctl] = useSteps(steps.length, 2600);
     const sx = x => 20 + x * (260 / Math.max(1, T.leaves - 1)), sy = d => 22 + d * 44;
@@ -4773,7 +4773,7 @@
       { show: 2, en: 'Each parent sits one row above its two children, in the middle between them.' },
       { show: 1, en: 'The next level up: each node spans twice the width.' },
       { show: 0, en: 'The root on top: the whole tree is drawn.' },
-      { show: 0, hh: 1, en: 'Height: one row more than a half-tree, <b>H(n) = H(n/2) + Θ(1) = Θ(lg n)</b>. Here H = 3 = lg 8 rows.' },
+      { show: 0, hh: 1, en: 'Height: one row more than a half-tree, <b>H(n) = H(n/2) + Θ(1) = Θ(lg n)</b>. Here H = 3 = lg 8 grid units.' },
       { show: 0, hh: 1, ww: 1, en: 'Width: two half-trees side by side plus a gap, <b>W(n) = 2W(n/2) + Θ(1) = Θ(n)</b>. Here W(2) = 2, W(4) = 2·2 + 2 = 6, W(8) = 2·6 + 2 = 14 units.' },
       { show: 0, hh: 1, ww: 1, ar: 1, en: '<b>Area = Θ(n lg n)</b> (here 14 × 3 = 42 cells). The H-tree below does better.' }
     ];
@@ -7968,4 +7968,951 @@
   }
 
   window.FIGS = Object.assign(window.FIGS || {}, { 'ag-11-bstdel': BstDel, 'ag-11-bhpath': BhPath, 'ag-11-ex3': Ex3 });
+})();
+/* ── part L1b ── */
+// Algorithms visuals, Lecture 1, background the slides assume: reading pseudocode, the sum 1 + 2 + ... + n, lg n by halving, floor and ceiling,
+// recursion and the call stack, growth of n lg n against n², and MERGE-SORT on the slide's array (the slide traces MERGE only).
+(function () {
+  const { useState, useMemo } = React;
+  const { html, useSteps, Cap, Bar } = window.FIGKIT;
+  const CSS = `
+.a1b-wrap{ max-width:420px; margin:0 auto; }
+.a1b-seg{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; }
+.a1b-seg .fig-btn[aria-pressed="true"]{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a1b-code{ font:13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:var(--paper); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:8px 6px; margin:0 auto 10px; white-space:pre-wrap; }
+.a1b-code span{ display:block; padding:0 4px; border-radius:4px; }
+.a1b-code span.on{ background:color-mix(in srgb, var(--fig-k) 26%, transparent); font-weight:700; }
+.a1b-idx,.a1b-arr{ display:flex; gap:4px; justify-content:center; }
+.a1b-idx span{ width:40px; text-align:center; font-size:12.5px; color:var(--graphite); }
+.a1b-arr span{ width:40px; height:34px; display:grid; place-items:center; border:1px solid var(--line); border-radius:6px; background:var(--paper); color:var(--ink); font-weight:600; font-size:15px; }
+.a1b-arr span.on{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a1b-vars{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:10px 0 0; }
+.a1b-vars div{ border:1px solid var(--line); border-radius:8px; background:var(--paper); padding:5px 12px; font-size:13px; color:var(--graphite); text-align:center; min-width:62px; }
+.a1b-vars b{ display:block; font-size:18px; color:var(--ink); }
+.a1b-svg{ display:block; width:100%; height:auto; margin:0 auto; }
+.a1b-res{ text-align:center; font-size:14px; color:var(--ink); margin:8px 0 0; line-height:1.5; }
+.a1b-hb{ display:grid; gap:5px; }
+.a1b-hb div{ height:18px; border-radius:4px; background:color-mix(in srgb, var(--fig-k) 18%, var(--paper)); transition:background .3s; min-width:3px; }
+.a1b-hb div.on{ background:var(--fig-s); }
+.a1b-chain{ display:flex; flex-wrap:wrap; gap:4px; justify-content:center; align-items:center; margin:10px 0 0; font-size:14px; color:var(--graphite); }
+.a1b-chain b{ min-width:30px; text-align:center; padding:2px 6px; border-radius:6px; border:1px solid var(--line); color:var(--ink); }
+.a1b-chain b.on{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a1b-frames{ display:flex; flex-direction:column; gap:4px; align-items:center; min-height:118px; justify-content:flex-end; border-bottom:3px solid var(--graphite); max-width:260px; margin:0 auto; padding-bottom:4px; }
+.a1b-frames div{ width:100%; box-sizing:border-box; text-align:center; padding:5px 8px; border-radius:6px; border:1px solid var(--line); background:var(--paper); color:var(--ink); font-size:14px; }
+.a1b-frames div.top{ background:var(--fig-s); color:#fff; border-color:transparent; font-weight:700; }
+.a1b-lab{ text-align:center; font-size:12.5px; color:var(--graphite); margin:4px 0 0; }
+.a1b-bars{ display:grid; gap:10px; }
+.a1b-bars p{ margin:0 0 3px; font-size:13.5px; color:var(--ink); display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+.a1b-bars i{ display:block; height:14px; border-radius:0 4px 4px 0; min-width:3px; transition:width .5s; }
+.a1b-grid{ display:grid; grid-template-columns:repeat(6, 40px); gap:7px 0; justify-content:center; }
+.a1b-b{ display:flex; gap:2px; padding:0 3px; justify-content:center; }
+.a1b-b span{ flex:1; height:30px; display:grid; place-items:center; border:1px solid var(--line); border-radius:5px; background:var(--paper); color:var(--ink); font-weight:600; font-size:14px; }
+.a1b-b.on span{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a1b-b.ok span{ background:color-mix(in srgb, var(--ok) 24%, var(--paper)); }
+`;
+  if (!document.getElementById('a1b-css')) { const s = document.createElement('style'); s.id = 'a1b-css'; s.textContent = CSS; document.head.appendChild(s); }
+  const Seg = ({ opts, val, set }) => html`<div className="a1b-seg">${opts.map(([v, l]) => html`<button key=${v} className="fig-btn" aria-pressed=${String(v === val)} onClick=${() => set(v)}>${l}</button>`)}</div>`;
+
+  /* reading the slides' pseudocode: a three-element sum, line by line */
+  function PCode() {
+    const A = [5, 3, 2], L = ['SUM(A, n)', '1  s ← 0', '2  for j ← 1 to n', '3      do s ← s + A[j]', '4  return s'];
+    const steps = [
+      { l: 1, j: '-', s: 0, c: -1, en: 'Line 1: <b>s ← 0</b> means "put 0 into s". The arrow is assignment. The array is indexed from 1, so A[1] = 5, A[2] = 3, A[3] = 2, and n = 3.' },
+      { l: 2, j: 1, s: 0, c: 0, en: 'Line 2: the loop starts with j = 1. Is 1 ≤ n = 3? Yes, so the body (the indented line) runs.' },
+      { l: 3, j: 1, s: 5, c: 0, en: 'Line 3: s ← s + A[1] = 0 + 5 = <b>5</b>. First addition.' },
+      { l: 2, j: 2, s: 5, c: 1, en: 'Line 2 again: j goes up by 1 automatically, so j = 2. Is 2 ≤ 3? Yes.' },
+      { l: 3, j: 2, s: 8, c: 1, en: 'Line 3: s ← 5 + A[2] = 5 + 3 = <b>8</b>. Second addition.' },
+      { l: 2, j: 3, s: 8, c: 2, en: 'Line 2 again: j = 3. Is 3 ≤ 3? Yes: "to n" includes n itself.' },
+      { l: 3, j: 3, s: 10, c: 2, en: 'Line 3: s ← 8 + A[3] = 8 + 2 = <b>10</b>. Third addition.' },
+      { l: 2, j: 4, s: 10, c: -1, en: 'Line 2 again: j = 4. Is 4 ≤ 3? No, so the loop is finished.' },
+      { l: 4, j: 4, s: 10, c: -1, en: 'Line 4: return <b>10</b>. Count of the basic operation: 3 additions for n = 3, so T(n) = n.' }];
+    const [i, ctl] = useSteps(steps.length, 1800), s = steps[i];
+    return html`<figure className="fig"><div className="fig-stage"><div className="a1b-wrap">
+      <div className="a1b-code">${L.map((t, k) => html`<span key=${k} className=${k === s.l ? 'on' : ''}>${t}</span>`)}</div>
+      <div className="a1b-idx">${A.map((_, k) => html`<span key=${k}>${k + 1}</span>`)}</div>
+      <div className="a1b-arr">${A.map((v, k) => html`<span key=${k} className=${k === s.c ? 'on' : ''}>${v}</span>`)}</div>
+      <div className="a1b-vars"><div>j<b>${s.j}</b></div><div>s<b>${s.s}</b></div></div></div></div>
+      <${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  /* 1 + 2 + ... + n: two staircases fill an n by (n + 1) rectangle */
+  function GaussBody({ n }) {
+    const C = 30, X0 = 26, Y0 = 8, sum = n * (n + 1) / 2, list = Array.from({ length: n }, (_, k) => k + 1);
+    const steps = [
+      { en: `Draw the sum as a staircase: row r has r blocks, so the staircase holds 1 + 2 + ... + ${n} blocks. We want that number.` },
+      { en: `Take a second copy and turn it upside down. It fits exactly into the empty part, on the right of every row.` },
+      { en: `Together they fill a rectangle ${n} rows high and ${n + 1} columns wide: ${n} × ${n + 1} = <b>${n * (n + 1)}</b> blocks.` },
+      { en: `That rectangle is two equal staircases, so one staircase is half of it: 1 + 2 + ... + ${n} = ${n} × ${n + 1} / 2 = <b>${sum}</b>. In general n(n + 1)/2.` }];
+    const [i, ctl] = useSteps(steps.length, 2200), W = X0 + (n + 1) * C + 8, H = Y0 + n * C + 8;
+    return html`<div className="a1b-wrap"><svg className="a1b-svg" style=${{ maxWidth: W + 40 + 'px' }} viewBox=${`0 0 ${W} ${H}`} role="img" aria-label=${`Two staircases of 1 to ${n} blocks fill a rectangle`}>
+      ${list.map(r => html`<g key=${r}><text x=${X0 - 7} y=${Y0 + (r - 1) * C + 20} textAnchor="end" fontSize="14" style=${{ fill: 'var(--graphite)' }}>${r}</text>
+        ${Array.from({ length: r }, (_, c) => html`<rect key=${c} x=${X0 + c * C + 1} y=${Y0 + (r - 1) * C + 1} width=${C - 2} height=${C - 2} rx="4" style=${{ fill: 'var(--fig-s)' }} />`)}
+        ${i >= 1 ? Array.from({ length: n + 1 - r }, (_, c) => html`<rect key=${'x' + c} x=${X0 + (r + c) * C + 1} y=${Y0 + (r - 1) * C + 1} width=${C - 2} height=${C - 2} rx="4" style=${{ fill: 'none', stroke: 'var(--fig-k)', strokeWidth: 2 }} />`) : null}</g>`)}
+    </svg><p className="a1b-res">${i >= 3 ? html`<b>1 + 2 + ... + ${n} = ${sum}</b>` : `1 + 2 + ... + ${n} = ?`}</p>
+    <${Cap} en=${steps[i].en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></div>`;
+  }
+  function Gauss() {
+    const [n, setN] = useState(4);
+    return html`<figure className="fig"><div className="fig-stage"><${Seg} opts=${[[3, 'n = 3'], [4, 'n = 4'], [5, 'n = 5'], [6, 'n = 6']]} val=${n} set=${setN} /><${GaussBody} key=${n} n=${n} /></div></figure>`;
+  }
+
+  /* lg n: how many times can n be halved down to 1 */
+  function LgBody({ n }) {
+    const v = [n]; while (v[v.length - 1] > 1) v.push(v[v.length - 1] / 2);
+    const h = v.length - 1;
+    const steps = v.map((x, k) => ({ en: k === 0 ? `Start with n = ${n} items.` : k < h ? `Halving ${k}: ${v[k - 1]} / 2 = <b>${x}</b> items left.` : `Halving ${k}: ${v[k - 1]} / 2 = <b>1</b> item left. We halved ${h} times, so <b>lg ${n} = ${h}</b>, because 2<sup>${h}</sup> = ${n}.` }));
+    const [i, ctl] = useSteps(steps.length, 1500);
+    return html`<div className="a1b-wrap"><div className="a1b-hb">${v.map((x, k) => html`<div key=${k} className=${k === i ? 'on' : ''} style=${{ width: (k <= i ? x / n * 100 : 0) + '%' }}></div>`)}</div>
+      <div className="a1b-chain">${v.map((x, k) => html`<b key=${k} className=${k === i ? 'on' : ''}>${k <= i ? x : '?'}</b>`)}</div>
+      <p className="a1b-res">halvings so far: <b>${i}</b></p>
+      <${Cap} en=${steps[i].en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></div>`;
+  }
+  function Lg() {
+    const [n, setN] = useState(16);
+    return html`<figure className="fig"><div className="fig-stage"><${Seg} opts=${[[8, 'n = 8'], [16, 'n = 16'], [32, 'n = 32'], [64, 'n = 64']]} val=${n} set=${setN} /><${LgBody} key=${n} n=${n} /></div></figure>`;
+  }
+
+  /* floor and ceiling on a number line */
+  function Floor() {
+    const X = [['2.5', 2.5, '5 / 2'], ['3', 3, '6 / 2'], ['3.5', 3.5, '7 / 2'], ['0.5', 0.5, '1 / 2']];
+    const [o, setO] = useState('3.5'), x = X.find(e => e[0] === o), v = x[1], fl = Math.floor(v), ce = Math.ceil(v), px = t => 26 + t * 55;
+    const whole = fl === ce;
+    return html`<figure className="fig"><div className="fig-stage"><div className="a1b-wrap">
+      <${Seg} opts=${X.map(e => [e[0], e[2]])} val=${o} set=${setO} />
+      <svg className="a1b-svg" style=${{ maxWidth: '320px' }} viewBox="0 0 300 92" role="img" aria-label=${`Number line: floor of ${v} is ${fl}, ceiling is ${ce}`}>
+        <line x1="10" y1="50" x2="290" y2="50" style=${{ stroke: 'var(--graphite)' }} strokeWidth="2" />
+        ${[0, 1, 2, 3, 4].map(t => html`<g key=${t}><line x1=${px(t)} x2=${px(t)} y1="44" y2="56" style=${{ stroke: 'var(--graphite)' }} strokeWidth="2" /><text x=${px(t)} y="74" textAnchor="middle" fontSize="15" style=${{ fill: 'var(--ink)' }}>${t}</text></g>`)}
+        <circle cx=${px(fl)} cy="50" r="8" style=${{ fill: 'var(--fig-s)' }} /><circle cx=${px(ce)} cy="50" r="8" style=${{ fill: 'var(--fig-s)' }} />
+        ${whole ? null : html`<circle cx=${px(v)} cy="50" r="6" style=${{ fill: 'var(--paper)', stroke: 'var(--fig-k)', strokeWidth: 3 }} />`}
+        <text x=${px(v)} y="30" textAnchor="middle" fontSize="15" fontWeight="700" style=${{ fill: 'var(--ink)' }}>x = ${v}</text>
+      </svg></div></div>
+      <${Cap} en=${whole ? `x = ${x[2]} = ${v} is already whole, so floor and ceiling both give it: ⌊${v}⌋ = ⌈${v}⌉ = <b>${v}</b>.` : `x = ${x[2]} = ${v}. <b>Floor</b> ⌊x⌋ rounds down to ${fl}. <b>Ceiling</b> ⌈x⌉ rounds up to ${ce}.`} /></figure>`;
+  }
+
+  /* recursion and the call stack: sum(3) */
+  function Stack() {
+    const L = ['sum(n)', '1  if n = 1 then return 1', '2  return n + sum(n - 1)'];
+    const f3w = 'sum(3): waiting for sum(2)', f2w = 'sum(2): waiting for sum(1)';
+    const steps = [
+      { l: 1, f: ['sum(3)'], en: 'Calling sum(3) pushes a frame on the stack. The frame holds this call\'s own n = 3.' },
+      { l: 2, f: [f3w, 'sum(2)'], en: 'n = 3 is not 1, so line 2 needs sum(2). sum(3) waits; a new frame is pushed on top.' },
+      { l: 2, f: [f3w, f2w, 'sum(1)'], en: 'n = 2 is not 1, so sum(2) needs sum(1). Push a third frame. Each frame has its own n.' },
+      { l: 1, f: [f3w, f2w, 'sum(1) returns 1'], en: 'n = 1 is the <b>base case</b>: it answers 1 with no further call. Without a base case the calls would never end.' },
+      { l: 2, f: [f3w, 'sum(2) = 2 + 1 = 3'], en: 'sum(1) is popped (last in, first out). sum(2) resumes where it stopped: 2 + 1 = <b>3</b>.' },
+      { l: 2, f: ['sum(3) = 3 + 3 = 6'], en: 'sum(2) is popped. sum(3) resumes: 3 + 3 = <b>6</b>.' },
+      { l: 0, f: [], en: 'sum(3) is popped; the stack is empty and the answer is <b>6</b>. Deepest stack: 3 frames, for n = 3.' }];
+    const [i, ctl] = useSteps(steps.length, 2200), s = steps[i], top = [...s.f].reverse();
+    return html`<figure className="fig"><div className="fig-stage"><div className="a1b-wrap">
+      <div className="a1b-code">${L.map((t, k) => html`<span key=${k} className=${k === s.l ? 'on' : ''}>${t}</span>`)}</div>
+      <div className="a1b-frames">${top.map((t, k) => html`<div key=${t} className=${k === 0 ? 'top' : ''}>${t}</div>`)}</div>
+      <p className="a1b-lab">call stack (top = running now)</p></div></div>
+      <${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  /* n lg n against n²: same factor n, then lg n against n */
+  function Growth() {
+    const N = [[16, 4], [64, 6], [1024, 10], [1048576, 20]], fmt = v => v.toLocaleString('en-US');
+    const [o, setO] = useState(1024), [n, lg] = N.find(e => e[0] === o), a = n * lg, b = n * n, secs = v => v / 1e9;
+    const pretty = s => s < 1e-3 ? (s * 1e6).toFixed(s * 1e6 < 10 ? 1 : 0) + ' μs' : s < 1 ? (s * 1e3).toFixed(1) + ' ms' : s < 120 ? s.toFixed(1) + ' s' : (s / 60).toFixed(0) + ' min';
+    return html`<figure className="fig"><div className="fig-stage"><div className="a1b-wrap">
+      <${Seg} opts=${N.map(e => [e[0], 'n = ' + fmt(e[0])])} val=${o} set=${setO} />
+      <div className="a1b-bars">
+        <div><p><span>n lg n = ${fmt(n)} × ${lg}</span><b>${fmt(a)}</b></p><i style=${{ width: a / b * 100 + '%', background: 'var(--fig-s)' }}></i></div>
+        <div><p><span>n² = ${fmt(n)} × ${fmt(n)}</span><b>${fmt(b)}</b></p><i style=${{ width: '100%', background: '#d23c3c' }}></i></div>
+      </div>
+      <p className="a1b-res">at 10<sup>9</sup> steps per second: <b>${pretty(secs(a))}</b> against <b>${pretty(secs(b))}</b></p></div></div>
+      <${Cap} en=${`Both have a factor n, so the contest is lg n against n. At n = ${fmt(n)}: lg n = ${lg} but n = ${fmt(n)}, so n² is <b>${fmt(b / a)}</b> times bigger (n / lg n = ${fmt(n)} / ${lg}). Bars are drawn to scale.`} /></figure>`;
+  }
+
+  /* MERGE-SORT on the slide's array, following slide 1.25 (left part gets ⌈n/2⌉ keys) */
+  function buildMSort() {
+    const A = [8, 2, 4, 9, 3, 6], blocks = [{ d: 0, lo: 0, hi: 5, v: [...A], st: '' }], steps = [];
+    const snap = (on, en) => steps.push({ en, b: blocks.map(b => ({ ...b, v: [...b.v], st: on.includes(b) ? 'on' : b.st })) });
+    const go = me => { const n = me.hi - me.lo + 1; if (n === 1) return;
+      const m = Math.ceil(n / 2), L = { d: me.d + 1, lo: me.lo, hi: me.lo + m - 1, v: me.v.slice(0, m), st: '' }, R = { d: me.d + 1, lo: me.lo + m, hi: me.hi, v: me.v.slice(m), st: '' };
+      blocks.push(L, R); snap([L, R], `Split ${me.v.join(' ')} (n = ${n}): ⌈${n}/2⌉ = ${m}, so the left part gets ${m} key${m > 1 ? 's' : ''}: ${L.v.join(' ')} and the right part ${R.v.join(' ')}.`);
+      go(L); go(R);
+      const out = [], a = L.v, b = R.v; let i = 0, j = 0, c = 0; while (i < a.length && j < b.length) { c++; out.push(a[i] <= b[j] ? a[i++] : b[j++]); } while (i < a.length) out.push(a[i++]); while (j < b.length) out.push(b[j++]);
+      me.v = out; me.st = 'ok'; L.st = 'ok'; R.st = 'ok';
+      snap([me], `MERGE ${a.join(' ')} with ${b.join(' ')}: ${c} comparison${c > 1 ? 's' : ''} give <b>${out.join(' ')}</b>.`); };
+    go(blocks[0]); return steps;
+  }
+  function MSort() {
+    const steps = useMemo(buildMSort, []), [i, ctl] = useSteps(steps.length, 2200), s = steps[i];
+    return html`<figure className="fig"><div className="fig-stage"><div className="a1b-grid">
+      ${s.b.map((b, k) => html`<div key=${k} className=${'a1b-b ' + b.st} style=${{ gridColumn: `${b.lo + 1} / span ${b.hi - b.lo + 1}`, gridRow: b.d + 1 }}>${b.v.map((x, q) => html`<span key=${q}>${x}</span>`)}</div>`)}
+    </div></div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  window.FIGS = Object.assign(window.FIGS || {}, {
+    'ag-1-pcode': PCode, 'ag-1-gauss': Gauss, 'ag-1-lg': Lg, 'ag-1-floor': Floor, 'ag-1-stack': Stack, 'ag-1-growth': Growth, 'ag-1-msort': MSort
+  });
+})();
+/* ── part L2b ── */
+// Algorithms visuals, Lecture 2, background the slides assume: halving and lg n with floor and ceiling, the sum of 1..n and the doubling sum, limits of a ratio, and counting each operation of add() from slide 2.28.
+(function () {
+  const { useState } = React;
+  const { html, useSteps, Cap, Bar } = window.FIGKIT;
+  const CSS = `
+.a2b-seg{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; }
+.a2b-seg .fig-btn[aria-pressed="true"]{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a2b-chain{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:center; margin:6px 0; }
+.a2b-chip{ min-width:34px; padding:5px 8px; text-align:center; border:1px solid var(--line); border-radius:7px; background:var(--paper); color:var(--ink); font-weight:600; font-size:15px; transition:background .3s; }
+.a2b-chip.on{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a2b-chip.off{ opacity:.3; }
+.a2b-arr{ color:var(--graphite); font-size:14px; }
+.a2b-big{ text-align:center; font-size:15px; color:var(--ink); margin:8px 0 2px; line-height:1.5; }
+.a2b-big b{ color:var(--pen); }
+.a2b-grid{ display:grid; gap:3px; justify-content:center; margin:6px auto; }
+.a2b-grid span{ width:24px; height:24px; border-radius:4px; border:1px solid var(--line); background:var(--paper); transition:background .4s, opacity .4s; }
+.a2b-grid span.p{ background:var(--fig-s); border-color:transparent; }
+.a2b-grid span.q{ background:color-mix(in srgb, var(--ok) 55%, var(--paper)); border-color:transparent; }
+.a2b-grid span.h{ opacity:.12; }
+.a2b-bars{ display:grid; gap:4px; max-width:400px; margin:6px auto; }
+.a2b-bar{ display:grid; grid-template-columns:58px 1fr; gap:6px; align-items:center; font-size:13.5px; color:var(--graphite); }
+.a2b-bar i{ display:block; height:16px; border-radius:3px; background:var(--fig-s); transition:width .4s, opacity .4s; min-width:3px; }
+.a2b-bar i.next{ background:var(--ok); }
+.a2b-tbl{ border-collapse:collapse; margin:4px auto 8px; font-size:14px; color:var(--ink); }
+.a2b-tbl th, .a2b-tbl td{ border:1px solid var(--line); padding:4px 9px; text-align:right; }
+.a2b-tbl th{ background:var(--paper); color:var(--graphite); font-weight:600; }
+.a2b-tbl tr.now td{ background:color-mix(in srgb, var(--fig-k) 22%, var(--paper)); font-weight:700; }
+.a2b-code{ font:13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:var(--paper); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:6px; margin:0 auto 8px; max-width:330px; }
+.a2b-code div{ padding:1px 5px; border-radius:4px; white-space:pre-wrap; }
+.a2b-code div.on{ background:color-mix(in srgb, var(--fig-k) 26%, transparent); font-weight:700; }
+.a2b-count{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:6px; max-width:330px; margin:0 auto; }
+.a2b-count div{ border:1px solid var(--line); border-radius:8px; background:var(--paper); text-align:center; padding:5px 2px; font-size:13px; color:var(--graphite); }
+.a2b-count b{ display:block; font-size:19px; color:var(--ink); }
+.a2b-of{ font-size:13px; color:var(--graphite); }
+@media (prefers-reduced-motion: reduce){ .a2b-chip, .a2b-grid span, .a2b-bar i{ transition:none; } }
+`;
+  if (!document.getElementById('a2b-css')) { const s = document.createElement('style'); s.id = 'a2b-css'; s.textContent = CSS; document.head.appendChild(s); }
+
+  const Seg = ({ opts, v, set }) => html`<div className="a2b-seg" role="group">${opts.map(([k, t]) => html`<button key=${k} className="fig-btn" aria-pressed=${String(v === k)} onClick=${() => set(k)}>${t}</button>`)}</div>`;
+  const SBar = ({ steps, i, ctl }) => steps.length <= 11 ? html`<${Bar} steps=${steps} i=${i} ctl=${ctl} />` : html`<div className="fig-bar">
+    <span className="a2b-of">step ${i + 1} of ${steps.length}</span><span className="grow"></span>
+    <button className="fig-btn" onClick=${() => ctl.go(Math.max(0, i - 1))} disabled=${i === 0} aria-label="Previous step">‹ Back</button>
+    <button className="fig-btn" onClick=${() => ctl.go(Math.min(steps.length - 1, i + 1))} disabled=${i === steps.length - 1} aria-label="Next step">Next ›</button>
+    <button className="fig-btn" onClick=${ctl.replay}>↻ Replay</button></div>`;
+  function Walk({ steps, ms, view }) {
+    const [i, ctl] = useSteps(steps.length, ms), s = steps[Math.min(i, steps.length - 1)];
+    return html`<div className="fig-stage">${view(s, i)}</div><${Cap} en=${s.en} /><${SBar} steps=${steps} i=${i} ctl=${ctl} />`;
+  }
+  const Html = ({ t, c }) => html`<p className=${c} dangerouslySetInnerHTML=${{ __html: t }}></p>`;
+
+  // background: halving n until it reaches 1; lg n, floor and ceiling
+  function halveSteps(n) {
+    const c = [n]; while (c[c.length - 1] > 1) c.push(Math.floor(c[c.length - 1] / 2));
+    const lo = Math.floor(Math.log2(n)), hi = Math.ceil(Math.log2(n)), pow = Number.isInteger(Math.log2(n));
+    const st = c.map((v, k) => ({ c, k, en: k === 0 ? `Start with n = <b>${n}</b>. Each step keeps ⌊half⌋ of the value (integer division).` : `Halving ${k}: ⌊${c[k - 1]} / 2⌋ = <b>${v}</b>.` + (v === 1 ? ' We reached 1, so we stop.' : '') }));
+    st.push({ c, k: c.length - 1, done: 1, en: `It took <b>${c.length - 1}</b> halvings. lg ${n} ${pow ? '=' : '≈'} ${Math.log2(n).toFixed(2).replace(/\.00$/, '')}, so ⌊lg ${n}⌋ = <b>${lo}</b> and ⌈lg ${n}⌉ = <b>${hi}</b>. The halvings equal ⌊lg n⌋; a loop that starts at n and halves down to 1 makes ⌊lg n⌋ + 1 = <b>${lo + 1}</b> passes.` });
+    return st;
+  }
+  function Halve() {
+    const [n, setN] = useState(16), steps = halveSteps(n);
+    const view = s => html`<div className="a2b-chain">${s.c.map((v, q) => html`<span key=${q} style=${{ display: 'contents' }}>${q > 0 && html`<span className="a2b-arr">→</span>`}<span className=${'a2b-chip' + (q === s.k && !s.done ? ' on' : q > s.k ? ' off' : '')}>${v}</span></span>`)}</div>
+      <p className="a2b-big">passes so far: <b>${s.k + 1}</b> · halvings: <b>${s.k}</b></p>`;
+    return html`<figure className="fig"><div className="fig-stage" style=${{ paddingBottom: 0 }}><${Seg} opts=${[8, 10, 16, 100].map(x => [x, 'n = ' + x])} v=${n} set=${setN} /></div><${Walk} key=${n} steps=${steps} ms=${1500} view=${view} /></figure>`;
+  }
+
+  // slide 2.8: pairing argument for 1 + 2 + ... + n, and the doubling sum
+  function Gauss({ n }) {
+    const steps = [
+      { sh: 0, en: `S = 1 + 2 + … + ${n}: row i holds i squares (blue), like a staircase.` },
+      { sh: 1, en: `A second copy of the same staircase, turned upside down (green), fits exactly into the gap.` },
+      { sh: 1, en: `Together they form a rectangle of ${n} rows and ${n + 1} columns, so 2S = ${n} × ${n + 1} = <b>${n * (n + 1)}</b>. That is 2S = n(n + 1).` },
+      { sh: 1, en: `So S = n(n + 1)/2 = ${n} · ${n + 1} / 2 = <b>${n * (n + 1) / 2}</b>, the first sum on slide 2.8.` }];
+    const view = s => html`<div className="a2b-grid" style=${{ gridTemplateColumns: `repeat(${n + 1}, 24px)` }}>${Array.from({ length: n * (n + 1) }, (_, q) => { const r = Math.floor(q / (n + 1)), col = q % (n + 1); const blue = col <= r; return html`<span key=${q} className=${blue ? 'p' : s.sh ? 'q' : 'h'}></span>`; })}</div>
+      <${Html} c="a2b-big" t=${`1 + 2 + … + ${n} = <b>${n * (n + 1) / 2}</b>`} />`;
+    return html`<${Walk} key=${n} steps=${steps} ms=${2400} view=${view} />`;
+  }
+  function Doubling({ n }) {
+    const terms = Array.from({ length: n + 1 }, (_, i) => 2 ** i), last = 2 ** (n + 1);
+    const steps = terms.map((t, i) => ({ i, en: `Add 2<sup>${i}</sup> = ${t}. Sum so far: <b>${2 ** (i + 1) - 1}</b> = 2<sup>${i + 1}</sup> − 1, one less than the next power.` }));
+    steps.push({ i: n, end: 1, en: `All together, 1 + 2 + … + 2<sup>${n}</sup> = <b>${last - 1}</b> = 2<sup>${n + 1}</sup> − 1: slide 2.8's third sum, about twice the largest term.` });
+    const view = s => html`<div className="a2b-bars">${terms.map((t, i) => html`<div key=${i} className="a2b-bar"><span dangerouslySetInnerHTML=${{ __html: '2<sup>' + i + '</sup> = ' + t }}></span><i style=${{ width: t / last * 100 + '%', opacity: i <= s.i ? 1 : .15 }}></i></div>`)}
+      <div className="a2b-bar"><span dangerouslySetInnerHTML=${{ __html: '2<sup>' + (n + 1) + '</sup> = ' + last }}></span><i className="next" style=${{ width: '100%', opacity: s.end ? 1 : .25 }}></i></div></div>
+      <${Html} c="a2b-big" t=${`sum so far = <b>${2 ** (s.i + 1) - 1}</b>`} />`;
+    return html`<${Walk} key=${n} steps=${steps} ms=${1800} view=${view} />`;
+  }
+  function Sums() {
+    const [m, setM] = useState('g');
+    return html`<figure className="fig"><div className="fig-stage" style=${{ paddingBottom: 0 }}><${Seg} opts=${[['g', '1 + 2 + … + n'], ['d', '1 + 2 + 4 + …']]} v=${m} set=${setM} /></div>${m === 'g' ? html`<${Gauss} n=${5} />` : html`<${Doubling} n=${3} />`}</figure>`;
+  }
+
+  // background: the limit of f(n) / g(n)
+  const fmt = v => v >= 1000 ? Math.round(v).toLocaleString('en-US') : v >= 10 ? v.toFixed(1) : v.toFixed(3);
+  const LIM = {
+    c: { lab: 'n² / T(n)', f: n => n * n / (3 * n * n + 8 * n + 10), ns: [1, 5, 10, 25, 100, 1000], end: 'It settles at a <b>positive constant, 1/3</b>: n² and T(n) = 3n² + 8n + 10 grow at the same rate, so T(n) is Θ(n²).' },
+    z: { lab: 'n / n²', f: n => n / (n * n), ns: [1, 5, 10, 25, 100, 1000], end: 'It falls to <b>0</b>: n grows more slowly than n², so n is O(n²) but not Ω(n²).' },
+    i: { lab: '2ⁿ / n³', f: n => 2 ** n / (n ** 3), ns: [1, 5, 10, 20, 30, 40], end: 'It blows up towards <b>∞</b>: 2ⁿ grows faster than n³, so 2ⁿ is Ω(n³) but not O(n³).' } };
+  function LimitRun({ x }) {
+    const steps = x.ns.map((n, i) => ({ i, en: i === x.ns.length - 1 ? x.end : `At n = ${n} the ratio ${x.lab} is <b>${fmt(x.f(n))}</b>.` }));
+    const view = s => html`<table className="a2b-tbl"><thead><tr><th>n</th><th>${x.lab}</th></tr></thead><tbody>${x.ns.slice(0, s.i + 1).map((n, q) => html`<tr key=${n} className=${q === s.i ? 'now' : ''}><td>${n.toLocaleString('en-US')}</td><td>${fmt(x.f(n))}</td></tr>`)}</tbody></table>`;
+    return html`<${Walk} steps=${steps} ms=${1500} view=${view} />`;
+  }
+  function Limit() {
+    const [m, setM] = useState('c');
+    return html`<figure className="fig"><div className="fig-stage" style=${{ paddingBottom: 0 }}><${Seg} opts=${[['c', 'constant'], ['z', 'tends to 0'], ['i', 'tends to ∞']]} v=${m} set=${setM} /></div><${LimitRun} key=${m} x=${LIM[m]} /></figure>`;
+  }
+
+  // slides 2.28-2.29: counting each operation of add()
+  const CODE = ['Sum ← 0', 'For (i←0; i<n; i←i+1)', '  Sum ← x[i]+Sum', 'End for', 'Return Sum'];
+  function countSteps(x) {
+    const n = x.length, st = []; let as = 0, ad = 0, ts = 0, sum = 0, i = 0;
+    as++; st.push({ l: 0, as, ad, ts, sum, i: '-', en: `Sum ← 0: one ←. Counts: ← ${as}, + ${ad}, test ${ts}.` });
+    as++; i = 0; st.push({ l: 1, as, ad, ts, sum, i, en: 'i ← 0: one ←. This starts the loop.' });
+    for (;;) {
+      ts++; const ok = i < n;
+      st.push({ l: 1, as, ad, ts, sum, i, en: `Test i<n with i = ${i}: ${ok ? 'true, so the body runs' : 'false, so the loop ends'}. Tests: ${ts}.` });
+      if (!ok) break;
+      sum = x[i] + sum; as++; ad++;
+      st.push({ l: 2, as, ad, ts, sum, i, en: `Sum ← x[${i}] + Sum = ${x[i]} + ${sum - x[i]} = <b>${sum}</b>: one + and one ←.` });
+      i++; as++; ad++;
+      st.push({ l: 1, as, ad, ts, sum, i, en: `i ← i+1 makes i = ${i}: one + and one ←.` });
+    }
+    st.push({ l: 4, as, ad, ts, sum, i, end: 1, en: `Return Sum = ${sum}. With n = ${n}: ← ran <b>${as}</b> = 2n + 2 times (the slide shows 2n + 3); + ran <b>${ad}</b> = 2n times; the test ran <b>${ts}</b> = n + 1 times but is neither.` });
+    return st;
+  }
+  function Count() {
+    const x = [4, 1, 6], steps = countSteps(x);
+    const view = s => html`<div className="a2b-code">${CODE.map((t, k) => html`<div key=${k} className=${k === s.l ? 'on' : ''}>${t}</div>`)}</div>
+      <p className="a2b-big">x = [4, 1, 6], n = 3 · i = ${s.i} · Sum = <b>${s.sum}</b></p>
+      <div className="a2b-count"><div><b>${s.as}</b>← runs</div><div><b>${s.ad}</b>+ runs</div><div><b>${s.ts}</b>${'tests i<n'}</div></div>`;
+    return html`<figure className="fig"><${Walk} steps=${steps} ms=${1700} view=${view} /></figure>`;
+  }
+
+  window.FIGS = Object.assign(window.FIGS || {}, { 'ag-2-halve': Halve, 'ag-2-gauss': Sums, 'ag-2-limit': Limit, 'ag-2-count': Count });
+})();
+/* ── part L3b ── */
+// Algorithms visuals, Lecture 3 rebuild: background for the slides' Master method: geometric series by ratio, tree depth and leaves, polynomial vs log factor.
+(function () {
+  const { useState } = React;
+  const { html, Cap } = window.FIGKIT;
+  const CSS = `
+.a3b-tabs{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; }
+.a3b-tabs .fig-btn{ padding:4px 11px; min-height:32px; }
+.fig-btn.a3b-on{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a3b-box{ max-width:520px; margin:0 auto; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:8px 10px; color:var(--ink); font-size:.95rem; line-height:1.5; overflow-wrap:anywhere; }
+.a3b-read{ text-align:center; font-size:.92rem; margin-top:8px; color:var(--ink); line-height:1.45; }
+.a3b-k{ color:var(--fig-k); font-weight:700; }
+.a3b-rng{ width:100%; max-width:420px; display:block; margin:6px auto 0; accent-color:var(--fig-k); }
+.a3b-bars{ max-width:520px; margin:10px auto 0; display:grid; gap:5px; }
+.a3b-row{ display:grid; grid-template-columns:58px 1fr 48px; gap:6px; align-items:center; font-size:.88rem; color:var(--ink); }
+.a3b-track{ height:18px; background:var(--paper-2); border-radius:5px; overflow:hidden; }
+.a3b-fill{ height:100%; background:var(--fig-k); border-radius:5px; transition:width .35s ease; }
+.a3b-val{ text-align:right; font-variant-numeric:tabular-nums; }
+.a3b-lv{ max-width:520px; margin:8px auto 0; display:grid; gap:7px; }
+.a3b-lvrow{ border:1px solid var(--line); border-radius:8px; padding:5px 8px; background:var(--paper); transition:background .3s; }
+.a3b-lvrow.on{ background:color-mix(in srgb, var(--fig-k) 16%, var(--paper)); border-color:var(--fig-k); }
+.a3b-lvh{ font-size:.86rem; color:var(--ink); line-height:1.35; }
+.a3b-dots{ display:flex; flex-wrap:wrap; gap:3px; margin-top:4px; justify-content:center; }
+.a3b-dot{ width:9px; height:9px; border-radius:50%; background:var(--fig-k); }
+.a3b-tbl{ width:100%; max-width:520px; margin:8px auto 0; border-collapse:collapse; font-size:.9rem; color:var(--ink); }
+.a3b-tbl th, .a3b-tbl td{ border:1px solid var(--line); padding:4px 4px; text-align:center; }
+.a3b-tbl th{ background:var(--paper-2); font-weight:600; }
+.a3b-tbl tr.on td{ background:color-mix(in srgb, var(--fig-k) 18%, var(--paper)); font-weight:700; }
+[data-fig^="ag-3-"] .fig-stage sup sub, [data-fig^="ag-3-"] .fig-stage sub sup{ font-size:1em; }`;
+  if (!document.getElementById('a3b-css')) { const s = document.createElement('style'); s.id = 'a3b-css'; s.textContent = CSS; document.head.appendChild(s); }
+  const H = s => ({ __html: s });
+  const Tabs = ({ items, v, set }) => html`<div className="a3b-tabs" role="tablist">${items.map((t, j) => html`<button key=${j} role="tab" aria-selected=${v === j} className=${'fig-btn' + (v === j ? ' a3b-on' : '')} onClick=${() => set(j)} dangerouslySetInnerHTML=${H(t)}></button>`)}</div>`;
+  const fmt = x => Math.abs(x - Math.round(x)) < 1e-9 ? String(Math.round(x)) : x.toFixed(4).replace(/0+$/, '');
+
+  /* ── background: a geometric series with ratio below, equal to and above 1 (the three Master cases) ── */
+  const GEO = [
+    { t: 'r = ½', r: 0.5, win: 'The <b>first</b> term wins: the sum stays below 1/(1 − r) = 2, however many terms you add. In a recursion tree, shrinking rows mean the root dominates: this is Master Case 3.' },
+    { t: 'r = 1', r: 1, win: 'All terms are equal, so the sum is (number of terms) × (one term). In a recursion tree, equal rows mean (rows) × (one row): this is Master Case 2.' },
+    { t: 'r = 2', r: 2, win: 'The <b>last</b> term wins: the sum is less than 2 × the last term. In a recursion tree, growing rows mean the leaves dominate: this is Master Case 1.' }
+  ];
+  function Geo() {
+    const [t, setT] = useState(0), [m, setM] = useState(4);
+    const d = GEO[t], terms = Array.from({ length: m + 1 }, (_, i) => Math.pow(d.r, i));
+    const sum = terms.reduce((a, b) => a + b, 0), mx = Math.max(...terms);
+    return html`<figure className="fig"><div className="fig-stage">
+      <${Tabs} items=${GEO.map(x => x.t)} v=${t} set=${setT} />
+      <div className="a3b-box">1 + r + r<sup>2</sup> + … + r<sup>${m}</sup> with r = ${d.t.slice(4)}</div>
+      <div className="a3b-bars">${terms.map((v, i) => html`<div className="a3b-row" key=${i}><span>r<sup>${i}</sup></span><div className="a3b-track"><div className="a3b-fill" style=${{ width: (v / mx * 100) + '%' }}></div></div><span className="a3b-val">${fmt(v)}</span></div>`)}</div>
+      <input className="a3b-rng" type="range" min="1" max="6" step="1" value=${m} aria-label="last power m" onChange=${e => setM(+e.target.value)} />
+      <div className="a3b-read">m = ${m}, so ${m + 1} terms. <span className="a3b-k">Sum = ${fmt(sum)}</span></div>
+      </div><${Cap} en=${d.win} /></figure>`;
+  }
+
+  /* ── background: depth and number of leaves of T(n) = aT(n/b) + f(n) ── */
+  const TREES = [
+    { a: 2, b: 2, n: 8, note: 'Merge sort shape (slide 3.13).' },
+    { a: 1, b: 2, n: 8, note: 'Binary search shape (slide 3.12): one chain, one leaf.' },
+    { a: 3, b: 4, n: 64, note: 'The shape of slide 3.29. n<sup>log<sub>4</sub>3</sup> = 64<sup>0.7925</sup> = 27.' },
+    { a: 4, b: 2, n: 4, note: 'More calls than the split factor: leaves grow quickly.' }
+  ];
+  function Leaves() {
+    const [t, setT] = useState(0), [lv, setLv] = useState(0);
+    const d = TREES[t], depth = Math.round(Math.log(d.n) / Math.log(d.b)), leaves = Math.pow(d.a, depth), L = Math.min(lv, depth);
+    const sub = `T(n) = ${d.a === 1 ? '' : d.a}T(n/${d.b}) + f(n), n = ${d.n}`;
+    const rows = Array.from({ length: depth + 1 }, (_, i) => ({ i, nodes: Math.pow(d.a, i), size: d.n / Math.pow(d.b, i) }));
+    const cur = rows[L];
+    const cap = L < depth ? `Level ${L}: ${cur.nodes} node${cur.nodes > 1 ? 's' : ''} (a<sup>${L}</sup> = ${d.a}<sup>${L}</sup>), each of size n/b<sup>${L}</sup> = ${cur.size}.`
+      : `Level ${L} is the last: size n/b<sup>${L}</sup> = 1. Depth = log<sub>${d.b}</sub> ${d.n} = ${depth}, leaves = a<sup>depth</sup> = ${d.a}<sup>${depth}</sup> = ${leaves}.`;
+    return html`<figure className="fig"><div className="fig-stage">
+      <${Tabs} items=${TREES.map(x => 'a=' + x.a + ', b=' + x.b + ', n=' + x.n)} v=${t} set=${j => { setT(j); setLv(0); }} />
+      <div className="a3b-box">${sub}</div>
+      <div className="a3b-lv">${rows.map(r => html`<div className=${'a3b-lvrow' + (r.i === L ? ' on' : '')} key=${r.i}><div className="a3b-lvh">level ${r.i}: ${r.nodes} node${r.nodes > 1 ? 's' : ''}, size ${r.size}</div><div className="a3b-dots">${Array.from({ length: r.nodes }, (_, k) => html`<span className="a3b-dot" key=${k}></span>`)}</div></div>`)}</div>
+      <input className="a3b-rng" type="range" min="0" max=${depth} step="1" value=${L} aria-label="level" onChange=${e => setLv(+e.target.value)} />
+      <div className="a3b-read"><span className="a3b-k">depth = ${depth}</span>, ${depth + 1} levels, <span className="a3b-k">leaves = ${leaves}</span></div>
+      <div className="a3b-read" dangerouslySetInnerHTML=${H(d.note)}></div>
+      </div><${Cap} en=${cap} /></figure>`;
+  }
+
+  /* ── background: lg n against n^ε ── */
+  const EPS = [0.1, 0.25, 0.5];
+  function PolyLog() {
+    const [t, setT] = useState(0);
+    const e = EPS[t], ks = [4, 8, 16, 32, 64, 128];
+    const cell = (v, k) => v >= 10000 ? html`2<sup>${k * e}</sup>` : v >= 1000 ? Math.round(v).toLocaleString('en-US') : v >= 10 ? v.toFixed(0) : v.toFixed(2);
+    const tie = k => Math.abs(Math.pow(2, k * e) - k) < 1e-9;
+    const firstWin = ks.find(k => Math.pow(2, k * e) >= k - 1e-9);
+    return html`<figure className="fig"><div className="fig-stage">
+      <${Tabs} items=${EPS.map(x => 'ε = ' + x)} v=${t} set=${setT} />
+      <div className="a3b-box">Compare lg n with n<sup>ε</sup> for n = 2<sup>k</sup>. Here lg n = k and n<sup>ε</sup> = 2<sup>kε</sup>.</div>
+      <table className="a3b-tbl"><thead><tr><th>n</th><th>lg n</th><th>n<sup>${e}</sup></th><th>larger</th></tr></thead><tbody>
+        ${ks.map(k => { const v = Math.pow(2, k * e), win = v > k, eq = tie(k); return html`<tr key=${k} className=${k === firstWin ? 'on' : ''}><td>2<sup>${k}</sup></td><td>${k}</td><td>${cell(v, k)}</td><td>${eq ? 'equal' : win ? html`n<sup>ε</sup>` : 'lg n'}</td></tr>`; })}
+      </tbody></table>
+      </div><${Cap} en=${`With ε = ${e}, n<sup>ε</sup> has caught up with lg n by the highlighted row, and from there on it stays ahead. A smaller ε only delays this, so lg n is not a polynomial factor.`} /></figure>`;
+  }
+
+  window.FIGS = Object.assign(window.FIGS || {}, { 'ag-3-geo': Geo, 'ag-3-leaves': Leaves, 'ag-3-polylog': PolyLog });
+})();
+/* ── part L4b ── */
+// Algorithms visuals, Lecture 4 rebuild: prerequisites and the checks the slides leave out.
+// ag-4-levels (recursion tree level by level), ag-4-mat2 (2×2 multiplication by hand), ag-4-cbt (complete binary tree), ag-4-cancel (Strassen's s, t, u).
+(function () {
+  const { useState } = React;
+  const { html, useSteps, Cap, Bar } = window.FIGKIT;
+  const CSS = `
+.a4b-tabs{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; }
+.a4b-tabs .fig-btn{ padding:4px 11px; min-height:32px; }
+.fig-btn.a4b-on{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a4b-tbl{ width:100%; border-collapse:collapse; font-size:.9rem; color:var(--ink); }
+.a4b-tbl th, .a4b-tbl td{ border:1px solid var(--line); padding:4px 3px; text-align:center; }
+.a4b-tbl th{ background:var(--paper-2); font-weight:600; }
+.a4b-tbl td{ background:var(--paper); transition:background .4s; }
+.a4b-tbl tr.on td{ background:color-mix(in srgb, var(--fig-k) 20%, var(--paper)); }
+.a4b-tbl tr.off td{ color:var(--faint); }
+.a4b-c{ text-align:center; color:var(--ink); }
+.a4b-box{ margin-top:10px; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:7px 10px; color:var(--ink); font-size:.95rem; line-height:1.5; text-align:center; overflow-wrap:anywhere; }
+.a4b-eq{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:5px; font-size:1rem; color:var(--ink); }
+.a4b-mat{ display:inline-grid; grid-template-columns:repeat(2, auto); gap:2px 5px; padding:3px 5px; border-left:2px solid var(--ink); border-right:2px solid var(--ink); border-radius:5px; text-align:center; }
+.a4b-mat > span{ min-width:24px; padding:2px 3px; border-radius:4px; transition:background .4s; }
+.a4b-mat > span.on{ background:color-mix(in srgb, var(--fig-k) 30%, var(--paper)); }
+.a4b-mat > span.ok{ background:color-mix(in srgb, var(--ok) 28%, var(--paper)); }
+.a4b-chips{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; }
+.a4b-grp{ display:inline-flex; flex-wrap:wrap; gap:4px; align-items:center; border:1px dashed var(--line); border-radius:9px; padding:3px 5px; }
+.a4b-grp > em{ font-style:normal; font-size:.86rem; color:var(--graphite); width:100%; }
+.a4b-chip{ border:1.5px solid var(--fig-k); border-radius:8px; padding:2px 7px; font-size:.95rem; background:var(--paper); color:var(--ink); transition:opacity .5s, background .4s; }
+.a4b-chip.x{ opacity:.3; text-decoration:line-through; }
+.a4b-chip.hit{ background:color-mix(in srgb, var(--pen) 22%, var(--paper)); border-color:var(--pen); }
+.a4b-chip.keep{ background:color-mix(in srgb, var(--ok) 25%, var(--paper)); border-color:var(--ok); }
+.a4b-svg text{ font-family:var(--body); }
+.a4b-fade{ transition:opacity .5s ease; }`;
+  if (!document.getElementById('a4b-css')) { const s = document.createElement('style'); s.id = 'a4b-css'; s.textContent = CSS; document.head.appendChild(s); }
+  const H = s => ({ __html: s });
+  const Tabs = ({ items, v, set }) => html`<div className="a4b-tabs" role="tablist">${items.map((t, j) => html`<button key=${j} role="tab" aria-selected=${v === j} className=${'fig-btn' + (v === j ? ' a4b-on' : '')} onClick=${() => set(j)}>${t}</button>`)}</div>`;
+
+  /* ── the recursion tree of T(n) = a T(n/2) + f(n), level by level, for n = 8 ── */
+  const ALGS = [
+    { tab: 'Merge sort', a: 2, f: s => s, rec: 'T(n) = 2T(n/2) + n', end: 'Every level costs the same 8, so the total is (cost of one level) × (number of levels): 8 × 4 = 32. That is the <b>n lg n</b> shape: Case 2.' },
+    { tab: 'Binary search', a: 1, f: () => 1, rec: 'T(n) = T(n/2) + 1', end: 'One subproblem per level and 1 unit of work: 4 units in all, one per level. The number of levels is what counts: <b>lg n</b>, Case 2 with k = 0.' },
+    { tab: '8 products', a: 8, f: s => s * s, rec: 'T(n) = 8T(n/2) + n²', end: 'Work grows going down: the bottom level alone costs 8³ = 512 = n³ of the total 960. The leaves win: <b>Θ(n³)</b>, Case 1.' },
+    { tab: 'Strassen', a: 7, f: s => s * s, rec: 'T(n) = 7T(n/2) + n²', end: 'The bottom level is 7³ = 343 instead of 512: one branch fewer at every level cuts the leaves from n³ to n<sup>lg 7</sup>. Case 1 again: <b>Θ(n<sup>lg 7</sup>)</b>.' }
+  ];
+  function LevelsRun({ A }) {
+    const n = 8, rows = [0, 1, 2, 3].map(i => { const cnt = A.a ** i, size = n / 2 ** i, each = A.f(size); return { i, cnt, size, each, tot: cnt * each }; });
+    const sum = rows.reduce((x, r) => x + r.tot, 0);
+    const steps = [{ en: `${A.rec}, with n = 8. Each level is one depth of the recursion: multiply the number of subproblems by the work each does outside its own recursive calls.` },
+      ...rows.map(r => ({ en: `Level ${r.i}: ${A.a}<sup>${r.i}</sup> = ${r.cnt} subproblem${r.cnt > 1 ? 's' : ''} of size ${r.size}, each costing ${r.each}, so ${r.cnt} × ${r.each} = <b>${r.tot}</b>.${r.i === 3 ? ' This is the bottom: size 1 is the base case.' : ''}` })),
+      { en: `Total = ${rows.map(r => r.tot).join(' + ')} = <b>${sum}</b>. ${A.end}` }];
+    const [i, ctl] = useSteps(steps.length, 2000);
+    const shown = i === 0 ? -1 : i >= 5 ? 3 : i - 1;
+    return html`<div className="fig-stage">
+      <div className="a4b-c" style=${{ marginBottom: '8px' }}>${A.rec}</div>
+      <table className="a4b-tbl"><thead><tr><th>level</th><th>subproblems</th><th>size</th><th>work</th></tr></thead><tbody>
+      ${rows.map(r => html`<tr key=${r.i} className=${r.i === shown ? 'on' : r.i > shown ? 'off' : ''}><td>${r.i}</td><td>${r.i <= shown ? r.cnt : ''}</td><td>${r.i <= shown ? r.size : ''}</td><td>${r.i <= shown ? r.cnt + ' × ' + r.each + ' = ' + r.tot : ''}</td></tr>`)}
+      </tbody></table>
+      ${i >= 5 && html`<div className="a4b-box">total = ${sum}</div>`}
+      </div><${Cap} en=${steps[i].en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} />`;
+  }
+  function Levels() {
+    const [k, setK] = useState(0);
+    return html`<figure className="fig"><div style=${{ padding: '12px 12px 0', background: 'var(--paper-2)' }}><${Tabs} items=${ALGS.map(a => a.tab)} v=${k} set=${setK} /></div><${LevelsRun} key=${k} A=${ALGS[k]} /></figure>`;
+  }
+
+  /* ── multiplying two 2×2 matrices by hand ── */
+  const A = [1, 3, 7, 5], B = [6, 8, 4, 2];
+  const Mat = ({ m, hl = [], ok = [] }) => html`<span className="a4b-mat">${m.map((v, j) => html`<span key=${j} className=${hl.includes(j) ? 'on' : ok.includes(j) ? 'ok' : ''}>${v}</span>`)}</span>`;
+  function Mat2() {
+    
+    const cell = (r, c) => { const x = r * 2; return { aH: [x, x + 1], bH: [c, c + 2], v: A[x] * B[c] + A[x + 1] * B[c + 2], t: `${A[x]}·${B[c]} + ${A[x + 1]}·${B[c + 2]}` }; };
+    const C = [cell(0, 0), cell(0, 1), cell(1, 0), cell(1, 1)];
+    const BA = [B[0] * A[0] + B[1] * A[2], B[0] * A[1] + B[1] * A[3], B[2] * A[0] + B[3] * A[2], B[2] * A[1] + B[3] * A[3]];
+    const names = ['c<sub>11</sub>', 'c<sub>12</sub>', 'c<sub>21</sub>', 'c<sub>22</sub>'], rc = [[1, 1], [1, 2], [2, 1], [2, 2]];
+    const steps = [{ en: 'Multiply A · B. Each entry of the answer comes from one <b>row of A</b> and one <b>column of B</b>: multiply them pair by pair, then add.' },
+      ...C.map((c, j) => ({ en: `${names[j]} uses row ${rc[j][0]} of A and column ${rc[j][1]} of B: ${c.t} = <b>${c.v}</b>.` })),
+      { en: `Four entries, each 2 multiplications: <b>8 multiplications</b> and 4 additions for a 2×2 product. Result: ${C.map(c => c.v).join(', ')} (reading row by row).` },
+      { en: `Order matters. B · A gives ${BA.join(', ')} (row by row), which is different from A · B. Matrix multiplication is <b>not commutative</b>.` }];
+    const [i, ctl] = useSteps(steps.length, 2000), cur = i >= 1 && i <= 4 ? C[i - 1] : null, last = i === steps.length - 1;
+    const done = Math.min(i, 4), Cv = ['', '', '', ''].map((_, j) => j < done ? C[j].v : '?');
+    return html`<figure className="fig"><div className="fig-stage">
+      ${last ? html`<div className="a4b-eq"><${Mat} m=${BA} ok=${[0, 1, 2, 3]} /><span>=</span><${Mat} m=${B} /><span>·</span><${Mat} m=${A} /></div>
+        <div className="a4b-box">B · A = 62, 58, 18, 22 but A · B = 18, 14, 62, 66</div>`
+      : html`<div className="a4b-eq"><${Mat} m=${Cv} hl=${cur ? [i - 1] : []} ok=${i >= 5 ? [0, 1, 2, 3] : []} /><span>=</span><${Mat} m=${A} hl=${cur ? cur.aH : []} /><span>·</span><${Mat} m=${B} hl=${cur ? cur.bH : []} /></div>
+        ${cur && html`<div className="a4b-box" dangerouslySetInnerHTML=${H(names[i - 1] + ' = ' + cur.t + ' = ' + cur.v)}></div>`}`}
+      </div><${Cap} en=${steps[i].en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  /* ── complete binary tree with 8 leaves ── */
+  function Cbt() {
+    const nodes = []; for (let d = 0; d <= 3; d++) { const c = 2 ** d; for (let j = 0; j < c; j++) nodes.push({ d, j, x: 20 + (j + .5) * (260 / c), y: 22 + d * 46 }); }
+    const at = (d, j) => nodes[2 ** d - 1 + j];
+    const edges = []; for (let d = 0; d < 3; d++) for (let j = 0; j < 2 ** d; j++) for (const k of [2 * j, 2 * j + 1]) edges.push([at(d, j), at(d + 1, k)]);
+    const path = [[0, 0], [1, 0], [2, 1], [3, 2]].map(([d, j]) => at(d, j));
+    const onPath = n => path.includes(n);
+    const steps = [
+      { show: 0, en: 'The <b>root</b> is the top node. It has no parent.' },
+      { show: 1, en: 'Level 1 has 2 nodes. Every internal node has exactly 2 children.' },
+      { show: 2, en: 'Level 2 has 4 nodes.' },
+      { show: 3, en: 'Level 3 has 8 nodes: the n = 8 <b>leaves</b> (no children), all at the same depth.' },
+      { show: 3, count: 1, en: 'Counting: 1 + 2 + 4 + 8 = <b>15 nodes</b> = 2n − 1. Internal nodes: 1 + 2 + 4 = <b>7</b> = n − 1.' },
+      { show: 3, path: 1, en: 'The <b>height</b> is the longest root-to-leaf path: 3 edges = lg 8. Going down one level halves the number of leaves under you: 8, 4, 2, 1.' },
+      { show: 3, half: 1, en: 'The root\'s left and right subtrees are complete trees with n/2 = 4 leaves each. This is why H(n) and W(n) on slides 4.48–4.49 use n/2.' }
+    ];
+    const [i, ctl] = useSteps(steps.length, 1800), s = steps[i];
+    const colour = n => s.path && onPath(n) ? 'var(--fig-k)' : s.half && n.d >= 1 && n.x < 150 ? 'color-mix(in srgb, var(--fig-k) 30%, var(--paper))' : s.half && n.d >= 1 ? 'color-mix(in srgb, var(--pen) 25%, var(--paper))' : n.d === 3 ? 'color-mix(in srgb, var(--ok) 28%, var(--paper))' : 'var(--paper)';
+    return html`<figure className="fig"><div className="fig-stage">
+      <svg className="a4b-svg" viewBox="0 0 300 180" role="img" aria-label="Complete binary tree with 8 leaves">
+        ${edges.map(([p, c], j) => html`<line key=${j} className="a4b-fade" style=${{ opacity: c.d <= s.show ? 1 : 0 }} x1=${p.x} y1=${p.y} x2=${c.x} y2=${c.y} stroke=${s.path && onPath(p) && onPath(c) ? 'var(--fig-k)' : 'var(--graphite)'} strokeWidth=${s.path && onPath(p) && onPath(c) ? 3.5 : 1.5} />`)}
+        ${nodes.map((n, j) => html`<circle key=${j} className="a4b-fade" style=${{ opacity: n.d <= s.show ? 1 : 0 }} cx=${n.x} cy=${n.y} r="12" fill=${colour(n)} stroke="var(--graphite)" strokeWidth="1.3" />`)}
+      </svg>
+      <div className="a4b-box">${s.count ? '15 nodes: 7 internal + 8 leaves' : s.path ? 'height = 3 = lg 8' : s.half ? 'each half: n/2 = 4 leaves' : 'level ' + s.show + ': ' + 2 ** s.show + ' node' + (s.show ? 's' : '')}</div>
+      </div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  /* ── checking s, t, u (slide 4.39 only checks r) ── */
+  const CK = [
+    { tab: 's', rec: 's = P<sub>1</sub> + P<sub>2</sub>', ans: 'af + bh', want: 's = af + bh', G: [['P<sub>1</sub> = a(f − h)', ['+af', '−ah']], ['P<sub>2</sub> = (a + b)h', ['+ah', '+bh']]], pairs: ['ah'] },
+    { tab: 't', rec: 't = P<sub>3</sub> + P<sub>4</sub>', ans: 'ce + dg', want: 't = ce + dg', G: [['P<sub>3</sub> = (c + d)e', ['+ce', '+de']], ['P<sub>4</sub> = d(g − e)', ['+dg', '−de']]], pairs: ['de'] },
+    { tab: 'u', rec: 'u = P<sub>5</sub> + P<sub>1</sub> − P<sub>3</sub> − P<sub>7</sub>', ans: 'cf + dh', want: 'u = cf + dh', G: [['P<sub>5</sub> = (a + d)(e + h)', ['+ae', '+ah', '+de', '+dh']], ['P<sub>1</sub> = a(f − h)', ['+af', '−ah']], ['−P<sub>3</sub> = −(c + d)e', ['−ce', '−de']], ['−P<sub>7</sub> = −(a − c)(e + f)', ['−ae', '−af', '+ce', '+cf']]], pairs: ['ae', 'ah', 'de', 'af', 'ce'] }
+  ];
+  function CancelRun({ C }) {
+    const steps = [{ en: `Check ${C.rec} against ${C.want}.` }, { en: 'Multiply out each product, keeping every A letter on the left of its B letter.' },
+      ...C.pairs.map(p => ({ p, en: `+${p} and −${p} cancel.` })), { en: `Only <b>${C.ans}</b> is left, the same as the ordinary formula ✓.` }];
+    const [i, ctl] = useSteps(steps.length, 1500), s = steps[i], gone = C.pairs.slice(0, Math.max(0, i - 1)), last = i === steps.length - 1;
+    return html`<div className="fig-stage"><div className="a4b-c" style=${{ marginBottom: '8px' }} dangerouslySetInnerHTML=${H(C.rec)}></div>
+      ${i >= 1 && html`<div className="a4b-chips">${C.G.map((g, j) => html`<span key=${j} className="a4b-grp"><em dangerouslySetInnerHTML=${H(g[0])}></em>${g[1].map(t => { const v = t.slice(1), cl = s.p === v ? ' hit' : gone.includes(v) ? ' x' : last ? ' keep' : ''; return html`<span key=${t} className=${'a4b-chip' + cl}>${t[0]} ${v}</span>`; })}</span>`)}</div>`}
+      ${last && html`<div className="a4b-box"><b>${C.want}</b> ✓</div>`}
+      </div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} />`;
+  }
+  function Cancel() {
+    const [k, setK] = useState(0);
+    return html`<figure className="fig"><div style=${{ padding: '12px 12px 0', background: 'var(--paper-2)' }}><${Tabs} items=${CK.map(c => c.tab)} v=${k} set=${setK} /></div><${CancelRun} key=${k} C=${CK[k]} /></figure>`;
+  }
+
+  window.FIGS = Object.assign(window.FIGS || {}, { 'ag-4-levels': Levels, 'ag-4-mat2': Mat2, 'ag-4-cbt': Cbt, 'ag-4-cancel': Cancel });
+})();
+/* ── part L5b ── */
+// Algorithms visuals, Lecture 5, background the quicksort slides assume: exchange and in-place sorting, the die example for expected value and indicators, which term of the sum survives (slide 36), why the two sums of slide 41 are equal, and the bound on the sum of k lg k (slide 42).
+(function () {
+  const { html, useSteps, Cap, Bar, pop } = window.FIGKIT;
+  const CSS = `
+.a5b-w{ max-width:460px; margin:0 auto; color:var(--ink); }
+.a5b-row{ display:grid; gap:3px; margin:0 auto 5px; }
+.a5b-c{ min-height:34px; display:grid; place-items:center; border:1px solid var(--line); border-radius:5px; font:600 15px var(--mono); color:var(--ink); background:var(--paper); min-width:0; transition:background .3s; }
+.a5b-c.on{ background:color-mix(in srgb, var(--fig-k) 26%, var(--paper)); }
+.a5b-c.hot{ background:color-mix(in srgb, var(--hl) 45%, var(--paper)); }
+.a5b-c.dim{ opacity:.45; }
+.a5b-lab{ font:500 13px/1.3 var(--body); color:var(--graphite); text-align:center; margin:2px 0 8px; }
+.a5b-idx{ font:500 12px var(--mono); color:var(--graphite); text-align:center; }
+.a5b-box{ margin:8px auto 0; padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:var(--paper); font:500 14px/1.45 var(--body); text-align:center; color:var(--ink); }
+.a5b-term{ display:grid; grid-template-columns:44px 1fr; gap:6px; align-items:center; padding:3px 6px; border-radius:6px; border:1px solid var(--line); margin-bottom:3px; font:500 14.5px var(--mono); color:var(--ink); background:var(--paper); }
+.a5b-term.on{ background:color-mix(in srgb, var(--fig-k) 26%, var(--paper)); font-weight:700; }
+.a5b-term.dim{ opacity:.5; }
+.a5b-svg{ display:block; width:100%; height:auto; max-width:440px; margin:0 auto; }
+`;
+  if (!document.getElementById('a5b-css')) { const s = document.createElement('style'); s.id = 'a5b-css'; s.textContent = CSS; document.head.appendChild(s); }
+  const Cells = ({ a, mark = [], cols }) => html`<div className="a5b-row" style=${{ gridTemplateColumns: `repeat(${cols || a.length}, 1fr)` }}>${a.map((v, k) => html`<div key=${k} className=${'a5b-c ' + (mark[k] || '')}>${v}</div>`)}</div>`;
+  const Idx = ({ a }) => html`<div className="a5b-row" style=${{ gridTemplateColumns: `repeat(${a.length}, 1fr)` }}>${a.map((v, k) => html`<div key=${k} className="a5b-idx">${v}</div>`)}</div>`;
+
+  // background: exchanging two cells with a temporary variable, in place vs merge sort
+  function Swap() {
+    const steps = [
+      { en: 'Exchange A[1] ↔ A[2] in A = 7 2 9 4. Writing A[1] ← A[2] first would destroy the 7, so one temporary cell is needed.', a: [7, 2, 9, 4], t: '', m: ['hot', 'hot'] },
+      { en: 'Step 1: temp ← A[1]. The value 7 is now safe in temp.', a: [7, 2, 9, 4], t: 7, m: ['on'] },
+      { en: 'Step 2: A[1] ← A[2]. Now A[1] holds 2 (and 2 appears twice for a moment).', a: [2, 2, 9, 4], t: 7, m: ['on'] },
+      { en: 'Step 3: A[2] ← temp. Done: A = 2 7 9 4. Three assignments, so an exchange costs Θ(1).', a: [2, 7, 9, 4], t: '', m: ['', 'on'] },
+      { en: '<b>In place</b> means only a constant number of extra cells (like temp) outside the array. Merge sort copies into a second array of n cells, so it is not in place (slide 5.2).', a: [2, 7, 9, 4], t: '', m: [], x: true }
+    ];
+    const [i, ctl] = useSteps(steps.length, 2300), s = steps[i];
+    return html`<figure className="fig"><div className="fig-stage"><div className="a5b-w">
+      <${Idx} a=${[1, 2, 3, 4]} /><${Cells} a=${s.a} mark=${s.m} />
+      <div className="a5b-lab">array A[1..4]</div>
+      <div style=${{ maxWidth: '76px', margin: '0 auto' }}><${Cells} a=${[s.t === '' ? '·' : s.t]} mark=${[s.t === '' ? 'dim' : 'hot']} /></div>
+      <div className="a5b-lab">temp (one extra cell)</div>
+      <div className=${pop(!!s.x)}><${Cells} a=${['·', '·', '·', '·']} mark=${['dim', 'dim', 'dim', 'dim']} /><div className="a5b-lab">merge sort also needs a second array of n cells</div></div>
+    </div></div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  // background: a fair die as the example for random variables, expected value and indicators
+  function Die() {
+    const F = [1, 2, 3, 4, 5, 6], I6 = F.map(v => (v === 6 ? 1 : 0));
+    const steps = [
+      { en: 'Roll a fair die. The six <b>outcomes</b> 1, ..., 6 are equally likely, so each has probability 1/6, and the probabilities add up to 1.', show: 'p' },
+      { en: 'A <b>random variable</b> gives a number to every outcome. Here X = the number shown, so X is 1, 2, ..., or 6.', show: 'x' },
+      { en: 'The <b>expected value</b> adds value × probability: E[X] = (1 + 2 + 3 + 4 + 5 + 6) · 1/6 = 21/6 = <b>3.5</b>. It need not be a possible value; it is the long-run average.', show: 'x', box: 'E[X] = 21/6 = 3.5' },
+      { en: 'An <b>indicator</b> is 1 when an event happens and 0 otherwise. Here I = 1 if the roll is 6, else 0.', show: 'i' },
+      { en: 'Its expectation is the probability of the event: E[I] = 0 · 5/6 + 1 · 1/6 = <b>1/6</b> = Pr{roll = 6}. This is the rule used on slide 5.35.', show: 'i', box: 'E[I] = Pr{roll = 6} = 1/6' },
+      { en: 'Now take six indicators I<sub>1</sub>, ..., I<sub>6</sub>, one per face. Roll a 4: only I<sub>4</sub> = 1. For every roll exactly one of them is 1, so they add up to 1. The X<sub>k</sub> of quicksort work the same way.', show: 'r', box: 'I<sub>1</sub> + I<sub>2</sub> + ... + I<sub>6</sub> = 1' }
+    ];
+    const [i, ctl] = useSteps(steps.length, 2600), s = steps[i];
+    const row = s.show === 'p' ? F.map(() => '1/6') : s.show === 'x' ? F : s.show === 'i' ? I6 : F.map(v => (v === 4 ? 1 : 0));
+    const mark = s.show === 'i' ? F.map(v => (v === 6 ? 'on' : '')) : s.show === 'r' ? F.map(v => (v === 4 ? 'on' : 'dim')) : [];
+    const lab = { p: 'probability of each face', x: 'X = the number shown', i: 'I = 1 if the roll is 6', r: 'I<sub>j</sub> after rolling a 4' }[s.show];
+    return html`<figure className="fig"><div className="fig-stage"><div className="a5b-w">
+      <${Cells} a=${F} mark=${s.show === 'r' ? F.map(v => (v === 4 ? 'hot' : '')) : []} />
+      <div className="a5b-lab">die faces</div>
+      <${Cells} a=${row} mark=${mark} />
+      <div className="a5b-lab" dangerouslySetInnerHTML=${{ __html: lab }}></div>
+      <div className=${'a5b-box ' + pop(!!s.box)} dangerouslySetInnerHTML=${{ __html: s.box || '&nbsp;' }}></div>
+    </div></div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  // slide 36: exactly one X_k is 1, so the sum equals the branch that really happened (n = 8, the slides' array)
+  function Survivor() {
+    const steps = [
+      { en: 'The slides’ array 6 10 13 5 8 3 2 11, so n = 8. T(n) is written as Σ X<sub>k</sub>(T(k) + T(7−k) + Θ(n)): eight terms, one for each split k : 7−k.', k: -1 },
+      { en: 'Suppose the random pivot is <b>6</b>. Exactly 3 elements (5, 3, 2) are smaller, so the split is 3 : 4. X<sub>3</sub> = 1 and every other X<sub>k</sub> = 0.', k: 3, p: 6 },
+      { en: 'Terms with X<sub>k</sub> = 0 vanish. The sum equals the one branch that happened: T(3) + T(4) + Θ(n).', k: 3, p: 6, res: 1 },
+      { en: 'Suppose instead the pivot is <b>2</b>, the smallest: 0 elements are smaller, a 0 : 7 split. Only X<sub>0</sub> = 1, and the sum is T(0) + T(7) + Θ(n).', k: 0, p: 2, res: 1 },
+      { en: 'Suppose the pivot is <b>13</b>, the largest: all 7 others are smaller, a 7 : 0 split. Only X<sub>7</sub> = 1. Each of the 8 pivots gives a different k, so Pr{X<sub>k</sub> = 1} = 1/8.', k: 7, p: 13, res: 1 }
+    ];
+    const [i, ctl] = useSteps(steps.length, 2800), s = steps[i], K = [0, 1, 2, 3, 4, 5, 6, 7];
+    return html`<figure className="fig"><div className="fig-stage"><div className="a5b-w">
+      ${K.map(k => { const on = k === s.k, dim = s.k >= 0 && !on;
+        return html`<div key=${k} className=${'a5b-term ' + (on ? 'on' : dim ? 'dim' : '')}><span>X<sub>${k}</sub>${s.k >= 0 ? (on ? '=1' : '=0') : ''}</span><span>${dim && s.res ? '0' : `T(${k}) + T(${7 - k}) + Θ(n)`}</span></div>`; })}
+      <div className=${'a5b-box ' + pop(s.k >= 0)}>pivot ${s.p || '–'}: split ${s.k >= 0 ? `${s.k} : ${7 - s.k}` : ''}</div>
+    </div></div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  // slide 41: the two sums have identical terms (shown for n = 5)
+  function Reindex() {
+    const steps = [
+      { en: 'Take n = 5. The first sum, Σ E[T(k)] for k = 0..4, is the list E[T(0)], E[T(1)], ..., E[T(4)].', a: 0 },
+      { en: 'The second sum is Σ E[T(n−k−1)] for k = 0..4. With n = 5, n−k−1 = 4−k, which runs 4, 3, 2, 1, 0 as k runs 0, 1, 2, 3, 4.', a: 1 },
+      { en: 'Pairing them: the term E[T(4)] of the first sum is the k = 0 term of the second, E[T(3)] is the k = 1 term, and so on.', a: 2 },
+      { en: 'Same five numbers, in reverse order, so the two sums are equal: Σ E[T(k)] = Σ E[T(n−k−1)]. That is why the two copies become one sum with factor 2/n.', a: 3 }
+    ];
+    const [i, ctl] = useSteps(steps.length, 2600), s = steps[i], K = [0, 1, 2, 3, 4];
+    const pair = s.a >= 2 ? K.map(k => (k === 2 ? 'hot' : 'on')) : [];
+    return html`<figure className="fig"><div className="fig-stage"><div className="a5b-w">
+      <div className="a5b-lab">k</div><${Idx} a=${K} />
+      <div className="a5b-lab">E[T(k)]</div>
+      <${Cells} a=${K.map(k => 'T' + k)} mark=${pair} />
+      <div className=${pop(s.a >= 1)}>
+        <div className="a5b-lab">E[T(n−k−1)] = E[T(4−k)]</div>
+        <${Cells} a=${K.map(k => 'T' + (4 - k))} mark=${s.a >= 2 ? K.map(k => (k === 2 ? 'hot' : 'on')) : []} />
+      </div>
+      <div className=${'a5b-box ' + pop(s.a >= 3)}>first sum = second sum = T0 + T1 + T2 + T3 + T4<br />(Tm stands for E[T(m)])</div>
+    </div></div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  // slide 42: the fact sum of k lg k <= (1/2) n^2 lg n - (1/8) n^2, on n = 8
+  function KLgK() {
+    const n = 8, lg = Math.log2, K = [1, 2, 3, 4, 5, 6, 7];
+    const steps = [
+      { en: 'n = 8. The sum Σ k lg k for k = 2..7 is 2.00 + 4.75 + 8.00 + 11.61 + 15.51 + 19.65 = <b>61.53</b>.', up: [] , box: 'Σ k lg k = 61.53' },
+      { en: 'Split at ⌈n/2⌉ = 4. Small k: 1, 2, 3. Large k: 4, 5, 6, 7. (Adding k = 1 changes nothing, because 1 · lg 1 = 0.)', up: [], split: 1, box: 'small: k = 1, 2, 3   large: k = 4..7' },
+      { en: 'For large k use lg k ≤ lg n = 3, so k lg k ≤ 3k. The bars grow to 12, 15, 18, 21, total 66.', up: [4, 5, 6, 7], split: 1, box: 'large half ≤ 3 · (4 + 5 + 6 + 7) = 66' },
+      { en: 'For small k we have k &lt; n/2, so lg k ≤ lg(n/2) = lg n − 1 = 2, and k lg k ≤ 2k. The bars grow to 2, 4, 6, total 12.', up: [1, 2, 3, 4, 5, 6, 7], split: 1, box: 'small half ≤ 2 · (1 + 2 + 3) = 12' },
+      { en: 'So the sum is at most 66 + 12 = 78, and the slide’s bound is ½ · 64 · 3 − ⅛ · 64 = 96 − 8 = <b>88</b>. Indeed 61.53 ≤ 78 ≤ 88.', up: [1, 2, 3, 4, 5, 6, 7], split: 1, box: '61.53 ≤ 78 ≤ 88' }
+    ];
+    const [i, ctl] = useSteps(steps.length, 3000), s = steps[i];
+    const W = 360, H = 210, base = 170, top = 24, Y = v => base - (v / 22) * (base - top), bw = 34, X = k => 26 + (k - 1) * 46;
+    const bound = k => (k >= 4 ? 3 : 2) * k;
+    return html`<figure className="fig"><div className="fig-stage"><div className="a5b-w">
+      <svg className="a5b-svg" viewBox=${`0 0 ${W} ${H}`} role="img" aria-label="Bars of k lg k for k from 1 to 7 with their upper bounds">
+        ${s.split ? html`<line x1=${X(4) - 7} y1=${top - 12} x2=${X(4) - 7} y2=${base} stroke="var(--pen)" strokeWidth="2" strokeDasharray="5 4" />` : null}
+        ${K.map(k => { const v = k * lg(k), has = s.up.includes(k), bv = bound(k);
+          return html`<g key=${k}>
+            ${has ? html`<rect x=${X(k)} y=${Y(bv)} width=${bw} height=${base - Y(bv)} fill="none" stroke="var(--fig-k)" strokeWidth="2" strokeDasharray="4 3" />` : null}
+            <rect x=${X(k)} y=${Y(v)} width=${bw} height=${base - Y(v)} fill="color-mix(in srgb, var(--fig-k) 45%, var(--paper))" />
+            ${has ? html`<text x=${X(k) + bw / 2} y=${Y(bv) - 5} textAnchor="middle" fontSize="17" fontWeight="700" style=${{ fill: 'var(--ink)' }}>${bv}</text>` : (k > 1 ? html`<text x=${X(k) + bw / 2} y=${Y(v) - 5} textAnchor="middle" fontSize="17" style=${{ fill: 'var(--ink)' }}>${v.toFixed(1)}</text>` : null)}
+            <text x=${X(k) + bw / 2} y=${base + 21} textAnchor="middle" fontSize="17" style=${{ fill: 'var(--graphite)' }}>${k}</text>
+          </g>`; })}
+        <line x1="20" y1=${base} x2=${W - 6} y2=${base} stroke="var(--ink)" strokeWidth="1.6" />
+        <text x=${W / 2} y=${H - 2} textAnchor="middle" fontSize="17" style=${{ fill: 'var(--graphite)' }}>k</text>
+      </svg>
+      <div className="a5b-box">${s.box}</div>
+    </div></div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  window.FIGS = Object.assign(window.FIGS || {}, { 'ag-5-swap': Swap, 'ag-5-die': Die, 'ag-5-survivor': Survivor, 'ag-5-reindex': Reindex, 'ag-5-klgk': KLgK });
+})();
+/* ── part L6b ── */
+// Algorithms visuals, Lecture 6, background the slides assume and the slides' radix ideas: a binary tree of height h has at most 2^h leaves, number bases and digit splitting,
+// cumulative counts as last slots, and why most-significant-digit-first fails on the slide's seven numbers.
+(function () {
+  const { useState } = React;
+  const { html, useSteps, Cap, Bar } = window.FIGKIT;
+  const CSS = `
+.a6b-w{ max-width:520px; margin:0 auto; color:var(--ink); }
+.a6b-svg{ display:block; width:100%; height:auto; max-width:440px; margin:0 auto; }
+.a6b-tabs{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; }
+.a6b-tabs .fig-btn[aria-pressed="true"]{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a6b-row{ display:flex; justify-content:center; flex-wrap:wrap; gap:6px; margin:6px 0; }
+.a6b-bits{ display:flex; justify-content:center; flex-wrap:wrap; gap:8px; margin:8px 0; }
+.a6b-grp{ display:flex; flex-direction:column; align-items:center; gap:3px; }
+.a6b-cells{ display:flex; gap:2px; }
+.a6b-c{ width:28px; height:30px; display:grid; place-items:center; border:1px solid var(--line); border-radius:5px; font:600 15px var(--mono); color:var(--ink); background:var(--paper); }
+.a6b-v{ font:700 14px var(--mono); color:var(--ink); }
+.a6b-l{ font-size:12px; color:var(--graphite); }
+.a6b-eq{ text-align:center; font:500 14px/1.5 var(--mono); color:var(--ink); margin:8px 0 0; overflow-wrap:anywhere; }
+.a6b-slots{ display:grid; grid-template-columns:repeat(5, 1fr); gap:3px; margin:6px 0; }
+.a6b-s{ height:34px; display:grid; place-items:center; border:1px solid var(--line); border-radius:5px; font:600 15px var(--mono); color:var(--ink); background:var(--paper); transition:background .3s; }
+.a6b-s.a6b-on{ background:color-mix(in srgb, var(--hl) 50%, var(--paper)); }
+.a6b-s.a6b-last{ background:color-mix(in srgb, var(--fig-k) 30%, var(--paper)); box-shadow:0 0 0 2px var(--fig-k) inset; }
+.a6b-ix{ text-align:center; font:500 12px var(--mono); color:var(--graphite); }
+.a6b-cnt{ display:grid; grid-template-columns:auto repeat(4, 1fr); gap:3px 4px; align-items:center; margin:0 0 8px; }
+.a6b-cnt span{ text-align:center; font:600 14px var(--mono); color:var(--ink); }
+.a6b-cnt .a6b-h{ font:600 12px var(--body); color:var(--graphite); text-align:right; }
+.a6b-cnt .a6b-cur{ background:color-mix(in srgb, var(--fig-k) 26%, var(--paper)); border-radius:4px; }
+.a6b-piles{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:6px 0 0; }
+.a6b-pile{ border:1px solid var(--line); border-radius:6px; padding:3px 6px; background:var(--paper); }
+.a6b-col{ display:flex; justify-content:center; gap:14px; flex-wrap:wrap; }
+.a6b-list{ display:flex; flex-direction:column; gap:1px; align-items:center; }
+.a6b-num{ font:600 15px/1.45 var(--mono); color:var(--ink); }
+.a6b-num.a6b-bad{ color:var(--pen); }
+.a6b-t{ font:600 12px var(--body); color:var(--graphite); margin:0 0 3px; text-align:center; }
+`;
+  if (!document.getElementById('a6b-css')) { const s = document.createElement('style'); s.id = 'a6b-css'; s.textContent = CSS; document.head.appendChild(s); }
+
+  // a perfect tree of height h drawn in a 360 wide box; the last step shows the slide's own decision tree (6 leaves, height 3)
+  function Tree({ h, slide }) {
+    const W = 360, top = 18, lv = 42, R = 9, nodes = [], edges = [];
+    if (slide) {
+      const T = { x: 180, d: 0, l: { x: 90, d: 1, l: { x: 44, d: 2, leaf: 1 }, r: { x: 136, d: 2, l: { x: 104, d: 3, leaf: 1 }, r: { x: 168, d: 3, leaf: 1 } } }, r: { x: 270, d: 1, l: { x: 224, d: 2, leaf: 1 }, r: { x: 316, d: 2, l: { x: 284, d: 3, leaf: 1 }, r: { x: 348, d: 3, leaf: 1 } } } };
+      (function w(n) { nodes.push(n); [n.l, n.r].forEach(c => { if (c) { edges.push([n, c]); w(c); } }); })(T);
+    } else {
+      for (let d = 0; d <= h; d++) { const c = 2 ** d; for (let i = 0; i < c; i++) nodes.push({ x: W * (2 * i + 1) / (2 * c), d, leaf: d === h, id: d + '-' + i }); }
+      nodes.forEach(n => { if (n.d > 0) { const i = +n.id.split('-')[1]; const p = nodes.find(m => m.id === (n.d - 1) + '-' + (i >> 1)); edges.push([p, n]); } });
+    }
+    const y = d => top + d * lv;
+    return html`<svg className="a6b-svg" viewBox="0 0 360 160" role="img" aria-label="A binary tree with its leaves highlighted">
+      ${edges.map(([a, b], k) => html`<line key=${k} x1=${a.x} y1=${y(a.d)} x2=${b.x} y2=${y(b.d)} stroke="var(--graphite)" strokeWidth="1.6" />`)}
+      ${nodes.map((n, k) => html`<circle key=${k} cx=${n.x} cy=${y(n.d)} r=${R} fill=${n.leaf ? 'var(--fig-k)' : 'color-mix(in srgb, var(--pen) 22%, var(--paper))'} stroke="var(--graphite)" strokeWidth="1.2" />`)}
+    </svg>`;
+  }
+  function Leaves() {
+    const steps = [
+      { h: 0, en: 'Height 0: the tree is a single node, and that node is a leaf. Leaves: 1 = 2<sup>0</sup>.' },
+      { h: 1, en: 'Height 1: the root has two children, both leaves. Leaves: 2 = 2<sup>1</sup>. Going one level deeper replaces each leaf by at most 2 leaves.' },
+      { h: 2, en: 'Height 2: each of the 2 old leaves split in two. Leaves: 2 × 2 = 4 = 2<sup>2</sup>.' },
+      { h: 3, en: 'Height 3: 2 × 4 = 8 = 2<sup>3</sup>, the most any binary tree of height 3 can have.' },
+      { h: 3, slide: 1, en: 'The slide’s decision tree for n = 3 has height 3 and 6 leaves: 6 ≤ 8. It needs at least 3! = 6 leaves, and 2<sup>2</sup> = 4 would not be enough, so the height must be at least 3.' },
+    ];
+    const [i, ctl] = useSteps(steps.length, 2400), s = steps[i];
+    return html`<figure className="fig"><div className="fig-stage"><div className="a6b-w"><${Tree} key=${i} h=${s.h} slide=${s.slide} /></div></div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  // base 10 digits of 329, then the 8-bit number 214 grouped into r-bit digits
+  const X = 214, BITS = X.toString(2).padStart(8, '0');
+  function Bases() {
+    const [mode, setMode] = useState('dec');
+    const opts = [['dec', '329 in base 10'], [1, 'r = 1'], [2, 'r = 2'], [4, 'r = 4'], [8, 'r = 8']];
+    let body, cap;
+    if (mode === 'dec') {
+      const d = [3, 2, 9], w = [100, 10, 1];
+      body = html`<div className="a6b-bits">${d.map((v, k) => html`<div className="a6b-grp" key=${k}><div className="a6b-cells"><div className="a6b-c">${v}</div></div><span className="a6b-l">× ${w[k]}</span><span className="a6b-l">digit ${3 - k}</span></div>`)}</div><p className="a6b-eq">3 × 100 + 2 × 10 + 9 × 1 = 329</p>`;
+      cap = 'Base 10 uses the digits 0 to 9. Digit 1 is the rightmost (least significant), here 9; digit 3 is the leftmost (most significant), here 3. Tens digit: (329 div 10) mod 10 = 32 mod 10 = 2.';
+    } else {
+      const r = mode, base = 2 ** r, g = []; for (let i = 0; i < 8; i += r) g.push(BITS.slice(i, i + r));
+      const vals = g.map(x => parseInt(x, 2)), sum = vals.map((v, k) => `${v} × ${base}^${g.length - 1 - k}`).join(' + ');
+      body = html`<div className="a6b-bits">${g.map((x, k) => html`<div className="a6b-grp" key=${k}><div className="a6b-cells">${[...x].map((c, q) => html`<div className="a6b-c" key=${q}>${c}</div>`)}</div><span className="a6b-v">${vals[k]}</span><span className="a6b-l">digit ${g.length - k}</span></div>`)}</div><p className="a6b-eq">${sum} = ${X}</p>`;
+      cap = `The 8-bit number ${X} = ${BITS}. Cut into r = ${r}-bit pieces: every piece is one digit in base 2<sup>${r}</sup> = ${base}, with values 0 to ${base - 1}. That gives ${g.length} digit${g.length > 1 ? 's' : ''}: b/r = 8/${r} = ${8 / r}. A bigger r means fewer but larger digits.`;
+    }
+    return html`<figure className="fig"><div className="fig-stage"><div className="a6b-w">
+      <div className="a6b-tabs">${opts.map(([v, t]) => html`<button key=${v} className="fig-btn" aria-pressed=${mode === v} onClick=${() => setMode(v)}>${t}</button>`)}</div>
+      ${body}
+    </div></div><${Cap} en=${cap} /></figure>`;
+  }
+
+  // slides 13-22: cumulative counts tell the last slot of every key
+  function Slots() {
+    const C = [1, 0, 2, 2], S = [1, 1, 3, 5], B = [1, 3, 3, 4, 4];
+    const steps = [
+      { en: 'Counts of A = 4 1 3 4 3: one 1, no 2, two 3s, two 4s. Below is the sorted array we want. The cumulative counts tell us where each block of equal keys ends.', i: -1 },
+      { en: 'Running total for 1: C[1] = 1, so exactly 1 key is ≤ 1. The key 1 occupies slot 1, and its last copy is in slot 1.', i: 0 },
+      { en: 'Running total for 2: C[2] = 1 + 0 = 1. No key equals 2, so the total does not move and no new slot is used.', i: 1 },
+      { en: 'Running total for 3: C[3] = 1 + 2 = 3, so 3 keys are ≤ 3. The 3s fill slots 2 and 3; the last 3 is in slot C[3] = 3.', i: 2 },
+      { en: 'Running total for 4: C[4] = 3 + 2 = 5, the whole array. The 4s fill slots 4 and 5; the last 4 is in slot C[4] = 5. In general: the last copy of key v goes in slot C[v], and loop 4 of counting sort uses this directly.', i: 3 },
+    ];
+    const [i, ctl] = useSteps(steps.length, 2400), s = steps[i];
+    const upto = s.i >= 0 ? S[s.i] : 0, last = s.i >= 0 && C[s.i] > 0 ? S[s.i] - 1 : -1, from = s.i > 0 ? S[s.i - 1] : 0;
+    return html`<figure className="fig"><div className="fig-stage"><div className="a6b-w">
+      <div className="a6b-cnt">
+        <span className="a6b-h">key</span>${[1, 2, 3, 4].map(v => html`<span key=${v}>${v}</span>`)}
+        <span className="a6b-h">count</span>${C.map((v, k) => html`<span key=${k} className=${k === s.i ? 'a6b-cur' : ''}>${v}</span>`)}
+        <span className="a6b-h">total</span>${S.map((v, k) => html`<span key=${k} className=${k === s.i ? 'a6b-cur' : ''}>${k <= s.i ? v : ''}</span>`)}
+      </div>
+      <div className="a6b-slots">${B.map((_, k) => html`<div key=${k} className="a6b-ix">slot ${k + 1}</div>`)}</div>
+      <div className="a6b-slots">${B.map((v, k) => html`<div key=${k} className=${'a6b-s' + (k === last ? ' a6b-last' : k >= from && k < upto ? ' a6b-on' : '')}>${k < upto ? v : ''}</div>`)}</div>
+    </div></div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  // slide 31: most-significant digit first, run on the slide's seven numbers
+  const INPUT = [329, 457, 657, 839, 436, 720, 355];
+  const dig = (x, t) => Math.floor(x / 10 ** (t - 1)) % 10;
+  const stable = (L, t) => L.map((v, i) => [v, i]).sort((a, b) => dig(a[0], t) - dig(b[0], t) || a[1] - b[1]).map(x => x[0]);
+  function Msd() {
+    const a1 = stable(INPUT, 3), a2 = stable(a1, 2), a3 = stable(a2, 1), lsd = stable(stable(stable(INPUT, 1), 2), 3);
+    const sorted = L => { const m = L.slice().sort((x, y) => x - y); return L.map((v, i) => v === m[i]); };
+    const piles = [[329, 355], [457, 436], [657], [720], [839]];
+    const steps = [
+      { L: [['input', INPUT]], en: 'Try Hollerith’s first idea on the slide’s seven numbers: sort on the <b>most-significant</b> digit first. The whole deck goes through the sorter on the hundreds digit.' },
+      { L: [['input', INPUT], ['by hundreds', a1]], en: 'After the hundreds pass the numbers are grouped by hundreds digit, and inside each group they keep their input order: 457 is still above 436. The next pass must not destroy this grouping.' },
+      { L: [['by hundreds', a1], ['by tens', a2]], en: 'Now sort the <b>whole deck</b> on the tens digit: 720 moves above 436 (tens 2 < 3) even though 720 > 436. The grouping by hundreds is lost: a later pass overrules every earlier one except on ties.' },
+      { L: [['by tens', a2], ['by units', a3]], en: 'After the units pass the deck is ordered by units first: 720 355 436 457 657 329 839. Not sorted! The most-significant digit, passed first, ends up mattering least.' },
+      { piles: 1, en: 'The only way to make MSD-first work is what Hollerith’s patent says: keep the 5 piles of the hundreds pass separate, then sort <b>each pile</b> on the next digit. Each extra pass creates more piles for the operator to keep apart.' },
+      { L: [['LSD: input', INPUT], ['LSD: 3 passes', lsd]], en: 'Least-significant digit first needs one deck and no piles: 3 passes of a stable sort, and the last pass (the most-significant digit) decides the order, with ties kept from the earlier passes.' },
+    ];
+    const [i, ctl] = useSteps(steps.length, 2800), s = steps[i];
+    return html`<figure className="fig"><div className="fig-stage"><div className="a6b-w">
+      ${s.piles ? html`<p className="a6b-t" style=${{ fontSize: '13px' }}>Piles after the hundreds pass</p><div className="a6b-piles">${piles.map((p, k) => html`<div className="a6b-pile" key=${k}>${p.map(v => html`<div className="a6b-num" key=${v}>${v}</div>`)}</div>`)}</div>`
+        : html`<div className="a6b-col">${s.L.map(([t, l], k) => { const ok = sorted(l); return html`<div className="a6b-list" key=${k}><p className="a6b-t">${t}</p>${l.map((v, q) => html`<div key=${q} className=${'a6b-num' + (t !== 'input' && t !== 'LSD: input' && !ok[q] ? ' a6b-bad' : '')}>${v}</div>`)}</div>`; })}</div>`}
+    </div></div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} /></figure>`;
+  }
+
+  window.FIGS = Object.assign(window.FIGS || {}, { 'ag-6-leaves': Leaves, 'ag-6-bases': Bases, 'ag-6-slots': Slots, 'ag-6-msd': Msd });
+})();
+/* ── part L7b ── */
+// Algorithms visuals, Lecture 7, background and exercise: PARTITION on slide 4's array (Lecture 5 recap), indicator variables X_k for n = 5,
+// why subproblem sizes that sum to less than n give linear time, and groups of 3, 5, 7 (slide 30's exercise). Numbers come from the slides' algorithms.
+(function () {
+  const { useState } = React;
+  const { html, useSteps, Cap, Bar } = window.FIGKIT;
+  const CSS = `
+.a7b-tabs{ display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin:0 0 10px; }
+.a7b-tabs .fig-btn{ padding:4px 11px; min-height:32px; }
+.a7b-tabs .fig-btn[aria-pressed="true"]{ background:var(--fig-s); color:#fff; border-color:transparent; }
+.a7b-arr{ display:flex; justify-content:center; gap:3px; flex-wrap:nowrap; }
+.a7b-cell{ flex:1 1 0; max-width:40px; min-width:0; text-align:center; }
+.a7b-cell b{ display:flex; align-items:center; justify-content:center; height:34px; border:1.5px solid var(--graphite); border-radius:5px; font-size:.98rem; font-weight:600; color:var(--ink); background:var(--paper); transition:background .35s, border-color .35s; }
+.a7b-cell i{ display:block; font-style:normal; font-size:.78rem; color:var(--graphite); margin-top:2px; min-height:1.2em; }
+.a7b-cell.pv b{ background:color-mix(in srgb, var(--ok) 32%, var(--paper)); border-color:var(--ok); border-width:2.5px; }
+.a7b-cell.lo b{ background:color-mix(in srgb, var(--fig-k) 25%, var(--paper)); }
+.a7b-cell.hi b{ background:color-mix(in srgb, var(--pen) 22%, var(--paper)); }
+.a7b-cell.at b{ box-shadow:0 0 0 2.5px var(--fig-k); }
+.a7b-ptr{ display:block; font-size:.82rem; font-weight:700; color:var(--fig-k); min-height:1.3em; }
+.a7b-c{ text-align:center; font-size:.92rem; color:var(--ink); margin-top:8px; line-height:1.5; }
+.a7b-mut{ color:var(--graphite); font-size:.88rem; }
+.a7b-key{ display:flex; flex-wrap:wrap; gap:4px 12px; justify-content:center; font-size:.86rem; color:var(--ink); margin-top:6px; }
+.a7b-key span::before{ content:""; display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:4px; vertical-align:-1px; background:var(--sw); }
+.a7b-xs{ display:grid; grid-template-columns:repeat(5,1fr); gap:4px; max-width:300px; margin:10px auto 0; }
+.a7b-x{ border:1.5px solid var(--line); border-radius:6px; padding:3px 0; text-align:center; font-size:.92rem; color:var(--ink); background:var(--paper); transition:background .3s, border-color .3s; }
+.a7b-x.on{ background:color-mix(in srgb, var(--fig-k) 28%, var(--paper)); border-color:var(--fig-k); font-weight:700; }
+.a7b-bar{ display:grid; grid-template-columns:62px 1fr 48px; gap:6px; align-items:center; font-size:.88rem; color:var(--ink); margin:3px 0; }
+.a7b-bar .t{ height:15px; border-radius:3px; background:var(--fig-k); transition:width .4s ease; }
+.a7b-bar .n{ text-align:right; font-variant-numeric:tabular-nums; }
+.a7b-sum{ max-width:440px; margin:8px auto 0; padding:6px 10px; border:1px solid var(--line); border-radius:8px; background:var(--paper); color:var(--ink); font-size:.92rem; line-height:1.5; text-align:center; }
+.a7b-svg{ display:block; width:100%; height:auto; max-width:360px; margin:0 auto; }
+`;
+  if (!document.getElementById('a7b-css')) { const s = document.createElement('style'); s.id = 'a7b-css'; s.textContent = CSS; document.head.appendChild(s); }
+  const Tabs = ({ items, v, set }) => html`<div className="a7b-tabs">${items.map((t, j) => html`<button key=${j} className="fig-btn" aria-pressed=${v === j} onClick=${() => set(j)}>${t}</button>`)}</div>`;
+
+  /* ── PARTITION (Lecture 5) on slide 4's array: pivot x = A[p], pointers i and j ── */
+  function partFrames() {
+    const A = [6, 10, 13, 5, 8, 3, 2, 11], F = [], x = A[0]; let i = 1;
+    F.push({ A: [...A], i, j: 0, en: 'PARTITION(A, 1, 8). The pivot is the first element: x ← A[1] = <b>6</b>. Start with i = 1. A[2..i] is the "≤ 6" zone (empty so far).' });
+    for (let j = 2; j <= 8; j++) {
+      const v = A[j - 1];
+      if (v <= x) { i++; const a = A[i - 1]; A[i - 1] = v; A[j - 1] = a; F.push({ A: [...A], i, j, en: `j = ${j}: A[j] was ${v} ≤ 6, so i becomes ${i} and A[${i}] ↔ A[${j}] are exchanged (${a} and ${v}). The ≤ 6 zone grows by one.` }); }
+      else F.push({ A: [...A], i, j, en: `j = ${j}: A[j] = ${v} &gt; 6, nothing to do. The "&gt; 6" zone simply grows; i stays ${i}.` });
+    }
+    const a = A[i - 1]; A[i - 1] = A[0]; A[0] = a;
+    F.push({ A: [...A], i, j: 9, done: 1, en: `Loop over. Exchange A[1] ↔ A[${i}]: the pivot 6 lands at position <b>r = ${i}</b>. Left of it everything is ≤ 6, right of it everything is ≥ 6. This is the second row of slide 4.` });
+    return F;
+  }
+  const PF = partFrames();
+  function Part() {
+    const [s, ctl] = useSteps(PF.length, 2100), f = PF[s];
+    const cls = j => { const p = j + 1; if (f.done) return p < f.i ? ' lo' : p === f.i ? ' pv' : ' hi'; if (p === 1) return ' pv'; if (p <= f.i) return ' lo'; if (p < f.j || p === f.j) return ' hi'; return ''; };
+    return html`<figure className="fig"><div className="fig-stage">
+      <div className="a7b-arr">${f.A.map((v, j) => { const p = j + 1, tag = [p === f.i && !f.done ? 'i' : '', p === f.j ? 'j' : ''].filter(Boolean).join(','); return html`<div key=${j} className=${'a7b-cell' + cls(j) + (p === f.j ? ' at' : '')}><span className="a7b-ptr">${tag}</span><b>${v}</b><i>${p}</i></div>`; })}</div>
+      <div className="a7b-key"><span style=${{ '--sw': 'color-mix(in srgb, var(--ok) 32%, var(--paper))' }}>pivot</span><span style=${{ '--sw': 'color-mix(in srgb, var(--fig-k) 25%, var(--paper))' }}>≤ pivot</span><span style=${{ '--sw': 'color-mix(in srgb, var(--pen) 22%, var(--paper))' }}>${'> pivot'}</span><span style=${{ '--sw': 'var(--paper)' }}>not looked at</span></div>
+      </div><${Cap} en=${f.en} /><${Bar} steps=${PF} i=${s} ctl=${ctl} /></figure>`;
+  }
+
+  /* ── slides 6-7: the indicators X_k for n = 5 ── */
+  function Indic() {
+    const n = 5, [r, setR] = useState(3), k = r - 1, big = Math.max(k, n - k - 1);
+    return html`<figure className="fig"><div className="fig-stage">
+      <div className="a7b-c" style=${{ marginTop: 0 }}>Suppose the random pivot has rank:</div>
+      <${Tabs} items=${[1, 2, 3, 4, 5]} v=${r - 1} set=${j => setR(j + 1)} />
+      <div className="a7b-arr">${Array.from({ length: n }, (_, j) => html`<div key=${j} className=${'a7b-cell ' + (j < k ? 'lo' : j === k ? 'pv' : 'hi')}><b>${j === k ? 'x' : j < k ? '≤' : '≥'}</b></div>`)}</div>
+      <div className="a7b-c">split <b>${k} : ${n - k - 1}</b> (lower part ${k}, upper part ${n - k - 1})</div>
+      <div className="a7b-xs">${[0, 1, 2, 3, 4].map(j => html`<div key=${j} className=${'a7b-x' + (j === k ? ' on' : '')}>X<sub>${j}</sub> = ${j === k ? 1 : 0}</div>`)}</div>
+      <div className="a7b-sum">Every other X is 0, so the sum keeps one term:<br /><b>T(max{${k}, ${n - k - 1}}) + Θ(5) = T(${big}) + Θ(5)</b></div>
+      </div><${Cap} en=${'Exactly one X<sub>k</sub> equals 1 per run. Each of the 5 ranks has probability 1/5, so P(X<sub>' + k + '</sub> = 1) = 1/5 and E[X<sub>' + k + '</sub>] = 1/5. Note: X<sub>k</sub>\'s k is the size of the lower part, so rank ' + r + ' gives k = ' + k + '.'} /></figure>`;
+  }
+
+  /* ── recursion levels: sizes summing to less than n, or to exactly n (n = 100) ── */
+  const LV = [
+    { t: '1/5 + 3/4', r: 19 / 20, lev: 7, end: 'Each level is 19/20 of the one above. Adding all levels forever gives at most 100 · 1/(1 − 19/20) = 100 · 20 = <b>2000 = 20n</b>. The total stays a constant times n: <b>Θ(n)</b>.', rec: 'T(n) = T(n/5) + T(3n/4) + n' },
+    { t: '1/4 + 1/2', r: 3 / 4, lev: 7, end: 'Each level is 3/4 of the one above. The total is at most 100 · 1/(1 − 3/4) = 100 · 4 = <b>400 = 4n</b>: <b>Θ(n)</b>. The smaller the ratio, the smaller the constant.', rec: 'T(n) = T(n/4) + T(n/2) + n' },
+    { t: '1/3 + 2/3', r: 1, lev: 7, end: 'The sizes add up to exactly n, so <b>every</b> level costs the full n until the branches run out, after about log n levels. Total: n times log n levels: <b>Θ(n lg n)</b>, not linear.', rec: 'T(n) = T(n/3) + T(2n/3) + n' }
+  ];
+  function LevRun({ c, head }) {
+    const steps = [...Array(c.lev).keys()].map(l => ({ l })).concat({ l: c.lev - 1, end: 1 });
+    const [i, ctl] = useSteps(steps.length, 1500), s = steps[i];
+    const val = l => 100 * Math.pow(c.r, l), total = [...Array(s.l + 1).keys()].reduce((a, l) => a + val(l), 0);
+    return html`<div className="fig-stage">${head}
+      <div className="a7b-c" style=${{ marginTop: 0, marginBottom: '6px' }}><b>${c.rec}</b>, n = 100</div>
+      ${[...Array(c.lev).keys()].map(l => html`<div key=${l} className="a7b-bar" style=${{ opacity: l <= s.l ? 1 : .18 }}><span>level ${l}</span><div><div className="t" style=${{ width: (val(l)) + '%' }}></div></div><span className="n">${val(l).toFixed(l < 2 ? 0 : 1)}</span></div>`)}
+      <div className="a7b-sum">work so far: <b>${total.toFixed(1)}</b></div>
+      </div><${Cap} en=${s.end ? c.end : s.l === 0 ? 'Level 0 is the root: one call of size 100, so 100 units of work. Each bar is the total work of one whole level of the recursion tree.' : `Level ${s.l}: the sizes shrink by the ratio ${c.r === 1 ? '1 (no shrinking at all)' : c.r === 19 / 20 ? '19/20' : '3/4'} each level, so this level costs ${val(s.l).toFixed(1)}.`} /><${Bar} steps=${steps} i=${i} ctl=${ctl} />`;
+  }
+  function Levels() {
+    const [t, setT] = useState(0);
+    const head = html`<${Tabs} items=${LV.map(c => c.t)} v=${t} set=${setT} />`;
+    return html`<figure className="fig"><${LevRun} key=${t} c=${LV[t]} head=${head} /></figure>`;
+  }
+
+  /* ── slide 30's exercise: groups of 3, 5, 7 on the slides' n = 44 ── */
+  const GR = [
+    { g: 3, each: 2, keep: '2n/3', frac: '1/3 + 2/3 = 1', verdict: 'The sizes sum to n, so the recurrence T(n) = T(n/3) + T(2n/3) + Θ(n) solves to <b>Θ(n lg n)</b>: the proof of linear time breaks.', cnt: f => `2⌊n/6⌋ = ${2 * Math.floor(f / 6)}` },
+    { g: 5, each: 3, keep: '3n/4', frac: '1/5 + 3/4 = 19/20', verdict: 'The sizes sum to less than n, so T(n) = T(n/5) + T(3n/4) + Θ(n) is <b>Θ(n)</b>. Groups of 5 is the smallest size that works.', cnt: f => `3⌊n/10⌋ = ${3 * Math.floor(f / 10)}` },
+    { g: 7, each: 4, keep: '5n/7', frac: '1/7 + 5/7 = 6/7', verdict: 'Also less than n, so also <b>Θ(n)</b>, but finding each median of 7 costs more. Larger groups are not better in practice.', cnt: f => `4⌊n/14⌋ = ${4 * Math.floor(f / 14)}` }
+  ];
+  function GrRun({ c, head }) {
+    const n = 44, G = Math.floor(n / c.g), left = n - G * c.g, cols = G + (left ? 1 : 0), m = Math.ceil(G / 2), mid = (c.g - 1) / 2;
+    const steps = [
+      { en: `n = 44 in groups of ${c.g}: ⌊44/${c.g}⌋ = ${G} groups${left ? ` and ${left} left over` : ''}. Yellow dots are the group medians; x (red) is the median of those ${G} medians.` },
+      { box: 1, en: `At least ⌊${G}/2⌋ = ${Math.floor(G / 2)} medians are ≤ x. Each brings its own ${c.each} (the median and the ${c.each - 1} above it), so at least ${c.cnt(n)} elements are ≤ x.` },
+      { box: 1, end: 1, en: `Worst case, the recursive call in step 4 gets about ${c.keep} elements. Recurrence sizes: ${c.frac}.` }
+    ];
+    const [i, ctl] = useSteps(steps.length, 2400), s = steps[i];
+    const dx = Math.min(34, 280 / cols), Rd = Math.min(8, dx * .32), dy = c.g === 7 ? 22 : 30, X = col => 10 + dx / 2 + col * dx, Y = row => 16 + row * dy, H = 32 + dy * (c.g - 1);
+    const dots = []; for (let col = 0; col < cols; col++) { const h = col < G ? c.g : left; for (let row = 0; row < h; row++) dots.push([col, row]); }
+    return html`<div className="fig-stage">${head}
+      <svg className="a7b-svg" viewBox=${`0 0 300 ${H}`} role="img" aria-label=${'44 elements in groups of ' + c.g + ' with the median of medians x'}>
+        ${Array.from({ length: G }, (_, col) => html`<rect key=${'g' + col} x=${X(col) - dx * .42} y=${Y(0) - 13} width=${dx * .84} height=${Y(c.g - 1) - Y(0) + 26} rx="5" fill="color-mix(in srgb, var(--pen) 20%, var(--paper))" />`)}
+        ${s.box && html`<rect x=${X(0) - dx * .46} y=${Y(0) - 12} width=${X(m - 1) - X(0) + dx * .92} height=${Y(mid) - Y(0) + 24} rx="8" fill="color-mix(in srgb, var(--fig-k) 32%, var(--paper))" />`}
+        ${dots.map(([col, row]) => { const med = col < G && row === mid, isx = med && col === m - 1; return html`<circle key=${col + ':' + row} cx=${X(col)} cy=${Y(row)} r=${Rd} fill=${isx ? '#d23c3c' : med ? '#f2d43a' : '#138a85'} stroke="var(--ink)" strokeWidth="1" />`; })}
+      </svg>
+      <div className="a7b-key"><span style=${{ '--sw': '#f2d43a' }}>group median</span><span style=${{ '--sw': '#d23c3c' }}>x</span><span style=${{ '--sw': 'color-mix(in srgb, var(--fig-k) 32%, var(--paper))' }}>surely ≤ x</span></div>
+      ${s.end && html`<div className="a7b-sum" dangerouslySetInnerHTML=${{ __html: c.verdict }}></div>`}
+      </div><${Cap} en=${s.en} /><${Bar} steps=${steps} i=${i} ctl=${ctl} />`;
+  }
+  function Groups() {
+    const [t, setT] = useState(1);
+    const head = html`<${Tabs} items=${['groups of 3', 'groups of 5', 'groups of 7']} v=${t} set=${setT} />`;
+    return html`<figure className="fig"><${GrRun} key=${t} c=${GR[t]} head=${head} /></figure>`;
+  }
+
+  window.FIGS = Object.assign(window.FIGS || {}, { 'ag-7-part': Part, 'ag-7-indic': Indic, 'ag-7-levels': Levels, 'ag-7-groups': Groups });
 })();

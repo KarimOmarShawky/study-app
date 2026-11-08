@@ -1002,7 +1002,7 @@ function start() {
   const minutesMemo = new WeakMap();
   const minutesFor = lec => {
     if (minutesMemo.has(lec)) return minutesMemo.get(lec);
-    const words = lec.notes.reduce((a, s) => a + strip([].concat(s.pts || [], (s.table || []).flat(), s.formula || [], s.code || []).join(' ')).split(' ').length, 0);
+    const words = lec.notes.reduce((a, s) => a + strip([].concat(s.lead || [], s.pts || [], (s.table || []).flat(), s.formula || [], s.code || []).join(' ')).split(' ').length, 0);
     const m = Math.max(1, Math.round(words / 180));
     minutesMemo.set(lec, m); return m;
   };
@@ -1081,6 +1081,7 @@ function start() {
     const notesBody = useMemo(() => lec.notes.map((s, i) => { const an = arL && arL.notes && arL.notes[i]; return html`<section key=${i} className="note" id=${'sec-' + lec.n + '-' + i} data-i=${i}>
             <h3><span className="sec">§${i + 1}</span><${H} h=${s.h} />${s.ly && html` <span className="srcbadge summary" title="This part is from last year's slides and is not in this term's slides">Last year's slides</span>`}</h3>
             <${Ar} t=${an && an.h} cls="arh" />
+            ${s.lead && html`<p className="seclead" dangerouslySetInnerHTML=${{ __html: s.lead }}></p>`}
             ${s.formula && html`<div className="formula">${(Array.isArray(s.formula) ? s.formula : [s.formula]).join('\n')}</div>`}
             ${s.table && html`<div className="tbl"><table>
               <thead><tr>${s.table[0].map((x, j) => html`<th key=${j} dangerouslySetInnerHTML=${{ __html: x }}></th>`)}</tr></thead>
@@ -1911,6 +1912,7 @@ function start() {
       ${lec.notes.map((s, i) => {
         // like a typeset book, a heading never sits alone at the foot of a page: it travels with its first block
         const blocks = [];
+        if (s.lead) blocks.push(html`<p className="seclead" dangerouslySetInnerHTML=${{ __html: s.lead }}></p>`);
         if (s.formula) blocks.push(html`<div className="formula">${(Array.isArray(s.formula) ? s.formula : [s.formula]).join('\n')}</div>`);
         if (s.table) blocks.push(html`<table><thead><tr>${s.table[0].map((x, j) => html`<th key=${j} dangerouslySetInnerHTML=${{ __html: x }}></th>`)}</tr></thead>
           <tbody>${s.table.slice(1).map((r, ri) => html`<tr key=${ri}>${r.map((x, j) => html`<td key=${j} dangerouslySetInnerHTML=${{ __html: x }}></td>`)}</tr>`)}</tbody></table>`);
@@ -2400,7 +2402,7 @@ function start() {
     const pushSession = (l, trackId, pref) => {
       const basePatch = { view: 'course', course: k, track: trackId };
       l.notes.forEach((s, i) => {
-        const body = [].concat(s.pts || [], s.formula || [], (s.table || []).flat(), s.code || []).map(strip).join(' ');
+        const body = [].concat(s.lead || [], s.pts || [], s.formula || [], (s.table || []).flat(), s.code || []).map(strip).join(' ');
         out.push({ k, kind: 'Notes', lec: l.n, pref, title: strip(s.h), text: body, to: Object.assign({}, basePatch, { mode: 'read', lec: l.n, anchor: 'sec-' + l.n + '-' + i }) });
       });
       l.cards.forEach((x, i) => out.push({ k, kind: 'Card', lec: l.n, pref, title: x[0], text: x[1], to: Object.assign({}, basePatch, { mode: 'cards', lec: l.n, cardFocus: l.n + '-' + i }) }));
@@ -2418,7 +2420,7 @@ function start() {
     }
     if (false) c.lectures.forEach(l => {
       l.notes.forEach((s, i) => {
-        const body = [].concat(s.pts || [], s.formula || [], (s.table || []).flat(), s.code || []).map(strip).join(' ');
+        const body = [].concat(s.lead || [], s.pts || [], s.formula || [], (s.table || []).flat(), s.code || []).map(strip).join(' ');
         out.push({ k, kind: 'Notes', lec: l.n, title: strip(s.h), text: body, to: { view: 'course', course: k, mode: 'read', lec: l.n, anchor: 'sec-' + l.n + '-' + i } });
       });
       l.cards.forEach((x, i) => out.push({ k, kind: 'Card', lec: l.n, title: x[0], text: x[1], to: { view: 'course', course: k, mode: 'cards', lec: l.n, cardFocus: l.n + '-' + i } }));
