@@ -1251,6 +1251,9 @@ html.vt-theme::view-transition-old(topbar), html.vt-theme::view-transition-new(t
 .hub-sub{ max-width:500px; margin:16px 0 0; color:#CFDCD8; font-size:clamp(.93rem,1.6vw,1.03rem); line-height:1.7; }
 .hub-cont{ display:inline-flex; align-items:center; gap:.55rem; margin-top:22px; padding:.58rem .95rem; border:1px solid rgba(226,238,229,.3); border-radius:99px; background:rgba(246,245,236,.1); color:#EAF0E8; font:inherit; font-size:.79rem; font-weight:600; cursor:pointer; transition:background .16s ease; }
 .hub-cont:hover{ background:rgba(246,245,236,.2); }
+.hub-cont-k{ color:#C6D6CD; font-weight:600; }
+.hub-cont-k::after{ margin-left:.4rem; color:#93AFA1; content:"·"; }
+.hub-cont-w{ max-width:34ch; overflow:hidden; color:#F2F5EA; font-weight:700; white-space:nowrap; text-overflow:ellipsis; }
 .hub-cont svg{ width:15px; height:15px; }
 .hub-art{ position:absolute; right:3.5%; width:min(30%,250px); height:auto; opacity:.82; }
 .hub-sechead{ display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; margin:34px 2px 16px; }
@@ -1291,6 +1294,8 @@ html.vt-theme::view-transition-old(topbar), html.vt-theme::view-transition-new(t
   .hub-shell, .hub-page > header, .hub-page > main{ width:calc(100% - 28px); }
   .hub-hero{ min-height:248px; padding:26px 22px; border-radius:17px; }
   .hub-hero h1 .hub-h1x{ font-size:.5em; }
+  .hub-cont{ max-width:100%; }
+  .hub-cont-w{ max-width:18ch; }
   .hub-art{ right:-12%; width:48%; opacity:.2; }
   .hub-edition{ display:none; }
   .hub-grid{ grid-template-columns:1fr; gap:10px; }

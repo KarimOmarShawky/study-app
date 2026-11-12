@@ -467,9 +467,10 @@ function start() {
     const cont = lastAny && ORDER.some(o => o[0] === lastAny.course) ? lastAny : null;
     const prog = progressOf(k);
     const modeName = { path: 'the path', studio: 'the visualizer', read: 'notes', cards: 'flashcards', ask: 'questions', quiz: 'the quiz', papers: 'past papers', progress: 'progress' };
-    const contWhat = !cont ? '' : cont.mode === 'read' && cont.lec === 'rev' ? 'Revision sheet'
-      : cont.mode === 'read' && typeof cont.lec === 'number' ? lecTitle(cont.course, cont.lec)
-      : (modeName[cont.mode] || 'Notes');
+    const shortLec = n => { const full = lecTitle(cont.course, n).replace(/^Lecture\s+\d+\s*[:·-]\s*/i, ''); return 'Lecture ' + n + (full ? ' · ' + (full.length > 42 ? full.slice(0, 41).replace(/[,;\s]+\S*$/, '') + '…' : full) : ''); };
+    const contWhat = !cont ? '' : cont.mode === 'read' && cont.lec === 'rev' ? 'the revision sheet'
+      : cont.mode === 'read' && typeof cont.lec === 'number' ? shortLec(cont.lec)
+      : (modeName[cont.mode] || 'notes');
     const open = (extra) => { go(Object.assign({ view: 'course', course: k, mode: 'path', lec: lastLec(k), anchor: null, quizPreset: null, cardFocus: null, cardLec: null }, extra || {})); window.scrollTo(0, 0); };
     const guides = [
       { n: '01', cls: 'hub-01', icon: HUB_IC.notes, t: 'Lecture notes', d: `All ${nLec} lectures, slide by slide, with the figures, the worked examples and the pseudocode.`, act: 'Open the notes', to: { mode: 'read' } },
@@ -500,7 +501,7 @@ function start() {
             <h1 id="hub-title">Algorithms<span className="hub-h1x">— from the slides to the exam</span></h1>
             <p className="hub-sub">${nLec} lectures, a visualiser that follows the labs case by case, and ${info.qa} worked midterm questions. One place to start, and one place to come back to.</p>
             ${cont && html`<button className="hub-cont" onClick=${() => go(Object.assign({}, cont, { view: 'course' }))}>
-              Continue where you left off · ${contWhat}${HUB_ARROW}</button>`}
+              <span className="hub-cont-k">Continue where you left off</span><span className="hub-cont-w">${contWhat}</span>${HUB_ARROW}</button>`}
           </div>
           <svg className="hub-art" viewBox="0 0 260 210" fill="none" aria-hidden="true">
             <path d="M130 16v40M130 56 66 106M130 56l64 50M66 106v30M66 106 34 148M194 106v30" stroke="#BFD3C5" stroke-opacity=".42" stroke-width="1.3"/>
