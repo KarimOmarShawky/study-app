@@ -481,6 +481,7 @@ function start() {
       { n: '06', cls: 'hub-06', icon: HUB_IC.cards, t: 'Flashcards', d: `${info.cards} cards, one idea each: flip, mark what you know, keep the rest for later.`, act: 'Flip the cards', to: { mode: 'cards' } },
     ];
     return html`<div className="page hub-page">
+      <a className="hub-skip" href="#guides" onClick=${e => { e.preventDefault(); const el = document.getElementById('guides'); if (el) { el.setAttribute('tabindex', '-1'); el.focus(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }}>Skip to the guides</a>
       <header>
         <div className="hub-mast">
           <button className="hub-brand" onClick=${() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Algorithms, back to the top">
@@ -516,7 +517,7 @@ function start() {
             <path d="M20 186h220" stroke="#BFD3C5" stroke-opacity=".22" stroke-dasharray="3 6"/>
           </svg>
         </section>
-        <section aria-labelledby="hub-guides">
+        <section id="guides" aria-labelledby="hub-guides">
           <div className="hub-sechead">
             <h2 id="hub-guides">Choose a guide</h2>
             <p>${prog.read} of ${nLec} lectures read · progress stays in this browser</p>

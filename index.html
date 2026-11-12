@@ -1226,6 +1226,9 @@ html.vt-theme::view-transition-old(topbar), html.vt-theme::view-transition-new(t
 
 /* ───── hub landing: the editorial front page of the course ───── */
 .hub-page{ min-height:100vh; background:var(--aurora); }
+.hub-skip{ position:fixed; z-index:20; top:.75rem; left:.75rem; padding:.6rem .9rem; border-radius:9px; background:var(--ink); color:var(--paper); font-size:.82rem; font-weight:600; text-decoration:none; transform:translateY(-160%); transition:transform .16s ease; }
+.hub-skip:focus{ transform:translateY(0); }
+#guides:focus{ outline:none; }
 .hub-shell, .hub-page > header, .hub-page > main{ width:min(1120px, calc(100% - 48px)); margin:0 auto; }
 .hub-page > header{ padding:26px 0 0; }
 .hub-mast{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:24px; }
