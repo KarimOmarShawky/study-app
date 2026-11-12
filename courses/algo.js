@@ -21640,7 +21640,7 @@ window.COURSES.algo = {
             },
             {
               "id": "nLmhmB6NzcM",
-              "title": "0/1 knapsack",
+              "title": "0/1 Knapsack — worked example",
               "channel": "YouTube",
               "lang": "en",
               "track": "lectures",
@@ -21649,7 +21649,7 @@ window.COURSES.algo = {
             },
             {
               "id": "3D_Oj16EtD8",
-              "title": "Binomial coefficient",
+              "title": "Binomial Coefficient — building Pascal's triangle",
               "channel": "YouTube",
               "lang": "en",
               "track": "lectures",
@@ -21658,7 +21658,7 @@ window.COURSES.algo = {
             },
             {
               "id": "mSyiRGSAq7k",
-              "title": "Coin-row problem",
+              "title": "Coin-row problem — worked example",
               "channel": "YouTube",
               "lang": "en",
               "track": "lectures",
@@ -21667,7 +21667,7 @@ window.COURSES.algo = {
             },
             {
               "id": "KLBCUx1is2c",
-              "title": "Longest common subsequence (watch to 21:35)",
+              "title": "Longest Common Subsequence — watch to 21:35",
               "channel": "YouTube",
               "lang": "en",
               "track": "lectures",
@@ -44446,7 +44446,7 @@ window.COURSES.algo = {
         },
         {
           "id": "nLmhmB6NzcM",
-          "title": "0/1 knapsack",
+          "title": "0/1 Knapsack — worked example",
           "channel": "YouTube",
           "lang": "en",
           "track": "lectures",
@@ -44455,7 +44455,7 @@ window.COURSES.algo = {
         },
         {
           "id": "3D_Oj16EtD8",
-          "title": "Binomial coefficient",
+          "title": "Binomial Coefficient — building Pascal's triangle",
           "channel": "YouTube",
           "lang": "en",
           "track": "lectures",
@@ -44464,7 +44464,7 @@ window.COURSES.algo = {
         },
         {
           "id": "mSyiRGSAq7k",
-          "title": "Coin-row problem",
+          "title": "Coin-row problem — worked example",
           "channel": "YouTube",
           "lang": "en",
           "track": "lectures",
@@ -44473,7 +44473,7 @@ window.COURSES.algo = {
         },
         {
           "id": "KLBCUx1is2c",
-          "title": "Longest common subsequence (watch to 21:35)",
+          "title": "Longest Common Subsequence — watch to 21:35",
           "channel": "YouTube",
           "lang": "en",
           "track": "lectures",

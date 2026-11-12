@@ -532,8 +532,8 @@ function start() {
             <button className="hub-card hub-rev" onClick=${() => open({ mode: 'read', lec: 'rev', anchor: null })}>
               <span className="hub-top"><span className="hub-ic">${HUB_IC.rev}</span><span className="hub-pill">Comprehensive review</span></span>
               <h3>Midterm revision</h3>
-              <p>The whole midterm on one page: the four recurrence methods, every trace and rotation, the traps — and a plan for the last night.</p>
-              <span className="hub-act">Open the revision sheet${HUB_ARROW}</span>
+              <p>All ${nLec} lectures explained from zero, the patterns the paper keeps asking — and a 25-question mock marked out of 100.</p>
+              <span className="hub-act">Start the final revision${HUB_ARROW}</span>
             </button>
           </nav>
         </section>
@@ -933,13 +933,13 @@ function start() {
     return html`
         ${mode === 'path' && html`<${PathView} key="path" k=${k} lecN=${lecN} nav=${nav} go=${go} read=${read} known=${known} />`}
         ${mode === 'studio' && html`<${StudioView} key="studio" k=${k} go=${go} />`}
-        ${mode === 'read' && lecN === 'rev' && html`<${RevisionSheet} key="rev" k=${k} go=${go} read=${read} onSection=${onSection} />`}
+        ${mode === 'read' && lecN === 'rev' && html`<${MidtermRevision} key="rev" k=${k} go=${go} />`}
         ${mode === 'read' && lecN !== 'rev' && html`<${Read} key="read" k=${k} lecN=${lecN} anchor=${nav.anchor} nav=${nav} go=${go} read=${read} setRead=${setRead} barRef=${barRef} onSection=${onSection} />`}
         ${mode === 'cards' && html`<${Cards} key="cards" k=${k} focus=${nav.cardFocus} startLec=${nav.cardLec} auto=${nav.cardsAuto} go=${go} known=${known} setKnown=${setKnown} />`}
         ${mode === 'ask' && html`<${Ask} key="ask" k=${k} startLec=${nav.askLec} />`}
         ${mode === 'quiz' && html`<${Quiz} key="quiz" k=${k} preset=${nav.quizPreset} go=${go} miss=${miss} setMiss=${setMiss} setFixed=${setFixed} best=${best} setBest=${setBest} />`}
         ${mode === 'papers' && html`<${Papers} key="papers" k=${k} />`}
-        ${mode === 'midterm' && html`<${MidtermRevision} key="midterm" k=${k} go=${go} read=${read} />`}
+        ${mode === 'midterm' && html`<${MidtermRevision} key="midterm" k=${k} go=${go} />`}
         ${mode === 'progress' && html`<${Progress} key="progress" k=${k} miss=${miss} setMiss=${setMiss} fixed=${fixed} setFixed=${setFixed} read=${read} known=${known} best=${best} go=${go} />`}
     `;
   }
@@ -1896,21 +1896,6 @@ function start() {
       <p className="bend">End of lecture ${lec.n}</p>
     </div>`;
   }
-  function bookRevision(c) {
-    return html`<div className="bcontent" lang="en">
-      <header className="bopen"><p className="bk">Revision sheet</p><h1>${c.name}</h1><p className="bsub">Every key term, formula and past-paper answer</p><div className="borna" aria-hidden="true">❦</div></header>
-      ${c.lectures.map((l, i) => { const formulas = l.notes.filter(s => s.formula).flatMap(s => s.formula); const exam = l.quiz.filter(isExam);
-        return html`<section key=${l.n} className="bsec" data-i=${i}>
-          <div className="bkeep"><p className="bsn">Lecture ${l.n}</p><h2>${cleanTitle(l.title)}</h2></div>
-          <dl className="bterms">${l.cards.map((x, j) => html`<div key=${j}><dt>${x[0]}</dt><dd>${x[1]}</dd></div>`)}</dl>
-          ${formulas.length > 0 && html`<div className="formula">${formulas.join('\n')}</div>`}
-          ${exam.length > 0 && html`<p className="bk-small">From past papers</p><ul>${exam.map((q, j) => html`<li key=${j}><${H} h=${q.q} /> <b>→ <${H} h=${q.o[q.a][0]} /></b></li>`)}</ul>`}
-        </section>`; })}
-      <p className="bend">End of the revision sheet</p>
-    </div>`;
-  }
-
-  const BOOK_FS = { s: 15.5, m: 17, l: 19 };
   function Book({ k, chapter, onClose }) {
     const c = M[k];
     const stageRef = useRef(null), measureRef = useRef(null);
@@ -2197,122 +2182,149 @@ function start() {
     </div>`;
   }
 
-  /* ════════════ REVISION SHEET ════════════ */
-  /* ════════════ MIDTERM REVISION — placeholder shell (stage 1) ════════════
-     Same page furniture as the notes and the revision sheet: one paper column, a tools row, section headings.
-     The three blocks below are the shape of the next stages; only the links in "Working today" are live. */
-  function MidtermRevision({ k, go, read }) {
-    const c = C[baseOf(k)] || C[k], lecs = c.lectures, readSet = new Set(read);
-    const questions = lecs.reduce((a, l) => a + l.quiz.length, 0);
-    const cards = lecs.reduce((a, l) => a + l.cards.length, 0);
-    const papers = (c.exams || []).length;
-    const blocks = [
-      { tag: 'Next stage', title: 'Quick revision, lecture by lecture',
-        body: 'Per lecture: what the midterm asks most, the formulas worth memorising, the proof skeleton, and the slides’ worked example cut down to its steps.',
-        meta: lecs.length + ' lectures · ' + cards + ' key terms to condense' },
-      { tag: 'Next stage', title: 'Timed mock midterm',
-        body: 'A whole paper in exam mode — objective questions marked as you answer, written answers revealed after you check, a score at the end with the weak lectures linked.',
-        meta: questions + ' questions in the bank · ' + papers + ' past papers to draw from' },
-      { tag: 'Next stage', title: 'Most-repeated ideas',
-        body: 'The ideas that keep returning across the past midterms, ranked by how many papers asked them, each one linked to the lecture that answers it.',
-        meta: 'Counted from the papers in Past papers' }
-    ];
-    const live = [
-      ['Notes', lecs.length + ' lectures', { mode: 'read', lec: lecs[0].n, anchor: null }],
-      ['Cards', cards + ' cards', { mode: 'cards' }],
-      ['Quiz', questions + ' questions', { mode: 'quiz' }],
-      ['Past papers', papers + ' papers', { mode: 'papers' }],
-      ['Visualizer', 'concept lab', { mode: 'studio' }]
-    ];
-    return html`<div className="read">
-      <div className="readcol">
-        <div className="readtools">
-          <span className="rt-meta">Midterm revision · Lectures 1–${lecs.length} · placeholder</span>
-          <span className="grow"></span>
-          <button className="tbtn" onClick=${() => go({ mode: 'quiz' })}>Open the quiz instead</button>
-        </div>
-        <article className="paper mrev">
-          <header className="page-head">
-            <p className="kicker" style=${{ color: 'var(--c)' }}>Midterm revision · ${c.short}</p>
-            <h2>Revision for the midterm</h2>
-            <p className="meta">The page is in place, the content is not written yet — the three blocks below are the shell for the next stages.</p>
-          </header>
-
-          <section className="mrev-sec">
-            <h3 className="mrev-h">Jump to a lecture</h3>
-            <div className="mrev-chips">${lecs.map(l => html`<button key=${l.n} className=${'mrev-chip' + (readSet.has(l.n) ? ' done' : '')}
-              onClick=${() => go({ mode: 'read', lec: l.n, anchor: null })} title=${l.title}>
-              <b>L${l.n}</b><span>${readSet.has(l.n) ? 'read' : 'notes'}</span></button>`)}</div>
-          </section>
-
-          <section className="mrev-sec">
-            <h3 className="mrev-h">What this page will hold</h3>
-            <div className="mrev-grid">${blocks.map(b => html`<div key=${b.title} className="mrev-card">
-              <span className="mrev-tag">${b.tag}</span>
-              <h4>${b.title}</h4>
-              <p>${b.body}</p>
-              <p className="mrev-meta">${b.meta}</p>
-            </div>`)}</div>
-          </section>
-
-          <section className="mrev-sec">
-            <h3 className="mrev-h">Working today</h3>
-            <div className="mrev-live">${live.map(([label, sub, to]) => html`<button key=${label} className="mrev-live-btn" onClick=${() => go(to)}>
-              <b>${label}</b><span>${sub}</span><em>Open →</em></button>`)}</div>
-          </section>
-        </article>
-      </div>
+  /* ════════════ MIDTERM REVISION ════════════ */
+  /* The last-night page, in three tabs: the fourteen lectures explained from zero, the patterns of the paper,
+     and a 25-question mock in the same shape as the professor's midterms. The content lives in rev.js → data/rev.js
+     and is fetched the first time this page opens, so nobody pays for it while reading the notes. */
+  function RevBlock({ b }) {
+    return html`<div className="mrev-blk">
+      ${b.h && html`<h4 className="mrev-bh">${b.h}</h4>`}
+      ${b.p && html`<p><${H} h=${b.p} /></p>`}
+      ${b.list && html`<ul>${b.list.map((x, i) => html`<li key=${i}><${H} h=${x} /></li>`)}</ul>`}
+      ${b.table && html`<div className="mrev-scroll"><table className="mrev-tbl">
+        <thead><tr>${b.table[0].map((x, i) => html`<th key=${i}><${H} h=${x} /></th>`)}</tr></thead>
+        <tbody>${b.table.slice(1).map((r, ri) => html`<tr key=${ri}>${r.map((x, i) => html`<td key=${i}><${H} h=${x} /></td>`)}</tr>`)}</tbody>
+      </table></div>`}
+      ${b.code && html`<pre className="code mrev-code" data-hl="" dangerouslySetInnerHTML=${{ __html: codeHtml(b.code) }}></pre>`}
+      ${b.key && html`<div className="mrev-key"><${H} h=${b.key} /></div>`}
     </div>`;
   }
 
-  function RevisionSheet({ k, go, read, onSection }) {
-    const c = C[k];
-    const [cover, setCover] = usePersist('revcover', false);
+  function MidtermRevision({ k, go }) {
+    const key = baseOf(k);
+    const [data, setData] = useState(() => (window.REV && window.REV[key]) || null);
+    const [failed, setFailed] = useState(false);
+    const [tab, setTab] = useState('lec');
+    const [openLec, setOpenLec] = useState(null);
     const [shown, setShown] = useState({});
-    useEffect(() => { onSection && onSection(null); setShown({}); }, [k]);
-    const reveal = id => cover && setShown(o => Object.assign({}, o, { [id]: !o[id] }));
-    const hidden = id => cover && !shown[id];
-    const data = useMemo(() => c.lectures.map(l => ({
-      l,
-      formulas: l.notes.filter(s => s.formula).flatMap(s => s.formula),
-      exam: l.quiz.map((q, i) => Object.assign({ id: l.n + '-' + i }, q)).filter(isExam)
-    })), [k]);
-    const terms = data.reduce((a, d) => a + d.l.cards.length, 0), formulas = data.reduce((a, d) => a + d.formulas.length, 0), exam = data.reduce((a, d) => a + d.exam.length, 0);
-    const coverProps = id => hidden(id) ? { className: 'covered', role: 'button', tabIndex: 0, 'aria-label': 'Show answer', onClick: () => reveal(id), onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); reveal(id); } } } : { onClick: () => reveal(id) };
-    const jump = n => { const el = document.getElementById('rev-' + n); if (el) el.scrollIntoView({ behavior: calm() ? 'auto' : 'smooth', block: 'start' }); };
-    const [book, setBook] = usePersist('bookopen', false);
-    const chapter = useMemo(() => !book ? null : ({ id: 'rev', kicker: 'Revision sheet', title: c.name, sections: c.lectures.map(l => 'Lecture ' + l.n + ' · ' + cleanTitle(l.title)), content: bookRevision(c), next: null, prev: null }), [k, book]);
+    const [marks, setMarks] = usePersist('revmock', {});
+    useEffect(() => {
+      if (data) return;
+      let live = true;
+      loadScript(dataUrl('rev')).then(() => {
+        if (!live) return;
+        const d = window.REV && window.REV[key];
+        if (d) setData(d); else setFailed(true);
+      }, () => { if (live) setFailed(true); });
+      return () => { live = false; };
+    }, [key, !!data]);
 
-    return html`<div className="read">
+    if (failed) return html`<p className="vz-errmsg" role="alert">The revision page could not load. Refresh to try again.</p>`;
+    if (!data) return html`<div className="vz vz-wait" role="status" aria-label="Loading the revision"></div>`;
+
+    const qs = data.mock.questions;
+    const total = qs.reduce((a, q) => a + q.marks, 0);
+    const earned = qs.reduce((a, q) => a + (marks[q.n] === 1 ? q.marks : 0), 0);
+    const doneCount = qs.filter(q => marks[q.n] != null).length;
+    const setMark = (n, v) => setMarks(m => { const next = Object.assign({}, m); if (next[n] === v) delete next[n]; else next[n] = v; return next; });
+    const toggleAnswer = n => setShown(s => Object.assign({}, s, { [n]: !s[n] }));
+
+    const tabs = [['lec', 'Lectures 1–14', data.lectures.length], ['pat', 'Exam patterns', data.patterns.rows.length], ['mock', 'Mock exam', qs.length]];
+
+    return html`<div className="read mrev">
       <div className="readcol">
         <div className="readtools">
-          <span className="rt-meta">${terms} terms · ${formulas} formula lines · ${exam} past-paper answers</span>
+          <span className="rt-meta">Midterm revision · Lectures 1–${data.lectures.length}</span>
           <span className="grow"></span>
-          <button className="tbtn" aria-pressed=${String(!!cover)} onClick=${() => { setCover(!cover); setShown({}); }}>${cover ? 'Show all answers' : 'Cover the answers'}</button>
-          <button className="tbtn bookbtn" onClick=${() => setBook(true)}><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M3 5.5C5.5 4.5 9 4.5 12 6.5c3-2 6.5-2 9-1v13c-2.5-1-6-1-9 1-3-2-6.5-2-9-1z M12 6.5v13" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/></svg>Book view</button>
+          ${tab === 'mock' && html`<span className="rt-meta mrev-live-score"><b>${earned}</b> / ${total} marks · ${doneCount}/${qs.length} marked</span>`}
+          <button className="tbtn" onClick=${() => go({ mode: 'quiz' })}>Practise the quiz</button>
         </div>
-        ${book && html`<${Book} k=${k} chapter=${chapter} onClose=${i => { setBook(false); requestAnimationFrame(() => jump(c.lectures[i] ? c.lectures[i].n : c.lectures[0].n)); }} />`}
-        <article className="paper revsheet">
-          
+
+        <div className="mrev-tabs" role="tablist" aria-label="Revision sections">
+          ${tabs.map(([id, label, n]) => html`<button key=${id} role="tab" id=${'mrev-tab-' + id} aria-selected=${String(tab === id)} aria-controls=${'mrev-panel-' + id}
+            className=${'mrev-tab' + (tab === id ? ' on' : '')} onClick=${() => setTab(id)}>${label}<span>${n}</span></button>`)}
+        </div>
+
+        ${tab === 'lec' && html`<article className="paper mrev-paper" id="mrev-panel-lec" role="tabpanel" aria-labelledby="mrev-tab-lec">
           <header className="page-head">
-            <p className="kicker" style=${{ color: 'var(--c)' }}>Revision sheet · ${c.short}</p>
-            <h2>The whole course on one page</h2>
-            <p className="meta">${cover ? 'Answers are covered. Tap one to check yourself.' : 'Every key term, formula and past-paper answer, lecture by lecture.'}</p>
+            <p className="kicker" style=${{ color: 'var(--c)' }}>Midterm revision · ${uCap(key)}</p>
+            <h2>Everything the midterm asks — from zero</h2>
+            <p className="meta">${data.lede}</p>
           </header>
-          ${data.map(({ l, formulas, exam }) => html`<section key=${l.n} className="rev-lec" id=${'rev-' + l.n}>
-            <h3><span className="sec">L${l.n}</span>${l.title}</h3>
-            <dl className="terms">${l.cards.map((x, i) => { const id = 'c' + l.n + '-' + i; return html`<div key=${i} className="term"><dt>${x[0]}</dt><dd ...${coverProps(id)}>${x[1]}<${Ar} t=${arCard(k, l.n + '-' + i)} /></dd></div>`; })}</dl>
-            ${formulas.length > 0 && html`<div className="formula">${formulas.join('\n')}</div>`}
-            ${exam.length > 0 && html`<div className="rev-exam"><p className="flabel">From past papers</p><ul>
-              ${exam.map(q => html`<li key=${q.id}><${H} h=${q.q} /> <span className="arrow">→</span> <b ...${coverProps('q' + q.id)}><${H} h=${q.o[q.a][0]} /></b></li>`)}
-            </ul></div>`}
-          </section>`)}
-        </article>
+          <ol className="mrev-how">${data.howto.map((x, i) => html`<li key=${i}><${H} h=${x} /></li>`)}</ol>
+          <div className="mrev-lecs">
+            ${data.lectures.map(l => {
+              const open = openLec === l.n;
+              return html`<section key=${l.n} className=${'mrev-lec' + (open ? ' open' : '')}>
+                <button className="mrev-lechead" aria-expanded=${String(open)} onClick=${() => setOpenLec(open ? null : l.n)}>
+                  <span className="mrev-lnum" aria-hidden="true">${String(l.n).padStart(2, '0')}</span>
+                  <span className="mrev-lt"><b>${l.t}</b><span>${l.one}</span></span>
+                  <span className="mrev-lplus" aria-hidden="true">${open ? '−' : '+'}</span>
+                </button>
+                ${open && html`<div className="mrev-lecbody">
+                  <div className="mrev-keep">
+                    <h4>If you remember only three things</h4>
+                    <ul>${l.keep.map((x, i) => html`<li key=${i}><${H} h=${x} /></li>`)}</ul>
+                  </div>
+                  ${l.blocks.map((b, i) => html`<${RevBlock} key=${i} b=${b} />`)}
+                  ${l.exam && html`<div className="mrev-exam"><h4>How the paper asks it</h4><p><${H} h=${l.exam} /></p></div>`}
+                  ${l.trap && html`<div className="mrev-trap"><h4>Watch out</h4><p><${H} h=${l.trap} /></p></div>`}
+                  <div className="mrev-jump">
+                    <button className="tbtn" onClick=${() => go({ mode: 'read', lec: l.n, anchor: null })}>Open the lecture ${l.n} notes →</button>
+                  </div>
+                </div>`}
+              </section>`;
+            })}
+          </div>
+        </article>`}
+
+        ${tab === 'pat' && html`<article className="paper mrev-paper" id="mrev-panel-pat" role="tabpanel" aria-labelledby="mrev-tab-pat">
+          <header className="page-head">
+            <p className="kicker" style=${{ color: 'var(--c)' }}>Midterm revision · the paper</p>
+            <h2>What the paper asks, year after year</h2>
+            <p className="meta">${data.patterns.intro}</p>
+          </header>
+          <div className="mrev-scroll"><table className="mrev-tbl mrev-freq">
+            <thead><tr><th>Topic</th><th>Seen in</th><th>What it looks like</th><th>Marks</th></tr></thead>
+            <tbody>${data.patterns.rows.map((r, i) => html`<tr key=${i}>${r.map((c, j) => html`<td key=${j}><${H} h=${c} /></td>`)}</tr>`)}</tbody>
+          </table></div>
+          <h3 className="mrev-h3">How to play the paper</h3>
+          <ul className="mrev-tips">${data.patterns.tips.map((x, i) => html`<li key=${i}><${H} h=${x} /></li>`)}</ul>
+          <h3 className="mrev-h3">The professor's habits</h3>
+          <ul className="mrev-tips">${data.patterns.habits.map((x, i) => html`<li key=${i}><${H} h=${x} /></li>`)}</ul>
+        </article>`}
+
+        ${tab === 'mock' && html`<article className="paper mrev-paper" id="mrev-panel-mock" role="tabpanel" aria-labelledby="mrev-tab-mock">
+          <header className="page-head">
+            <p className="kicker" style=${{ color: 'var(--c)' }}>Midterm revision · mock</p>
+            <h2>${data.mock.title} — ${qs.length} questions</h2>
+            <p className="meta">${data.mock.meta}</p>
+            <p className="meta">${data.mock.note}</p>
+          </header>
+          <div className="mrev-score">
+            <div className="mrev-scorebar" aria-hidden="true"><i style=${{ width: (total ? (earned / total) * 100 : 0) + '%' }}></i></div>
+            <p><b>${earned}</b> / ${total} marks · ${doneCount} of ${qs.length} marked</p>
+            <button className="tbtn" onClick=${() => setMarks({})} disabled=${!doneCount}>Reset my marks</button>
+          </div>
+          <div className="mrev-qs">
+            ${qs.map(q => html`<section key=${q.n} className=${'mrev-q' + (marks[q.n] != null ? ' graded' : '')}>
+              <header className="mrev-qh">
+                <span className="mrev-qn">Q${q.n}</span>
+                <span className="mrev-qm">${q.marks} mark${q.marks === 1 ? '' : 's'}</span>
+                <span className="mrev-qt">${q.topic}</span>
+              </header>
+              <div className="mrev-qq"><${H} h=${q.q} /></div>
+              <div className="mrev-qacts">
+                <button className="tbtn" aria-expanded=${String(!!shown[q.n])} onClick=${() => toggleAnswer(q.n)}>${shown[q.n] ? 'Hide answer' : 'Show answer'}</button>
+                <span className="grow"></span>
+                <button className=${'mrev-mark ok' + (marks[q.n] === 1 ? ' on' : '')} aria-pressed=${String(marks[q.n] === 1)} onClick=${() => setMark(q.n, 1)}>✓ got it</button>
+                <button className=${'mrev-mark no' + (marks[q.n] === 0 ? ' on' : '')} aria-pressed=${String(marks[q.n] === 0)} onClick=${() => setMark(q.n, 0)}>✗ missed</button>
+              </div>
+              ${shown[q.n] && html`<div className="mrev-ans"><h4>Model answer</h4><div><${H} h=${q.ans} /></div></div>`}
+            </section>`)}
+          </div>
+        </article>`}
       </div>
-      <aside className="outline" aria-label="Lectures on this sheet">
-        <p className="kicker">On this sheet</p>
-        <ol>${c.lectures.map(l => html`<li key=${l.n}><button onClick=${() => jump(l.n)}><span className="on-n">L${l.n}</span><span>${l.title}</span></button></li>`)}</ol>
-      </aside>
     </div>`;
   }
 
