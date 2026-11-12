@@ -55,10 +55,10 @@ function start() {
   // each level lists its courses as [id, elective]; ORDER is the level on screen, set by App on every render
   // the site is Algorithms only: one course, lectures 1–14
   const LEVELS = [
-    { id: 'l3', name: 'Level 3', sem: 'Semester 1', order: [['algo', 0]] }
+    { id: 'algo', name: 'Algorithms', sem: 'Analysis & Design', order: [['algo', 0]] }
   ].map(v => Object.assign(v, { order: v.order.filter(([k]) => M[k]) })).filter(v => v.order.length);
   const levelOf = k => LEVELS.find(v => v.order.some(o => o[0] === k));
-  let LEVEL = LEVELS.find(v => v.id === 'l3') || LEVELS[0];
+  let LEVEL = LEVELS.find(v => v.id === 'algo') || LEVELS[0];
   let ORDER = LEVEL ? LEVEL.order : [];
   const LET = 'ABCDEFGH';
 
@@ -428,8 +428,8 @@ function start() {
     const { go, openSearch, theme, lang, setLang } = bar;
     const open = k => k === cur ? go({ mode: 'path' }) : go({ view: 'course', course: k, mode: 'path', lec: lastLec(k), anchor: null, quizPreset: null, cardFocus: null, cardLec: null });
     return html`<header className="topbar">
-      <button className="brand" onClick=${() => go({ view: 'shelf' })} aria-label="Study Deck home"><span className="logo" aria-hidden="true">S</span><b>Study Deck</b></button>
-      <nav className="cpills" aria-label="Courses">${ORDER.map(([k]) => html`<button key=${k} className=${'cpill sp-' + k} aria-current=${String(k === cur)} onMouseEnter=${() => prefetch(k)} onPointerDown=${() => prefetch(k)} onClick=${() => open(k)}><i aria-hidden="true"></i>${M[k].short}</button>`)}</nav>
+      <button className="brand" onClick=${() => go({ view: 'shelf' })} aria-label="Algorithms home"><span className="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.8" r="2.3"></circle><circle cx="5.6" cy="15.4" r="2.3"></circle><circle cx="18.4" cy="15.4" r="2.3"></circle><path d="M10.7 6.7 6.9 13.2m6.4-6.5 3.8 6.5M7.9 15.4h8.2"></path><path d="M12 18.4v1.6"></path></svg></span><b>Algorithms</b><span className="brand-code">CS311</span></button>
+      ${ORDER.length > 1 && html`<nav className="cpills" aria-label="Courses">${ORDER.map(([k]) => html`<button key=${k} className=${'cpill sp-' + k} aria-current=${String(k === cur)} onMouseEnter=${() => prefetch(k)} onPointerDown=${() => prefetch(k)} onClick=${() => open(k)}><i aria-hidden="true"></i>${M[k].short}</button>`)}</nav>`}
       <div className="tb-tools">
         <button className="tb-search" onClick=${openSearch} aria-label="Search">${Icon.search}<span>Search</span><kbd>/</kbd></button>
         <button className="langbtn" onClick=${bar.openSync} title="Export or import your study progress across devices"><span>Sync</span></button>
@@ -440,100 +440,105 @@ function start() {
     </header>`;
   }
 
-  /* ════════════ HOME: bento tiles ════════════ */
-  const lecOfId = id => { const m = /^x?(\d+)-/.exec(id); return m ? +m[1] : null; };
+  /* ════════════ HOME: the front page of the course ════════════ */
+  const HUB_MARK = html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="4.6" r="2.4"></circle><circle cx="5.4" cy="15.2" r="2.4"></circle><circle cx="18.6" cy="15.2" r="2.4"></circle>
+    <path d="M10.6 6.6 6.8 13m6.6-6.4 3.8 6.4M7.8 15.2h8.4"></path><path d="M12 18.4v1.8"></path></svg>`;
+  const HUB_ARROW = html`<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.5 10h12m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const hubIcon = d => html`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const HUB_IC = {
+    notes: hubIcon(html`<path d="M5 4.5h14M5 9.5h14M5 14.5h9M5 19.5h9"></path><path d="m17 14 2 2 3-4"></path>`),
+    eye: hubIcon(html`<path d="M2.6 12s3.6-6.2 9.4-6.2S21.4 12 21.4 12s-3.6 6.2-9.4 6.2S2.6 12 2.6 12Z"></path><circle cx="12" cy="12" r="2.7"></circle>`),
+    bank: hubIcon(html`<path d="M4 5.2h13.5a2.4 2.4 0 0 1 2.4 2.4v6.6a2.4 2.4 0 0 1-2.4 2.4H9.2L5 20v-3.4H4a1.6 1.6 0 0 1-1.6-1.6V6.8A1.6 1.6 0 0 1 4 5.2Z"></path><path d="M7 9.4h8M7 12.6h5"></path>`),
+    quiz: hubIcon(html`<path d="M4.5 4.5h9l5 5v10a1.4 1.4 0 0 1-1.4 1.4H4.5A1.4 1.4 0 0 1 3.1 19.5v-13a1.4 1.4 0 0 1 1.4-1.4Z"></path><path d="M13.2 4.7V9.2h4.6M6.6 13.6l1.7 1.7 3-3.4"></path>`),
+    papers: hubIcon(html`<path d="M7.4 3.5h9.2a1.6 1.6 0 0 1 1.6 1.6v13.8a1.6 1.6 0 0 1-1.6 1.6H7.4a1.6 1.6 0 0 1-1.6-1.6V5.1a1.6 1.6 0 0 1 1.6-1.6Z"></path><path d="M9 8h6M9 11.4h6M9 14.8h3.6"></path><path d="M3.4 6.6v13.2"></path>`),
+    cards: hubIcon(html`<rect x="3.4" y="7" width="12.2" height="13" rx="1.8"></rect><path d="M7.6 4.2h10.2a1.8 1.8 0 0 1 1.8 1.8v11.2"></path><path d="M6.6 11.2h5.8M6.6 14.4h4"></path>`),
+    rev: hubIcon(html`<path d="M6 3.5h9l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 20V5a1.5 1.5 0 0 1 1-1.5Z"></path><path d="M14.5 3.8V8H19M8.5 12h7m-7 3.5h7m-7 3.5h4"></path>`),
+  };
   function Home({ bar }) {
-    const { go, openSearch, lang, setLang, setLevel } = bar;
-    // the tiles read saved progress directly, so redraw when it changes (including from another tab)
+    const { go, openSearch } = bar;
+    // saved progress is read straight from storage, so the page redraws when it changes (even from another tab)
     const [, setTick] = useState(0);
     useEffect(() => { const f = () => setTick(t => t + 1); window.addEventListener('sd-store', f); return () => window.removeEventListener('sd-store', f); }, []);
+    const k = ORDER[0][0], info = M[k];
+    const byLine = (info.by || '').split('·')[0].trim();
+    const nLec = info.lectures.length;
     const lastAny = store.get('last', null);
-    const last = lastAny && ORDER.some(o => o[0] === lastAny.course) ? lastAny : null;
-    const rows = ORDER.map(([k, el]) => Object.assign({ k, el, readList: store.get('read:' + k, []) }, progressOf(k)));
-    const sum = rows.reduce((a, r) => { a.due += r.due; a.read += r.read; a.lec += r.lectures; a.known += r.known; a.cards += r.cards; return a; }, { due: 0, read: 0, lec: 0, known: 0, cards: 0 });
-    const h = new Date().getHours();
-    const greet = h < 5 ? 'Up late' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-    const t = today(), daily = store.get('daily', {});
-    const week = [6, 5, 4, 3, 2, 1, 0].map(d => { const v = daily[t - d] || [0, 0]; return { d: t - d, r: v[0], n: v[1] }; });
-    const wk = week.reduce((a, x) => ({ r: a.r + x.r, n: a.n + x.n }), { r: 0, n: 0 });
-    const ever = ORDER.reduce((a, [k]) => { Object.values(store.get('stats:' + k, {})).forEach(v => { a.r += v[0]; a.n += v[0] + v[1]; }); return a; }, { r: 0, n: 0 });
-    const acc = wk.n ? wk : ever;
-    const maxN = Math.max(1, ...week.map(x => x.n));
-    const weak = ORDER.flatMap(([k]) => {
-      const g = {}; store.get('miss:' + k, []).forEach(id => { const n = lecOfId(id); if (n != null) (g[n] = g[n] || []).push(id); });
-      return Object.keys(g).map(n => ({ k, n: +n, ids: g[n] }));
-    }).sort((a, b) => b.ids.length - a.ids.length).slice(0, 3);
-    const dueTop = rows.filter(r => r.due).sort((a, b) => b.due - a.due)[0];
-    const papers = ORDER.reduce((a, [k]) => a + (M[k].exams || 0), 0);
-    const paperCourse = last && M[last.course] ? last.course : ORDER[0][0];
-    const cont = last && M[last.course] ? last : null;
-    const posf = cont && cont.mode === 'read' && typeof cont.lec === 'number' ? store.get('posf:' + cont.course + ':' + cont.lec, null) : null;
-    const contPct = !cont ? 0 : posf != null ? Math.round(posf * 100)
-      : Math.round(progressOf(cont.course).read / Math.max(1, M[cont.course].lectures.length) * 100);
-    const contWhat = !cont ? '' : cont.mode === 'read' && typeof cont.lec === 'number' ? 'of this lecture read' : 'of the course read';
-    const modeName = { path: 'Path', studio: 'Visualizer', read: 'Notes', cards: 'Cards', ask: 'Q&A', quiz: 'Quiz', papers: 'Past papers', progress: 'Progress', miss: 'Progress' };
-    const openCourse = (k, extra) => { go(Object.assign({ view: 'course', course: k, mode: 'path', lec: lastLec(k), anchor: null, quizPreset: null, cardFocus: null, cardLec: null }, extra || {})); window.scrollTo(0, 0); };
-    const dayLetter = d => 'SMTWTFS'[new Date(d * 86400000).getUTCDay()];
-    return html`<div className="page home-page">
-      <${Topbar} bar=${bar} cur=${null} />
-      <main className="content home">
-        <div className="hello">
-          <div className="hello-l">
-            <p className="hello-k">${LEVEL.name} · ${LEVEL.sem}</p>
-            <h1>${greet}</h1>
-            <p>${sum.lec} lectures · ${papers} solved past papers · Algorithms only</p>
-            ${LEVELS.length > 1 && html`<div className="lvls" role="group" aria-label="Level and semester">${LEVELS.map(v => html`<button key=${v.id} aria-pressed=${String(v.id === LEVEL.id)} onClick=${() => setLevel(v.id)}>
-              <b>${v.name}</b><span>${v.sem} · ${v.order.length} courses</span></button>`)}</div>`}
-          </div>
-          <button className="hsearch" onClick=${openSearch}>${Icon.search}<span>Search notes, cards, past papers…</span><kbd>/</kbd></button>
-        </div>
-        <div className="bento">
-          ${cont ? html`<button className=${'tile t-cont sp-' + cont.course} onMouseEnter=${() => prefetch(cont.course)} onPointerDown=${() => prefetch(cont.course)} onClick=${() => go(Object.assign({}, cont, { view: 'course' }))}>
-              <span className="ring" style=${{ '--p': contPct }} aria-hidden="true"><i>${contPct}%</i></span>
-              <span className="tc-text"><span className="tl">Continue · ${modeName[cont.mode] || 'Notes'}</span>
-                <b className="tc-title">${typeof cont.lec === 'number' ? lecTitle(cont.course, cont.lec) : cont.lec === 'rev' ? 'Revision sheet' : M[cont.course].name}</b>
-                <span className="tc-sub">${M[cont.course].name}${typeof cont.lec === 'number' ? ' · Lecture ' + cont.lec : ''} · ${contPct}% ${contWhat}</span>
-                <span className="tgo">Resume →</span></span>
-            </button>`
-          : html`<button className="tile t-cont" onClick=${() => openCourse(ORDER[0][0])}>
-              <span className="ring" style=${{ '--p': 0 }} aria-hidden="true"><i>0%</i></span>
-              <span className="tc-text"><span className="tl">Start here</span><b className="tc-title">Pick a course and follow its path</b>
-                <span className="tc-sub">Each lecture is a stop: read the notes, flip the cards, pass the quiz.</span><span className="tgo">Open ${M[ORDER[0][0]].name} →</span></span>
-            </button>`}
-          <button className="tile t-due" disabled=${!dueTop} onClick=${() => dueTop && openCourse(dueTop.k, { mode: 'cards', cardsAuto: Date.now() })}>
-            <span className="tl">Cards due today</span><b className="big">${sum.due}</b>
-            <span className="tsub">${dueTop ? 'Start with ' + M[dueTop.k].short + ' →' : 'All caught up'}</span>
-            <span className="stk" aria-hidden="true"><i></i><i></i><i></i></span>
+    const cont = lastAny && ORDER.some(o => o[0] === lastAny.course) ? lastAny : null;
+    const prog = progressOf(k);
+    const modeName = { path: 'the path', studio: 'the visualizer', read: 'notes', cards: 'flashcards', ask: 'questions', quiz: 'the quiz', papers: 'past papers', progress: 'progress' };
+    const contWhat = !cont ? '' : cont.mode === 'read' && cont.lec === 'rev' ? 'Revision sheet'
+      : cont.mode === 'read' && typeof cont.lec === 'number' ? lecTitle(cont.course, cont.lec)
+      : (modeName[cont.mode] || 'Notes');
+    const open = (extra) => { go(Object.assign({ view: 'course', course: k, mode: 'path', lec: lastLec(k), anchor: null, quizPreset: null, cardFocus: null, cardLec: null }, extra || {})); window.scrollTo(0, 0); };
+    const guides = [
+      { n: '01', cls: 'hub-01', icon: HUB_IC.notes, t: 'Lecture notes', d: `All ${nLec} lectures, slide by slide, with the figures, the worked examples and the pseudocode.`, act: 'Open the notes', to: { mode: 'read' } },
+      { n: '02', cls: 'hub-02', icon: HUB_IC.eye, t: 'Visualizer', d: 'Trace each algorithm the way the labs do — the case is named before each step.', act: 'Open the workbench', to: { mode: 'studio' } },
+      { n: '03', cls: 'hub-03', icon: HUB_IC.bank, t: 'Question bank', d: `${info.qa} midterm questions with model answers and Egyptian Arabic notes.`, act: 'Practise questions', to: { mode: 'ask' } },
+      { n: '04', cls: 'hub-04', icon: HUB_IC.quiz, t: 'Quizzes', d: `A short check after every lecture — ${info.quiz} questions, pass mark 70%.`, act: 'Take a quiz', to: { mode: 'quiz' } },
+      { n: '05', cls: 'hub-05', icon: HUB_IC.papers, t: 'Past papers', d: `${info.exams} midterm papers, fully solved, with the answer key and the traps marked.`, act: 'Open the papers', to: { mode: 'papers' } },
+      { n: '06', cls: 'hub-06', icon: HUB_IC.cards, t: 'Flashcards', d: `${info.cards} cards, one idea each: flip, mark what you know, keep the rest for later.`, act: 'Flip the cards', to: { mode: 'cards' } },
+    ];
+    return html`<div className="page hub-page">
+      <header>
+        <div className="hub-mast">
+          <button className="hub-brand" onClick=${() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Algorithms, back to the top">
+            <span className="hub-mark">${HUB_MARK}</span>
+            Algorithms <b>· ${info.code}</b>
           </button>
-          <div className="tile t-acc">
-            <span className="tl">${wk.n ? 'Quiz accuracy · last 7 days' : 'Quiz accuracy'}</span>
-            <b className="big">${acc.n ? Math.round(acc.r / acc.n * 100) + '%' : '–'}</b>
-            <span className="tsub">${wk.n ? wk.n + ' answers this week' : ever.n ? ever.n + ' answers so far' : 'No answers yet'}</span>
-            <span className="bars" aria-label="Answers per day, last 7 days">${week.map(x => html`<span key=${x.d} title=${x.n + ' answers, ' + x.r + ' right'}><b><i style=${{ height: (x.n ? Math.max(12, x.n / maxN * 100) : 5) + '%', opacity: x.n ? 1 : .35 }}></i></b><em>${dayLetter(x.d)}</em></span>`)}</span>
+          <div className="hub-tools">
+            <span className="hub-edition">Midterm · Lectures 1–${nLec}</span>
+            <button className="hub-ghost" onClick=${() => open({ mode: 'progress' })}>Progress</button>
+            <button className="hub-srch" onClick=${openSearch}>${Icon.search}<span>Search</span><kbd>/</kbd></button>
           </div>
-          <div className="t-courses">
-            <div className="t-head"><h2>${LEVEL.name}, ${LEVEL.sem}</h2><span>${sum.read} of ${sum.lec} lectures read</span></div>
-            ${rows.map(r => html`<button key=${r.k} className=${'tile t-course sp-' + r.k} title=${M[r.k].name} onMouseEnter=${() => prefetch(r.k)} onPointerDown=${() => prefetch(r.k)} onClick=${() => openCourse(r.k)}>
-            <span className="tcs">${M[r.k].code}${r.el ? ' · Elective' : ''}</span>
-            <b className="tcn">${M[r.k].name}</b>
-            <span className="dots" aria-hidden="true">${M[r.k].lectures.map(l => html`<i key=${l.n} className=${r.readList.includes(l.n) ? 'f' : ''}></i>`)}</span>
-            <span className="tcf"><span>${r.read}/${r.lectures} read</span>${r.due ? html`<em>${r.due} due</em>` : null}</span>
-          </button>`)}</div>
-          <div className="tile t-weak">
-            <span className="tl">Weak spots, from your mistakes</span>
-            ${weak.length ? html`<ul>${weak.map(w => html`<li key=${w.k + w.n}><button className=${'sp-' + w.k} onClick=${() => openCourse(w.k, { mode: 'quiz', lec: w.n, quizPreset: { ids: w.ids, t: Date.now(), from: 'home' } })}>
-                <i aria-hidden="true"></i><span>${M[w.k].short} · L${w.n} ${shortTitle(lecTitle(w.k, w.n), 40)}</span><em>${w.ids.length} to fix</em></button></li>`)}</ul>`
-              : html`<p className="tempty">Questions you get wrong collect here, grouped by lecture, so you know what to fix before the exam.</p>`}
-          </div>
-          <button className="tile t-papers" onClick=${() => openCourse(paperCourse, { mode: 'papers' })}>
-            <span className="tl">Solved past papers</span><b className="big">${papers}</b><span className="tsub">Every answer explained · open ${M[paperCourse].short} →</span>
-          </button>
-          ${ORDER.some(([k]) => M[k] && M[k].ar) && html`<button className=${'tile t-ar' + (lang === 'ar' ? ' on' : '')} aria-pressed=${String(lang === 'ar')} onClick=${() => setLang(lang === 'ar' ? 'en' : 'ar')}>
-            <span className="tl">Explanations</span><b className="big" lang="ar">بالعربي</b>
-            <span className="tsub">${lang === 'ar' ? 'On: Egyptian Arabic under each answer' : 'Off: tap to show Egyptian Arabic'}</span>
-          </button>`}
         </div>
-        <p className="foot">Built from the course slides, revision sheets and past papers on the MA Platform. Where an official answer key disagrees with the lectures, both are shown. Progress is saved in this browser only.</p>
+      </header>
+      <main>
+        <section className="hub-hero" aria-labelledby="hub-title">
+          <div className="hub-copy">
+            <p className="hub-eyebrow">Analysis &amp; Design of Algorithms</p>
+            <h1 id="hub-title">Algorithms<span className="hub-h1x">— from the slides to the exam</span></h1>
+            <p className="hub-sub">${nLec} lectures, a visualiser that follows the labs case by case, and ${info.qa} worked midterm questions. One place to start, and one place to come back to.</p>
+            ${cont && html`<button className="hub-cont" onClick=${() => go(Object.assign({}, cont, { view: 'course' }))}>
+              Continue where you left off · ${contWhat}${HUB_ARROW}</button>`}
+          </div>
+          <svg className="hub-art" viewBox="0 0 260 210" fill="none" aria-hidden="true">
+            <path d="M130 16v40M130 56 66 106M130 56l64 50M66 106v30M66 106 34 148M194 106v30" stroke="#BFD3C5" stroke-opacity=".42" stroke-width="1.3"/>
+            <path d="M130 16 34 148m96-92 64 50" stroke="#BFD3C5" stroke-opacity=".14" stroke-width="1"/>
+            <circle cx="130" cy="56" r="13" fill="#BFD3C5" fill-opacity=".12" stroke="#D4E4D6" stroke-opacity=".7"/>
+            <circle cx="66" cy="106" r="9.5" fill="#D3DFC5" fill-opacity=".1" stroke="#CFE0CF" stroke-opacity=".6"/>
+            <circle cx="194" cy="106" r="9.5" fill="#D3DFC5" fill-opacity=".1" stroke="#CFE0CF" stroke-opacity=".6"/>
+            <circle cx="34" cy="148" r="7" fill="#D3DFC5" fill-opacity=".85"/>
+            <circle cx="66" cy="168" r="7" fill="#D3DFC5" fill-opacity=".55"/>
+            <circle cx="194" cy="168" r="7" fill="#D3DFC5" fill-opacity=".55"/>
+            <path d="M113 56h34M130 39v34" stroke="#E0E9DD" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M20 186h220" stroke="#BFD3C5" stroke-opacity=".22" stroke-dasharray="3 6"/>
+          </svg>
+        </section>
+        <section aria-labelledby="hub-guides">
+          <div className="hub-sechead">
+            <h2 id="hub-guides">Choose a guide</h2>
+            <p>${prog.read} of ${nLec} lectures read · progress stays in this browser</p>
+          </div>
+          <nav className="hub-grid" aria-label="Study guides">
+            ${guides.map(g => html`<button key=${g.n} className=${'hub-card ' + g.cls} onClick=${() => open(g.to)}>
+              <span className="hub-top"><span className="hub-ic">${g.icon}</span><span className="hub-num">${g.n}</span></span>
+              <h3>${g.t}</h3>
+              <p>${g.d}</p>
+              <span className="hub-act">${g.act}${HUB_ARROW}</span>
+            </button>`)}
+            <button className="hub-card hub-rev" onClick=${() => open({ mode: 'read', lec: 'rev', anchor: null })}>
+              <span className="hub-top"><span className="hub-ic">${HUB_IC.rev}</span><span className="hub-pill">Comprehensive review</span></span>
+              <h3>Midterm revision</h3>
+              <p>The whole midterm on one page: the four recurrence methods, every trace and rotation, the traps — and a plan for the last night.</p>
+              <span className="hub-act">Open the revision sheet${HUB_ARROW}</span>
+            </button>
+          </nav>
+        </section>
+        <footer className="hub-foot">
+          <span>Algorithms · ${info.code}${byLine ? ' · ' + byLine : ''}</span>
+          <span>${nLec} lectures · ${info.qa} questions · ${info.exams} papers · ${info.cards} cards</span>
+        </footer>
       </main>
     </div>`;
   }
@@ -586,7 +591,7 @@ function start() {
         <div className="band-in">
           <div className="band-top">
             <div className="band-id">
-              <p className="band-k">${mode === 'studio' ? 'Interactive concept laboratory' : LEVEL.name + ' · ' + LEVEL.sem + ' · ' + baseM.code + ' · ' + ((ORDER.find(o => o[0] === baseK) || [])[1] ? 'Elective' : 'Core course') + (hasTracks ? ' · ' + (activeTrack === 'labs' ? 'Labs Track' : 'Lectures Track') : '')}</p>
+              <p className="band-k">${mode === 'studio' ? 'Interactive concept laboratory' : LEVEL.name + ' · ' + baseM.code + ' · ' + (hasTracks ? (activeTrack === 'labs' ? 'Lab track' : 'Lecture track') : 'Core course')}</p>
               <h1>${baseM.name}</h1>
               ${mode !== 'studio' && html`<p className="band-by">${baseM.by}</p>`}
               ${hasTracks && mode !== 'studio' && html`<div className="track-switch" role="tablist" aria-label="Course track">
@@ -2508,7 +2513,7 @@ function start() {
           ${failed && html`<p className="small" style=${{ padding: '8px 18px', color: 'var(--pen)' }}>Some courses didn't load, so their results are missing. Check your connection and reopen search.</p>`}
           ${!ready && !failed && html`<p className="muted small" style=${{ padding: '8px 18px' }}>${loaded ? 'Searching ' + loaded + ' of ' + ORDER.length + ' courses, the rest are still loading…' : 'Loading the courses for search…'}</p>`}
           ${!loaded ? null
-            : q.trim().length < 2 ? html`<p className="muted small" style=${{ padding: '8px 18px' }}>Try ${LEVEL.id === 'l2' ? '"simplex", "linked list", "DFD", "MOV" or "flexbox"' : '"Belady", "FIRST set", "wireframe", "Nyquist" or "cyclomatic"'}.</p>`
+            : q.trim().length < 2 ? html`<p className="muted small" style=${{ padding: '8px 18px' }}>Try "master theorem", "red-black", "Dijkstra", "amortised" or "fibonacci heap".</p>`
             : !results.length ? html`<p className="muted small" style=${{ padding: '8px 18px' }}>${ready ? 'Nothing matches "' + q + '". Try a shorter word.' : 'Nothing yet for "' + q + '".'}</p>`
             : results.map((r, i) => html`<button key=${i} className=${'res sp-' + r.k + (i === sel ? ' on' : '')} onMouseEnter=${() => setSel(i)} onClick=${() => choose(r)}>
                 <span className="chipdot"></span>
