@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 // Canonical/og:url domain. Vercel sets VERCEL_PROJECT_PRODUCTION_URL at build time, so a renamed project
 // (or a custom domain via SITE_URL) does not keep advertising the old host in <link rel="canonical">.
 const SITE = (process.env.SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? 'https://' + process.env.VERCEL_PROJECT_PRODUCTION_URL : 'https://study-deck-five.vercel.app')).replace(/\/$/, '');
-const TITLE = 'Study Deck · Algorithms (CS311)';
+const TITLE = 'Algorithms · CS311 — Study Hub';
 const DESC = 'Algorithms Analysis & Design (CS311), lectures 1–14: notes, flashcards, quizzes, video roadmaps and solved past papers. Every answer choice explained.';
 
 rmSync('dist', { recursive: true, force: true });
@@ -53,13 +53,13 @@ const imageTags = OG ? `
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Study Deck: Algorithms (CS311), lectures 1-14">` : '';
+<meta property="og:image:alt" content="Algorithms · CS311: notes, visualiser, questions and midterm revision">` : '';
 const twitterCard = OG ? 'summary_large_image' : 'summary';
 const share = `<meta name="description" content="${DESC}">
-<meta name="theme-color" content="#7444D6">
+<meta name="theme-color" content="#F4F2EB">
 ${hasFavicon ? '<link rel="icon" href="/favicon.svg" type="image/svg+xml">\n' : ''}<link rel="canonical" href="${SITE}/">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Study Deck">
+<meta property="og:site_name" content="Algorithms · CS311">
 <meta property="og:title" content="${TITLE}">
 <meta property="og:description" content="${DESC}">
 <meta property="og:url" content="${SITE}/">${imageTags}
