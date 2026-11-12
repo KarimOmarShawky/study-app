@@ -4,12 +4,13 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),vm=require('node:vm');
 const ctx={console,React:{},htm:{bind:()=>()=>null},document:{getElementById:()=>true}};ctx.window=ctx;vm.createContext(ctx);
 for(const file of ['figs.js','topics.js','lab.js'])vm.runInContext(fs.readFileSync(file,'utf8'),ctx,{filename:file});
-const {models:M,TOPICS,OS_TOPICS}=ctx.TOPICS;
+const {models:M,TOPICS}=ctx.TOPICS;
 const clean=x=>JSON.parse(JSON.stringify(x));
 
-test('topic catalog: 13 course topics (each rebuilt in lab.js) and 5 OS topics',()=>{
-  assert.equal(TOPICS.length,13);assert.equal(OS_TOPICS.length,5);
-  assert.equal(new Set(TOPICS.concat(OS_TOPICS).map(t=>t.id)).size,18);
+test('topic catalog: the 9 topics of lectures 1–14, each rebuilt in lab.js',()=>{
+  assert.equal(TOPICS.length,9);
+  assert.equal(TOPICS.map(t=>t.id).join(','),'sort,search,select,rec,hash,amortized,trees,skip,dp');
+  assert.equal(new Set(TOPICS.map(t=>t.id)).size,9);
   assert.equal(ctx.COURSES,undefined);
   for(const t of TOPICS)assert.equal(typeof (ctx.LAB[t.id]||{}).build,'function','lab module for '+t.id);
   assert.equal(typeof ctx.TOPICS.Embed,'function');
@@ -90,7 +91,7 @@ test('eight-bit shifts, rotates and clear-lowest-bit traces stay in bounds',()=>
   assert.equal(M.bitFrames({n:'0',method:'count'}).length,1);
   assert.throws(()=>M.bitFrames({n:'256',method:'rotate'}));
 });
-test('CPU and page models expose actual incremental state for editable workloads',()=>{
+test('CPU and page models still solve their workloads (no OS course anymore, models kept for the notes embeds)',()=>{
   const cpu=M.cpuFrames({text:'0:5,1:3,3:2',method:'RR',quantum:'2'});
   assert.equal(cpu[0].segments.length,0);assert.equal(cpu.at(-1).time,10);
   assert.equal(cpu.at(-1).rows.reduce((s,p)=>s+p.bt,0),10);

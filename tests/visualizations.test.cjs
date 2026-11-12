@@ -111,5 +111,8 @@ test('every authored lecture visualization can build a nonempty trace', () => {
     for (const [key, val] of Object.entries(obj)) if (key !== 'viz') visit(val);
   }
   visit(ctx.COURSES);
-  assert.ok(count >= 16, 'expected existing course examples');
+  assert.ok(count >= 12, 'expected the lectures\' authored examples');
+  // every lecture of the midterm half carries at least one interactive diagram
+  for (const l of ctx.COURSES.algo.lectures)
+    assert.ok(l.notes.some(s => s.viz), 'lecture ' + l.n + ' has no interactive visualization');
 });

@@ -2547,7 +2547,12 @@ window.LAB = window.LAB || {};
   }
   const opLabel = o => o.op === 'i' ? 'insert ' + o.k : o.op === 'd' ? 'delete ' + o.k : o.op === 's' ? 'OS-SELECT ' + o.i : 'OS-RANK ' + o.k;
   const chipLabel = o => o.op === 'i' ? '+' + o.k : o.op === 'd' ? '−' + o.k : o.op === 's' ? 'sel ' + o.i : 'rank ' + o.k;
-  const caseName = c => c === 'sel' ? 'OS-SELECT' : c === 'rank' ? 'OS-RANK' : typeof c === 'number' ? (c ? 'Case ' + c + (c > 3 ? ' (mirror of ' + (c - 3) + ')' : '') : '') : c ? 'case (' + c.replace(/i+$/, '') + ')' + (/i/.test(c) ? ' (' + c.replace(/^\d/, '') + ')' : '') : '';
+  // slide numbering (insert 1-3 + mirrors 4-6, delete (2)-(4)) next to the numbering of Lab 5 / Lab 6
+  const LAB_IN = { 1: '1', 2: '3', 3: '2', 4: '1', 5: '5', 6: '4' };
+  const LAB_DEL = { 2: '1', 3: '2', '4i': '3', '4ii': '4' };
+  const caseName = c => c === 'sel' ? 'OS-SELECT' : c === 'rank' ? 'OS-RANK'
+    : typeof c === 'number' ? (c ? 'Case ' + c + (c > 3 ? ' (mirror of ' + (c - 3) + ')' : '') + ' · Lab ' + LAB_IN[c] : '')
+    : c ? 'case (' + c.replace(/i+$/, '') + ')' + (/i/.test(c) ? ' (' + c.replace(/^\d/, '') + ')' : '') + ' · Lab ' + LAB_DEL[c] : '';
   const INV = {
     ins: 'A new key is always red, so black-heights cannot change: only property 3 (a red node has a black parent) or the root colour can break.',
     1: 'Case 1 only recolours: the grandparent\'s black moves down to the parent and the uncle. Black-heights stay the same, and the red-red problem may move two levels up.',
@@ -2711,14 +2716,15 @@ window.LAB = window.LAB || {};
       title: 'Red-black trees', group: 'Data structures', icon: '♧', desc: 'RB-INSERT, RB-DELETE, OS-SELECT as in L9-L12.',
       question: 'How do recolouring and at most a few rotations keep the height ≤ 2 lg(n + 1)?',
       model: 'A red-black tree is a BST with one colour bit per node: the root and the NIL leaves are black, a red node has a black parent, and every path from a node down to a NIL has the same number of black nodes, its black-height bh. So h ≤ 2 lg(n + 1).',
-      watch: 'Insert colours the new node red and repairs red-red pairs (Cases 1-3, mirror 4-6). Delete removes a node; if it was black, an extra black token ■ travels up until rbTreeFix cases (1)-(4) absorb it.'
+      watch: 'Insert colours the new node red, then repairs red-red pairs following Lab 5: Case 0 the root · Case 1 uncle red · Case 2 left-left · Case 3 left-right · Case 4 right-right · Case 5 right-left (the chip also shows the slide number). Delete follows Lab 6: Step 1 the plain BST splice, Step 2 the colour of the spliced-out node (Case 1 red · Case 2 child red), else an extra black token ■ on x climbs through Case 0 root · Case 1 red sibling · Case 2 both nephews black · Case 3 near red · Case 4 far red.'
     },
     defaults: { start: L9, ops: '15', labels: 'bh', nil: true },
     presets: [
       { label: 'L9 example tree: insert 15', src: 'L9 slides 4-8, 19-23', cfg: { start: L9, ops: '15', labels: 'bh', nil: true } },
       { label: 'Insertion problem {7, 5, 9, 12}: 8, 11, 10', src: 'L10 slides 8-19', cfg: { start: '7, 5, 9, 12', ops: '8, 11, 10', labels: 'bh', nil: true } },
       { label: 'L11 example: insert 65, 82, 87', src: 'L11 slides 1-11', cfg: { start: L11, ops: '65, 82, 87', labels: 'bh', nil: true } },
-      { label: 'Exam: insert 2, 1, 4, 5, 9, 3, 6, 7', src: 'Final 2016 Q4, notes L11', cfg: { start: '', ops: '2, 1, 4, 5, 9, 3, 6, 7', labels: 'bh', nil: true } },
+      { label: 'Lab 5 Example-1: insert 10, 85, 15, 70, 20, 60, 30, 50, 65, 80, 90, 40, 5, 55', src: 'Lab 5 (Red-Black Tree, insertion) — the whole worked example of the sheet', cfg: { start: '', ops: '10, 85, 15, 70, 20, 60, 30, 50, 65, 80, 90, 40, 5, 55', labels: 'bh', nil: true } },
+      { label: 'Lab 5 homework 1: insert 2, 1, 4, 5, 9, 3, 6, 7', src: 'Lab 5 homework 1 (also Final 2016 Q4, notes L11)', cfg: { start: '', ops: '2, 1, 4, 5, 9, 3, 6, 7', labels: 'bh', nil: true } },
       { label: 'Exam: insert 5, 1, 4, 10, 9, 20, 6, 7', src: 'Final 2018 Q4, notes L11', cfg: { start: '', ops: '5, 1, 4, 10, 9, 20, 6, 7', labels: 'bh', nil: true } },
       { label: 'Deletion example 1: delete 87', src: 'L11 slides 17-18', cfg: { start: DT, ops: 'd87', labels: 'bh', nil: true } },
       { label: 'Deletion example 2: delete 71', src: 'L11 slides 19-21', cfg: { start: DT + ', 51', ops: 'd71', labels: 'bh', nil: true } },
