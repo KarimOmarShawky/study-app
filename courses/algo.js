@@ -1,4 +1,4 @@
-// Algorithms Analysis & Design (CS311) — Full Course Data
+// Algorithms Analysis & Design (CS311) — course data (lectures 1–14, the midterm half)
 window.COURSES = window.COURSES || {};
 window.COURSES.algo = {
   "id": "algo",
@@ -188,6 +188,16 @@ window.COURSES.algo = {
       "notes": "Official Cairo University FCAI Level 3 Semester 1 course materials, slides, labs, and past exams",
       "chapters": [],
       "videos": []
+    },
+    {
+      "title": "Lecture 5 playlist",
+      "type": "playlist",
+      "url": "https://www.youtube.com/playlist?list=PLprfEn_dJT0-6LaXIBkYaK_qUBCAvfvxo",
+      "notes": "Quicksort: partitioning and analysis examples, supplied for Lecture 5.",
+      "chapters": [
+        5
+      ],
+      "videos": []
     }
   ],
   "tracks": {
@@ -204,72 +214,22 @@ window.COURSES.algo = {
           "title": "Lecture 1: Introduction to Algorithms, Insertion Sort, Merge Sort, Recursion Trees and Complexity Cases",
           "videos": [
             {
-              "id": "JPyuH4qXLZ0",
-              "title": "MIT 6.046J Lec 1: Introduction, Insertion Sort & Mergesort (Prof. Charles Leiserson & Erik Demaine)",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:20:36",
+              "id": "W2Fl17HQgJM",
+              "title": "Lecture 1 · video 1",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Course overview: Analysis of Algorithms and why performance matters"
-                },
-                {
-                  "t": 690,
-                  "time": "11:30",
-                  "label": "The sorting problem specification and Insertion Sort pseudocode"
-                },
-                {
-                  "t": 1140,
-                  "time": "19:00",
-                  "label": "Step-by-step trace of Insertion Sort on [8, 2, 4, 9, 3, 6]"
-                },
-                {
-                  "t": 1560,
-                  "time": "26:00",
-                  "label": "Worst-case, average-case, and best-case running time analysis"
-                },
-                {
-                  "t": 2040,
-                  "time": "34:00",
-                  "label": "Machine-independent time and Asymptotic Theta (Θ) notation"
-                },
-                {
-                  "t": 2580,
-                  "time": "43:00",
-                  "label": "Insertion Sort worst-case arithmetic series Θ(n²) vs. Merge Sort"
-                },
-                {
-                  "t": 3180,
-                  "time": "53:00",
-                  "label": "Merging two sorted arrays in Θ(n) and solving T(n) = 2T(n/2) + cn via Recursion Tree"
-                }
-              ]
+              "track": "lectures",
+              "session": 1,
+              "sessionCode": "Lec 1"
             },
             {
-              "id": "mB5HXBb_HY8",
-              "title": "2.7.2 Merge Sort Algorithm — Divide & Conquer Trace and Time Complexity",
-              "channel": "Abdul Bari",
-              "duration": "20:23",
+              "id": "pWjGU8ypqMs",
+              "title": "Lecture 1 · video 2",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Two-way Merge subroutine on two sorted lists"
-                },
-                {
-                  "t": 420,
-                  "time": "07:00",
-                  "label": "Recursive Merge Sort call tree and post-order merging trace"
-                },
-                {
-                  "t": 900,
-                  "time": "15:00",
-                  "label": "Recurrence relation T(n) = 2T(n/2) + n and Θ(n log n) derivation"
-                }
-              ]
+              "track": "lectures",
+              "session": 1,
+              "sessionCode": "Lec 1"
             }
           ],
           "notes": [
@@ -1478,52 +1438,6 @@ window.COURSES.algo = {
               "src": "Lecture 1 · Slides 1.8–1.14"
             },
             {
-              "q": "Time required to merge two sorted lists of sizes m and n is:",
-              "o": [
-                [
-                  "O(m | n)",
-                  "Not a real expression: the bar | has no meaning inside O( ). Merging adds the two sizes, because every item is handled once."
-                ],
-                [
-                  "O(m + n)",
-                  "Correct. Each step compares the two heads and outputs one item, so m + n items cost O(m + n) with at most m + n − 1 comparisons."
-                ],
-                [
-                  "O(m log n)",
-                  "That would fit searching with a binary search for each item. MERGE never searches: it only looks at the two heads."
-                ],
-                [
-                  "O(n log m)",
-                  "Same mistake as O(m log n): no binary search or re-sorting is needed, as MERGE takes one linear pass."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2021 Q5 & Final 2022 Q4"
-            },
-            {
-              "q": "Which of the following is an example of a NOT in-place sorting algorithm?",
-              "o": [
-                [
-                  "Bubble Sort",
-                  "Bubble sort is in place: it only swaps neighbours inside the array, using O(1) extra memory."
-                ],
-                [
-                  "Merge Sort",
-                  "Correct. MERGE writes into a separate array, so merge sort needs Θ(n) extra space and is not in place."
-                ],
-                [
-                  "Insertion Sort",
-                  "Insertion sort is in place: only key, i and j are extra, which is O(1), as slide 1.7's single array shows."
-                ],
-                [
-                  "All of the above",
-                  "Wrong because bubble sort and insertion sort are both in place. Only merge sort here needs an auxiliary array."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2021 Q4 & Final 2022 Q23"
-            },
-            {
               "q": "For inputs of size n, Insertion Sort runs in 8n² steps while Merge Sort runs in 64n lg n steps. For which values of n does Insertion Sort beat Merge Sort?",
               "o": [
                 [
@@ -1545,1066 +1459,6 @@ window.COURSES.algo = {
               ],
               "a": 0,
               "src": "Midterm 2021 Q3"
-            },
-            {
-              "q": "<b>Q1 (Prim's MST)</b>: Apply Prim's algorithm starting from node 2 (After 1st step: $S=\\{2\\}, d[0]=7, d[1]=8, d[3]=5, d[5]=10$). After executing the <b>2nd step</b> ($S=\\{2,3\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "10",
-                  "10 was d[5] before step 2. The question sums all four nodes outside S: 7 + 2 + 4 + 1 = 14."
-                ],
-                [
-                  "11",
-                  "11 is the sum of the parents p[i] (the next question), not of the distances d[i]."
-                ],
-                [
-                  "14",
-                  "Correct. Adding node 3 gives d[0] = 7, d[1] = 2, d[4] = 4, d[5] = 1, and 7 + 2 + 4 + 1 = 14."
-                ],
-                [
-                  "16",
-                  "16 = 7 + 8 + 1 keeps the old d[1] = 8 and forgets the new d[4] = 4."
-                ],
-                [
-                  "21",
-                  "21 = 7 + 8 + 5 + 1 keeps the old d[1] = 8 and adds d[3] = 5, although node 3 is now in S."
-                ]
-              ],
-              "a": 2,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q2 (Prim's MST)</b>: After executing the <b>2nd step</b> ($S=\\{2,3\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "8",
-                  "8 = 2 + 3 + 3 counts only three nodes. All four nodes outside S (0, 1, 4, 5) are in the sum."
-                ],
-                [
-                  "9",
-                  "9 = 2 + 2 + 3 + 2 leaves p[1] and p[5] at their old value 2. Step 2 sets both to 3."
-                ],
-                [
-                  "10",
-                  "10 = 2 + 2 + 3 + 3 leaves p[1] = 2. Edge (3,1) of weight 2 improved d[1], so p[1] = 3."
-                ],
-                [
-                  "11",
-                  "Correct. p[0] = 2, p[1] = 3, p[4] = 3, p[5] = 3, and 2 + 3 + 3 + 3 = 11."
-                ],
-                [
-                  "12",
-                  "12 = 3 + 3 + 3 + 3 sets p[0] to 3 too. d[0] stayed 7 through node 2, so p[0] = 2."
-                ]
-              ],
-              "a": 3,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q3 (Prim's MST)</b>: After executing the <b>3rd step</b> ($S=\\{2,3,5\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "11",
-                  "11 = 7 + 4 leaves out d[1] = 2, but node 1 is still outside S and must be counted."
-                ],
-                [
-                  "13",
-                  "Correct. Node 5 joins S and edge (5,4) = 6 does not beat d[4] = 4, so 7 + 2 + 4 = 13."
-                ],
-                [
-                  "14",
-                  "14 is the previous step's sum. It still counts d[5] = 1, but node 5 has just joined S."
-                ],
-                [
-                  "15",
-                  "15 = 7 + 2 + 6 replaces d[4] by the edge (5,4) = 6, but Prim keeps the smaller value 4."
-                ],
-                [
-                  "19",
-                  "19 = 7 + 8 + 4 uses the old d[1] = 8. Step 2 already lowered d[1] to 2."
-                ]
-              ],
-              "a": 1,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q4 (Prim's MST)</b>: After executing the <b>3rd step</b> ($S=\\{2,3,5\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "7",
-                  "7 = 2 + 2 + 3 uses the old p[1] = 2. Since step 2, p[1] = 3."
-                ],
-                [
-                  "8",
-                  "Correct. Outside S are 0, 1 and 4, with p[0] = 2, p[1] = 3, p[4] = 3, and 2 + 3 + 3 = 8."
-                ],
-                [
-                  "9",
-                  "9 = 3 + 3 + 3 changes p[0] to 3. Node 0 is still reached best through node 2."
-                ],
-                [
-                  "10",
-                  "10 = 2 + 3 + 5 changes p[4] to 5, but edge (5,4) = 6 did not improve d[4] = 4."
-                ],
-                [
-                  "11",
-                  "11 is the previous step's sum, which still counts p[5] = 3 for a node now in S."
-                ]
-              ],
-              "a": 1,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q5 (Prim's MST)</b>: After executing the <b>4th step</b> ($S=\\{2,3,5,1\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "7",
-                  "Correct. Node 1 joins S and edge (1,0) = 3 lowers d[0] from 7 to 3. d[4] stays 4, and 3 + 4 = 7."
-                ],
-                [
-                  "9",
-                  "9 = 3 + 6 takes d[4] as edge (5,4) = 6. Prim keeps the smaller value 4."
-                ],
-                [
-                  "11",
-                  "11 = 7 + 4 misses the update: edge (1,0) = 3 lowers d[0] from 7 to 3."
-                ],
-                [
-                  "13",
-                  "13 is the previous step's sum, which still counts d[1] = 2 for a node that has joined S."
-                ],
-                [
-                  "15",
-                  "15 = 3 + 12 replaces d[4] by edge (1,4) = 12, which is larger than the current 4."
-                ]
-              ],
-              "a": 0,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q6 (Prim's MST)</b>: After executing the <b>4th step</b> ($S=\\{2,3,5,1\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "3",
-                  "3 is p[4] alone. Node 0 is also outside S, so p[0] = 1 must be added."
-                ],
-                [
-                  "4",
-                  "Correct. p[0] = 1 (edge (1,0) improved it) and p[4] = 3, and 1 + 3 = 4."
-                ],
-                [
-                  "5",
-                  "5 = 2 + 3 uses the old p[0] = 2. Node 0 is now reached through node 1."
-                ],
-                [
-                  "6",
-                  "6 = 1 + 5 sets p[4] to 5, but edge (5,4) = 6 did not improve d[4]."
-                ],
-                [
-                  "7",
-                  "7 = 2 + 5 makes both mistakes: the old p[0] = 2 and a wrong p[4] = 5."
-                ]
-              ],
-              "a": 1,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q7 (Prim's MST)</b>: After executing the <b>5th step</b> ($S=\\{2,3,5,1,0\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "3",
-                  "3 was d[0], but node 0 has just joined S and no longer counts."
-                ],
-                [
-                  "4",
-                  "Correct. Edge (0,4) = 9 does not beat 4, so the only node left, 4, has d[4] = 4."
-                ],
-                [
-                  "5",
-                  "5 is not a value of d[4] at any step. Node 4 keeps the value 4 from step 2."
-                ],
-                [
-                  "7",
-                  "7 was the previous step's sum d[0] + d[4]. Node 0 is now in S, so only d[4] counts."
-                ],
-                [
-                  "12",
-                  "12 is edge (1,4). It never replaced d[4] = 4, since Prim keeps the smaller value."
-                ]
-              ],
-              "a": 1,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q8 (Prim's MST)</b>: After executing the <b>5th step</b> ($S=\\{2,3,5,1,0\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "0",
-                  "0 would mean edge (0,4) became node 4's link, but 9 &gt; 4, so it did not."
-                ],
-                [
-                  "2",
-                  "2 is a parent of other nodes. Node 4 was first reached from node 3 at step 2."
-                ],
-                [
-                  "3",
-                  "Correct. Node 4 is the only one left, and its parent is still 3 from step 2."
-                ],
-                [
-                  "4",
-                  "4 was the previous step's sum p[0] + p[4]. Only p[4] counts now."
-                ],
-                [
-                  "5",
-                  "5 would need edge (5,4) = 6 to improve d[4], but 6 &gt; 4, so it did not."
-                ]
-              ],
-              "a": 2,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q9 (Dijkstra)</b>: Apply Dijkstra's algorithm starting from node 2 (After 1st step: $S=\\{2\\}, d[0]=4, d[1]=8, d[3]=5, d[5]=2$). After executing the <b>2nd step</b> ($S=\\{2,5\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "15",
-                  "15 = 4 + 8 + 3 forgets node 4, which relaxing 5→4 has just reached with d[4] = 7."
-                ],
-                [
-                  "17",
-                  "17 = 4 + 8 + 5 keeps the old d[3] = 5 and forgets d[4] = 7."
-                ],
-                [
-                  "19",
-                  "19 = 4 + 8 + 5 + 2 is the sum after step 1, including node 5 which is now in S."
-                ],
-                [
-                  "22",
-                  "Correct. Relaxing from node 5 gives d[3] = 3 and d[4] = 7, and 4 + 8 + 3 + 7 = 22."
-                ],
-                [
-                  "24",
-                  "24 = 4 + 8 + 5 + 7 keeps the old d[3] = 5. Relaxing 5→3 lowers it to 3."
-                ]
-              ],
-              "a": 3,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q10 (Dijkstra)</b>: After executing the <b>2nd step</b> ($S=\\{2,5\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "6",
-                  "6 = 2 + 2 + 2 uses three nodes with the old parent 2. Nodes 3 and 4 now have parent 5."
-                ],
-                [
-                  "9",
-                  "9 = 2 + 2 + 5 counts only three nodes. All four of 0, 1, 3 and 4 are outside S."
-                ],
-                [
-                  "11",
-                  "11 = 2 + 2 + 2 + 5 leaves p[3] = 2. Relaxing 5→3 sets p[3] = 5."
-                ],
-                [
-                  "14",
-                  "Correct. p[0] = 2, p[1] = 2, p[3] = 5, p[4] = 5, and 2 + 2 + 5 + 5 = 14."
-                ],
-                [
-                  "15",
-                  "15 = 2 + 3 + 5 + 5 uses p[1] = 3 too early. That update happens at the next step."
-                ]
-              ],
-              "a": 3,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q11 (Dijkstra)</b>: After executing the <b>3rd step</b> ($S=\\{2,5,3\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "9",
-                  "9 = 4 + 5 leaves out d[4] = 7, but node 4 is still outside S."
-                ],
-                [
-                  "12",
-                  "12 = 5 + 7 leaves out d[0] = 4. That is the next step's sum, after node 0 joins S."
-                ],
-                [
-                  "15",
-                  "15 = 3 + 5 + 7 counts d[3] = 3 for a node just added to S, instead of d[0] = 4."
-                ],
-                [
-                  "16",
-                  "Correct. Relaxing 3→1 lowers d[1] to 5, and 4 + 5 + 7 = 16."
-                ],
-                [
-                  "19",
-                  "19 = 4 + 8 + 7 keeps the old d[1] = 8. Relaxing 3→1 gives 3 + 2 = 5."
-                ]
-              ],
-              "a": 3,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q12 (Dijkstra)</b>: After executing the <b>3rd step</b> ($S=\\{2,5,3\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "4",
-                  "4 = 2 + 2 leaves out node 4 and also leaves p[1] at its old value 2."
-                ],
-                [
-                  "5",
-                  "5 = 2 + 3 leaves out node 4, whose parent is 5."
-                ],
-                [
-                  "6",
-                  "6 = 2 + 3 + 1 uses p[4] = 1, which only happens at step 5."
-                ],
-                [
-                  "9",
-                  "9 = 2 + 2 + 5 keeps the old p[1] = 2. Relaxing 3→1 sets p[1] = 3."
-                ],
-                [
-                  "10",
-                  "Correct. p[0] = 2, p[1] = 3, p[4] = 5, and 2 + 3 + 5 = 10."
-                ]
-              ],
-              "a": 4,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q13 (Dijkstra)</b>: After executing the <b>4th step</b> ($S=\\{2,5,3,0\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "7",
-                  "7 is d[4] alone, and is also node 1's candidate 4 + 3. Both d[1] = 5 and d[4] = 7 must be added."
-                ],
-                [
-                  "8",
-                  "8 was d[1] after step 1. Since step 3 d[1] = 5, and d[4] must also be added."
-                ],
-                [
-                  "9",
-                  "9 = 4 + 5 counts d[0], but node 0 has just joined S, and leaves out d[4] = 7."
-                ],
-                [
-                  "11",
-                  "11 = 4 + 7 counts d[0], which is in S, and drops d[1] = 5."
-                ],
-                [
-                  "12",
-                  "Correct. Edges from 0 give 7 &gt; 5 and 9 &gt; 7, so nothing improves, and 5 + 7 = 12."
-                ]
-              ],
-              "a": 4,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q14 (Dijkstra)</b>: After executing the <b>4th step</b> ($S=\\{2,5,3,0\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "4",
-                  "4 = 3 + 1 uses p[4] = 1, which only happens at the next step. Here p[4] = 5."
-                ],
-                [
-                  "5",
-                  "5 is p[4] alone. Node 1 is also outside S, with p[1] = 3."
-                ],
-                [
-                  "6",
-                  "6 = 3 + 3 changes p[4] to 3, but relaxing 3→4 gives 8 &gt; 7, so it did not change."
-                ],
-                [
-                  "7",
-                  "7 = 2 + 5 keeps the old p[1] = 2. Since step 3, p[1] = 3."
-                ],
-                [
-                  "8",
-                  "Correct. Outside S are 1 and 4, with p[1] = 3, p[4] = 5, and 3 + 5 = 8."
-                ]
-              ],
-              "a": 4,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q15 (Dijkstra)</b>: After executing the <b>5th step</b> ($S=\\{2,5,3,0,1\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "3",
-                  "3 was d[3], but node 3 has been in S since step 3 and no longer counts."
-                ],
-                [
-                  "4",
-                  "4 was d[0], but node 0 joined S at step 4 and no longer counts."
-                ],
-                [
-                  "5",
-                  "5 is d[1]. Node 1 joined S at this step, so it no longer counts."
-                ],
-                [
-                  "6",
-                  "Correct. Relaxing 1→4 (w = 1) lowers d[4] from 7 to 5 + 1 = 6, the only node left."
-                ],
-                [
-                  "7",
-                  "7 is d[4] before relaxing edge 1→4, which improves it to 6."
-                ]
-              ],
-              "a": 3,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q16 (Dijkstra)</b>: After executing the <b>5th step</b> ($S=\\{2,5,3,0,1\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                [
-                  "0",
-                  "0 would need edge 0→4 to improve d[4], but 4 + 5 = 9 &gt; 7, so it did not."
-                ],
-                [
-                  "1",
-                  "Correct. Relaxing 1→4 improved d[4], so node 4's parent is now 1."
-                ],
-                [
-                  "2",
-                  "2 is the start node. It has no edge that set d[4], which was ∞ after step 1."
-                ],
-                [
-                  "3",
-                  "3 would need edge 3→4 to improve d[4], but 3 + 5 = 8 &gt; 7, so it did not."
-                ],
-                [
-                  "5",
-                  "5 was p[4] before this step. Relaxing 1→4 replaced it with 1."
-                ]
-              ],
-              "a": 1,
-              "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-            },
-            {
-              "q": "<b>Q1</b>: Which data structure is used by the system to perform recursion?",
-              "o": [
-                [
-                  "Array",
-                  "An array holds data by position. It does not by itself give the last-in, first-out order of unfinished calls."
-                ],
-                [
-                  "Queue",
-                  "A queue is first in, first out, but the newest recursive call must finish first."
-                ],
-                [
-                  "Stack",
-                  "Correct. Each call pushes a frame on the call stack and pops it on return: last in, first out."
-                ],
-                [
-                  "Linked list",
-                  "A linked list is a general structure with no built-in rule for which call resumes next."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q2</b>: What is the objective of the Knapsack problem?",
-              "o": [
-                [
-                  "To get maximum total value in the knapsack subject to weight capacity",
-                  "Correct. Choose items to get the largest total value without exceeding the weight capacity W."
-                ],
-                [
-                  "To get minimum total value in the knapsack",
-                  "Minimum value has the trivial answer of taking nothing. The goal is the largest value."
-                ],
-                [
-                  "To get maximum weight in the knapsack regardless of value",
-                  "Weight is only a limit here. Ignoring value is not the objective, and weight may not exceed W."
-                ],
-                [
-                  "To get minimum weight in the knapsack",
-                  "Again the trivial answer of an empty knapsack. The objective maximises value under the weight limit."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q3 & Q8</b>: What are the worst-case and average-case time complexities of Merge Sort?",
-              "o": [
-                [
-                  "O(N log N)",
-                  "Correct. T(N) = 2T(N/2) + Θ(N) gives Θ(N log N) in the worst and average cases, as the recursion tree shows."
-                ],
-                [
-                  "O(N²)",
-                  "O(N²) is insertion sort's worst case. Merge sort has lg N levels of N work each, not N levels."
-                ],
-                [
-                  "O(log N)",
-                  "O(log N) cannot be right: just merging touches all N items, so at least N work is needed."
-                ],
-                [
-                  "O(log log N)",
-                  "O(log log N) is even smaller than log N. Any sort must at least look at all N items."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q4</b>: Time required to merge two sorted lists of sizes $m$ and $n$ is:",
-              "o": [
-                [
-                  "O(m | n)",
-                  "Not a real expression: the bar | has no meaning inside O( ). The two sizes are added."
-                ],
-                [
-                  "O(m + n)",
-                  "Correct. Every item is output once, so m + n items cost O(m + n)."
-                ],
-                [
-                  "O(m log n)",
-                  "That would suit doing a binary search per item. MERGE only compares the two heads."
-                ],
-                [
-                  "O(n log m)",
-                  "Same mistake: no search is needed. One linear pass over both lists is enough."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q5</b>: What is the best-case time complexity of Selection Sort?",
-              "o": [
-                [
-                  "O(n)",
-                  "O(n) is the best case of insertion sort, which can stop early. Selection sort always rescans."
-                ],
-                [
-                  "O(n²)",
-                  "Correct. Selection sort scans all remaining items each pass: n(n − 1)/2 comparisons even on sorted input."
-                ],
-                [
-                  "O(n log n)",
-                  "O(n log n) is merge sort's cost. Selection sort has no halving and uses nested scans."
-                ],
-                [
-                  "O(log n)",
-                  "O(log n) is smaller than n. A sort must at least look at all n items."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q11</b>: The Hamiltonian Path problem is a(n): _________",
-              "o": [
-                [
-                  "NP problem only",
-                  "This is what slide 20.12 literally shows, listing it under examples of NP problems. It is true but incomplete: the official key asks for the stronger class."
-                ],
-                [
-                  "N class problem",
-                  "\"N class\" is not a complexity class used in the course. The classes are P, NP, NP-Hard and NP-Complete."
-                ],
-                [
-                  "P class problem",
-                  "P would mean a known polynomial-time algorithm, and none is known for Hamiltonian Path."
-                ],
-                [
-                  "NP-Complete problem",
-                  "Correct by the official key. Hamiltonian Path is NP-complete ‡. Slide 20.12 only lists it under examples of NP problems, and slide 20.24 defines NP-complete as both in NP and NP-hard."
-                ]
-              ],
-              "a": 3,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q12</b>: Which algorithm strategy builds up a solution by choosing the option that looks the best at every step?",
-              "o": [
-                [
-                  "Greedy method",
-                  "Correct. Greedy takes the choice that looks best right now, and never reconsiders."
-                ],
-                [
-                  "Branch and bound",
-                  "Branch and bound searches a state tree and prunes using bounds. It is not one-choice-per-step."
-                ],
-                [
-                  "Dynamic programming",
-                  "Dynamic programming stores solutions of subproblems and combines them, rather than committing at each step."
-                ],
-                [
-                  "Divide and conquer",
-                  "Divide and conquer splits a problem into parts and combines their answers. It makes no best-looking choice."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q13</b>: 0/1 Knapsack is based on which method to guarantee an optimal solution?",
-              "o": [
-                [
-                  "Greedy method",
-                  "Greedy by value per weight is optimal only for fractional knapsack. It can fail for 0/1 items."
-                ],
-                [
-                  "Branch and bound",
-                  "Branch and bound can solve it but is a search, and it is not the method the exam names."
-                ],
-                [
-                  "Dynamic programming",
-                  "Correct. 0/1 knapsack has overlapping subproblems, so a table of subproblem answers guarantees the optimum."
-                ],
-                [
-                  "Divide and conquer",
-                  "Divide and conquer's subproblems would overlap and repeat work, which is exactly what dynamic programming avoids."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q15</b>: What is the purpose of using Randomized Quick Sort over standard Quick Sort?",
-              "o": [
-                [
-                  "To reduce worst-case space complexity",
-                  "Randomization does not change quicksort's space need. Its goal concerns time, not memory."
-                ],
-                [
-                  "To reduce/avoid worst-case time complexity on ordered inputs",
-                  "Correct. A random pivot stops sorted or reverse-sorted inputs from always causing the Θ(n²) worst case."
-                ],
-                [
-                  "To improve average-case time complexity",
-                  "The average is already Θ(n lg n). Randomization removes the dependence on input order; it does not improve the average."
-                ],
-                [
-                  "To improve accuracy",
-                  "Both versions sort correctly. Accuracy is not at stake, only the running time."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q16</b>: Time taken in decreasing a node's key value (<code>DECREASE-KEY</code>) in a Binary Min-Heap of $n$ elements is:",
-              "o": [
-                [
-                  "O(n)",
-                  "O(n) would be scanning the heap. Decreasing a key only moves one node up one path."
-                ],
-                [
-                  "O(1)",
-                  "O(1) would need no movement, but the node may have to rise all the way to the root."
-                ],
-                [
-                  "O(log n)",
-                  "Correct. The node bubbles up at most the heap's height, which is O(log n)."
-                ],
-                [
-                  "O(n log n)",
-                  "O(n log n) is the cost of many heap operations. This is a single decrease."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q18</b>: Given items as <code>{value, weight}</code> pairs <code>{{60, 20}, {50, 25}, {20, 5}}</code> and knapsack capacity $W = 40$, find the maximum value assuming items are divisible (Fractional) and non-divisible (0/1) respectively:",
-              "o": [
-                [
-                  "100 - 80",
-                  "100 is too low for fractional, which reaches 110. The 80 for 0/1 is right, so the pair as a whole is wrong."
-                ],
-                [
-                  "110 - 70",
-                  "110 is right for fractional, but 70 (items {50,25} and {20,5}) is not the best 0/1 choice: 80 is."
-                ],
-                [
-                  "130 - 110",
-                  "130 is impossible: all items together are worth 130 but weigh 50, more than W = 40. 110 for 0/1 is impossible too."
-                ],
-                [
-                  "110 - 80",
-                  "Correct. Fractional: 20 + 60 + (15/25) × 50 = 110. 0/1: {60,20} + {20,5} = 80, weight 25."
-                ]
-              ],
-              "a": 3,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q19</b>: The time complexity of computing the Longest Common Subsequence (LCS) of strings of lengths $M$ and $N$ using DP is:",
-              "o": [
-                [
-                  "O(M!)",
-                  "O(M!) is like trying all orderings, which the table avoids entirely."
-                ],
-                [
-                  "O(M · N)",
-                  "Correct. The DP table has M × N cells, and each is filled in O(1) time."
-                ],
-                [
-                  "O(N!)",
-                  "O(N!) is also a brute-force count. LCS by DP is polynomial."
-                ],
-                [
-                  "O(N)",
-                  "O(N) ignores the other string. The table depends on both lengths."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q20</b>: What is the time complexity of <code>fun(int n)</code>?<br><code>for (int i = n; i &gt; 0; i /= 2) for (int j = 0; j &lt; i; j++) count += 1;</code>",
-              "o": [
-                [
-                  "O(n log n)",
-                  "The outer loop runs about log n times, but inner lengths shrink, so multiplying by n overcounts."
-                ],
-                [
-                  "O(n²)",
-                  "O(n²) would need n outer passes. i halves each time, so there are only about lg n."
-                ],
-                [
-                  "O(n)",
-                  "Correct. Inner passes total n + n/2 + n/4 + ... + 1 ≤ 2n, a geometric series, so O(n)."
-                ],
-                [
-                  "O(log n)",
-                  "O(log n) counts only the outer loop. The first pass alone already does n inner steps."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q22</b>: The minimum number of edges required to create a cyclic graph of $n$ vertices is:",
-              "o": [
-                [
-                  "n",
-                  "Correct. A connected graph on n vertices with n − 1 edges is a tree, with no cycle, so a connected cyclic graph needs n edges."
-                ],
-                [
-                  "n − 1",
-                  "A connected graph with n − 1 edges is a tree, which has no cycle at all, so one more edge is needed."
-                ],
-                [
-                  "n + 1",
-                  "n + 1 is more than necessary. The cycle already appears with n edges."
-                ],
-                [
-                  "2n",
-                  "2n is far more than necessary. A single cycle through n vertices uses just n edges."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q24</b>: Which of the following algorithm design approaches uses memoization?",
-              "o": [
-                [
-                  "Greedy approach",
-                  "Greedy keeps one choice per step and stores no table of earlier answers."
-                ],
-                [
-                  "Divide and conquer approach",
-                  "Divide and conquer splits into independent parts, so it has nothing to remember."
-                ],
-                [
-                  "Dynamic programming approach",
-                  "Correct. Top-down dynamic programming caches each subproblem's answer, which is memoization."
-                ],
-                [
-                  "None",
-                  "Wrong because dynamic programming does use memoization. It is the method the term belongs to."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q25 & Q26</b>: A Heap is an example of a _____________, while the access time of an unbalanced Binary Search Tree may degrade in the worst case up to _____________.",
-              "o": [
-                [
-                  "Complete binary tree; O(n)",
-                  "Correct. A heap is a complete binary tree, and an unbalanced BST can become a chain costing O(n)."
-                ],
-                [
-                  "Spanning tree; O(n log n)",
-                  "A spanning tree is a graph concept, and access to a chain costs O(n), not O(n log n)."
-                ],
-                [
-                  "Sparse tree; O(n²)",
-                  "\"Sparse tree\" does not describe a heap, and O(n²) is too large for walking one chain."
-                ],
-                [
-                  "Binary search tree; O(1)",
-                  "A heap is not a BST, and O(1) access is what the worst case certainly does not give."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q30</b>: The time complexity of merging three sorted lists of sizes $m, n,$ and $p$ is:",
-              "o": [
-                [
-                  "Θ(m + n + p)",
-                  "Correct. Each item in the three lists is handled a constant number of times, so Θ(m + n + p)."
-                ],
-                [
-                  "Θ(min(m, n, p))",
-                  "The minimum ignores the two longer lists, yet every item must be output."
-                ],
-                [
-                  "Θ(max(m, n, p))",
-                  "Mathematically Θ(max(m, n, p)) is the same set as the sum, since max ≤ sum ≤ 3 × max. The exam's official answer is written as the sum."
-                ],
-                [
-                  "Θ(m · n · p)",
-                  "A product would suit nested loops over the lists. Merging is one pass over all items."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q41</b>: Dijkstra's Algorithm cannot be applied on:",
-              "o": [
-                [
-                  "Directed and weighted graphs",
-                  "Dijkstra works on directed weighted graphs with non-negative weights. They are its main use."
-                ],
-                [
-                  "Graphs having a negative weight function",
-                  "Correct. Its greedy step assumes distances never improve later, and a negative edge breaks that assumption."
-                ],
-                [
-                  "Unweighted graphs",
-                  "Unweighted graphs work: treat each edge as weight 1. BFS is just simpler there."
-                ],
-                [
-                  "Undirected and unweighted graphs",
-                  "Undirected unweighted graphs also work, for the same reason as the previous option."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q48 & Q49</b>: In the TSP problem on an undirected graph with non-negative edge costs, if the number of cities is $6$, what is the search space size (Slide 20.15)?",
-              "o": [
-                [
-                  "120",
-                  "120 = 5! fixes a start city but still counts orders. Slide 20.15's table gives 720 for 6 cities."
-                ],
-                [
-                  "720",
-                  "Correct by Slide 20.15's table: 6 cities give a search space of 6! = 720."
-                ],
-                [
-                  "60",
-                  "60 = 5!/2 removes rotations and reversals, but the slide's table uses 6! = 720."
-                ],
-                [
-                  "24",
-                  "24 = 4! matches no entry on the slide. The search space for 6 cities is 720."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-            },
-            {
-              "q": "<b>Q1 & Q2</b>: What is a hash table, and what is it called when several elements compete for the same bucket?",
-              "o": [
-                [
-                  "A structure that maps keys to values; Collision",
-                  "Correct. A hash table maps keys to values, and several keys wanting one bucket is a collision."
-                ],
-                [
-                  "A structure that maps values to keys; Diffusion",
-                  "It is keys to values, not values to keys, and the term here is collision, not diffusion."
-                ],
-                [
-                  "A structure used to implement stack; Replication",
-                  "A hash table does not implement a stack, and competition for a bucket is not called replication."
-                ],
-                [
-                  "A tree structure; Duplication",
-                  "A hash table is array-based, not a tree, and the term is collision, not duplication."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-            },
-            {
-              "q": "<b>Q3, Q4 & Q5</b>: In the division method, what is the hash function, what is the best choice for $m$, and where is key $172$ placed when $m = 157$?",
-              "o": [
-                [
-                  "h(k) = k mod m; Any prime number not close to a power of 2; Position 15",
-                  "Correct. h(k) = k mod m; choose m prime and not close to a power of 2; 172 mod 157 = 15."
-                ],
-                [
-                  "h(k) = k / m; Any even number; Position 19",
-                  "k / m is not a position in 0 .. m − 1, and an even m is a bad choice."
-                ],
-                [
-                  "h(k) = m mod k; 2^p; Position 72",
-                  "m mod k reverses the operands, and 2^p makes h use only the low bits of k."
-                ],
-                [
-                  "h(k) = m / k; 2^p − 1; Position 17",
-                  "m / k is not the division method, and the position 172 mod 157 is 15, not 17."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-            },
-            {
-              "q": "<b>Q7, Q9 & Q10</b>: What is the average retrieval time when all $n$ keys hash to the same slot, and what is the search complexity in direct addressing?",
-              "o": [
-                [
-                  "Θ(n) when all n keys hash to one slot; O(1) in direct addressing (with a distinct array position for every possible key)",
-                  "Correct. All keys in one slot make one chain of n: Θ(n). Direct addressing gives each key its own slot: O(1)."
-                ],
-                [
-                  "Θ(n²) when all n keys hash to one slot; O(log n) in direct addressing",
-                  "One chain is searched linearly, so Θ(n), not Θ(n²), and direct addressing does not need O(log n)."
-                ],
-                [
-                  "Θ(n log n); O(n)",
-                  "Θ(n log n) is above linear search of a single chain, and direct addressing is O(1), not O(n)."
-                ],
-                [
-                  "O(1); O(n log n)",
-                  "O(1) ignores that all keys share one chain, and O(n log n) has no place in direct addressing."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-            },
-            {
-              "q": "<b>Q13, Q14 & Q15</b>: In separate chaining, what is the load factor $\\alpha$, what is Simple Uniform Hashing, and what data structure is used for chains?",
-              "o": [
-                [
-                  "Average chain length (n/m); Every element has equal probability of hashing into any slot; Doubly/Singly linked list",
-                  "Correct. α = n/m is the average chain length, SUH gives each slot equal probability, and chains are linked lists."
-                ],
-                [
-                  "Average array size; Weighted probability; Stack",
-                  "α is not an array size, simple uniform hashing has no weights, and chains are not stacks."
-                ],
-                [
-                  "Average key size; Priority hashing; Binary heap",
-                  "α is about keys per slot, not key length, and chains are not binary heaps."
-                ],
-                [
-                  "Average table length; Sequential hashing; Array",
-                  "α is not a table length, and simple uniform hashing does not mean sequential placement."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-            },
-            {
-              "q": "<b>Q17 (and Final 2021 Q1)</b>: The maximum number of nodes in a binary tree of height $k$, where the root is at height $0$, is:",
-              "o": [
-                [
-                  "2^k − 1",
-                  "2^k − 1 counts nodes for height k − 1. With the root at height 0 there is one more level."
-                ],
-                [
-                  "2^(k+1) − 1",
-                  "Correct. Levels 0 to k hold 1 + 2 + 4 + ... + 2^k = 2^(k+1) − 1 nodes."
-                ],
-                [
-                  "2^(k−1) + 1",
-                  "2^(k−1) + 1 is too small: level k alone can already hold 2^k nodes."
-                ],
-                [
-                  "2^k + 1",
-                  "2^k + 1 is only slightly more than level k alone, and it ignores the other levels."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-            },
-            {
-              "q": "<b>Q57 & Q59</b>: Given infinite coins of $N$ denominations $v_1, \\dots, v_N$ and target sum $S$, which general technique solves the minimum-coin change problem optimally for arbitrary denominations, and what is its DP time complexity?",
-              "o": [
-                [
-                  "Dynamic Programming; O(S · N)",
-                  "Correct. Arbitrary denominations need dynamic programming, filling an S × N table in O(S · N)."
-                ],
-                [
-                  "Greedy algorithm; O(N)",
-                  "Greedy can fail for arbitrary coin sets, and O(N) is too cheap to examine the target S."
-                ],
-                [
-                  "Divide and conquer; O(N²)",
-                  "Divide and conquer repeats overlapping subproblems, and O(N²) ignores S altogether."
-                ],
-                [
-                  "Backtracking; O(S)",
-                  "Backtracking is exhaustive and does not have an O(S) cost. DP is the optimal general method."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-            },
-            {
-              "q": "<b>Q62 & Q63</b>: _________ is the class of decision problems solvable by non-deterministic polynomial algorithms, and a non-deterministic algorithm is non-deterministic polynomial iff its verification stage runs in polynomial time.",
-              "o": [
-                [
-                  "NP; True",
-                  "Correct. NP is the class of decision problems with nondeterministic polynomial algorithms, and the verification claim is True."
-                ],
-                [
-                  "P; False",
-                  "P is solvable deterministically in polynomial time, and the statement about verification is true, not false."
-                ],
-                [
-                  "NP-Hard; False",
-                  "NP-Hard problems need not be in NP at all, and the statement about verification is true."
-                ],
-                [
-                  "NP-Complete; True",
-                  "NP-Complete is only the hardest part of NP, so it does not name the whole class."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-            },
-            {
-              "q": "For two algorithms A and B, if O(A) = n<sup>100</sup> and O(B) = 10<sup>n</sup>, then algorithm A is the better asymptotic choice.",
-              "o": [
-                [
-                  "True",
-                  "Correct. Any polynomial eventually grows slower than any exponential, so n¹⁰⁰ is the better choice for large n."
-                ],
-                [
-                  "False",
-                  "False would need 10ⁿ to stay ahead of n¹⁰⁰ for large n, but exponentials overtake every polynomial, as slide 1.74's order shows."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Summer TF 1"
-            },
-            {
-              "q": "To perform a binary search, the data set must be sorted.",
-              "o": [
-                [
-                  "True",
-                  "Correct. Comparing x with S[mid] discards a half only because sorted order says x cannot be on that side."
-                ],
-                [
-                  "False",
-                  "Without sorted order, x &lt; S[mid] tells us nothing about which half x is in, so no half could be discarded."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Summer TF 2"
             },
             {
               "q": "Which kind of analysis does slide 1.20 call \"bogus\"?",
@@ -3383,28 +2237,13 @@ window.COURSES.algo = {
           "title": "Lecture 2: Mathematical Background, Proofs (Induction, Counterexample, Contradiction) & Asymptotic Notation (O, Ω, Θ)",
           "videos": [
             {
-              "id": "A03oI0znAoc",
-              "title": "1.8.1 Asymptotic Notations: Big-Oh (O), Big-Omega (Ω) & Theta (Θ)",
-              "channel": "Abdul Bari",
-              "duration": "15:46",
+              "id": "v4Tu4pP6oBw",
+              "title": "Lecture 2",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Big-Oh O(g(n)) upper bound definition and witnesses c, n₀"
-                },
-                {
-                  "t": 420,
-                  "time": "07:00",
-                  "label": "Big-Omega Ω(g(n)) lower bound and Theta Θ(g(n)) tight bound"
-                },
-                {
-                  "t": 680,
-                  "time": "11:20",
-                  "label": "Hierarchy of complexity growth functions"
-                }
-              ]
+              "track": "lectures",
+              "session": 2,
+              "sessionCode": "Lec 2"
             }
           ],
           "notes": [
@@ -3992,7 +2831,95 @@ window.COURSES.algo = {
                 "ag-2-growth": "The 7 functions used in analysis, drawn one by one",
                 "ag-2-growtab": "How the 7 functions grow for n = 5 to 10000"
               },
-              "lead": "Which reference functions do running times get compared to, and how far apart are they?"
+              "lead": "Which reference functions do running times get compared to, and how far apart are they?",
+              "viz": {
+                "type": "table",
+                "title": "Slide 2.53–2.55: the functions of growth, sized up",
+                "cols": [
+                  "function",
+                  "n = 1",
+                  "n = 2",
+                  "n = 4",
+                  "n = 8",
+                  "n = 16",
+                  "n = 32"
+                ],
+                "rows": [
+                  [
+                    "log₂ n",
+                    "0",
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                  ],
+                  [
+                    "n",
+                    "1",
+                    "2",
+                    "4",
+                    "8",
+                    "16",
+                    "32"
+                  ],
+                  [
+                    "n log₂ n",
+                    "0",
+                    "2",
+                    "8",
+                    "24",
+                    "64",
+                    "160"
+                  ],
+                  [
+                    "n²",
+                    "1",
+                    "4",
+                    "16",
+                    "64",
+                    "256",
+                    "1024"
+                  ]
+                ],
+                "steps": [
+                  {
+                    "r": 0,
+                    "cap": [
+                      "The seven functions of Slide 2.53, four of them here: log n, n, n log n, n². Read a column as one input size.",
+                      "أربع دوال من السبع اللي في السلايد 2.53: log n و n و n log n و n². كل عمود حجم إدخال."
+                    ]
+                  },
+                  {
+                    "r": 1,
+                    "cap": [
+                      "log₂ n only counts how many times you can halve n before reaching 1: it grows by 1 each time n doubles. For n = 32 it is 5, while n alone is already 32.",
+                      "log₂ n بيزيد 1 كل ما n يتضاعف. عند n = 32 قيمته 5 بس."
+                    ]
+                  },
+                  {
+                    "r": 2,
+                    "cap": [
+                      "n log n = n × log n: twice as big as n for large n, and it is the cost of the best comparison sorts (merge sort). Note it is 0 at n = 1.",
+                      "n log n = n × log n، ودي تكلفة أفضل خوارزميات الترتيب بالمقارنة."
+                    ]
+                  },
+                  {
+                    "r": 3,
+                    "cap": [
+                      "n² beats everything to its left once n passes a constant: doubling n multiplies n² by 4 but n log n by only about 2. This is the definition of a higher order of growth.",
+                      "n² تكسب كل اللي فوقها لما n تكبر: مضاعفة n تضرب n² في 4."
+                    ]
+                  },
+                  {
+                    "r": 0,
+                    "cap": [
+                      "Exam habit: identify the term with the fastest growth, drop the constant. If f(n) = 3n² + 5n + 7 then f(n) = Θ(n²) — everything else is a lower-order term.",
+                      "القاعدة: خد أسرع حد نموًا واشيل الثابت. f(n) = 3n² + 5n + 7 يعني Θ(n²)."
+                    ]
+                  }
+                ]
+              }
             },
             {
               "h": "Comparing three algorithms for 1 + 2 + … + n (Slides 2.56–2.59)",
@@ -4493,75 +3420,6 @@ window.COURSES.algo = {
           ],
           "quiz": [
             {
-              "q": "Select the correct asymptotic notation for the function f(n) = n³ + 1000 − 100n² − 100n:",
-              "o": [
-                [
-                  "Θ(n³)",
-                  "Correct: the n³ term dominates. For n ≥ 202, n³/2 ≤ f(n) ≤ 2n³, so c₁ = 1/2, c₂ = 2 and n₀ = 202 witness Θ(n³)."
-                ],
-                [
-                  "O(n lg n)",
-                  "Wrong: f(n) / (n lg n) behaves like n²/lg n, which tends to infinity, so no constant c can keep f(n) below c·n lg n."
-                ],
-                [
-                  "Ω(2ⁿ)",
-                  "Wrong: this claims f grows at least as fast as 2ⁿ, but 2ⁿ / n³ tends to infinity, so no c > 0 gives f(n) ≥ c·2ⁿ for all large n."
-                ],
-                [
-                  "Θ(n²)",
-                  "Wrong: it confuses the middle term with the leading one. f(n)/n² behaves like n, which grows without bound, so f is not O(n²)."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final 2021 Q35 & Final Summer Q14"
-            },
-            {
-              "q": "What is the final value of x in: x = 0; For (t = 1; t < N; t++) For (p = 1; p <= t; p++) x = x + 1;",
-              "o": [
-                [
-                  "x = N + 1",
-                  "Wrong: this treats the nested loops as a single loop. For N = 4 the loops add 1 + 2 + 3 = 6, while N + 1 would be 5."
-                ],
-                [
-                  "x = N(N − 1) / 2",
-                  "Correct: t runs from 1 to N − 1 and pass t adds t, so x = 1 + 2 + … + (N − 1) = N(N − 1)/2. For N = 4 that is 6."
-                ],
-                [
-                  "x = N(N + 1) / 2",
-                  "Wrong: that is the sum up to N, which needs t <= N. The test here is t < N, so the last pass is t = N − 1."
-                ],
-                [
-                  "x = N²",
-                  "Wrong: that would need the inner loop to run N times on every pass, but pass t runs only t times. For N = 4 it would give 16, not 6."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2021 Q13 & Final 2022 Q29"
-            },
-            {
-              "q": "What is the smallest integer n > 1 such that an algorithm with running time n² runs slower than one with running time 3n + 1?",
-              "o": [
-                [
-                  "2",
-                  "Wrong: at n = 2, n² = 4 and 3n + 1 = 7, so 4 < 7 and n² is still the faster one here."
-                ],
-                [
-                  "25",
-                  "Wrong: n² is already slower at n = 4, so 25 is not the smallest. It is the size slide 2.38 uses for a different question."
-                ],
-                [
-                  "4",
-                  "Correct: at n = 3, 9 < 10, so n² is still faster; at n = 4, 16 > 13, so n² is slower. 4 is the first such value."
-                ],
-                [
-                  "15",
-                  "Wrong: n² passes 3n + 1 well before this, at n = 4 (16 > 13), so 15 cannot be the smallest."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final Summer Q26"
-            },
-            {
               "q": "n<sup>2.1</sup> = O(n² log n).",
               "o": [
                 [
@@ -4575,67 +3433,6 @@ window.COURSES.algo = {
               ],
               "a": 1,
               "src": "Midterm 2022 Q4.2"
-            },
-            {
-              "q": "For two algorithms A and B, if O(A) = n<sup>100</sup> and O(B) = 10<sup>n</sup>, then algorithm A is the better asymptotic choice.",
-              "o": [
-                [
-                  "True",
-                  "Correct: any polynomial grows more slowly than any exponential with base above 1, so for large enough n, n<sup>100</sup> is smaller than 10<sup>n</sup>."
-                ],
-                [
-                  "False",
-                  "Not true: n<sup>100</sup> is huge for small n, but asymptotic means large n, and 10<sup>n</sup> / n<sup>100</sup> tends to infinity, so A wins eventually."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Summer TF 1"
-            },
-            {
-              "q": "What is the time complexity of <code>fun(int n)</code>?<br><code>for (int i = n; i &gt; 0; i /= 2) for (int j = 0; j &lt; i; j++) count += 1;</code>",
-              "o": [
-                [
-                  "O(n log n)",
-                  "Wrong: this would need n steps in every one of the lg n passes, like Example 12. Here the inner count shrinks as i halves."
-                ],
-                [
-                  "O(n²)",
-                  "Wrong: there are only about lg n outer passes, and each does at most n steps. A total of n² steps is not reachable."
-                ],
-                [
-                  "O(n)",
-                  "Correct: the total is n + ⌊n/2⌋ + ⌊n/4⌋ + … + 1, which is below 2n by the geometric sum. For n = 16 it is 31, so c = 2, n₀ = 1."
-                ],
-                [
-                  "O(log n)",
-                  "Wrong: lg n is only the number of outer passes. The very first pass alone already does n steps."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final 2022 Q20"
-            },
-            {
-              "q": "Which data structure is used by the system to perform recursion?",
-              "o": [
-                [
-                  "Array",
-                  "Wrong: an array has no last-in, first-out discipline by itself, while recursive calls must finish in reverse order of being made."
-                ],
-                [
-                  "Queue",
-                  "Wrong: a queue is first-in, first-out, which would resume the oldest waiting call first. Recursion resumes the newest call first."
-                ],
-                [
-                  "Stack",
-                  "Correct: each call pushes a frame and each return pops one, so the last call made is the first to finish. fact(4) waits for fact(3), and so on."
-                ],
-                [
-                  "Linked list",
-                  "Wrong: a linked list is a way of storing items, not the mechanism used by the system to hold waiting calls in last-in, first-out order."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final 2022 Q1"
             },
             {
               "q": "Example 12: what is the time complexity of `sum = 0; for (k=1; k<=n; k*=2) for (j=1; j<=n; j++) sum++;`",
@@ -5361,42 +4158,40 @@ window.COURSES.algo = {
           "title": "Lecture 3: Solving Recurrences with the Iteration, Substitution, Recursion-Tree and Master Methods",
           "videos": [
             {
-              "id": "whjt_N9uYFI",
-              "title": "MIT 6.046J Lec 2: Recurrences — Substitution, Recursion Tree & Master Method",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:10:31",
+              "id": "WTiUdymhXNU",
+              "title": "Lecture 3 · video 1",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 1320,
-                  "time": "22:00",
-                  "label": "Substitution Method (Guess & Strong Induction)"
-                },
-                {
-                  "t": 2280,
-                  "time": "38:00",
-                  "label": "Recursion-Tree Method"
-                },
-                {
-                  "t": 3120,
-                  "time": "52:00",
-                  "label": "The Master Theorem: Cases 1, 2, and 3"
-                }
-              ]
+              "track": "lectures",
+              "session": 3,
+              "sessionCode": "Lec 3"
             },
             {
-              "id": "OynWkEj0S-s",
-              "title": "2.4.1 Master's Theorem in Algorithms for Dividing Functions",
-              "channel": "Abdul Bari",
-              "duration": "16:50",
+              "id": "Ob8SM0fz6p0",
+              "title": "Lecture 3 · video 2",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Comparing n^(log_b a) vs f(n) across Cases 1, 2, and 3"
-                }
-              ]
+              "track": "lectures",
+              "session": 3,
+              "sessionCode": "Lec 3"
+            },
+            {
+              "id": "sLNPd_nPGIc",
+              "title": "Lecture 3 · video 3",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 3,
+              "sessionCode": "Lec 3"
+            },
+            {
+              "id": "03FZos3Dtc4",
+              "title": "Lecture 3 · video 4",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 3,
+              "sessionCode": "Lec 3"
             }
           ],
           "notes": [
@@ -5833,7 +4628,86 @@ window.COURSES.algo = {
                 "ag-3-tree-sq": "Recursion tree of T(n) = T(n/4) + T(n/2) + n², level by level",
                 "algo-rec-sim": "Watch a recursion call itself and return"
               },
-              "lead": "How do we get a guess when the recurrence is messy? Slide 3.21: convert the recurrence into a tree, then sum the costs of all levels."
+              "lead": "How do we get a guess when the recurrence is messy? Slide 3.21: convert the recurrence into a tree, then sum the costs of all levels.",
+              "viz": {
+                "type": "table",
+                "title": "Recursion tree of T(n) = 2T(n/2) + n (n = 8)",
+                "cols": [
+                  "level",
+                  "subproblems",
+                  "size of each",
+                  "work on the level"
+                ],
+                "rows": [
+                  [
+                    "level 0 (root)",
+                    "1",
+                    "n = 8",
+                    "n"
+                  ],
+                  [
+                    "level 1",
+                    "2",
+                    "4",
+                    "n"
+                  ],
+                  [
+                    "level 2",
+                    "4",
+                    "2",
+                    "n"
+                  ],
+                  [
+                    "level 3 (leaves)",
+                    "8",
+                    "1",
+                    "n"
+                  ],
+                  [
+                    "sum over levels",
+                    "15 nodes",
+                    "—",
+                    "n · log₂ n = 24"
+                  ]
+                ],
+                "steps": [
+                  {
+                    "r": 0,
+                    "cap": [
+                      "Recursion tree of T(n) = 2T(n/2) + n with n = 8. The root costs n and splits into two subproblems of size n/2.",
+                      "شجرة تكرار T(n) = 2T(n/2) + n عند n = 8: الجذر بيكلف n وينقسم لمسألتين حجم n/2."
+                    ]
+                  },
+                  {
+                    "r": 1,
+                    "cap": [
+                      "Level 1: 2 subproblems of size 4, each costing 4 → the whole level costs 2 × 4 = n. The level work is constant, not growing.",
+                      "المستوى 1: مسألتان حجم 4، تكلفة المستوى 2 × 4 = n. شغل المستوى ثابت."
+                    ]
+                  },
+                  {
+                    "r": 2,
+                    "cap": [
+                      "Level 2: 4 subproblems of size 2 → 4 × 2 = n again. In general level d has 2^d subproblems of size n/2^d, and 2^d · n/2^d = n.",
+                      "المستوى 2: 4 × 2 = n. عمومًا المستوى d فيه 2^d مسألة حجم n/2^d، وحاصل الضرب n دايمًا."
+                    ]
+                  },
+                  {
+                    "r": 3,
+                    "cap": [
+                      "Level 3: 8 leaves of size 1 → 8 × 1 = n. The tree has log₂ n + 1 = 4 levels because the size halves at each step (8 → 4 → 2 → 1).",
+                      "المستوى 3: 8 أوراق حجم 1 → 8 × 1 = n. عدد المستويات log₂ n + 1 = 4."
+                    ]
+                  },
+                  {
+                    "r": 4,
+                    "cap": [
+                      "Sum the level work: n at each of the log₂ n + 1 levels → T(n) = n(log₂ n + 1) = Θ(n log n). That is Master Case 2, a = b = 2, k = 1.",
+                      "نجمع شغل المستويات: n في كل مستوى → T(n) = Θ(n log n). دي الحالة 2 في Master."
+                    ]
+                  }
+                ]
+              }
             },
             {
               "h": "The recursion tree of T(n) = 2T(n/2) + 4n (handwritten Slide 3.23)",
@@ -6369,29 +5243,6 @@ window.COURSES.algo = {
               "src": "Midterm 2020 Q2.B & Undated Midterm Q2.B"
             },
             {
-              "q": "Which of the three algorithms is fastest: (A) 5T(n/2) + O(n), (B) 2T(n−1) + O(1), or (C) 9T(n/3) + O(n²)?",
-              "o": [
-                [
-                  "Algorithm A: Θ(n^(lg 5)) ≈ Θ(n^2.32)",
-                  "A is correctly Θ(n^2.32) by Case 1, but n^2.32 grows faster than n² lg n, so A is slower than C."
-                ],
-                [
-                  "Algorithm B: Θ(2ⁿ)",
-                  "B makes two calls of size n−1: iterating gives 1 + 2 + 4 + … = Θ(2ⁿ), which is exponential and by far the slowest."
-                ],
-                [
-                  "Algorithm C: Θ(n² lg n)",
-                  "Correct: a = 9, b = 3, n^(log₃ 9) = n², f = n²: Case 2 gives Θ(n² lg n), smaller than n^2.32 and 2ⁿ."
-                ],
-                [
-                  "All three have the same complexity",
-                  "They differ: A has exponent about 2.32, B is exponential and C is n² lg n, so they are not equal."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final 2018 I Q1.I & Exam Examples Q4.I"
-            },
-            {
               "q": "If T(n) ≤ 10T(n/3) + n³ and T(1) = 1, then T(n) = O(n³).",
               "o": [
                 [
@@ -6435,52 +5286,6 @@ window.COURSES.algo = {
               ],
               "a": 1,
               "src": "Midterm 2022 Q4.4"
-            },
-            {
-              "q": "What are the worst-case and average-case time complexities of Merge Sort?",
-              "o": [
-                [
-                  "O(N log N)",
-                  "Correct: T(N) = 2T(N/2) + Θ(N), and Master Case 2 gives Θ(N lg N) in worst and average cases alike."
-                ],
-                [
-                  "O(N²)",
-                  "N² is the quadratic class of insertion sort. Merge sort halves every time, so it has lg N rows of N work."
-                ],
-                [
-                  "O(log N)",
-                  "log N is only the number of rows of the recursion tree. Each row still costs N, so log N is too small."
-                ],
-                [
-                  "O(log log N)",
-                  "log log N is far too small: merge sort has to read every one of the N elements, so at least N steps."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final 2022 Q3 & Q8"
-            },
-            {
-              "q": "What is the time complexity of the nested loop: <code>for (int i = n; i &gt; 0; i /= 2) for (int j = 0; j &lt; i; j++) count += 1;</code>?",
-              "o": [
-                [
-                  "O(n log n)",
-                  "n log n assumes each of the log n passes costs n, but the passes shrink: n, n/2, n/4, and so on."
-                ],
-                [
-                  "O(n²)",
-                  "n² would need about n passes of n steps. There are only lg n passes, and their sizes shrink."
-                ],
-                [
-                  "O(n)",
-                  "Correct: n + n/2 + n/4 + … + 1 has ratio ½, so the first term wins: at most 2n − 1, equal when n is a power of 2, so Θ(n)."
-                ],
-                [
-                  "O(log n)",
-                  "log n counts only the number of passes of the outer loop. The inner loop does much more work."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final 2022 Q20"
             },
             {
               "q": "A recurrence is:",
@@ -7260,33 +6065,13 @@ window.COURSES.algo = {
           "title": "Lecture 4: Divide and Conquer: Binary Search, Fast Powering, Fibonacci by Matrix Squaring, Strassen's Algorithm and VLSI Layout",
           "videos": [
             {
-              "id": "-EQTVuAhSFY",
-              "title": "MIT 6.046J Lec 3: Divide-and-Conquer — Binary Search, Powering, Fibonacci, Strassen & VLSI",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:08:33",
+              "id": "hBIHAp-FU3M",
+              "title": "Lecture 4",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 450,
-                  "time": "07:30",
-                  "label": "Binary Search and Fast Exponentiation aⁿ in Θ(lg n)"
-                },
-                {
-                  "t": 1140,
-                  "time": "19:00",
-                  "label": "Fibonacci 2×2 Matrix Recursive Squaring in Θ(lg n)"
-                },
-                {
-                  "t": 1980,
-                  "time": "33:00",
-                  "label": "Strassen's Matrix Multiplication in Θ(n^lg 7)"
-                },
-                {
-                  "t": 3120,
-                  "time": "52:00",
-                  "label": "VLSI H-Tree Embedding in Θ(n) area"
-                }
-              ]
+              "track": "lectures",
+              "session": 4,
+              "sessionCode": "Lec 4"
             }
           ],
           "notes": [
@@ -8363,21 +7148,6 @@ window.COURSES.algo = {
               "src": "Midterm 2022 Q4.5"
             },
             {
-              "q": "To perform a binary search, the data set must be sorted.",
-              "o": [
-                [
-                  "True",
-                  "Correct (Final Summer TF 2): only sorted order lets one comparison with the middle element rule out a whole half of the array."
-                ],
-                [
-                  "False",
-                  "Without sorted order, an element smaller than the middle could be on either side, so no half could be discarded safely."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Summer TF 2"
-            },
-            {
               "q": "The solution of the recurrence T(n) = 4T(n/2) + O(n) is Θ(n³).",
               "o": [
                 [
@@ -8406,29 +7176,6 @@ window.COURSES.algo = {
               ],
               "a": 0,
               "src": "Midterm 2022 Q4.1"
-            },
-            {
-              "q": "What are the worst-case and average-case time complexities of Merge Sort?",
-              "o": [
-                [
-                  "O(N log N)",
-                  "Correct (Final 2022 Q3 and Q8): T(N) = 2T(N/2) + Θ(N) falls in Case 2 with k = 0 and gives Θ(N lg N) on every input."
-                ],
-                [
-                  "O(N²)",
-                  "N² is the worst case of insertion sort or quicksort. Merge sort always splits evenly, so it never degrades to N²."
-                ],
-                [
-                  "O(log N)",
-                  "Log N is what binary search costs. Merge sort must at least touch all N elements, so it cannot be this small."
-                ],
-                [
-                  "O(log log N)",
-                  "This is far below the N steps needed even to read the input once, so no sorting algorithm can run in this time."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final 2022 Q3 & Q8"
             },
             {
               "q": "What is the correct order of the steps in the divide-and-conquer paradigm?",
@@ -9529,62 +8276,13 @@ window.COURSES.algo = {
           "title": "Lecture 5: Quicksort, the PARTITION Subroutine, Worst, Best and Almost-Best Cases, and Randomized Quicksort Analysis",
           "videos": [
             {
-              "id": "vK_q-C-kXhs",
-              "title": "MIT 6.046J Lec 4: Quicksort — Partitioning, Worst/Best Case Trees & Randomized Quicksort Expected Time",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:20:33",
+              "id": "1Cjd0F_eVQ0",
+              "title": "Lecture 5",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Hoare's Quicksort divide-and-conquer structure and in-place sorting"
-                },
-                {
-                  "t": 360,
-                  "time": "06:00",
-                  "label": "Linear-time PARTITION(A, p, q) subroutine and loop invariant"
-                },
-                {
-                  "t": 720,
-                  "time": "12:00",
-                  "label": "Step-by-step Partition trace on [6, 10, 13, 5, 8, 3, 2, 11]"
-                },
-                {
-                  "t": 1200,
-                  "time": "20:00",
-                  "label": "Worst-case analysis T(n) = T(0) + T(n-1) + cn = Θ(n²)"
-                },
-                {
-                  "t": 1680,
-                  "time": "28:00",
-                  "label": "Almost-best 1/10 : 9/10 split recursion tree and Alternating Lucky/Unlucky proof"
-                },
-                {
-                  "t": 2400,
-                  "time": "40:00",
-                  "label": "Randomized Quicksort indicator random variables and E[T(n)] = Θ(n lg n) proof"
-                }
-              ]
-            },
-            {
-              "id": "7h1s2SojIRw",
-              "title": "2.8.1 QuickSort Algorithm & Partitioning Mechanics",
-              "channel": "Abdul Bari",
-              "duration": "13:43",
-              "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Pivot selection and partitioning invariant"
-                },
-                {
-                  "t": 450,
-                  "time": "07:30",
-                  "label": "Complete Quicksort trace and comparison with Merge Sort"
-                }
-              ]
+              "track": "lectures",
+              "session": 5,
+              "sessionCode": "Lec 5"
             }
           ],
           "notes": [
@@ -10370,52 +9068,6 @@ window.COURSES.algo = {
             ]
           ],
           "quiz": [
-            {
-              "q": "The recurrence equation T(n) = T(n − 1) + Θ(n) represents the:",
-              "o": [
-                [
-                  "Best-case running time for Quicksort",
-                  "The best case of quicksort has an even split, so its recurrence is 2T(n/2) + Θ(n), not T(n − 1) + Θ(n)."
-                ],
-                [
-                  "Worst-case running time for Quicksort",
-                  "Correct: a split of 0 : n−1 leaves one subproblem of size n − 1, and PARTITION costs Θ(n), so T(n) = T(n − 1) + Θ(n) = Θ(n²)."
-                ],
-                [
-                  "Best-case running time for Heapsort",
-                  "Heapsort runs in O(n lg n), so a recurrence that solves to Θ(n²) cannot describe even its best case."
-                ],
-                [
-                  "Worst-case running time for Heapsort",
-                  "Heapsort is O(n lg n) even in the worst case, so its worst case cannot be described by a recurrence that solves to Θ(n²)."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Summer Q23"
-            },
-            {
-              "q": "What is the purpose of using Randomized Quicksort over standard Quicksort?",
-              "o": [
-                [
-                  "To reduce worst-case space complexity",
-                  "Randomization changes which element is the pivot, not the memory used; quicksort is already in place, so this is not the purpose."
-                ],
-                [
-                  "To prevent any specific input ordering from consistently triggering worst-case time complexity",
-                  "Correct: with a random pivot no particular input order, such as sorted or reverse sorted, can force the Θ(n²) case. Final 2022 Q15."
-                ],
-                [
-                  "To improve best-case time complexity to O(n)",
-                  "The best case is still Θ(n lg n), because every level of recursion must still scan its elements; randomizing the pivot does not make it O(n)."
-                ],
-                [
-                  "To improve accuracy",
-                  "Both versions sort correctly; accuracy is not the issue. Randomization affects only how fast the algorithm runs."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2022 Q15"
-            },
             {
               "q": "Quicksort was proposed by:",
               "o": [
@@ -11355,28 +10007,22 @@ window.COURSES.algo = {
           "title": "Lecture 6: Sorting Lower Bounds (Decision Trees), Counting Sort, Radix Sort and Punched Cards",
           "videos": [
             {
-              "id": "0VqawRl3Xzs",
-              "title": "MIT 6.046J Lec 5: Linear-Time Sorting — Lower Bounds, Counting Sort & Radix Sort",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:16:50",
+              "id": "0ufNJSWOTqo",
+              "title": "Lecture 6 · video 1",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Decision-Tree model and Ω(n lg n) lower bound proof"
-                },
-                {
-                  "t": 1260,
-                  "time": "21:00",
-                  "label": "Counting Sort trace, Θ(n + k) analysis & stability"
-                },
-                {
-                  "t": 2220,
-                  "time": "37:00",
-                  "label": "Radix Sort & choosing digit size r = lg n"
-                }
-              ]
+              "track": "lectures",
+              "session": 6,
+              "sessionCode": "Lec 6"
+            },
+            {
+              "id": "pJ1IQD5rv4o",
+              "title": "Lecture 6 · video 2",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 6,
+              "sessionCode": "Lec 6"
             }
           ],
           "notes": [
@@ -12769,52 +11415,6 @@ window.COURSES.algo = {
           ],
           "quiz": [
             {
-              "q": "Which sorting algorithm requires the minimum number of swaps in the worst case?",
-              "o": [
-                [
-                  "Bubble Sort",
-                  "Bubble sort swaps neighbours for every out-of-order pair, so on a reversed list it makes Θ(n²) swaps."
-                ],
-                [
-                  "Quick Sort",
-                  "Partition can perform Θ(n) swaps on each of Θ(n) levels in its worst case, so quicksort can reach Θ(n²) swaps."
-                ],
-                [
-                  "Merge Sort",
-                  "Merge sort copies elements into an auxiliary array at each of the lg n levels; it does Θ(n lg n) writes, not few swaps."
-                ],
-                [
-                  "Selection Sort",
-                  "Each outer pass makes one swap, at most n − 1 swaps in total, so O(n) swaps is the minimum among these options."
-                ]
-              ],
-              "a": 3,
-              "src": "Exam · Final 2021 Q10 & Final 2022 Q28"
-            },
-            {
-              "q": "Which sorting algorithm has the lowest worst-case time complexity among the choices?",
-              "o": [
-                [
-                  "Bubble Sort",
-                  "Bubble sort performs Θ(n²) comparisons in the worst case, for example on a reversed list, so it is not the lowest."
-                ],
-                [
-                  "Quick Sort",
-                  "Quicksort degrades to Θ(n²) in the worst case when the pivot keeps splitting badly, even though its average is Θ(n lg n)."
-                ],
-                [
-                  "Merge Sort",
-                  "Merge sort always takes Θ(n lg n), which is the lowest worst case here and meets the Ω(n lg n) lower bound of slide 6.9."
-                ],
-                [
-                  "Selection Sort",
-                  "Selection sort always scans the remaining part, so it makes Θ(n²) comparisons in every case, including the worst."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final 2021 Q11"
-            },
-            {
               "q": "What is the worst-case running time of Counting Sort? (Also asked in writing in Midterm 2016 Q3 / 2017 Q5 / 2018 Q3.)",
               "o": [
                 [
@@ -13729,23 +12329,22 @@ window.COURSES.algo = {
           "title": "Lecture 7: Order Statistics, Randomized Selection (RAND-SELECT) and Worst-Case Linear-Time Selection (Median of Medians)",
           "videos": [
             {
-              "id": "mR_RUjsJnV8",
-              "title": "MIT 6.046J Lec 6: Order Statistics & Median — Randomized Select & Worst-Case Linear-Time Select",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:08:49",
+              "id": "OS5lg9Cxocs",
+              "title": "Lecture 7 · video 1",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 300,
-                  "time": "05:00",
-                  "label": "RAND-SELECT(A, p, q, i) algorithm and trace"
-                },
-                {
-                  "t": 2040,
-                  "time": "34:00",
-                  "label": "Blum-Floyd-Pratt-Rivest-Tarjan deterministic O(n) SELECT (groups of 5)"
-                }
-              ]
+              "track": "lectures",
+              "session": 7,
+              "sessionCode": "Lec 7"
+            },
+            {
+              "id": "513-g74Kk8M",
+              "title": "Lecture 7 · video 2",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 7,
+              "sessionCode": "Lec 7"
             }
           ],
           "notes": [
@@ -13914,7 +12513,21 @@ window.COURSES.algo = {
               "figH": {
                 "ag-7-randsel": "RAND-SELECT on the slide example (i = 7), or your own array with random pivots"
               },
-              "lead": "How does one partition tell us which side the answer is on?"
+              "lead": "How does one partition tell us which side the answer is on?",
+              "viz": {
+                "type": "select",
+                "title": "Lecture 7: the same partition idea, keeping one side only — SELECT for rank 4 of [12, 3, 5, 7, 4, 19, 26]",
+                "arr": [
+                  12,
+                  3,
+                  5,
+                  7,
+                  4,
+                  19,
+                  26
+                ],
+                "rank": 4
+              }
             },
             {
               "h": "Intuition: lucky and unlucky pivots (Slide 7.5)",
@@ -15481,52 +14094,49 @@ window.COURSES.algo = {
           "title": "Lecture 8: Hash Functions, Amortized Table Doubling, Separate Chaining and Open Addressing",
           "videos": [
             {
-              "id": "JZHBa-rLrBA",
-              "title": "MIT 6.046J Lec 7: Hashing, Hash Functions, Chaining & Open Addressing (Prof. Charles Leiserson)",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:17:39",
+              "id": "aULjfgOYiZI",
+              "title": "Lecture 8 · video 1",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Direct-address tables vs. Hash tables and the collision problem"
-                },
-                {
-                  "t": 900,
-                  "time": "15:00",
-                  "label": "Chaining analysis under Simple Uniform Hashing: Θ(1 + α)"
-                },
-                {
-                  "t": 1800,
-                  "time": "30:00",
-                  "label": "Division and Multiplication hash functions"
-                },
-                {
-                  "t": 2700,
-                  "time": "45:00",
-                  "label": "Open Addressing: Linear Probing, Quadratic Probing & Double Hashing"
-                }
-              ]
+              "track": "lectures",
+              "session": 8,
+              "sessionCode": "Lec 8"
             },
             {
-              "id": "mFY0J5W8Udk",
-              "title": "Hashing Technique — Separate Chaining, Linear, Quadratic & Double Hashing Simplified",
-              "channel": "Abdul Bari",
-              "duration": "17:04",
+              "id": "E_Dz3nhpT2k",
+              "title": "Lecture 8 · video 2",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Hash functions and collision resolution overview"
-                },
-                {
-                  "t": 480,
-                  "time": "08:00",
-                  "label": "Step-by-step traces of Chaining, Linear Probing, Quadratic Probing, and Double Hashing"
-                }
-              ]
+              "track": "lectures",
+              "session": 8,
+              "sessionCode": "Lec 8"
+            },
+            {
+              "id": "jqr9Gg5bPm4",
+              "title": "Lecture 8 · video 3",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 8,
+              "sessionCode": "Lec 8"
+            },
+            {
+              "id": "tBhzJkaCdpI",
+              "title": "Lecture 8 · video 4",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 8,
+              "sessionCode": "Lec 8"
+            },
+            {
+              "id": "XX7DeDqqrV8",
+              "title": "Lecture 8 · video 5",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 8,
+              "sessionCode": "Lec 8"
             }
           ],
           "notes": [
@@ -16428,190 +15038,6 @@ window.COURSES.algo = {
             ]
           ],
           "quiz": [
-            {
-              "q": "Using the division method in a hash table of size m = 157, at which position will the key k = 172 be placed?",
-              "o": [
-                [
-                  "19",
-                  "Wrong: 172 − 157 = 15, not 19. 19 would come from a subtraction slip; the remainder of 172 divided by 157 is 15."
-                ],
-                [
-                  "72",
-                  "Wrong: 72 is 172 mod 100 (the last two digits). The division method divides by the table size m = 157, not by 100."
-                ],
-                [
-                  "15",
-                  "Right: h(k) = k mod m, and 172 = 1 · 157 + 15, so h(172) = 15 (Slide 8.7, Final 2 Q5)."
-                ],
-                [
-                  "17",
-                  "Wrong: 17 is just the first two digits of 172. The division method takes the remainder 172 mod 157 = 15."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final 2 Q5"
-            },
-            {
-              "q": "What is the table size m when the parameter p = 7 in the binary implementation of the multiplication method of creating hash functions?",
-              "o": [
-                [
-                  "14",
-                  "Wrong: 14 is 2 × 7. In the binary implementation the table size is a power of 2, m = 2ᵖ, so p = 7 gives 2⁷."
-                ],
-                [
-                  "128",
-                  "Right: the binary multiplication method uses a table of size m = 2ᵖ (it is not critical for the method, Slide 8.10), so p = 7 gives 2⁷ = 128."
-                ],
-                [
-                  "49",
-                  "Wrong: 49 is 7², the square of p. The table size is 2 raised to p, 2⁷ = 128."
-                ],
-                [
-                  "127",
-                  "Wrong: 127 is 2⁷ − 1, the largest index of the table, not its size. The size is m = 2⁷ = 128."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2 Q6"
-            },
-            {
-              "q": "A hash table of length 10 uses open addressing with h(k) = k mod 10 and linear probing. After inserting 6 values into an empty table, slots 2..7 contain: [2: 42, 3: 23, 4: 34, 5: 52, 6: 46, 7: 33]. Which of the following is a valid insertion order?",
-              "o": [
-                [
-                  "46, 42, 34, 52, 23, 33",
-                  "Wrong: 52 (home 2) arrives while slot 3 is still empty, so it lands in 3; then 23 is pushed to 5 and 33 to 7. Slot 3 would hold 52, not 23."
-                ],
-                [
-                  "34, 42, 23, 52, 33, 46",
-                  "Wrong: 33 (home 3) arrives before 46 and probes 3, 4, 5, then finds slot 6 empty, so 33 lands in 6 and 46 is pushed to 7."
-                ],
-                [
-                  "46, 34, 42, 23, 52, 33",
-                  "Right: 46 → 6, 34 → 4, 42 → 2, 23 → 3; then 52 probes 2, 3, 4 and lands in 5; 33 probes 3, 4, 5, 6 and lands in 7. Exactly the given table."
-                ],
-                [
-                  "42, 46, 33, 23, 34, 52",
-                  "Wrong: 33 arrives while slot 3 is empty and takes it, so 23 goes to 4, 34 to 5 and 52 to 7. Slot 3 would hold 33, not 23."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final 2 Q16"
-            },
-            {
-              "q": "What is the amortized cost of n insertions into a dynamic hash table that starts at size 1 and doubles in size (1, 2, 4, 8, …) when full, analyzed by the Aggregate Method?",
-              "o": [
-                [
-                  "O(n) total for n insertions (O(1) per insertion)",
-                  "Right: the n writes cost n and the copies 1 + 2 + 4 + … form a geometric series below 2n, so the total is < 3n = O(n), O(1) amortized per insertion (Slides 8.22–8.23)."
-                ],
-                [
-                  "O(n²) total",
-                  "Wrong: n² comes from the naive bound of Slide 8.19 (n insertions × O(n) each). Copies happen only at powers of 2, so the real total is < 3n."
-                ],
-                [
-                  "O(n lg n) total",
-                  "Wrong: it would hold if each of the lg n doublings copied n items, but they copy 1, 2, 4, …, so the copies add up to less than 2n."
-                ],
-                [
-                  "O(2ⁿ) total",
-                  "Wrong: nothing grows exponentially in n; the table size doubles only about lg n times, and the total work is linear, < 3n."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Summer Q28 & Exam Examples Q28"
-            },
-            {
-              "q": "<b>Q1 & Q2</b>: What is a hash table, and what is it called when several elements compete for the same bucket?",
-              "o": [
-                [
-                  "A structure that maps keys to values; Collision",
-                  "Right: the hash function maps a key to a position holding its value (Slide 8.4), and two keys wanting the same slot is a collision (Slide 8.7)."
-                ],
-                [
-                  "A structure that maps values to keys; Diffusion",
-                  "Wrong: the direction is reversed (we look up by key, not by value) and \"diffusion\" is not the term; competing keys cause a collision."
-                ],
-                [
-                  "A structure used to implement stack; Replication",
-                  "Wrong: a hash table implements a dictionary (insert, search, delete by key), not a stack; replication is not about two keys sharing a slot."
-                ],
-                [
-                  "A tree structure; Duplication",
-                  "Wrong: a hash table is an array of slots (trees appear only inside slots in the extended technique), and two keys in one slot is a collision."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Q1 & Q2"
-            },
-            {
-              "q": "<b>Q3, Q4 & Q5</b>: In the division method, what is the hash function, what is the best choice for $m$, and where is key $172$ placed when $m = 157$?",
-              "o": [
-                [
-                  "h(k) = k mod m; Any prime number not close to a power of 2; Position 15",
-                  "Right: the division method takes the remainder k mod m (Slide 8.7), m should be prime (Slide 8.8), and 172 mod 157 = 15."
-                ],
-                [
-                  "h(k) = k / m; Any even number; Position 19",
-                  "Wrong: the hash is the remainder, not the quotient; even sizes share the factor 2 with many keys (bad, Slide 8.9); and 172 mod 157 is 15."
-                ],
-                [
-                  "h(k) = m mod k; 2^p; Position 72",
-                  "Wrong: the operands are swapped (key mod size), powers of 2 are the bad sizes of Slide 8.8, and 72 is 172 mod 100."
-                ],
-                [
-                  "h(k) = m / k; 2^p − 1; Position 17",
-                  "Wrong: a division m / k is not a slot index, 2ᵖ − 1 is not the recommended choice, and 17 is not the remainder 172 mod 157 = 15."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Q3, Q4 & Q5"
-            },
-            {
-              "q": "<b>Q7, Q9 & Q10</b>: What is the average retrieval time when all $n$ keys hash to the same slot, and what is the search complexity in direct addressing?",
-              "o": [
-                [
-                  "Θ(n) when all n keys hash to one slot; O(1) in direct addressing (with a distinct array position for every possible key)",
-                  "Right: one chain of n keys must be scanned, Θ(n) (Slide 8.37), while direct hashing h(K) = K reaches the key in one access (Slide 8.6)."
-                ],
-                [
-                  "Θ(n²) when all n keys hash to one slot; O(log n) in direct addressing",
-                  "Wrong: scanning one chain of n items is linear, not quadratic, and direct addressing needs no search at all: O(1), not O(log n)."
-                ],
-                [
-                  "Θ(n log n); O(n)",
-                  "Wrong: n log n is a sorting cost, not a chain scan (Θ(n)); and direct addressing is O(1) because the key is the address."
-                ],
-                [
-                  "O(1); O(n log n)",
-                  "Wrong: O(1) is the average with keys spread out, not with all n keys in one slot (that is Θ(n)), and direct addressing is O(1)."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Q7, Q9 & Q10"
-            },
-            {
-              "q": "<b>Q13, Q14 & Q15</b>: In separate chaining, what is the load factor $\\alpha$, what is Simple Uniform Hashing, and what data structure is used for chains?",
-              "o": [
-                [
-                  "Average chain length (n/m); Every element has equal probability of hashing into any slot; Doubly/Singly linked list",
-                  "Right: α = n/m is the expected chain length (Slide 8.33), simple uniform hashing gives probability 1/m per slot, and chains are linked lists (Slide 8.31)."
-                ],
-                [
-                  "Average array size; Weighted probability; Stack",
-                  "Wrong: α counts keys per slot, not array size; the probabilities are equal, not weighted; and chains are linked lists, not stacks."
-                ],
-                [
-                  "Average key size; Priority hashing; Binary heap",
-                  "Wrong: α is n/m, unrelated to how big a key is; \"priority hashing\" is not the assumption; chains are linked lists, not heaps."
-                ],
-                [
-                  "Average table length; Sequential hashing; Array",
-                  "Wrong: α is the average chain length, the assumption is uniform (not sequential) hashing, and a chain is a linked list (it grows without reallocation)."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Q13, Q14 & Q15"
-            },
             {
               "q": "Direct hashing (h(K) = K) gives O(1) search, insert and delete. What is its disadvantage?",
               "o": [
@@ -17580,33 +16006,31 @@ window.COURSES.algo = {
           "title": "Lecture 9: Balanced Search Trees, Red-Black Tree Properties, Height Bound h ≤ 2 lg(n + 1), Rotations and Insertion",
           "videos": [
             {
-              "id": "O3hI9FdxFOM",
-              "title": "MIT 6.046J Lec 10: Red-Black Trees, Rotations, Insertions & Deletions (Prof. Erik Demaine)",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:23:52",
+              "id": "bbkxIn52tmQ",
+              "title": "Lecture 9 · video 1",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Balanced search trees overview and the 4/5 Red-Black Tree properties"
-                },
-                {
-                  "t": 720,
-                  "time": "12:00",
-                  "label": "Proof that a Red-Black Tree with n keys has height h ≤ 2 lg(n + 1) via 2-3-4 trees"
-                },
-                {
-                  "t": 1560,
-                  "time": "26:00",
-                  "label": "Left and Right Rotations in O(1) time preserving inorder key order"
-                },
-                {
-                  "t": 2160,
-                  "time": "36:00",
-                  "label": "RB-INSERT algorithm and Cases 1, 2, and 3 trace"
-                }
-              ]
+              "track": "lectures",
+              "session": 9,
+              "sessionCode": "Lec 9"
+            },
+            {
+              "id": "oTSmKQoq8P0",
+              "title": "Lecture 9 · video 2",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 9,
+              "sessionCode": "Lec 9"
+            },
+            {
+              "id": "dzxqAlTwU5k",
+              "title": "Lecture 9 · video 3",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 9,
+              "sessionCode": "Lec 9"
             }
           ],
           "notes": [
@@ -17871,6 +16295,84 @@ window.COURSES.algo = {
               },
               "figH": {
                 "ag-9-induct": "The induction lemma checked on the slides' tree: keys under x ≥ 2<sup>bh(x)</sup> − 1"
+              },
+              "viz": {
+                "type": "table",
+                "title": "Height bound h ≤ 2 lg(n + 1) on real numbers",
+                "cols": [
+                  "size n",
+                  "lg(n + 1)",
+                  "2 lg(n + 1) = max h",
+                  "red-black worst height",
+                  "chain worst height"
+                ],
+                "rows": [
+                  [
+                    "n = 7",
+                    "3",
+                    "6",
+                    "6",
+                    "7"
+                  ],
+                  [
+                    "n = 15",
+                    "4",
+                    "8",
+                    "8",
+                    "15"
+                  ],
+                  [
+                    "n = 63",
+                    "6",
+                    "12",
+                    "12",
+                    "63"
+                  ],
+                  [
+                    "n = 255",
+                    "8",
+                    "16",
+                    "16",
+                    "255"
+                  ],
+                  [
+                    "n = 1023",
+                    "10",
+                    "20",
+                    "20",
+                    "1023"
+                  ]
+                ],
+                "steps": [
+                  {
+                    "r": 0,
+                    "cap": [
+                      "Height bound of a red-black tree (Slide 9.9): h ≤ 2 lg(n + 1). Both columns 3 and 4 are lg(n+1) and 2 lg(n+1).",
+                      "حد الارتفاع في شجرة RB: h ≤ 2 lg(n + 1)."
+                    ]
+                  },
+                  {
+                    "r": 1,
+                    "cap": [
+                      "For n = 15: lg 16 = 4, so a red-black tree of 15 nodes is at most 8 levels. A chain of the same 15 keys would be 15 levels deep.",
+                      "عند n = 15: أقصى ارتفاع مسموح 8. شجرة سلسلة بنفس الـ 15 مفتاح تبقى بارتفاع 15."
+                    ]
+                  },
+                  {
+                    "r": 2,
+                    "cap": [
+                      "The gap widens: at n = 1023 a chain needs 1023 comparisons, a red-black tree at most 20. This is what makes every query O(lg n).",
+                      "الفرق بيكبر: عند n = 1023 السلسلة محتاجة 1023 مقارنة، وشجرة RB 20 على الأكثر."
+                    ]
+                  },
+                  {
+                    "r": 3,
+                    "cap": [
+                      "Exam answer: the height bound is proved by induction using bh(x) ≥ h(x)/2 — at most every other node on any root-to-leaf path is red, so no path has more than twice the black height.",
+                      "الإثبات بالاستقراء باستخدام bh(x) ≥ h(x)/2: مفيش مسار فيه أكتر من ضعف عدد العقد السوداء."
+                    ]
+                  }
+                ]
               }
             },
             {
@@ -17887,6 +16389,7 @@ window.COURSES.algo = {
               ]
             },
             {
+              "viz": { "type": "rbt", "title": "Slides 9.17–9.18 in motion: insert 10, 20, 30 — Case 4 (a straight red-red pair) rotates the grandparent, then Case 0 paints the root black", "keys": [10, 20, 30] },
               "h": "Modifying operations and rotations (Slides 9.17–9.18)",
               "pts": [
                 "INSERT and DELETE change the tree (slide 9.17) in three ways:<ul><li>the operation itself (the BST insert or delete)</li><li><b>colour changes</b></li><li>restructuring the links of the tree via <b>rotations</b></li></ul>",
@@ -17910,6 +16413,7 @@ window.COURSES.algo = {
               }
             },
             {
+              "viz": { "type": "rbt", "title": "Lecture 9's own example with x = 15: the uncle is red first (Case 1), then the mirror zig-zag (Case 5) and the mirror straight line (Case 4)", "start": [7, 3, 18, 10, 22, 8, 11, 26], "keys": [15] },
               "h": "Insertion idea and the example: insert x = 15 (Slides 9.19–9.23)",
               "pts": [
                 "<b>IDEA</b> (slide 9.19): insert x in the tree (ordinary BST insert). Colour x <b>red</b>. Only red-black property 3 might be violated. Move the violation up the tree by recolouring until it can be fixed with rotations and recolouring.",
@@ -17937,6 +16441,7 @@ window.COURSES.algo = {
               }
             },
             {
+              "viz": { "type": "rbt", "title": "The pseudocode's cases on the slide's tree: insert 8, then 11 (Case 1 — the uncle is red), then 10 (Case 1 again, then Case 2 — one rotation)", "start": [7, 5, 9, 12], "keys": [8, 11, 10] },
               "h": "RB-INSERT pseudocode, Cases 1–3 and analysis (Slides 9.24–9.29)",
               "table": [
                 [
@@ -18187,120 +16692,6 @@ window.COURSES.algo = {
             ]
           ],
           "quiz": [
-            {
-              "q": "The basic restructuring operation for maintaining balance in Red-Black Trees is:",
-              "o": [
-                [
-                  "Dynamic programming",
-                  "Dynamic programming is an algorithm design method (storing subproblem answers), not an operation that restructures a tree."
-                ],
-                [
-                  "Binary sort",
-                  "There is no \"binary sort\" step in red-black trees; balancing is done by recolouring and rotating, never by sorting the keys."
-                ],
-                [
-                  "Depth-first search",
-                  "DFS is a way to visit graph or tree nodes; it changes no links, so it cannot restore balance."
-                ],
-                [
-                  "Rotation",
-                  "Correct (Final 2021 Q37, Final Summer Q16): slides 9.17–9.18, a rotation relinks a node and its child in O(1) time and keeps the inorder order."
-                ]
-              ],
-              "a": 3,
-              "src": "Exam · Final 2021 Q37 & Final Summer Q16"
-            },
-            {
-              "q": "Why are Red-Black Trees often preferred over Hash Tables even though Hash Tables have O(1) average-case time complexity?",
-              "o": [
-                [
-                  "No, they are never preferred",
-                  "Wrong: when key order matters (min, max, successor, range queries) or worst-case guarantees matter, red-black trees are the better choice."
-                ],
-                [
-                  "Because of resizing issues in hash tables and better key ordering (min, max, predecessor, successor) in Red-Black Trees",
-                  "Correct (Final 2021 Q23, Final 2022 Q37): a hash table keeps no key order and needs costly resizing; a red-black tree gives ordered queries in O(lg n) worst case (slide 9.16)."
-                ],
-                [
-                  "Because Red-Black Trees use O(1) total memory",
-                  "Both structures store all n keys, so both use Θ(n) memory; a red-black tree even adds a colour bit and pointers per node."
-                ],
-                [
-                  "Because Red-Black Trees do not use pointers",
-                  "A red-black tree node has left, right and parent pointers (rotations relink them), so this is false."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2021 Q23 & Final 2022 Q37"
-            },
-            {
-              "q": "A Heap is an example of a _____________, while the access time of an unbalanced Binary Search Tree may degrade in the worst case up to _____________.",
-              "o": [
-                [
-                  "Complete binary tree; O(n)",
-                  "Correct (Final 2022 Q25 & Q26): a binary heap is a complete binary tree, and an unbalanced BST can become a chain of height n − 1 (sorted input), so access costs O(n)."
-                ],
-                [
-                  "Spanning tree; O(n log n)",
-                  "A spanning tree belongs to graphs (MST), not heaps; and one BST access walks one path, at most n nodes, never n log n."
-                ],
-                [
-                  "Sparse tree; O(n²)",
-                  "\"Sparse tree\" is not what a heap is, and one access walks a single path of at most n nodes, so O(n²) is far too big."
-                ],
-                [
-                  "Binary search tree; O(1)",
-                  "A heap does not keep the BST order (only parent ≥ children), and O(1) is impossible for a degenerate tree where the key may be n levels down."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Exam 2022 Q25 & Q26"
-            },
-            {
-              "q": "Printing every node in a balanced binary search tree takes Θ(lg n) time.",
-              "o": [
-                [
-                  "True",
-                  "Not true: printing must output all n keys, so it cannot take less than n steps; lg n is the cost of one search path, not of visiting every node."
-                ],
-                [
-                  "False",
-                  "Correct, it is False: an inorder traversal visits each of the n nodes once, so printing takes Θ(n) in any BST, balanced or not."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Summer TF 5"
-            },
-            {
-              "q": "In a Red-Black Tree, a black node must have only red children.",
-              "o": [
-                [
-                  "True",
-                  "Not true: no property restricts the children of a black node. In the slides' tree, black 7 has a black child 3 and a red child 18, and black 3 has only NIL (black) leaves."
-                ],
-                [
-                  "False",
-                  "Correct, it is False: property 3 restricts red nodes only (a red node's parent is black). A black node may have red or black children, e.g. 7 with children 3 (black) and 18 (red)."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Summer TF 6"
-            },
-            {
-              "q": "We do not have to make any key comparisons to find the minimum or maximum node of a Binary Search Tree.",
-              "o": [
-                [
-                  "True",
-                  "Correct, it is True: TREE-MINIMUM just follows left pointers until left is NIL (TREE-MAXIMUM follows right pointers); only pointers are tested, never keys."
-                ],
-                [
-                  "False",
-                  "Not false: the BST property already puts the smallest key at the far left and the largest at the far right, so no key needs comparing."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Summer TF 13"
-            },
             {
               "q": "In the example red-black tree of slide 9.8, what is the black-height of the root 7?",
               "o": [
@@ -19055,23 +17446,31 @@ window.COURSES.algo = {
           "title": "Lecture 10: Red-Black Trees in Depth: Colouring, the Insertion Problem, Rotations and Insert Cases 1-6",
           "videos": [
             {
-              "id": "jDM6_TnYIqE",
-              "title": "Balanced Search Tree Rotations (LL, RR, LR, RL) & Rebalancing Mechanics",
-              "channel": "Abdul Bari",
-              "duration": "43:08",
+              "id": "bbkxIn52tmQ",
+              "title": "Lecture 10 · video 1",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Why unbalanced BSTs degrade to O(n) and how rotations restore O(log n) height"
-                },
-                {
-                  "t": 900,
-                  "time": "15:00",
-                  "label": "Left and Right Rotations pointer updates"
-                }
-              ]
+              "track": "lectures",
+              "session": 10,
+              "sessionCode": "Lec 10"
+            },
+            {
+              "id": "oTSmKQoq8P0",
+              "title": "Lecture 10 · video 2",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 10,
+              "sessionCode": "Lec 10"
+            },
+            {
+              "id": "dzxqAlTwU5k",
+              "title": "Lecture 10 · video 3",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 10,
+              "sessionCode": "Lec 10"
             }
           ],
           "notes": [
@@ -19225,7 +17624,8 @@ window.COURSES.algo = {
               },
               "figH": {
                 "ag-10-problem": "The problem with insertion: where do 8, 11 and 10 go, and what colour?"
-              }
+              },
+              "viz": { "type": "rbt", "title": "Slides 10.9–10.16: insert 8, then 11 into 7, 5, 9, 12 — the first fix-up is Case 1, an uncle that is red", "start": [7, 5, 9, 12], "keys": [8, 11] }
             },
             {
               "h": "The problem with insertion: inserting 10 (Slides 10.17–10.19)",
@@ -19390,9 +17790,12 @@ window.COURSES.algo = {
                 "Why #4 holds: before, every path from the top met one black (C) above the Δ's; after, it meets one black (B). The top node is black before and after, so nothing above changes.",
                 "The loop ends: x's parent B is black, so the while test fails. Case 2 + Case 3 use at most 2 rotations.",
                 "Example: inserting 10 into slide 10.16's tree (10 lands under 11 as on slides 10.17–10.19) is Case 3 directly (10 is already a left child, so Case 2 is skipped): 11 black, 12 red, rightRotate(12). Result: 7 (B); 9 (R) with children 8 (B) and 11 (B); 11 with children 10 (R) and 12 (R). Every path from 7 has 2 blacks below 7."
+              ,
+                "<b>Lab 5 numbers these cases differently</b>, and the visualiser above follows the sheet: Case 0 = the new node is the root, so paint it black · Case 1 = the uncle is red (slide Case 1, both mirrors) · Case 2 = p a left child and z a left child — the straight line (slide Case 3) · Case 3 = p a left child and z a right child — the zig-zag (slide Case 2) · Case 4 = the mirror straight line (slide Case 6) · Case 5 = the mirror zig-zag (slide Case 5). Every trace below names its case <b>before</b> the rotation, exactly as the sheet does."
               ]
             },
             {
+              "viz": { "type": "rbt", "title": "Lab 5's Example-1 in full: insert 10, 85, 15, 70, 20, 60, 30, 50, 65, 80, 90, 40, 5, 55 — every case is announced before it is performed", "keys": [10, 85, 15, 70, 20, 60, 30, 50, 65, 80, 90, 40, 5, 55] },
               "h": "Cases 4-6: the mirror image, and a full run (Slide 10.31)",
               "pts": [
                 "Slide 10.31: Cases 1-3 hold if x's parent is a <b>left</b> child. If x's parent is a <b>right</b> child, Cases 4-6 are symmetric (swap left for right).",
@@ -19415,6 +17818,7 @@ window.COURSES.algo = {
               }
             },
             {
+              "viz": { "type": "rbt", "title": "Slide 10.32's first deletion: remove 5 (a red leaf — Step 2, no fix-up), then remove 10 (its red child absorbs the missing black)", "start": [10, 5, 15], "op": "delete", "keys": [5, 10] },
               "h": "Deletion (Slide 10.32)",
               "pts": [
                 "\"And you thought insertion was tricky…\": deleting can remove a black node, which breaks #4 on all paths that went through it, so the repair is harder than for insertion.",
@@ -19626,82 +18030,6 @@ window.COURSES.algo = {
             ]
           ],
           "quiz": [
-            {
-              "q": "Which of the following is ALWAYS true for a valid Red-Black Tree?",
-              "o": [
-                [
-                  "The root is red",
-                  "Wrong: property 5 says the root is always black. A red root would also be fixed at once by colouring it black."
-                ],
-                [
-                  "The root and leaves (NIL) are black",
-                  "Correct (Final Summer Q22): property 5 makes the root black and property 2 makes every leaf (NULL pointer, T.nil) black."
-                ],
-                [
-                  "All simple paths from a node to the leaves contain the same total number of red and black nodes",
-                  "Wrong: property 4 equalises only the BLACK nodes. In slide 10.4, 7 → 3 → NIL has 2 nodes below 7 but 7 → 18 → 10 → 8 → NIL has 4."
-                ],
-                [
-                  "A black node must have only red children",
-                  "Wrong (Final Summer Q6 is False): only a red node has a rule about its children. In slide 10.4 black 7 has a black child 3."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Summer Q6 & Q22"
-            },
-            {
-              "q": "What are the operations that can be performed in O(log n) worst-case time complexity on a Red-Black Tree of n nodes?",
-              "o": [
-                [
-                  "Insertion, deletion, finding predecessor, and finding successor (as well as search, min, max)",
-                  "Correct (Final 2021 Q22, Final 2022 Q36): the height is ≤ 2 lg(n + 1), so every operation that walks one path, plus Insert/Delete with their fix-ups, is O(lg n)."
-                ],
-                [
-                  "Only insertion",
-                  "Wrong: slide 10.7 lists Minimum, Maximum, Successor, Predecessor and Search as O(lg n) too; Delete is O(lg n) as well."
-                ],
-                [
-                  "Only finding predecessor and successor",
-                  "Wrong: Search, Min, Max, Insert and Delete also run in O(lg n), since all of them follow one root-to-leaf path."
-                ],
-                [
-                  "Printing every node in the tree",
-                  "Wrong (Final Summer Q5 is False): printing visits all n nodes, so it takes Θ(n) however balanced the tree is."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final 2021 Q22, Final 2022 Q36 & Final Summer Q5"
-            },
-            {
-              "q": "True or false: in a Red-Black Tree, a black node must have only red children.",
-              "o": [
-                [
-                  "True",
-                  "Wrong: property 3 constrains only RED nodes (their children must be black). Nothing restricts a black node: in slide 10.4, black 10 has red children but black 7 has a black child 3."
-                ],
-                [
-                  "False",
-                  "Correct (official answer False): a black node may have red or black children or one of each; e.g. slide 10.8's answer has black 9 with a NIL (black) child and red child 12."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Summer Q6"
-            },
-            {
-              "q": "True or false: printing every node in a balanced binary search tree takes Θ(lg n) time.",
-              "o": [
-                [
-                  "True",
-                  "Wrong: Θ(lg n) is the cost of walking ONE path (search, min, successor). Printing must output all n keys, so it cannot be faster than n steps."
-                ],
-                [
-                  "False",
-                  "Correct (official answer False): an inorder walk visits every one of the n nodes once, so it takes Θ(n), even when the height is O(lg n)."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Summer Q5"
-            },
             {
               "q": "What is the worst-case running time of Search, Insert and Delete in a red-black tree with n nodes?",
               "o": [
@@ -20517,18 +18845,31 @@ window.COURSES.algo = {
           "title": "Lecture 11: Red-Black Trees, Insertion Traces (with Exam Workouts) and Deletion with rbTreeFix Cases 1–4",
           "videos": [
             {
-              "id": "O3hI9FdxFOM",
-              "title": "MIT 6.046J Lec 10: Red-Black Tree Insertion & Deletion Fixup Cases",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:23:52",
+              "id": "bbkxIn52tmQ",
+              "title": "Lecture 11 · video 1",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 2160,
-                  "time": "36:00",
-                  "label": "Complete step-by-step Red-Black Tree insertion and rotation traces"
-                }
-              ]
+              "track": "lectures",
+              "session": 11,
+              "sessionCode": "Lec 11"
+            },
+            {
+              "id": "oTSmKQoq8P0",
+              "title": "Lecture 11 · video 2",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 11,
+              "sessionCode": "Lec 11"
+            },
+            {
+              "id": "dzxqAlTwU5k",
+              "title": "Lecture 11 · video 3",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 11,
+              "sessionCode": "Lec 11"
             }
           ],
           "notes": [
@@ -20613,6 +18954,7 @@ window.COURSES.algo = {
               "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
             },
             {
+              "viz": { "type": "rbt", "title": "Slides 11.1–11.11 with the lab's case list: insert 65, then 82 (Case 1), then 87 (Case 1, then the zig-zag of Case 3 and the straight line of Case 2)", "start": [47, 32, 71, 93], "keys": [65, 82, 87] },
               "h": "Insertion example: insert 65, 82, 87 (Slides 11.1–11.11)",
               "pts": [
                 "Start tree (slide 11.1): root <b>47</b> black; left child 32 black; right child 71 black; <b>93</b> red, the right child of 71. All other children are NIL (black dots on the slide). Every root-to-NIL path has 3 black nodes.",
@@ -20690,7 +19032,8 @@ window.COURSES.algo = {
               },
               "figH": {
                 "ag-11-exam1": "rbInsert step by step: insert 2, 1, 4, 5, 9, 3, 6, 7 (or your own keys)"
-              }
+              },
+              "viz": { "type": "rbt", "title": "Lab 5 homework 1 / Final 2016 Q4: insert 2, 1, 4, 5, 9, 3, 6, 7 — Case 1 for 5, Case 4 for 9, 3 and 6, and 7 closes with Case 3 then Case 2", "keys": [2, 1, 4, 5, 9, 3, 6, 7] }
             },
             {
               "h": "Exam workout 2: insert 5, 1, 4, 10, 9, 20, 6, 7 (Final 2018 I Q4, Final 2018 II Q7 & Exam Examples Q7)",
@@ -20718,7 +19061,8 @@ window.COURSES.algo = {
               },
               "figH": {
                 "ag-11-exam2": "rbInsert step by step: insert 5, 1, 4, 10, 9, 20, 6, 7"
-              }
+              },
+              "viz": { "type": "rbt", "title": "Final 2018 Q4: insert 5, 1, 4, 10, 9, 20, 6, 7 — the one workout that walks all six cases (0 through 5)", "keys": [5, 1, 4, 10, 9, 20, 6, 7] }
             },
             {
               "h": "Red-black tree deletion: the method (Slides 11.15–11.16)",
@@ -20733,6 +19077,7 @@ window.COURSES.algo = {
               ]
             },
             {
+              "viz": { "type": "rbt", "title": "Slides 11.17–11.21: delete 87, then delete 71 — both need the successor and both splice out a red node, so Step 2 ends each one with no fix-up", "start": [47, 32, 71, 93, 65, 82, 87, 51], "op": "delete", "keys": [87, 71] },
               "h": "Deletion examples 1 and 2: delete 87, delete 71 (Slides 11.17–11.21)",
               "pts": [
                 "Example 1 starts from the insertion result (example 2 adds a red 51 under 65, see below): 47 black; 32 black; 71 red with 65 black and 87 black; 87 has red children 82 and 93.",
@@ -20757,6 +19102,7 @@ window.COURSES.algo = {
               }
             },
             {
+              "viz": { "type": "rbt", "title": "Slides 11.22–11.29: delete 32 — the sibling is red first (Case 1), then both nephews are black (Case 2) and the red parent P = 47 absorbs the double black", "start": [47, 32, 71, 93, 65, 82, 87], "op": "delete", "keys": [32] },
               "h": "Deletion example 3: delete 32, rbTreeFix cases (2) then (3) (Slides 11.22–11.24, 11.27–11.29)",
               "pts": [
                 "Start tree (slide 11.22): the insertion result again (47; 32; 71 red with 65 and 87; 87 with red 82 and 93). <b>Delete 32</b>: it is black with no real children. (The \"Example 3\" tab of the deletion visual in the previous section runs the same trace with the code's wording.)",
@@ -20793,6 +19139,7 @@ window.COURSES.algo = {
               "code": "TreeNode<T> rbDelete(TreeNode<T> root,TreeNode<T> z)\n//return new root, z contains item to be deleted\n{\n  TreeNode<T> x,y;\n  // find node y, which is going to be removed\n  if (z.getLeft() == null || z.getRight() == null)\n    y = z;\n  else {\n    y = successor(z); // or predecessor\n    z.setItem(y.getItem); // move data from y to z\n  }\n  // find child x of y\n  if (y.getRight() != null)\n    x = y.getRight();\n  else\n    x = y.getLeft();\n  // Note x might be null; create a pretend node\n  if (x == null) {\n    x = new TreeNode<T>(null);\n    x.setColor(black);\n  }\n  x.setParent(y.getParent()); // detach x from y\n  if (y.getParent() == null)\n    // if y was the root, x is a new root\n    root = x;\n  else\n    // Atttach x to y's parent\n    if (y == y.getParent().getLeft()) // left child\n      y.getParent().setLeft(x);\n    else\n      y.getParent().setRight(x);\n  if (y.getColor() == black)\n    root=rbTreeFix(root,x);\n  if (x.getItem() == null) // x is a pretend node\n    if (x==x.getParent().getLeft())\n      x.getParent().setLeft(null);\n    else\n      x.getParent().setRight(null);\n  return root;\n}"
             },
             {
+              "viz": { "type": "rbt", "title": "A deletion that walks three fix-up cases in a row — delete 33 from 33, 34, 15, 18, 5, 28: Case 1 (red sibling), Case 3 (near nephew red), Case 4 (far nephew red)", "start": [33, 34, 15, 18, 5, 28], "op": "delete", "keys": [33] },
               "h": "The four cases of rbTreeFix (Slides 11.30, 11.33–11.36)",
               "pts": [
                 "In all cases x holds the black token. Cases are checked in this order; the pictures show x as a left child, and each has a mirror for x as a right child.",
@@ -20810,6 +19157,8 @@ window.COURSES.algo = {
                 "Example of subcase (ii) directly ‡: delete 65 from the insertion result tree. x is a pretend node (left child of red 71); the sibling 87 is black and its far nephew 93 is red: 87 becomes red (71's colour), 71 black, 93 black, left-rotate 71.",
                 "Result of that example: under 47 the right subtree is 87 red, with children 71 black (right child 82 red) and 93 black. Every root-to-NIL path still has 3 black nodes ‡.",
                 "How long it takes: case (3) moves the token up one level per iteration, at most the height O(lg n). Cases (2) and (4) do a constant number of rotations and lead to the end. Total at most 3 rotations ‡ and <b>O(lg n)</b> time."
+              ,
+                "<b>Lab 6 numbers the deletion cases</b>, and the visualiser above follows the sheet: Step 1 = the plain BST splice (two children → the successor is copied in and the successor node is the one removed) · Step 2 = the colour of the spliced-out node: red → the job is done, black with a red child → paint that child black · then the double-black repair: Case 0 = the double black is the root · Case 1 = the sibling is red (slide case (2)) · Case 2 = both nephews are black (slide case (3)) · Case 3 = the near nephew is red (slide case (4-i)) · Case 4 = the far nephew is red (slide case (4-ii))."
               ],
               "table": [
                 [
@@ -21149,120 +19498,6 @@ window.COURSES.algo = {
             ]
           ],
           "quiz": [
-            {
-              "q": "What is the below pseudocode trying to do, where pt is a new node pointer and root is the root pointer?\nredblack(Node root, Node pt):\n  if (root == NULL) return pt\n  if (pt.data < root.data) { root.left = redblack(root.left, pt); root.left.parent = root; }\n  else if (pt.data > root.data) { root.right = redblack(root.right, pt); root.right.parent = root; }\n  return root",
-              "o": [
-                [
-                  "Insert a new node (the standard BST insertion phase of RB-Insert)",
-                  "Correct (Final 2021 Q24, Final 2022 Q38). It walks left or right by comparing pt.data with root.data and hangs pt where it finds NULL, setting the parent pointer: this is bstInsert, the first line of rbInsert (slide 11.13)."
-                ],
-                [
-                  "Delete a node",
-                  "Wrong: no pointer is ever set to remove a node. Every assignment links root.left or root.right to the result of a recursive call that finally returns the new node pt."
-                ],
-                [
-                  "Search for a node without modifying the tree",
-                  "Wrong: a search would only compare and return, but this code assigns root.left / root.right and parent pointers, and at NULL it returns pt, which links pt into the tree."
-                ],
-                [
-                  "Count the number of nodes",
-                  "Wrong: a count would return an integer such as 1 + left + right. This function returns a Node (the subtree root, or pt at an empty spot)."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final 2021 Q24 & Final 2022 Q38"
-            },
-            {
-              "q": "When inserting the sequence (1, 2, 3, 4) into an initially empty Red-Black Tree, what is the root of the final tree and what are the colors of 1, 2, 3, 4?",
-              "o": [
-                [
-                  "Root is 1(B) with right chain 2(R) → 3(B) → 4(R)",
-                  "Wrong: inserting 3 makes 1 → 2 → 3 a straight line with a NIL (black) uncle, so Case 3 (mirror) left-rotates 1 and 2 becomes the root. A chain would also break property 3 or 4."
-                ],
-                [
-                  "Root is 2(B), with left child 1(B), right child 3(B), and 4(R) as right child of 3",
-                  "Correct (Final Summer Q29). After 1, 2, 3: 2 black with red 1 and 3. 4 goes under red 3 with red uncle 1: Case 1 colours 1 and 3 black, 2 red, and the root is coloured black again."
-                ],
-                [
-                  "Root is 3(B), with left child 2(R) and right child 4(R)",
-                  "Wrong: 3 never becomes the root. The rotation at the third insert lifts 2, and inserting 4 only recolours (Case 1). This option also loses key 1."
-                ],
-                [
-                  "Root is 2(B), with left child 1(R), right child 3(R), and 4(B) as right child of 3",
-                  "Wrong: a new node is always inserted red, and here Case 1 recolours 1 and 3 black, not 4. Black 4 under red 3 would give its path one more black node than the path to 1."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Summer Q29 & Exam Examples Q29"
-            },
-            {
-              "q": "In a red-black tree, a black node must have only red children.",
-              "o": [
-                [
-                  "True",
-                  "Wrong: property 3 restricts red nodes (a red node's parent is black), not black ones. In the slide tree 47 is black with a black child 32, and after deletion example 3 the black root 71 has two black children."
-                ],
-                [
-                  "False",
-                  "Correct: a black node may have red or black children. Only a red node must have black children (property 3 / no two reds in a row)."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Summer Q6"
-            },
-            {
-              "q": "We do not have to make any key comparisons to find the minimum or maximum node of a binary search tree.",
-              "o": [
-                [
-                  "True",
-                  "Correct: the minimum is reached by following left pointers until NIL and the maximum by right pointers. The predecessor used in the deletion examples is found the same way: one step left, then right until NIL."
-                ],
-                [
-                  "False",
-                  "Wrong: comparisons are needed only to search for a given key. The BST property already puts the smallest key at the end of the leftmost path, so no key has to be compared."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final Summer Q13"
-            },
-            {
-              "q": "Printing every node in a balanced binary search tree takes Θ(lg n) time.",
-              "o": [
-                [
-                  "True",
-                  "Wrong: O(lg n) is the cost of one search, insert or delete (slide 11.39), which visits one path. Printing must visit all n nodes, so it cannot be faster than n steps."
-                ],
-                [
-                  "False",
-                  "Correct: an inorder walk prints all n keys in Θ(n) time. The O(log n) bound of balanced trees is per single operation, not for listing the whole tree."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Summer Q5"
-            },
-            {
-              "q": "A heap is an example of a _____, while the access time of an unbalanced binary search tree may degrade in the worst case up to _____.",
-              "o": [
-                [
-                  "Complete binary tree; O(n)",
-                  "Correct (Final 2022 Q25 & Q26): a binary heap is a complete binary tree (every level full except possibly the last, which is filled left to right), and an unbalanced BST can become a chain of n nodes, so access is O(n). That is why RB trees keep the height O(log n)."
-                ],
-                [
-                  "Spanning tree; O(n log n)",
-                  "Wrong: a spanning tree is a graph concept (it connects all vertices of a graph). A chain-shaped BST costs one step per level, n levels, so O(n), not O(n log n)."
-                ],
-                [
-                  "Sparse tree; O(n²)",
-                  "Wrong: \"sparse tree\" is not the heap's shape, and one access in a degenerate BST follows one path of at most n nodes: O(n), not O(n²)."
-                ],
-                [
-                  "Binary search tree; O(1)",
-                  "Wrong: a heap orders parent vs children, not left vs right, so it is not a BST. O(1) access would need hashing or direct addressing, not an unbalanced tree."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final 2022 Q25 & Q26"
-            },
             {
               "q": "Insert 82 into the tree 47 (B); 32 (B), 71 (B); 65 (R) left of 71, 93 (R) right of 71. Which case applies and what changes?",
               "o": [
@@ -21918,157 +20153,819 @@ window.COURSES.algo = {
           "title": "Lecture 12: Augmenting Data Structures — Order-Statistics Trees (OS-SELECT, OS-RANK) & Interval Trees",
           "videos": [
             {
-              "id": "RHyGlha7bjE",
-              "title": "MIT 6.046J Lec 11: Augmenting Data Structures, Dynamic Order Statistics & Interval Trees (Prof. Charles Leiserson)",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:23:45",
+              "id": "GLQVT6fi3B0",
+              "title": "Lecture 12",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Dynamic Order-Statistics Trees: augmenting Red-Black Trees with size[x]"
-                },
-                {
-                  "t": 540,
-                  "time": "09:00",
-                  "label": "OS-SELECT(x, i) and OS-RANK(T, x) in O(lg n) time"
-                },
-                {
-                  "t": 1260,
-                  "time": "21:00",
-                  "label": "Maintaining size[x] during insertions and O(1) rotation updates"
-                },
-                {
-                  "t": 1920,
-                  "time": "32:00",
-                  "label": "4-Step Data Structure Augmentation Methodology"
-                },
-                {
-                  "t": 2280,
-                  "time": "38:00",
-                  "label": "Interval Trees: augmenting with max high endpoint m[x] and INTERVAL-SEARCH"
-                }
-              ]
+              "track": "lectures",
+              "session": 12,
+              "sessionCode": "Lec 12"
             }
           ],
           "notes": [
             {
-              "h": "Dynamic Order-Statistics Trees: OS-SELECT & OS-RANK (Slides 12.1–12.8)",
+              "h": "Before you start: rank, order statistics and why a BST is the right base",
+              "lead": "The slides jump straight to \"keep subtree sizes in the nodes\". These five ideas are what that sentence assumes.",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
               "pts": [
-                "<b>Augmenting Red-Black Trees with Subtree Sizes (Slides 12.2–12.3)</b>: Store in each node $x$ the number of internal nodes in the subtree rooted at $x$: `size[x] = size[left[x]] + size[right[x]] + 1` (with sentinel `size[NIL] = 0`).",
-                "<b>Why Not Store Ranks Directly in Nodes? (Slide 12.6)</b>: If we stored each node's global rank in the tree, inserting a new minimum element would force us to increment the rank of all $n$ nodes ($\\Theta(n)$ time)! Subtree sizes `size[x]` only change along the $O(\\lg n)$ root-to-leaf path and can be recomputed in $O(1)$ time during a rotation.",
-                "<b>`OS-SELECT(x, i)` — Finding the $i$-th Smallest Element in $O(\\lg n)$ (Slides 12.4–12.5)</b>:<ul><li>Compute $k = \\text{size}[\\text{left}[x]] + 1$ (the relative rank of $x$ within the subtree rooted at $x$).</li><li>If $i == k$, return $x$; if $i < k$, recurse on `OS-SELECT(left[x], i)`; if $i > k$, recurse on `OS-SELECT(right[x], i - k)`.</li><li><b>Slide Trace `OS-SELECT(root, 5)` on `{M(9), C(5), P(3), A(1), F(3), D(1), H(1), N(1), Q(1)}`</b>: At `M`, $k = 5 + 1 = 6$ ($i=5 < 6 \\to$ go left to `C`); at `C`, $k = 1 + 1 = 2$ ($i=5 > 2 \\to$ go right to `F` with $i = 5 - 2 = 3$); at `F`, $k = 1 + 1 = 2$ ($i=3 > 2 \\to$ go right to `H` with $i = 3 - 2 = 1$); at `H`, $k = 0 + 1 = 1 == i \\to$ return `H`!</li></ul>",
-                "<b>`OS-RANK(T, x)` — Finding the Rank of Node $x$ in $O(\\lg n)$ (Midterm 2025 Q6)</b>:<ul><li>Initialize $r = \\text{size}[\\text{left}[x]] + 1$ (rank of $x$ within its own subtree) and set $y = x$.</li><li>Climb up to the root (`while y ≠ T.root`): whenever $y$ is a <b>right child</b> of its parent (`if y == y.p.right`), add the left sibling's subtree plus the parent itself: `r = r + y.p.left.size + 1`. Set `y = y.p`.</li></ul>"
+                "The <b>rank</b> of an element is its position in sorted order: the smallest element has rank 1, the fifth smallest has rank 5.",
+                "An <b>order statistic</b> is the <i>i</i>-th smallest element of the set. Rank 1 is the minimum, rank n the maximum, rank ⌊(n+1)/2⌋ the median.",
+                "In a binary search tree an in-order walk lists the keys in sorted order, so \"the i-th smallest\" is the i-th key you meet in that walk.",
+                "Walking the whole tree is Θ(n). The aim of this lecture is to answer the same query in O(lg n) on a red-black tree, by storing <b>one extra number per node</b>.",
+                "A rotation changes the shape of a BST but never its in-order sequence. That is why extra information per node must be repairable in O(1) per rotation — the whole design turns on this.",
+                "A red-black tree of n nodes has height O(lg n), so any query that walks one root-to-leaf path costs O(lg n). Both new operations are single-path walks."
+              ]
+            },
+            {
+              "h": "What the slides want to add: dynamic order statistics (Slides 12.1–12.3)",
+              "lead": "Two queries on a dynamic set S that changes under INSERT and DELETE.",
+              "pts": [
+                "<b>OS-SELECT(i, S)</b>: return the i-th smallest element of the dynamic set S.",
+                "<b>OS-RANK(x, S)</b>: return the rank of the element x inside S — where x would sit in sorted order.",
+                "The set is <b>dynamic</b>, so the structure must survive insertions and deletions, not just answer queries on a frozen array.",
+                "Idea of the slides (12.3): use a <b>red-black tree</b> for S, and store in every node, next to its key, the <b>size</b> of the subtree rooted there.",
+                "Notation for a node in the slides: the key above, the subtree size below — M/9 means key M, subtree of 9 nodes.",
+                "The slides note that the textbook gives OS-RANK in full while the deck only sketches it; both are worked out below."
+              ]
+            },
+            {
+              "h": "The size field and the OS-tree (Slides 12.3–12.4)",
+              "lead": "One number per node, defined by the sizes of the two subtrees.",
+              "formula": [
+                "size[x] = size[left[x]] + size[right[x]] + 1"
               ],
-              "code": "OS-SELECT(x, i)   // Returns ith smallest node in subtree at x\n1  k ← size[left[x]] + 1\n2  if i = k then return x\n3  if i < k\n4     then return OS-SELECT(left[x], i)\n5     else return OS-SELECT(right[x], i - k)\n\nOS-RANK(T, x)     // Returns rank of x in T (Midterm 2025 Q6)\n1  r ← x.left.size + 1\n2  y ← x\n3  while y ≠ T.root\n4      do if y = y.p.right\n5            then r ← r + y.p.left.size + 1\n6         y ← y.p\n7  return r",
               "fig": [
-                "ag-12-os-tree",
-                "ag-12-insert",
-                "ag-12-rotate-size",
-                "ag-12-select",
-                "ag-12-rank"
+                "ag-12-os-tree"
               ],
-              "figAt": {
-                "ag-12-os-tree": 0,
-                "ag-12-insert": 1,
-                "ag-12-rotate-size": 1,
-                "ag-12-select": 2,
-                "ag-12-rank": 3
-              },
               "figH": {
-                "ag-12-os-tree": "The OS-tree of the slides: every size[x] computed bottom up",
-                "ag-12-insert": "INSERT(“K”): sizes change only on the path, ranks would change everywhere",
-                "ag-12-rotate-size": "A rotation fixes subtree sizes in O(1)",
-                "ag-12-select": "OS-SELECT(root, i) step by step (the slide traces i = 5)",
-                "ag-12-rank": "OS-RANK(T, x) on the same tree: climb to the root, adding at every right turn"
+                "ag-12-os-tree": "The slide tree: keys in BST order, subtree sizes below each key"
+              },
+              "figAt": {
+                "ag-12-os-tree": 2
+              },
+              "pts": [
+                "Every node stores <b>size[x]</b> = number of nodes in the subtree rooted at x, counting x itself.",
+                "In the slide tree the root M has size 9: its left subtree (C, A, F, D, H) has 5 nodes and its right subtree (N, Q, P) has 3, so 5 + 3 + 1 = 9.",
+                "A leaf has size 1. The empty tree is handled by a <b>sentinel</b>: a dummy NIL record with size[NIL] = 0, so the formula needs no special case for a missing child.",
+                "Because size is defined leaf-up, it is correct in every node by construction — you never store a rank, you store a count.",
+                "The in-order position of a node inside its own subtree is exactly size[left[x]] + 1, and that equality is the engine of both operations."
+              ]
+            },
+            {
+              "h": "OS-SELECT: one walk down (Slides 12.4–12.5)",
+              "lead": "Compare the wanted rank with the rank of the current node, then drop one side.",
+              "code": [
+                "OS-SELECT(x, i)   ▹ i-th smallest in the subtree rooted at x",
+                "k ← size[left[x]] + 1     ▹ k = rank of x inside its subtree",
+                "if i = k then return x",
+                "if i < k then return OS-SELECT(left[x], i)",
+                "else return OS-SELECT(right[x], i − k)"
+              ],
+              "pts": [
+                "Compute k, the rank of x inside its own subtree: everything in the left subtree comes before x, then x itself.",
+                "If i = k, x is the answer. If i &lt; k the wanted element is in the left subtree and the index does not change.",
+                "If i &gt; k the answer is in the right subtree, but the first k elements are already \"spent\", so the new index is i − k.",
+                "Each call moves one level down, so the running time is O(h) = O(lg n) on a red-black tree, and Θ(1) extra space because the recursion is a single path.",
+                "The slides stress the sentinel trick: with size[NIL] = 0 the k of a node with no left child is 1, correctly."
+              ]
+            },
+            {
+              "h": "The slide worked example: OS-SELECT(root, 5) (Slide 12.5)",
+              "lead": "Four nodes visited, four comparisons, answer H.",
+              "table": [
+                [
+                  "Node visited",
+                  "size[left[x]]",
+                  "k",
+                  "Compare",
+                  "Move"
+                ],
+                [
+                  "M",
+                  "size[C] = 5",
+                  "6",
+                  "5 &lt; 6",
+                  "left to C, i stays 5"
+                ],
+                [
+                  "C",
+                  "size[A] = 1",
+                  "2",
+                  "5 &gt; 2",
+                  "right to F, i = 5 − 2 = 3"
+                ],
+                [
+                  "F",
+                  "size[D] = 1",
+                  "2",
+                  "3 &gt; 2",
+                  "right to H, i = 3 − 2 = 1"
+                ],
+                [
+                  "H",
+                  "size[NIL] = 0",
+                  "1",
+                  "1 = 1",
+                  "return H"
+                ]
+              ],
+              "fig": [
+                "ag-12-select"
+              ],
+              "figH": {
+                "ag-12-select": "Step through OS-SELECT(root, 5) exactly as the slide draws it"
+              },
+              "figAt": {
+                "ag-12-select": 0
+              },
+              "pts": [
+                "The 5th smallest key of the slide tree is <b>H</b>, which you can confirm independently by reading the in-order sequence: A, C, D, F, H, M, N, P, Q.",
+                "Three of the four steps moved down one level each; the total work is the height of the visited part of the tree.",
+                "The subtractions matter: every time the walk goes right, the ranks to the left are discarded, and the index shrinks by exactly k."
+              ],
+              "viz": {
+                "type": "table",
+                "title": "OS-SELECT(root, 5) on the slide tree: k = size[left[x]] + 1 at every node",
+                "cols": [
+                  "node x",
+                  "size[left[x]]",
+                  "k = size[left[x]] + 1",
+                  "i",
+                  "action"
+                ],
+                "rows": [
+                  [
+                    "M (root)",
+                    "5",
+                    "5 + 1 = 6",
+                    "5",
+                    "i < k → go left to C, i stays 5"
+                  ],
+                  [
+                    "C",
+                    "1",
+                    "1 + 1 = 2",
+                    "5",
+                    "i > k → go right to F, i ← 5 − 2 = 3"
+                  ],
+                  [
+                    "F",
+                    "1",
+                    "1 + 1 = 2",
+                    "3",
+                    "i > k → go right to H, i ← 3 − 2 = 1"
+                  ],
+                  [
+                    "H",
+                    "0",
+                    "0 + 1 = 1",
+                    "1",
+                    "i = k → return H"
+                  ]
+                ],
+                "steps": [
+                  {
+                    "r": 0,
+                    "cap": [
+                      "OS-SELECT(root, 5) on the slide tree: keys in order A C D F H M N P Q, size[M] = 9. At each node x, k = size[left[x]] + 1 is the rank of x inside its own subtree.",
+                      "OS-SELECT(root, 5): عند كل عقدة k = size[left[x]] + 1 هو رتبة العقدة داخل شجرتها."
+                    ]
+                  },
+                  {
+                    "r": 1,
+                    "cap": [
+                      "At M: size[left[M]] = size[C] = 5, so k = 6. Since i = 5 < 6 the answer is somewhere to the left: recurse on C without changing i.",
+                      "عند M: k = 6 و i = 5 أصغر، فننزل شمال من غير ما نغيّر i."
+                    ]
+                  },
+                  {
+                    "r": 2,
+                    "cap": [
+                      "At C: size[A] = 1, so k = 2 and i = 5 > 2. Everything in C's left subtree is already counted, so go right and subtract: i ← 5 − 2 = 3.",
+                      "عند C: k = 2 و i = 5 أكبر، فنروح يمين ونطرح: i = 3."
+                    ]
+                  },
+                  {
+                    "r": 3,
+                    "cap": [
+                      "At F: size[D] = 1, k = 2, i = 3 > 2 → go right with i ← 3 − 2 = 1. One walk down, O(h) = O(lg n) steps, no sorting.",
+                      "عند F: k = 2 و i = 3 أكبر → يمين بـ i = 1. نزلة واحدة O(lg n)."
+                    ]
+                  },
+                  {
+                    "r": 4,
+                    "cap": [
+                      "At H: size[left[H]] = 0, so k = 1 = i → return H. The 5th smallest key of the set is H, in 4 comparisons.",
+                      "عند H: k = 1 = i → النتيجة H. العنصر الخامس هو H في 4 مقارنات."
+                    ]
+                  }
+                ]
               }
             },
             {
-              "h": "Data-Structure Augmentation Methodology & Interval Trees (Slides 12.9–12.25)",
-              "pts": [
-                "<b>4-Step Data-Structure Augmentation Methodology (Slide 12.9)</b>:<ul><li><b>1.</b> Choose an underlying data structure (e.g., Red-Black Tree).</li><li><b>2.</b> Determine additional information to store in each node (e.g., `size[x]` or `m[x]`).</li><li><b>3.</b> Verify that the information can be maintained in $O(\\lg n)$ during `RB-INSERT` and `RB-DELETE` (including $O(1)$ updates during rotations!).</li><li><b>4.</b> Develop new dynamic-set operations that use the information (e.g., `OS-SELECT`, `OS-RANK`, `INTERVAL-SEARCH`).</li></ul>",
-                "<b>Interval Trees & `INTERVAL-SEARCH(i)` (Slides 12.10–12.25)</b>:<ul><li><b>1. Underlying structure</b>: Red-Black Tree keyed on the <b>low (left) endpoint</b> `low[int[x]]`.</li><li><b>2. Additional info</b>: `m[x] = max(high[int[x]], m[left[x]], m[right[x]])` (the maximum endpoint in $x$'s subtree).</li><li><b>3. Maintaining `m[x]`</b>: Updated in $O(1)$ time during rotations and $O(\\lg n)$ down the insertion/deletion path.</li><li><b>4. `INTERVAL-SEARCH(i)`</b>: Starting at `x = root`, while `x ≠ NIL` and `i` does not overlap `int[x]` (i.e., `low[i] > high[int[x]]` or `low[int[x]] > high[i]`): if `left[x] ≠ NIL` and `low[i] ≤ m[left[x]]`, go left (`x ← left[x]`), else go right (`x ← right[x]`). Runs in $O(\\lg n)$ time!</li></ul>"
+              "h": "OS-RANK: one walk up (Slides 12.5)",
+              "lead": "The rank of x is its rank inside its own subtree plus everything smaller on the way to the root.",
+              "formula": [
+                "r = size[left[x]] + 1",
+                "if x is a right child: r += size[left[parent[x]]] + 1"
               ],
               "fig": [
+                "ag-12-rank"
+              ],
+              "figH": {
+                "ag-12-rank": "OS-RANK(H) on the slide tree: start with H, climb to F, then to C"
+              },
+              "figAt": {
+                "ag-12-rank": 1
+              },
+              "pts": [
+                "Start with <b>r = size[left[x]] + 1</b>: x and its left subtree are all smaller than x.",
+                "Climb to the parent. If x came from the <b>right</b>, the parent and the parent's whole left subtree are also smaller than x, so add size[left[parent]] + 1. If x came from the left, nothing new is smaller.",
+                "On the slide tree, OS-RANK(H): r = 0 + 1 = 1; H is a right child of F, so r += size[D] + 1 = 2 → 3; F is a right child of C, so r += size[A] + 1 = 2 → 5; C is a left child of M, so nothing is added. Rank(H) = 5.",
+                "That agrees with OS-SELECT(root, 5) = H, which is a quick way to check your own trace in the exam.",
+                "Both operations are O(lg n); OS-RANK is iterative, OS-SELECT is a tail recursion."
+              ]
+            },
+            {
+              "h": "Keeping the sizes correct: INSERT, DELETE and rotations (Slides 12.6–12.9)",
+              "lead": "The slides first ask why not store ranks, then show that sizes survive every repair.",
+              "fig": [
+                "ag-12-insert",
+                "ag-12-rotate-size"
+              ],
+              "figH": {
+                "ag-12-insert": "INSERT(\"K\"): every node on the search path grows by one",
+                "ag-12-rotate-size": "A rotation fixes two sizes in O(1) — the example from slide 12.9"
+              },
+              "figAt": {
+                "ag-12-insert": 1,
+                "ag-12-rotate-size": 5
+              },
+              "pts": [
+                "Why not store the rank in each node (Slide 12.6)? Because one insertion shifts the rank of every larger element — maintaining them would cost Θ(n).",
+                "Sizes are local: an insertion touches only the nodes on the root-to-leaf path. Slide 12.7: inserting K turns M 9→10, C 5→6, F 3→4, H 1→2 and gives the new leaf K size 1.",
+                "The new node gets size 1; then walk back up and add 1 on each ancestor. O(lg n) work, same path as the insertion itself.",
+                "Deletion is the mirror image: remove the node, then subtract 1 from each ancestor (and splice the child up if the deleted node had fewer than two children).",
+                "<b>Recolourings do not change sizes</b> — they change colours only. Only the structural change matters.",
+                "<b>Rotations change two sizes</b>, both in O(1). Slide 12.9: before the rotation at C the pair reads C/11 above E/16; after it, C holds the whole subtree (16) and E drops to 8, which is one subtraction plus one addition.",
+                "Therefore RB-INSERT and RB-DELETE still run in O(lg n) after augmentation: at most O(lg n) recolourings and O(1) rotations, each repaired in constant time."
+              ]
+            },
+            {
+              "h": "The augmentation methodology: four steps (Slide 12.10)",
+              "lead": "The same recipe produced order-statistics trees and will produce interval trees in the next slides.",
+              "table": [
+                [
+                  "Step",
+                  "Order-statistics tree",
+                  "Interval tree"
+                ],
+                [
+                  "1. Choose an underlying data structure",
+                  "red-black tree keyed on the element",
+                  "red-black tree keyed on the low endpoint"
+                ],
+                [
+                  "2. Choose the extra information",
+                  "size[x] = subtree size",
+                  "m[x] = maximum high endpoint in the subtree"
+                ],
+                [
+                  "3. Verify it survives modification",
+                  "INSERT/DELETE add or subtract 1 up the path; rotations fix 2 sizes",
+                  "INSERT fixes m on the way down; rotations fix m in O(1)"
+                ],
+                [
+                  "4. Develop the new operations",
+                  "OS-SELECT, OS-RANK",
+                  "INTERVAL-SEARCH"
+                ]
+              ],
+              "pts": [
+                "Step 3 is the one students skip and the one the slides insist on: if the extra information cannot be repaired in O(1) per rotation, the augmentation is worthless.",
+                "Step 4 is where the new information pays off: the operation must be able to choose one child from the extra values alone.",
+                "The slides call these steps guidelines, not rigid rules, but every exam question on this lecture follows them in order."
+              ]
+            },
+            {
+              "h": "Interval trees: the structure and the max field (Slides 12.11–12.13)",
+              "lead": "Store intervals, not points, and ask which one overlaps a query interval.",
+              "fig": [
                 "ag-12-intervals",
-                "ag-12-itree",
-                "ag-12-rotate-m",
-                "ag-12-isearch",
+                "ag-12-itree"
+              ],
+              "figH": {
+                "ag-12-intervals": "Nineteen intervals on a line, and the overlap question the tree must answer",
+                "ag-12-itree": "The interval tree of slide 12.13 with m[x] under each interval"
+              },
+              "figAt": {
+                "ag-12-intervals": 2,
+                "ag-12-itree": 3
+              },
+              "formula": [
+                "m[x] = max(high[int[x]], m[left[x]], m[right[x]])"
+              ],
+              "pts": [
+                "An interval [low, high] is written int[x]; two intervals <b>overlap</b> when low[i] ≤ high[int[x]] and low[int[x]] ≤ high[i]. Touching endpoints count as overlapping.",
+                "Underlying structure: a red-black tree <b>keyed on the low endpoint</b>, so an in-order walk lists intervals by their starts.",
+                "Extra information: <b>m[x]</b>, the largest high endpoint of any interval in the subtree at x.",
+                "m is computed from three candidates: the node's own high, the left subtree's m, the right subtree's m.",
+                "In the slide tree the root is [17,19] with m = 23, because [22,23] sits in its right subtree.",
+                "Slide 12.14 shows maintenance: on the way down, m's are repaired; a rotation repairs m in O(1), so INSERT and DELETE stay O(lg n)."
+              ]
+            },
+            {
+              "h": "INTERVAL-SEARCH and its two slide traces (Slides 12.15–12.21)",
+              "lead": "\"Go left only if the left subtree can still overlap me\" — that is the entire rule.",
+              "code": [
+                "INTERVAL-SEARCH(i)",
+                "x ← root",
+                "while x ≠ NIL and (low[i] > high[int[x]] or low[int[x]] > high[i])",
+                "  ▹ i and int[x] do not overlap",
+                "  if left[x] ≠ NIL and low[i] ≤ m[left[x]]",
+                "  then x ← left[x]",
+                "  else x ← right[x]",
+                "return x"
+              ],
+              "fig": [
+                "ag-12-isearch"
+              ],
+              "figH": {
+                "ag-12-isearch": "Both slide searches: [14,16] finds [15,18]; [12,14] ends at NIL"
+              },
+              "figAt": {
+                "ag-12-isearch": 1
+              },
+              "table": [
+                [
+                  "Query",
+                  "Root [17,19]",
+                  "Then",
+                  "Result"
+                ],
+                [
+                  "[14,16]",
+                  "no overlap, 14 ≤ m[left] = 18",
+                  "left to [5,11]: no overlap, 14 &gt; m[left] = 8, so right to [15,18]",
+                  "overlap → return [15,18]"
+                ],
+                [
+                  "[12,14]",
+                  "no overlap, 12 ≤ 18",
+                  "left to [5,11]: no overlap, 12 &gt; 8, so right to [15,18]; no overlap (12 &gt; 10), 12 ≤ m[left] = 10 is false → right to NIL",
+                  "NIL → no interval overlaps [12,14]"
+                ]
+              ],
+              "pts": [
+                "The while condition is the <b>non-overlap</b> test: the search stops as soon as it finds an overlapping interval.",
+                "The decision rule is not the ordinary BST comparison. Go <b>left</b> only when low[i] ≤ m[left[x]], i.e. when some interval in the left subtree reaches far enough right to touch i.",
+                "Otherwise no interval on the left can overlap i, so the only place left to look is the right subtree.",
+                "Each iteration does O(1) work and moves one level down, so the search costs O(h) = O(lg n)."
+              ]
+            },
+            {
+              "h": "Why taking one child is safe, and the analysis (Slides 12.22–12.25)",
+              "lead": "The correctness theorem is short and is a favourite written question.",
+              "fig": [
                 "ag-12-proof"
               ],
-              "figAt": {
-                "ag-12-intervals": 1,
-                "ag-12-itree": 1,
-                "ag-12-rotate-m": 1,
-                "ag-12-isearch": 1,
-                "ag-12-proof": 1
-              },
               "figH": {
-                "ag-12-intervals": "Intervals and the overlap query: move the query interval",
-                "ag-12-itree": "The slide’s interval tree: keyed on low endpoints, m[x] filled bottom up",
-                "ag-12-rotate-m": "A rotation fixes m[x] in O(1)",
-                "ag-12-isearch": "INTERVAL-SEARCH on [14,16] and [12,14] (or your own query)",
-                "ag-12-proof": "Why one child is enough: the two cases of the correctness proof"
-              }
+                "ag-12-proof": "The two cases of the correctness proof"
+              },
+              "figAt": {
+                "ag-12-proof": 0
+              },
+              "pts": [
+                "<b>Theorem.</b> Let L be the intervals in the left subtree of x and R those in the right subtree. If the search goes right, then no interval of L overlaps i. If the search goes left, then no interval of R overlaps i (given none of L does).",
+                "<b>Going right.</b> The code went right because low[i] &gt; m[left[x]]. m[left[x]] is the high endpoint of some interval j in L, and no interval of L reaches further right. Since low[i] is already beyond that end, nothing in L overlaps i.",
+                "<b>Going left.</b> The code went left because low[i] ≤ m[left[x]] = high[j] for some j in L. If j does not overlap i then high[i] &lt; low[j]. By the BST property every interval in R starts at or after low[j], so every one of them starts after i ends: nothing in R overlaps i.",
+                "In short: it is always safe to take only one child — the search either finds an overlap or proves that none exists.",
+                "<b>Listing all k overlaps</b> (Slide 12.23): search, report, delete, repeat — O(k lg n) total with the deleted interval re-inserted at the end. This is output-sensitive; the best known result is O(k + lg n)."
+              ]
+            },
+            {
+              "h": "Summary: the two augmentations in one table",
+              "lead": "What to be able to reproduce on the exam sheet.",
+              "table": [
+                [
+                  "Question",
+                  "Order-statistics tree",
+                  "Interval tree"
+                ],
+                [
+                  "Key of each node",
+                  "the element itself",
+                  "the low endpoint of the interval"
+                ],
+                [
+                  "Extra field",
+                  "size[x] = nodes in subtree",
+                  "m[x] = max high endpoint in subtree"
+                ],
+                [
+                  "New operation",
+                  "OS-SELECT (down), OS-RANK (up)",
+                  "INTERVAL-SEARCH (down)"
+                ],
+                [
+                  "Rule at each step",
+                  "compare i with size[left] + 1",
+                  "go left iff low[i] ≤ m[left[x]]"
+                ],
+                [
+                  "Cost",
+                  "O(lg n) per query, O(1) per rotation to repair",
+                  "O(lg n) per query, O(1) per rotation to repair"
+                ],
+                [
+                  "Why it works",
+                  "sizes count exactly the smaller elements",
+                  "m rules out a subtree that cannot overlap"
+                ]
+              ],
+              "pts": [
+                "Before the exam, be able to write both algorithms from memory and to repair the extra field after one rotation.",
+                "If a question gives you a tree and asks for the i-th smallest or the rank of a key, do exactly what the slide does: compute k at each node and move once.",
+                "If a question gives you intervals, draw the m values first; every wrong answer in practice comes from a wrong m."
+              ]
             }
           ],
           "cards": [
             [
-              "Order-Statistic Tree Augmentation",
-              "size[x] = size[left[x]] + size[right[x]] + 1 (with size[NIL] = 0). Maintained in O(lg n) on insert/delete and O(1) per rotation."
+              "OS-SELECT(i, S)",
+              "Returns the i-th smallest element of the dynamic set S. Runs in O(lg n) on an augmented red-black tree."
             ],
             [
-              "OS-RANK(T, x) Missing Lines (Midterm 2025 Q6)",
-              "Line 1: r = x.left.size + 1; Line 5 (when y == y.p.right): r = r + y.p.left.size + 1; Line 6: y = y.p."
+              "OS-RANK(x, S)",
+              "Returns the rank of x in sorted order. Starts at size[left[x]] + 1 and adds size[left[parent]] + 1 each time the climb goes up from a right child."
             ],
             [
-              "4-Step Augmentation Methodology",
-              "1. Choose underlying DS; 2. Choose extra node info; 3. Verify maintenance on insert/delete/rotations; 4. Design new operations."
+              "size[x]",
+              "Number of nodes in the subtree rooted at x, counting x: size[x] = size[left[x]] + size[right[x]] + 1. The sentinel NIL has size 0."
             ],
             [
-              "Interval Tree Key & Augmentation",
-              "Keyed on low[int[x]]; augmented with m[x] = max(high[int[x]], m[left[x]], m[right[x]])."
+              "Rank of x inside its subtree",
+              "k = size[left[x]] + 1. This is the number OS-SELECT compares i against at every node."
             ],
             [
-              "Dynamic Order-Statistics Trees: OS-SELECT & OS-RANK (Slides 12.1–12.8) — Core Principle & Complexity",
-              "<b>Augmenting Red-Black Trees with Subtree Sizes (Slides 12.2–12.3)</b>: Store in each node $x$ the number of internal nodes in the subtree rooted at $x$: `size[x] = size[left[x]] + size[right[x]] + 1` (with sentinel `size[NIL] = 0`). <b>Why Not Store Ranks Directly in Nodes? (Slide 12.6)</b>: If we stored each node's global rank in the tree, inserting a new minimum element would force us to increment the rank of all $n$ nodes ($\\Theta(n)$ time)! Subtree sizes `size[x]` only change along the $O(\\lg n)$ root-to-leaf path and can be recomputed in $O(1)$ time during a rotation."
+              "OS-SELECT rule",
+              "If i = k return x; if i < k go left with the same i; if i > k go right with i − k."
             ],
             [
-              "Data-Structure Augmentation Methodology & Interval Trees (Slides 12.9–12.25) — Core Principle & Complexity",
-              "<b>4-Step Data-Structure Augmentation Methodology (Slide 12.9)</b>:<ul><li><b>1.</b> Choose an underlying data structure (e.g., Red-Black Tree).</li><li><b>2.</b> Determine additional information to store in each node (e.g., `size[x]` or `m[x]`).</li><li><b>3.</b> Verify that the information can be maintained in $O(\\lg n)$ during `RB-INSERT` and `RB-DELETE` (including $O(1)$ updates during rotations!).</li><li><b>4.</b> Develop new dynamic-set operations that use the information (e.g., `OS-SELECT`, `OS-RANK`, `INTERVAL-SEARCH`).</li></ul> <b>Interval Trees & `INTERVAL-SEARCH(i)` (Slides 12.10–12.25)</b>:<ul><li><b>1. Underlying structure</b>: Red-Black Tree keyed on the <b>low (left) endpoint</b> `low[int[x]]`.</li><li><b>2. Additional info</b>: `m[x] = max(high[int[x]], m[left[x]], m[right[x]])` (the maximum endpoint in $x$'s subtree).</li><li><b>3. Maintaining `m[x]`</b>: Updated in $O(1)$ time during rotations and $O(\\lg n)$ down the insertion/deletion path.</li><li><b>4. `INTERVAL-SEARCH(i)`</b>: Starting at `x = root`, while `x ≠ NIL` and `i` does not overlap `int[x]` (i.e., `low[i] > high[int[x]]` or `low[int[x]] > high[i]`): if `left[x] ≠ NIL` and `low[i] ≤ m[left[x]]`, go left (`x ← left[x]`), else go right (`x ← right[x]`). Runs in $O(\\lg n)$ time!</li></ul>"
+              "Why not store ranks directly?",
+              "One insertion shifts the rank of every larger element, so maintaining them costs Θ(n). Subtree sizes are local to the search path."
+            ],
+            [
+              "Cost of INSERT with sizes",
+              "Increment size on every node of the root-to-leaf path: O(lg n). The recolourings change no sizes."
+            ],
+            [
+              "Cost of a rotation with sizes",
+              "Two nodes change size, each in O(1): the new parent takes the whole subtree size and the child loses the moved part."
+            ],
+            [
+              "Four-step augmentation methodology",
+              "1 choose the underlying structure, 2 choose the extra information, 3 verify it survives INSERT, DELETE and rotations, 4 develop the new operations."
+            ],
+            [
+              "Interval tree structure",
+              "Red-black tree keyed on the low endpoint, each node holding its interval int[x] and m[x] = the largest high endpoint in its subtree."
+            ],
+            [
+              "m[x] definition",
+              "m[x] = max(high[int[x]], m[left[x]], m[right[x]]); m[NIL] is treated as −∞ so a missing child never wins."
+            ],
+            [
+              "Intervals that overlap",
+              "i and int[x] overlap when low[i] ≤ high[int[x]] and low[int[x]] ≤ high[i]. Endpoints that touch count as overlap."
+            ],
+            [
+              "INTERVAL-SEARCH decision",
+              "Go left iff left[x] ≠ NIL and low[i] ≤ m[left[x]]; otherwise go right. Stop at the first overlap or at NIL."
+            ],
+            [
+              "Why the left test works",
+              "If low[i] > m[left[x]] then every interval on the left ends before i starts, so none of them can overlap i."
+            ],
+            [
+              "Why the right side is safe after a left move",
+              "Going left means low[i] ≤ high[j] for some j on the left. If j misses i then high[i] < low[j] ≤ every start on the right, so the right cannot overlap i either."
+            ],
+            [
+              "Cost of INTERVAL-SEARCH",
+              "O(h) = O(lg n): constant work per level along one root-to-leaf path."
+            ],
+            [
+              "Listing all overlapping intervals",
+              "Search, list, delete, repeat: O(k lg n) for k answers; the best known bound is O(k + lg n)."
+            ],
+            [
+              "Inserting into an interval tree",
+              "Fix the m values on the way down, then repair after rotations: O(lg n) total, O(1) per rotation."
             ]
           ],
           "qa": [
             [
-              "Complete the following code from Midterm 2025 Q6 to compute the rank of node x in an Order-Statistic Red-Black Tree T:\nOS-RANK(T, x)\n1 r = ............... ; 2 y = x ;\n3 while y <> T.root\n4   if y == y.p.right\n5     r = ............... ;\n6   y = ............... ; 7 return r;",
-              "• <b>Line 1</b>: <code>r = x.left.size + 1</code> (or <code>size[left[x]] + 1</code>)<br>• <b>Line 5</b>: <code>r = r + y.p.left.size + 1</code> (or <code>r + size[left[p[y]]] + 1</code>)<br>• <b>Line 6</b>: <code>y = y.p</code> (or <code>p[y]</code>).",
-              "Midterm 2025 Q6 & Lecture 12 · Slide 12.4"
+              "Given the slide tree (M with left subtree C, A, F, D, H and right subtree N, Q, P), trace OS-SELECT(root, 5) and OS-RANK(H).",
+              "<b>OS-SELECT(root, 5)</b>: at M, k = size[C] + 1 = 6, so 5 < 6 → go left to C with i = 5. At C, k = size[A] + 1 = 2, so 5 > 2 → go right to F with i = 5 − 2 = 3. At F, k = size[D] + 1 = 2, so 3 > 2 → go right to H with i = 3 − 2 = 1. At H, k = 0 + 1 = 1 = i → return <b>H</b>.<br><b>OS-RANK(H)</b>: r = size[NIL] + 1 = 1; H is the right child of F, so r += size[D] + 1 = 2 → 3; F is the right child of C, so r += size[A] + 1 = 2 → 5; C is the left child of M, so nothing is added. Rank(H) = <b>5</b>. The two operations agree, which is the check to run in an exam."
+            ],
+            [
+              "Why can we not store the rank of every element in the node instead of the subtree size?",
+              "Because a rank is a <i>global</i> position. Inserting one element shifts the rank of every larger element, so a single insertion could touch Θ(n) nodes and the structure would no longer be O(lg n). A subtree size is <i>local</i>: only the nodes on the inserted element's search path change, each by exactly +1. The slides make this point explicitly before introducing sizes (Slide 12.6)."
+            ],
+            [
+              "Show how a rotation is repaired when the extra field is the subtree size.",
+              "A left rotation at C with right child E moves E up and C down; the subtree total stays the same. Compute the new E first: size[E] = size[left[E]] + size[right[C]] + 1 (its new left child is C's old right subtree). Then size[C] = size[left[C]] + size[left[E]] + 1. Two additions, O(1). Slide 12.9 shows the slide numbers: C/11 above E/16 becomes C/16 above E/8 — C now owns the whole subtree and E keeps only the part that did not move."
+            ],
+            [
+              "Write INTERVAL-SEARCH and explain why one child always suffices.",
+              "INTERVAL-SEARCH(i): x ← root; while x ≠ NIL and i does not overlap int[x]: if left[x] ≠ NIL and low[i] ≤ m[left[x]] then x ← left[x] else x ← right[x]; return x.<br><b>Right is safe</b> when low[i] > m[left[x]]: m[left[x]] is the largest high endpoint on the left, so every interval there ends before i begins.<br><b>Left is safe</b> when the search chose left, i.e. low[i] ≤ m[left[x]] = high[j] for some j on the left. If j does not overlap i then high[i] < low[j], and by the BST property every interval in the right subtree starts at low[j] or later — so none of them can overlap i. Either the search finds an overlap, or it proves that none exists."
+            ],
+            [
+              "Give the four steps of the augmentation methodology and apply them to the order-statistics tree.",
+              "1. <b>Choose the underlying structure</b>: a red-black tree keyed on the elements. 2. <b>Choose the extra information</b>: size[x], the number of nodes in the subtree. 3. <b>Verify maintenance</b>: INSERT adds 1 on the search path, DELETE subtracts 1, recolourings change nothing, a rotation repairs two sizes in O(1) — so both modifying operations stay O(lg n). 4. <b>Develop the new operations</b>: OS-SELECT walks down comparing i with size[left] + 1, OS-RANK walks up adding size[left[parent]] + 1 whenever it climbs from a right child. Both are O(lg n)."
+            ],
+            [
+              "An exam asks: \"find every interval that overlaps [12,14] in this tree\". What is the cost and the algorithm?",
+              "The single-interval search is O(lg n). To list all k overlapping intervals: run INTERVAL-SEARCH, report the interval, <b>delete</b> it, and repeat; re-insert the deleted intervals at the end. Each round costs O(lg n), so the total is O(k lg n). The slides call this an output-sensitive bound and note that the best known result is O(k + lg n)."
             ]
           ],
           "quiz": [
             {
-              "q": "In an Order-Statistic Tree, why do we store subtree sizes size[x] in each node rather than storing each node's global rank directly?",
+              "q": "In an OS-tree, what exactly does the value stored under a node's key represent?",
               "o": [
                 [
-                  "Because global ranks cannot be used to answer OS-SELECT queries",
-                  "If ranks were stored, OS-SELECT would be easy, but updating ranks on insert/delete would take O(n)."
+                  "The rank of the node in the whole tree",
+                  "Wrong: that is the quantity the lecture deliberately avoids storing, because one insertion would change it for every larger element."
                 ],
                 [
-                  "Because global ranks are hard to maintain (O(n) updates) when the Red-Black Tree is modified by insertions, deletions, or rotations, whereas size[x] is maintained in O(lg n) time",
-                  "Correct! Slide 12.6: Inserting a new smallest key changes the rank of every node in the tree, whereas size[x] only changes on the O(lg n) path to the root and takes O(1) to fix during a rotation."
+                  "The number of nodes in the subtree rooted at that node, itself included",
+                  "Right: size[x] = size[left[x]] + size[right[x]] + 1, with size[NIL] = 0 (Slide 12.4)."
                 ],
                 [
-                  "Because size[x] requires only 1 bit of memory",
-                  "size[x] requires an integer field."
+                  "The height of the subtree rooted at that node",
+                  "Wrong: height is a different augmentation (AVL trees). The lecture stores counts, not depths."
                 ],
                 [
-                  "Because Red-Black Trees do not allow rotations if ranks are stored",
-                  "Rotations are required in any Red-Black Tree."
+                  "The number of keys smaller than the node anywhere in the tree",
+                  "Wrong: that is the node's rank minus one — again a global value, not a subtree value."
                 ]
               ],
               "a": 1,
-              "src": "Lecture 12 · Slide 12.6"
+              "src": "Lecture 12 · Slides 12.3–12.4"
+            },
+            {
+              "q": "Using the slide tree, what is the result of OS-SELECT(root, 5)?",
+              "o": [
+                [
+                  "C",
+                  "Wrong: at the root M we get k = size[C] + 1 = 6, and since 5 < 6 the walk goes left, so C is only the second node visited, not the fifth smallest key."
+                ],
+                [
+                  "F",
+                  "Wrong: F is reached with i = 3, and its k is 2, so the walk continues to the right child H."
+                ],
+                [
+                  "H",
+                  "Right: M(k=6) → left, C(k=2) → right with i=3, F(k=2) → right with i=1, H(k=1) = i (Slide 12.5)."
+                ],
+                [
+                  "D",
+                  "Wrong: D is the left child of F, which is never visited when the index i = 3 is greater than k = 2 at F."
+                ]
+              ],
+              "a": 2,
+              "src": "Lecture 12 · Slide 12.5"
+            },
+            {
+              "q": "OS-RANK(H) on the slide tree returns 5. Which additions produced that value?",
+              "o": [
+                [
+                  "1 + 2 + 2, adding size[left[F]] + 1 and size[left[C]] + 1 to the initial 1",
+                  "Right: r starts at size[left[H]] + 1 = 1; H is a right child of F so add size[D] + 1 = 2; F is a right child of C so add size[A] + 1 = 2; C is a left child of M so nothing is added. Total 5."
+                ],
+                [
+                  "1 + 2 + 1, because C's left subtree has size 1",
+                  "Wrong: size[A] = 1, so the term is size[left[C]] + 1 = 2, not 1."
+                ],
+                [
+                  "5, because H is the fifth node in the in-order walk and no additions are needed",
+                  "Wrong: the answer happens to be 5, but OS-RANK cannot count in-order; it climbs and adds the sizes of the left subtrees it passes."
+                ],
+                [
+                  "1 + 5, adding the whole left subtree of the root",
+                  "Wrong: the walk reaches C from the right (as F's parent), so it adds size[left[C]] = 1, not the whole subtree of size 5."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 12 · Slide 12.5"
+            },
+            {
+              "q": "After inserting the key K into the slide tree, which statement about the size fields is correct?",
+              "o": [
+                [
+                  "Only the new leaf K gets size 1; nothing else changes",
+                  "Wrong: every ancestor of the new leaf also grows by one, because K becomes part of their subtrees."
+                ],
+                [
+                  "M, C, F and H each grow by one, and the new node K has size 1",
+                  "Right: the search path is M → C → F → H, so those four nodes gain exactly one node each (Slide 12.7)."
+                ],
+                [
+                  "The sizes stay as they are because a recolouring follows the insertion",
+                  "Wrong: a recolouring changes colours only, but the insertion itself still adds a node to those four subtrees."
+                ],
+                [
+                  "All nine nodes must be recomputed from scratch",
+                  "Wrong: sizes are local, which is the point of the augmentation — only the search path is repaired, in O(lg n)."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 12 · Slide 12.7"
+            },
+            {
+              "q": "What does a rotation do to the value count stored in the nodes, and at what cost?",
+              "o": [
+                [
+                  "Nothing: the in-order sequence is unchanged",
+                  "Wrong: the in-order sequence is indeed unchanged, but the subtree each node owns does change, so two sizes must be corrected."
+                ],
+                [
+                  "Every node in the moved subtree must be updated: O(k)",
+                  "Wrong: that would destroy the O(lg n) bound; the sizes are chosen because they can be repaired locally."
+                ],
+                [
+                  "Exactly two nodes change value and each is repaired in O(1)",
+                  "Right: the node that moves up takes the merged subtree and the node that moves down loses it — one addition and one subtraction (Slide 12.9)."
+                ],
+                [
+                  "Only the root of the whole tree changes",
+                  "Wrong: a rotation can happen far from the root; the two nodes whose children changed are the ones repaired."
+                ]
+              ],
+              "a": 2,
+              "src": "Lecture 12 · Slides 12.9–12.10"
+            },
+            {
+              "q": "In an interval tree, what is m[x]?",
+              "o": [
+                [
+                  "The midpoint of the interval stored at x",
+                  "Wrong: no midpoint is stored anywhere; the field is a maximum of high endpoints."
+                ],
+                [
+                  "The maximum high endpoint among the intervals in the subtree rooted at x",
+                  "Right: m[x] = max(high[int[x]], m[left[x]], m[right[x]]) (Slide 12.12)."
+                ],
+                [
+                  "The maximum number of intervals that overlap x",
+                  "Wrong: m is an endpoint value, not a count of overlaps."
+                ],
+                [
+                  "The length of the longest interval in the subtree",
+                  "Wrong: the length would need both endpoints and could not be compared with low[i] to decide the search direction."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 12 · Slide 12.12"
+            },
+            {
+              "q": "A query [14, 16] is at the root [17,19] of the slide tree, whose left child has m = 18. What does INTERVAL-SEARCH do?",
+              "o": [
+                [
+                  "Go right, because 17 > 16",
+                  "Wrong: the algorithm does not compare the low endpoint of the node with the high endpoint of the query; that comparison sets only whether they overlap."
+                ],
+                [
+                  "Go left, because 14 ≤ m[left] = 18",
+                  "Right: the intervals do not overlap, and the left subtree still reaches far enough to touch 14, so the search descends left (Slide 12.16)."
+                ],
+                [
+                  "Stop and return the root, because the intervals are adjacent",
+                  "Wrong: [14,16] and [17,19] do not overlap — 16 < 17 — so the root cannot be the answer."
+                ],
+                [
+                  "Stop and return NIL, because 14 < 17",
+                  "Wrong: NIL is returned only when the descent reaches an empty subtree; here the left subtree can still contain an overlap."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 12 · Slide 12.16"
+            },
+            {
+              "q": "The search for [12,14] ends at NIL. What did that prove?",
+              "o": [
+                [
+                  "That the tree is malformed, since every tree has an overlapping interval",
+                  "Wrong: plenty of trees contain no interval that overlaps a given query."
+                ],
+                [
+                  "That no interval in the tree overlaps [12,14]",
+                  "Right: by the correctness theorem, every subtree the search skipped was provably free of overlaps, so NIL means the set has no overlap for this query (Slides 12.18–12.21)."
+                ],
+                [
+                  "That [12,14] overlaps only intervals longer than 10",
+                  "Wrong: nothing about lengths is used; the argument is about endpoints only."
+                ],
+                [
+                  "That the query must be re-run from the right subtree of the root",
+                  "Wrong: the skipped subtrees were ruled out by m and by the BST property; re-running would repeat the same path."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 12 · Slides 12.18–12.21"
+            },
+            {
+              "q": "Why is it safe to take only one child at each step of INTERVAL-SEARCH?",
+              "o": [
+                [
+                  "Because a red-black tree is balanced, so both children always contain overlaps",
+                  "Wrong: balance bounds the height; it says nothing about where overlaps live."
+                ],
+                [
+                  "Because if the search goes right, low[i] > m[left] means every left interval ends before i starts; if it goes left, a left interval j that misses i implies every right interval starts after i ends",
+                  "Right: this is exactly the correctness theorem and its proof on Slides 12.24–12.25."
+                ],
+                [
+                  "Because intervals are stored in sorted order of their high endpoints",
+                  "Wrong: the tree is keyed on the low endpoint; m is the maximum high endpoint, not the ordering key."
+                ],
+                [
+                  "Because the query is always shorter than the intervals in the tree",
+                  "Wrong: no assumption on the query length is made anywhere in the proof."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 12 · Slides 12.24–12.25"
+            },
+            {
+              "q": "What is the cost of listing all k intervals that overlap a query, by the slides' method?",
+              "o": [
+                [
+                  "O(lg n), like a single search",
+                  "Wrong: one search finds one overlap; listing all of them needs repeated searches."
+                ],
+                [
+                  "O(k lg n), by searching, listing, deleting and repeating, then re-inserting",
+                  "Right: each of the k rounds costs O(lg n); the slides note the best known bound is O(k + lg n) (Slide 12.23)."
+                ],
+                [
+                  "O(n), by scanning the in-order walk",
+                  "Wrong: a scan does find every interval, but the lecture presents the output-sensitive method, which is faster when k is small."
+                ],
+                [
+                  "O(k + n) with a second tree",
+                  "Wrong: no second structure is used; the extra tree is not part of the slides' method."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 12 · Slide 12.23"
+            },
+            {
+              "q": "Which of these is NOT one of the four steps of the augmentation methodology?",
+              "o": [
+                [
+                  "Choose an underlying data structure",
+                  "Wrong: that is step 1."
+                ],
+                [
+                  "Determine the additional information to store",
+                  "Wrong: that is step 2."
+                ],
+                [
+                  "Prove that the augmented structure is asymptotically optimal",
+                  "Right: the slides ask you to verify that the information can be maintained under modification (step 3) and to develop the new operations (step 4) — optimality is not part of the recipe (Slide 12.10)."
+                ],
+                [
+                  "Develop new dynamic-set operations that use the information",
+                  "Wrong: that is step 4."
+                ]
+              ],
+              "a": 2,
+              "src": "Lecture 12 · Slide 12.10"
+            },
+            {
+              "q": "An interval tree is keyed on the low endpoint. Which statement follows from that, and from the m field?",
+              "o": [
+                [
+                  "An in-order walk lists intervals by their starting point, and m tells you whether a whole subtree can still reach the query",
+                  "Right: the BST property gives the ordering on low, and m[left[x]] decides the direction of the search (Slides 12.12–12.15)."
+                ],
+                [
+                  "An in-order walk lists intervals by length, and m is the median endpoint",
+                  "Wrong: neither ordering is by length, and m is a maximum, not a median."
+                ],
+                [
+                  "The tree cannot store two intervals with the same low endpoint",
+                  "Wrong: intervals with equal low endpoints can be stored; the slides simply do not discuss duplicate keys."
+                ],
+                [
+                  "INTERVAL-SEARCH degenerates to a linear scan when the intervals are long",
+                  "Wrong: the search is always one root-to-leaf path, O(lg n), whatever the interval lengths."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 12 · Slides 12.12–12.15"
             }
           ],
           "extra": [
@@ -22102,122 +20999,604 @@ window.COURSES.algo = {
           "title": "Lecture 13: Skip Lists — Perfect vs. Randomized Skip Lists, Coin-Flip Promotion & O(log n) Backwards Analysis",
           "videos": [
             {
-              "id": "kBwUoWpeH_Q",
-              "title": "MIT 6.046J Lec 12: Skip Lists — Randomized Search, Insertion & Probabilistic Analysis (Prof. Erik Demaine)",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:25:32",
+              "id": "viWaq_jOfIk",
+              "title": "Lecture 13",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "From sorted linked lists to multi-level Skip Lists (Bill Pugh, 1990)"
-                },
-                {
-                  "t": 900,
-                  "time": "15:00",
-                  "label": "Skip List search and randomized coin-flip insertion"
-                },
-                {
-                  "t": 2400,
-                  "time": "40:00",
-                  "label": "Backwards analysis proving O(lg n) expected levels and search time"
-                }
-              ]
+              "track": "lectures",
+              "session": 13,
+              "sessionCode": "Lec 13"
             }
           ],
           "notes": [
             {
-              "h": "Perfect Skip Lists vs. Randomized Skip Lists (Slides 13.1–13.17)",
+              "h": "Before you start: linked lists, and why binary search does not work there",
+              "lead": "The deck opens with the trade-off that skip lists were invented to fix.",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
               "pts": [
-                "<b>Skip Lists Overview (Slides 13.2–13.3)</b>: Invented by Bill Pugh (1990). A generalization of a sorted linked list with multi-level forward pointers and $-\\infty / +\\infty$ header/sentinel nodes at every level.",
-                "<b>Perfect Skip Lists (Slides 13.4–13.11)</b>: Each higher level contains <i>exactly</i> $1/2$ the elements of the level below it, giving $\\lg n$ levels and $O(\\lg n)$ search time (visiting at most 2 nodes per level). <b>Drawback</b>: Like a perfect binary tree, inserting or deleting a single element can force rearranging the entire list ($\\Theta(n)$)!",
-                "<b>Randomized Skip Lists (Slides 13.12–13.17)</b>:<ul><li><b>Search(k)</b>: Start at the top-left header. If $k == \\text{key}$, done! If $k \\ge \\text{next key}$, <b>go right</b>; if $k < \\text{next key}$, <b>drop down one level</b>.</li><li><b>Insert(k)</b>: Search to find the position of $k$ at level $0$, insert $k$ at level $0$, and flip a fair coin (`while FLIP() == 'heads'`): each `heads` promotes the node one level higher (`i++`) with probability $1/2$.</li><li><b>Delete(k)</b>: Find $k$ and splice it out of every level in which it appears.</li></ul>"
-              ],
+                "A <b>singly linked list</b> keeps a key and one pointer to the next node. Insert and delete at a known position cost O(1).",
+                "Searching is linear: you can only walk one node at a time, so finding a key costs O(n) and there is no way to jump to the middle.",
+                "<b>Binary search</b> needs random access by index (an array), because it jumps to the middle of a range. A linked list cannot jump, so binary search cannot be used on it.",
+                "The deck lists exactly this as the motivation: linked lists are easy to modify but slow to search, arrays are quick to search but awkward to modify.",
+                "A skip list keeps the linked-list flexibility and adds extra <i>pointers</i> that skip over many nodes, so a search can descend instead of only walking.",
+                "Vocabulary used throughout: a <b>level</b> is one horizontal chain of pointers; level 0 is the bottom chain and holds every key."
+              ]
+            },
+            {
+              "h": "Before you start: expected values and the ½ probability",
+              "lead": "The randomized structure is analysed with expectations, so you must be comfortable with two small facts.",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "pts": [
+                "A fair coin gives heads with probability ½ and tails with probability ½; independent flips multiply, so \"three heads in a row\" has probability ⅛.",
+                "If every node is promoted to the next level with probability ½, the <b>expected</b> number of nodes that reach level 1 is n/2, level 2 is n/4, and generally n/2<sup>j</sup> at level j.",
+                "The expected number of levels is therefore about log₂ n, because n/2<sup>j</sup> falls below 1 when j &gt; log₂ n.",
+                "\"Expected\" means averaged over the coin flips, not over the keys: a run of inserts may look bad, but the average over all possible coin sequences is what the lecture proves.",
+                "The recurrence the deck solves, C(j) = 2 + C(j − 1), is the standard way to compute an expected number of steps; no probability theory beyond the two rules above is needed."
+              ]
+            },
+            {
+              "h": "Perfect skip lists: definition (Slides 13.1–13.5)",
+              "lead": "The idealised structure: every level carries half of the keys of the level below.",
               "fig": [
-                "ag-13-perfect",
-                "ag-13-find",
-                "ag-13-random"
+                "ag-13-perfect"
               ],
-              "figAt": {
-                "ag-13-perfect": 1,
-                "ag-13-find": 1,
-                "ag-13-random": 2
-              },
               "figH": {
-                "ag-13-perfect": "A perfect skip list, built level by level",
-                "ag-13-find": "Find 71 and Find 96 (or any key), one comparison at a time",
-                "ag-13-random": "Randomized skip list: insert 87 with coin flips, delete 87, or try your own"
+                "ag-13-perfect": "The slide's perfect skip list: 2 10 15 16 31 71 96 with express lanes above"
+              },
+              "figAt": {
+                "ag-13-perfect": 1
+              },
+              "pts": [
+                "<b>Keys are in sorted order</b> on every level.",
+                "There are <b>O(log n) levels</b>, and each higher level contains <b>half</b> the elements of the level below.",
+                "Level 0 has all n keys; level 1 has every second key (2, 31, 96 in the slide); level 2 has every fourth key (2, 31 …); and so on.",
+                "The <b>header</b> and the <b>sentinel</b> nodes appear on every level, so a search never runs off the end of a chain. The sentinel holds the value +∞ (drawn as \"Inf\" in the slides).",
+                "Nodes are of <b>variable size</b>: a node stores between 1 and O(log n) pointers, one per level it appears in, and pointers point to the start of each node.",
+                "They are called skip lists because the higher levels let a search <b>skip over</b> many items at once instead of walking them."
+              ]
+            },
+            {
+              "h": "Searching a perfect skip list (Slides 13.6–13.9)",
+              "lead": "Right while the next key is ≤ the target, down when you would overshoot.",
+              "fig": [
+                "ag-13-find"
+              ],
+              "figH": {
+                "ag-13-find": "Find 71 and find 96, comparison by comparison, as the slides draw them"
+              },
+              "figAt": {
+                "ag-13-find": 1
+              },
+              "pts": [
+                "The rule (Slide 13.8), for a search key k at the current node: if k equals the next key, done; if k &lt; the next key, <b>drop down one level</b>; if k ≥ the next key, <b>move right</b>.",
+                "In words: scan along the shortest list until you would pass the desired item, then drop to the slightly more complete list one level lower and continue.",
+                "Trace for <b>71</b>: at the top level 71 &lt; Inf, so right; 71 &lt; 91, so down; 71 &lt; 96, so down; on level 0, 71 &lt; 31 is false so right to 71 — found.",
+                "Trace for <b>96</b>: 96 &lt; Inf (right), 96 &lt; 91? no → right; 96 &lt; Inf → right … the walk reaches 96 at the top and then drills down the tower of 96 until the key matches.",
+                "Both traces visit at most <b>2 nodes per level</b> — if you visited more, the same key must have been reachable one level higher.",
+                "With O(log n) levels that gives <b>O(log n)</b> comparisons to find a key, and the deck also reminds you that this is exactly \"sorted sequential searching\" with a smarter route."
+              ],
+              "viz": {
+                "type": "skiplist",
+                "title": "Lecture 13 Slides 13.6–13.9: search for 71, level by level (levels come from the coin flips)",
+                "keys": [
+                  2,
+                  10,
+                  15,
+                  16,
+                  31,
+                  71,
+                  96
+                ],
+                "heights": [
+                  2,
+                  0,
+                  0,
+                  1,
+                  2,
+                  1,
+                  2
+                ],
+                "search": 71
               }
             },
             {
-              "h": "Skip List vs. BST & Backwards Probabilistic Analysis (Slides 13.18–13.23)",
+              "h": "Why perfect skip lists cannot be updated cheaply (Slides 13.10–13.11)",
+              "lead": "The idea that breaks: keeping \"exactly half\" after every insert.",
               "pts": [
-                "<b>Key Exam Question: Skip List vs. Binary Search Tree (Midterm 2016 Q4, Midterm 2017 Q6, Midterm 2018 Q4)</b>:<ul><li><b>Standard Binary Search Tree (BST)</b>: Average search/insert time is $O(\\lg n)$, <b>but it is sensitive to the input data order</b>—sorted or nearly-sorted input degenerates the BST into a chain with worst-case $\\mathbf{O(n)}$ time!</li><li><b>Randomized Skip List</b>: Because level heights are determined by random coin flips (`FLIP()`) rather than input insertion order, <b>there are no ”bad” input sequences</b>! It is <b>not sensitive to input order</b> and achieves $O(\\lg n)$ expected time for search, insert, and delete on <i>every</i> input sequence (at the cost of extra forward pointers per node), while being much simpler to implement than Red-Black Tree rotations.</li></ul>",
-                "<b>Backwards Analysis of Search Time (Slides 13.19–13.22)</b>:<ul><li>Expected nodes at level $i$ is $n/2^i$, so expected number of levels is $O(\\lg n)$.</li><li>Trace the search path <b>backwards</b> from the found node at level $0$ up to the top-left header: at each step, if the current node extends up to the level above (probability $0.5$), we move <b>UP</b>; otherwise (probability $0.5$), we move <b>LEFT</b>.</li><li>Let $C(j)$ be the expected number of steps to climb $j$ levels: $C(j) = 1 + 0.5 C(j-1) + 0.5 C(j) \\implies 0.5 C(j) = 1 + 0.5 C(j-1) \\implies C(j) = 2 + C(j-1) = \\mathbf{2j}$.</li><li>For $j = \\lg n$ levels, expected steps $= 2\\lg n = \\mathbf{O(\\lg n)}$!</li></ul>"
-              ],
+                "Inserting or deleting a key changes the exact half-split rule on many levels, so an update may need to <b>rearrange the whole list</b>.",
+                "The slides draw the analogy: perfect skip lists are like <b>perfect binary search trees</b> — beautiful when static, too structured to support efficient updates.",
+                "The fix is not to keep the half-split exactly, but to make it hold <b>in expectation</b>: design the structure so that about half of the nodes are carried up to the next level.",
+                "That is what makes the skip list a <b>randomized</b> data structure: the same sequence of inserts and deletes may produce different structures, depending on the outcome of random coin flips.",
+                "This mirrors what AVL trees do with rotations (+1, −1): allow some imbalance, but keep the expected behaviour identical to the perfect case."
+              ]
+            },
+            {
+              "h": "Randomized skip lists: promotion by coin flip (Slides 13.12–13.15)",
+              "lead": "Each node is promoted with probability ½ — the structure is decided by coins, never by the keys.",
               "formula": [
-                "Skip List Backwards Walk Recurrence: C(j) = 1 + 0.5·C(j−1) + 0.5·C(j)  ⇒  C(j) = 2j = 2 lg n = O(lg n)"
+                "P(a node reaches level j) = (1/2)^j",
+                "E[# nodes on level j] = n / 2^j"
+              ],
+              "fig": [
+                "ag-13-random"
+              ],
+              "figH": {
+                "ag-13-random": "The slide's randomized skip list, with the levels the flips produced"
+              },
+              "figAt": {
+                "ag-13-random": 2
+              },
+              "pts": [
+                "Every new node is created on level 0 (the full list). Then: while a fair coin comes up <b>heads</b>, promote the node one more level; stop at the first tail.",
+                "Expected effect: half the nodes reach level 1, a quarter reach level 2, an eighth reach level 3 — the same densities as the perfect skip list, only now produced by chance.",
+                "The promoted nodes are also expected to be <b>well distributed</b> along the list, which is what makes the express lanes useful rather than clumped.",
+                "The slides point out the consequence: with very small probability the structure degenerates — a plain linked list, or every node on every level — but those cases are astronomically unlikely.",
+                "Crucially, <b>the level structure is independent of the keys you insert</b>, so there is no \"bad\" input sequence an examiner could give you. That is the difference from a BST, where inserting sorted keys degenerates into a path."
+              ]
+            },
+            {
+              "h": "Insertion and deletion (Slides 13.14–13.16)",
+              "lead": "Both are a search followed by pointer surgery; only the height of the tower is random.",
+              "code": [
+                "INSERT(k)",
+                "search for k down to level 0, remembering the last node visited on each level",
+                "insert the new node into level 0 after that node",
+                "i ← 1",
+                "while FLIP() = \"heads\":",
+                "    insert the node into level i",
+                "    i ← i + 1"
+              ],
+              "pts": [
+                "<b>Insertion</b>: find where the key belongs (the search of the previous section), insert it on level 0, then flip coins and splice the same node into higher levels while the flips are heads.",
+                "Each splice is an ordinary linked-list insertion after \"the last visited node in level i\", so the whole insert costs the search plus O(1) per level reached — O(log n) expected.",
+                "The slide trace inserts <b>87</b> into the list, then shows it promoted to levels 1 and 2 by its coin flips.",
+                "<b>Deletion</b>: search for the key, then unlink the node from every level in which it appears. No rebalancing, no rotations, no recolouring.",
+                "The slide deletes <b>87</b> again and the structure returns to a valid skip list; nothing else moves.",
+                "Implementation note from the slides: node sizes are fixed once the node is created (only new nodes grow), and it is often convenient, though not required, to know the maximum number of levels in advance."
+              ]
+            },
+            {
+              "h": "Analysis: levels, and the number of steps (Slides 13.17–13.18)",
+              "lead": "Two separate claims: how many levels, and how many steps inside a level.",
+              "table": [
+                [
+                  "Level",
+                  "Expected number of nodes",
+                  "With n = 16"
+                ],
+                [
+                  "0",
+                  "n",
+                  "16"
+                ],
+                [
+                  "1",
+                  "n/2",
+                  "8"
+                ],
+                [
+                  "2",
+                  "n/4",
+                  "4"
+                ],
+                [
+                  "j",
+                  "n/2^j",
+                  "16/2^j"
+                ],
+                [
+                  "log₂ n",
+                  "1",
+                  "1"
+                ]
+              ],
+              "pts": [
+                "The expected number of levels is <b>O(log n)</b>: E[# nodes at level 1] = n/2, level 2 = n/4, …, level log n = 1.",
+                "That bounds the height of the structure, but not yet the work inside a level: a level could in principle be walked for many steps.",
+                "So the deck proves the second half separately, by looking at the search <b>backwards</b> — that is the next section.",
+                "Together the two halves give O(log n) expected search, insert and delete."
+              ]
+            },
+            {
+              "h": "Backwards analysis: at most 2 steps per level (Slides 13.18–13.21)",
+              "lead": "Walk the search path in reverse: going up costs nothing, because you always move up when you can.",
+              "formula": [
+                "C(j) = 1 + ½·C(j − 1) + ½·C(j)",
+                "⇒ C(j) = 2 + C(j − 1)",
+                "⇒ C(j) = 2j"
               ],
               "fig": [
                 "ag-13-back"
               ],
+              "figH": {
+                "ag-13-back": "The reversed path of a search: up when possible, left otherwise"
+              },
               "figAt": {
                 "ag-13-back": 1
               },
-              "figH": {
-                "ag-13-back": "Backwards analysis: reverse the search path, 2 steps per level"
-              }
+              "pts": [
+                "Take the path the successful search took and walk it <b>backwards</b>, from the found node to the header.",
+                "In reverse, you always move <b>up</b> when you can, because the forward search always enters a node from its topmost level.",
+                "At any step of the reverse walk, the probability that you can move up is <b>½</b> — that is exactly the coin flip that decided whether the node had a level above.",
+                "So the expected number of steps to climb j levels satisfies C(j) = 1 + ½·C(j − 1) + ½·C(j): make one step, then with probability ½ you went up and have j − 1 levels left, with probability ½ you went left and still have j.",
+                "Multiply by 2: 2C(j) = 2 + C(j − 1) + C(j), so C(j) = 2 + C(j − 1). Expanding gives <b>C(j) = 2j</b>: two steps per level, expected.",
+                "With O(log n) levels, the expected search cost is O(log n). This is the calculation to reproduce in a written question — the algebra is two lines."
+              ]
+            },
+            {
+              "h": "Skip lists against balanced trees, and the summary",
+              "lead": "Same expected cost as a balanced BST, far less machinery to maintain.",
+              "table": [
+                [
+                  "Question",
+                  "Skip list",
+                  "Balanced BST (red-black / AVL)"
+                ],
+                [
+                  "Expected search",
+                  "O(log n)",
+                  "O(log n) guaranteed"
+                ],
+                [
+                  "Worst case",
+                  "O(n), with probability about 1/n² for a bad coin sequence",
+                  "O(log n) guaranteed"
+                ],
+                [
+                  "Insert / delete",
+                  "O(log n) expected, pointer splicing only",
+                  "O(log n) with rotations and recolouring"
+                ],
+                [
+                  "What decides the shape",
+                  "coin flips, independent of the keys",
+                  "the keys and the balancing rules"
+                ],
+                [
+                  "Bad input sequences",
+                  "none — the structure never looks at the key order",
+                  "sorted inserts are the classic degenerate case for a plain BST"
+                ],
+                [
+                  "Space",
+                  "about 2n pointers expected",
+                  "n nodes, 2–3 pointers each"
+                ]
+              ],
+              "pts": [
+                "The trade the slides describe: skip lists give up the worst-case guarantee but gain a very simple implementation — no rotations, no colour cases, no rebalancing.",
+                "Because promotions are independent of the keys, you cannot construct an adversarial sequence that degrades a skip list; you can only be unlucky with coins.",
+                "Exam-ready summary: insert = search + splice + coin flips; delete = search + unlink; search = right while the next key is ≤ target, else down.",
+                "The analysis to memorise: expected levels O(log n), expected steps per level 2, hence O(log n) expected total."
+              ]
             }
           ],
           "cards": [
             [
-              "Skip List vs. Binary Search Tree (Exam Question)",
-              "A BST has O(lg n) average time but degrades to O(n) worst-case on sorted input (order-sensitive). A Skip List uses random coin flips so it is NOT sensitive to input order and achieves O(lg n) expected time on all inputs using extra pointers."
+              "Why a linked list cannot be searched quickly",
+              "Search can only walk one node at a time — O(n). Binary search needs random access by index, which a linked list does not provide."
             ],
             [
-              "Skip List Backwards Analysis Equation",
-              "C(j) = 1 + 0.5 C(j−1) + 0.5 C(j) ⇒ C(j) = 2j, so climbing lg n levels takes 2 lg n = O(lg n) expected steps."
+              "Skip list, one sentence",
+              "A sorted linked list with extra pointer levels that act as express lanes, so a search skips many nodes instead of walking them."
             ],
             [
-              "Perfect Skip Lists vs. Randomized Skip Lists (Slides 13.1–13.17) — Core Principle & Complexity",
-              "<b>Skip Lists Overview (Slides 13.2–13.3)</b>: Invented by Bill Pugh (1990). A generalization of a sorted linked list with multi-level forward pointers and $-\\infty / +\\infty$ header/sentinel nodes at every level. <b>Perfect Skip Lists (Slides 13.4–13.11)</b>: Each higher level contains <i>exactly</i> $1/2$ the elements of the level below it, giving $\\lg n$ levels and $O(\\lg n)$ search time (visiting at most 2 nodes per level). <b>Drawback</b>: Like a perfect binary tree, inserting or deleting a single element can force rearranging the entire list ($\\Theta(n)$)!"
+              "Perfect skip list definition",
+              "Sorted keys, O(log n) levels, each level holding half the elements of the level below, with header and sentinel present on every level."
             ],
             [
-              "Skip List vs. BST & Backwards Probabilistic Analysis (Slides 13.18–13.23) — Core Principle & Complexity",
-              "<b>Key Exam Question: Skip List vs. Binary Search Tree (Midterm 2016 Q4, Midterm 2017 Q6, Midterm 2018 Q4)</b>:<ul><li><b>Standard Binary Search Tree (BST)</b>: Average search/insert time is $O(\\lg n)$, <b>but it is sensitive to the input data order</b>—sorted or nearly-sorted input degenerates the BST into a chain with worst-case $\\mathbf{O(n)}$ time!</li><li><b>Randomized Skip List</b>: Because level heights are determined by random coin flips (`FLIP()`) rather than input insertion order, <b>there are no ”bad” input sequences</b>! It is <b>not sensitive to input order</b> and achieves $O(\\lg n)$ expected time for search, insert, and delete on <i>every</i> input sequence (at the cost of extra forward pointers per node), while being much simpler to implement than Red-Black Tree rotations.</li></ul> <b>Backwards Analysis of Search Time (Slides 13.19–13.22)</b>:<ul><li>Expected nodes at level $i$ is $n/2^i$, so expected number of levels is $O(\\lg n)$.</li><li>Trace the search path <b>backwards</b> from the found node at level $0$ up to the top-left header: at each step, if the current node extends up to the level above (probability $0.5$), we move <b>UP</b>; otherwise (probability $0.5$), we move <b>LEFT</b>.</li><li>Let $C(j)$ be the expected number of steps to climb $j$ levels: $C(j) = 1 + 0.5 C(j-1) + 0.5 C(j) \\implies 0.5 C(j) = 1 + 0.5 C(j-1) \\implies C(j) = 2 + C(j-1) = \\mathbf{2j}$.</li><li>For $j = \\lg n$ levels, expected steps $= 2\\lg n = \\mathbf{O(\\lg n)}$!</li></ul>"
+              "Search rule in a skip list",
+              "If k equals the next key, done; if k < next key, go down a level; if k ≥ next key, go right."
+            ],
+            [
+              "Why a search is O(log n) in a perfect skip list",
+              "O(log n) levels and at most 2 nodes visited per level; visiting more would mean the key was reachable one level higher."
+            ],
+            [
+              "Why perfect skip lists fail on updates",
+              "Keeping exactly half the keys per level after each insert or delete can force a rearrangement of the whole list — too structured, like a perfect BST."
+            ],
+            [
+              "Randomized promotion",
+              "Each node starts at level 0 and is promoted one level for every consecutive \"heads\"; promotion probability ½ per level."
+            ],
+            [
+              "Expected nodes per level",
+              "E[# nodes at level j] = n / 2^j, so level 1 has n/2, level 2 n/4, and the number of levels is about log₂ n."
+            ],
+            [
+              "Insertion algorithm",
+              "Search to level 0 keeping the last node seen on each level, insert on level 0, then while FLIP() = heads splice the node into level i and increment i."
+            ],
+            [
+              "Deletion algorithm",
+              "Search for the key, then unlink the node from every level in which it appears. No rebalancing is needed."
+            ],
+            [
+              "Are there bad key sequences?",
+              "No. The level structure depends only on the coin flips, not on the keys, so no input sequence can force a degenerate list (only bad luck with coins can)."
+            ],
+            [
+              "Backwards analysis setup",
+              "Walk the successful search path in reverse from the found node to the header; in reverse you always move up when you can."
+            ],
+            [
+              "Backwards analysis recurrence",
+              "C(j) = 1 + ½C(j − 1) + ½C(j) ⇒ C(j) = 2 + C(j − 1) ⇒ C(j) = 2j steps to climb j levels."
+            ],
+            [
+              "Expected search cost",
+              "O(log n) levels × 2 steps per level = O(log n) expected comparisons; the worst case is O(n) with very small probability."
+            ],
+            [
+              "Skip list vs red-black tree",
+              "Same expected O(log n); the skip list has no rotations or colour cases, but loses the worst-case guarantee."
+            ],
+            [
+              "Space in a skip list",
+              "About 2n pointers expected: n on level 0 plus n/2 + n/4 + … promotions on the levels above."
+            ],
+            [
+              "What the header and sentinel do",
+              "They sit on every level so a search never runs off the end of a chain; the sentinel holds +∞."
+            ],
+            [
+              "Node size in a skip list",
+              "Variable: one pointer per level the node appears in, fixed at creation time. It is convenient (not required) to know the maximum number of levels in advance."
             ]
           ],
           "qa": [
             [
-              "What is the main difference between a Skip List and a Binary Search Tree (BST), and which is better for adversarially ordered data? (Midterm 2016 Q4, Midterm 2017 Q6 & Midterm 2018 Q4)",
-              "• <b>Binary Search Tree (BST)</b>: Average-case complexity is $O(\\lg n)$, but its structure is <b>sensitive to the order of input data</b>—if keys arrive in sorted or reverse-sorted order, the tree degenerates into a linear chain with $O(n)$ worst-case time.<br>• <b>Skip List</b>: Uses randomized coin flips (`p = 1/2`) to determine node heights, so its performance is <b>completely independent of input data order</b> (there are no bad input sequences) and achieves $O(\\lg n)$ expected time in all cases, at the cost of extra forward pointers.",
-              "Midterm 2016 Q4, Midterm 2017 Q6 & Midterm 2018 Q4"
+              "Explain why a perfect skip list supports O(log n) search but not efficient insertion.",
+              "<b>Search</b>: there are O(log n) levels and each level halves the number of keys, so a search visits at most 2 nodes per level — drop down when the next key is larger than the target, move right otherwise. Total O(log n).<br><b>Insertion</b>: the perfect structure requires each level to keep exactly half of the keys of the level below. Inserting one key would break that invariant on several levels at once, so the update could need to rebuild most of the list — the same problem perfect binary search trees have. The slides fix this by relaxing \"exactly half\" to \"half in expectation\", using a coin flip per promotion."
+            ],
+            [
+              "Give the insertion algorithm of a skip list and its expected cost.",
+              "First do a search for the key, recording the <b>last node visited on each level</b> (the node after which the key would be inserted). Insert the new node on level 0. Then set i = 1 and while FLIP() returns heads, insert the node into level i and increment i.<br><b>Cost</b>: the search dominates, O(log n) expected; splicing the node into one more level costs O(1) and the expected number of promotions is 1 (a geometric random variable with p = ½, mean 1). So insertion is O(log n) expected overall."
+            ],
+            [
+              "Prove that the expected number of steps per level in a skip list search is 2.",
+              "Run the successful search path <b>backwards</b>. In reverse the walk always goes up when it can, because the forward search enters each node from its topmost level. At each step the walk can move up with probability ½ (the coin that decided whether this node had a level above) and left with probability ½.<br>Let C(j) be the expected steps needed to climb j levels. Then C(j) = 1 + ½·C(j − 1) + ½·C(j). Multiplying by 2 gives 2C(j) = 2 + C(j − 1) + C(j), hence C(j) = 2 + C(j − 1), and with C(0) = 0 this expands to C(j) = 2j. So an expected <b>2 steps per level</b>, and O(log n) levels give O(log n) expected search time."
+            ],
+            [
+              "Why does the slides' analysis say there are no \"bad\" sequences for a skip list, while a binary search tree has them?",
+              "A plain BST takes its shape from the <b>order in which keys arrive</b>, so inserting keys in sorted order builds a path of height n and every operation degrades to Θ(n). A skip list decides each node's height by <b>independent coin flips</b>, which never look at the keys. The expected number of nodes at level j is n/2<sup>j</sup> whatever order the keys arrive in, so no key sequence can force the degenerate structure — only an unlucky sequence of coins can, and that has vanishing probability."
+            ],
+            [
+              "Compare a skip list with a red-black tree for a dictionary ADT.",
+              "Both give O(log n) expected or guaranteed search, insert and delete, and both support ordered traversal through level 0 (or the in-order walk).<br><b>Skip list advantages</b>: the implementation is only pointer splicing — no rotations, no colour cases, no fix-up after insert or delete; range queries are natural because level 0 is the sorted list. <b>Disadvantages</b>: the worst case is O(n) rather than O(log n), the space is about 2n pointers, and the structure uses randomness, so the running time is not deterministic."
             ]
           ],
           "quiz": [
             {
-              "q": "In the backwards analysis of a randomized Skip List (Slide 13.22), if C(j) is the expected number of steps to climb j levels where moving up has probability 0.5 and moving left has probability 0.5, what is the recurrence and solution for C(j)?",
+              "q": "Why can binary search not be used directly on a sorted linked list?",
               "o": [
                 [
-                  "C(j) = 1 + 0.5 C(j−1) + 0.5 C(j) ⇒ C(j) = 2j",
-                  "Correct! Subtracting 0.5 C(j) from both sides gives 0.5 C(j) = 1 + 0.5 C(j−1) ⇒ C(j) = 2 + C(j−1) = 2j."
+                  "Because a linked list is not sorted",
+                  "Wrong: a sorted list is sorted; the problem is how you reach the middle."
                 ],
                 [
-                  "C(j) = 1 + C(j/2) ⇒ C(j) = lg j",
-                  "Each upward move climbs 1 level, not j/2 levels."
+                  "Because reaching the middle element takes O(n) node steps, so the halving gains nothing",
+                  "Right: binary search needs random access by index; in a linked list you must walk to the middle, which destroys the O(log n) argument (Slide 13.2)."
                 ],
                 [
-                  "C(j) = 2 C(j−1) ⇒ C(j) = 2^j",
-                  "Expected steps is linear in the number of levels j, not exponential."
+                  "Because a linked list cannot store keys in order",
+                  "Wrong: it can, and skip lists are built on exactly that ordering."
                 ],
                 [
-                  "C(j) = 0.5 C(j−1) ⇒ C(j) = (1/2)^j",
-                  "Omits the +1 step cost and the 0.5 C(j) horizontal step term."
+                  "Because linked lists have no sentinel node",
+                  "Wrong: a sentinel does not affect whether you can jump to the middle."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 13 · Slides 13.1–13.2"
+            },
+            {
+              "q": "In a perfect skip list with 7 keys on level 0, how many keys are on level 1 and level 2?",
+              "o": [
+                [
+                  "4 and 2",
+                  "Wrong: 4 would be ⌈7/2⌉; the perfect structure keeps every second key, which for the slide list gives 3 on level 1."
+                ],
+                [
+                  "3 and 2",
+                  "Right: level 1 holds every second key (2, 31, 96 — three keys) and level 2 holds every fourth. In the slide list 2 and 31 appear on level 2, plus the header and sentinel."
+                ],
+                [
+                  "7 and 3",
+                  "Wrong: level 1 never holds all the keys; level 0 does."
+                ],
+                [
+                  "2 and 1",
+                  "Wrong: that is what you get after two more halvings."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 13 · Slides 13.3–13.5"
+            },
+            {
+              "q": "State the search rule of a skip list.",
+              "o": [
+                [
+                  "If k < next key go right, otherwise go down",
+                  "Wrong: the directions are inverted — going right on a smaller key would walk away from the target."
+                ],
+                [
+                  "If k equals the next key, done; if k < next key, go down; if k ≥ next key, go right",
+                  "Right: scan along the shortest list until you would pass the item, then drop one level (Slide 13.8)."
+                ],
+                [
+                  "Always go down first, then right until the key is found",
+                  "Wrong: that reduces to a linear scan of level 0, O(n)."
+                ],
+                [
+                  "Compare with the middle key of the level and halve it",
+                  "Wrong: that describes binary search on an array; a skip list has no indexable middle."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 13 · Slide 13.8"
+            },
+            {
+              "q": "What makes a perfect skip list unsuitable for insertion and deletion?",
+              "o": [
+                [
+                  "Its keys are stored in sorted order",
+                  "Wrong: sorted order is what makes searching possible and is kept in the randomized version too."
+                ],
+                [
+                  "Keeping exactly half of the keys on each level can force the whole list to be rearranged on one update",
+                  "Right: the invariant is too rigid — the slides compare it to a perfect binary search tree (Slides 13.10–13.11)."
+                ],
+                [
+                  "It uses too much memory",
+                  "Wrong: a perfect skip list uses the least possible memory for its levels; the problem is maintenance, not space."
+                ],
+                [
+                  "Nodes cannot hold more than one pointer",
+                  "Wrong: nodes hold one pointer per level in both versions."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 13 · Slides 13.10–13.11"
+            },
+            {
+              "q": "In a randomized skip list, how is the height of a new node decided?",
+              "o": [
+                [
+                  "By hashing its key",
+                  "Wrong: the level structure must be independent of the keys — that independence is the whole point."
+                ],
+                [
+                  "By the number of nodes already in the list",
+                  "Wrong: the structure would then depend on the insertion order and could be forced to degenerate."
+                ],
+                [
+                  "By fair coin flips: promote one level per head, stop at the first tail",
+                  "Right: probability ½ per level, so the expected number of nodes at level j is n/2^j (Slides 13.12–13.13)."
+                ],
+                [
+                  "By choosing the level that keeps the halves balanced",
+                  "Wrong: that is the perfect structure, which cannot be maintained efficiently."
+                ]
+              ],
+              "a": 2,
+              "src": "Lecture 13 · Slides 13.12–13.13"
+            },
+            {
+              "q": "What is the expected number of nodes on level 2 of a randomized skip list with n keys?",
+              "o": [
+                [
+                  "n",
+                  "Wrong: all n keys are on level 0; higher levels hold fewer."
+                ],
+                [
+                  "n/2",
+                  "Wrong: n/2 is the expected count on level 1, one promotion."
+                ],
+                [
+                  "n/4",
+                  "Right: two promotions each with probability ½ gives (½)² = ¼ of the nodes (Slide 13.17)."
+                ],
+                [
+                  "log n",
+                  "Wrong: log n is the expected number of levels, not the number of nodes on a level."
+                ]
+              ],
+              "a": 2,
+              "src": "Lecture 13 · Slide 13.17"
+            },
+            {
+              "q": "Which statement about deleting a key from a skip list is correct?",
+              "o": [
+                [
+                  "The tree must be rebalanced with rotations afterwards",
+                  "Wrong: there are no rotations in a skip list."
+                ],
+                [
+                  "The node is unlinked from every level it appears in, and nothing else changes",
+                  "Right: deletion is a search plus pointer unlinking; the slide deletes 87 and the rest of the structure stays valid (Slide 13.16)."
+                ],
+                [
+                  "Deleting a key forces every node above it down one level",
+                  "Wrong: levels are decided at insertion time and are not reshuffled by another node's deletion."
+                ],
+                [
+                  "Deletion is O(n) because the levels must be rebuilt",
+                  "Wrong: it costs the search plus O(1) per level, O(log n) expected."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 13 · Slide 13.16"
+            },
+            {
+              "q": "Why does the lecture claim there are no \"bad\" key sequences for a skip list?",
+              "o": [
+                [
+                  "Because the structure never looks at the key order when deciding levels",
+                  "Right: promotions come from coin flips, so the level structure is independent of the keys; only bad luck with coins can degenerate it (Slide 13.13)."
+                ],
+                [
+                  "Because the keys are hashed before insertion",
+                  "Wrong: no hashing is involved."
+                ],
+                [
+                  "Because the skip list is rebuilt after every insert",
+                  "Wrong: inserts only splice one node into a few levels."
+                ],
+                [
+                  "Because the sentinel prevents the list from degenerating",
+                  "Wrong: the sentinel only stops a search from running off the end."
                 ]
               ],
               "a": 0,
-              "src": "Lecture 13 · Slides 13.21–13.22"
+              "src": "Lecture 13 · Slide 13.13"
+            },
+            {
+              "q": "In the backwards analysis, why is the probability of moving up at a step exactly ½?",
+              "o": [
+                [
+                  "Because half the keys are on the upper levels by construction",
+                  "Wrong: that is the perfect structure; here the count is only correct in expectation."
+                ],
+                [
+                  "Because whether the node had a level above was decided by one fair coin flip",
+                  "Right: the reverse walk moves up exactly when the corresponding forward step came down from a higher level, which happened with probability ½ (Slides 13.19–13.20)."
+                ],
+                [
+                  "Because the search path is symmetric",
+                  "Wrong: the path is not symmetric; it is the coin flips that make the two cases equally likely."
+                ],
+                [
+                  "Because the sentinel is on every level",
+                  "Wrong: the sentinel affects the endpoints, not the probability of a promotion."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 13 · Slides 13.19–13.20"
+            },
+            {
+              "q": "Solving C(j) = 1 + ½C(j − 1) + ½C(j) gives which result?",
+              "o": [
+                [
+                  "C(j) = j, one step per level",
+                  "Wrong: substituting gives 1 + ½(j − 1) + ½j = j + ½, not j."
+                ],
+                [
+                  "C(j) = 2j, two steps per level",
+                  "Right: multiply by 2 to get 2C(j) = 2 + C(j − 1) + C(j), so C(j) = 2 + C(j − 1), hence C(j) = 2j (Slide 13.21)."
+                ],
+                [
+                  "C(j) = j²",
+                  "Wrong: a quadratic does not satisfy the recurrence: 2 + (j − 1)² ≠ j² for j > 0."
+                ],
+                [
+                  "C(j) = log j",
+                  "Wrong: the recurrence adds a constant per level, not a shrinking amount."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 13 · Slide 13.21"
             }
           ],
           "extra": [
@@ -22251,69 +21630,144 @@ window.COURSES.algo = {
           "title": "Lecture 14: Dynamic Programming — Coin-Row, Binomial Coefficients, Robot Coin Collection, LCS & 0/1 Knapsack",
           "videos": [
             {
-              "id": "V5hZoJ6uK-s",
-              "title": "MIT 6.046J Lec 15: Dynamic Programming & Longest Common Subsequence (LCS) (Prof. Erik Demaine)",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:11:00",
+              "id": "gZoIkvSpHHg",
+              "title": "Lecture 14 · video 1",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Dynamic Programming hallmarks: optimal substructure & overlapping subproblems"
-                },
-                {
-                  "t": 900,
-                  "time": "15:00",
-                  "label": "Longest Common Subsequence (LCS) recurrence, bottom-up table & backtracing"
-                }
-              ]
+              "track": "lectures",
+              "session": 14,
+              "sessionCode": "Lec 14"
             },
             {
               "id": "nLmhmB6NzcM",
-              "title": "4.5 0/1 Knapsack Problem — Dynamic Programming Table & Backtracing",
-              "channel": "Abdul Bari",
-              "duration": "28:24",
+              "title": "0/1 knapsack",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "0/1 Knapsack DP recurrence V[i, w] = max(V[i-1, w], v_i + V[i-1, w - w_i])"
-                },
-                {
-                  "t": 720,
-                  "time": "12:00",
-                  "label": "Filling the DP table row-by-row and backtracing selected items"
-                }
-              ]
+              "track": "lectures",
+              "session": 14,
+              "sessionCode": "Lec 14"
             },
             {
-              "id": "sSno9rV8Rhg",
-              "title": "4.9 Longest Common Subsequence (LCS) — Recursion, Memoization & Bottom-Up DP",
-              "channel": "Abdul Bari",
-              "duration": "23:35",
+              "id": "3D_Oj16EtD8",
+              "title": "Binomial coefficient",
+              "channel": "YouTube",
               "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "LCS recurrence and O(mn) dynamic programming table"
-                }
-              ]
+              "track": "lectures",
+              "session": 14,
+              "sessionCode": "Lec 14"
+            },
+            {
+              "id": "mSyiRGSAq7k",
+              "title": "Coin-row problem",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 14,
+              "sessionCode": "Lec 14"
+            },
+            {
+              "id": "KLBCUx1is2c",
+              "title": "Longest common subsequence (watch to 21:35)",
+              "channel": "YouTube",
+              "lang": "en",
+              "track": "lectures",
+              "session": 14,
+              "sessionCode": "Lec 14"
             }
           ],
           "notes": [
             {
-              "h": "Dynamic Programming Principles, Coin-Row & Binomial Coefficients (Slides 14.1–14.15)",
+              "h": "Before you start: recursion, recurrences and overlapping calls",
+              "lead": "Every DP solution in this lecture starts life as a recurrence. Read that word as \"a formula that calls itself on smaller inputs\".",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
               "pts": [
-                "<b>Dynamic Programming Overview (Slides 14.2–14.4)</b>: Invented by <b>Richard Bellman</b> (1950s) to solve optimization problems with <b>overlapping subproblems</b> and <b>optimal substructure</b>. Instead of recomputing shared subproblems exponentially (as in top-down recursion), DP solves each smaller subproblem <i>once</i> and stores its answer in a table (bottom-up iteration or memoization).",
-                "<b>1. The Coin-Row Problem (Slides 14.6–14.9 & Exam Examples Q9)</b>:<ul><li><b>Problem</b>: Given a row of $n$ coins with values $c_1, c_2, \\dots, c_n$, pick a subset of coins with maximum total value such that <b>no two adjacent coins are selected</b>.</li><li><b>Recurrence</b>: Partition allowed selections for $1..n$ into those that <i>include</i> $c_n$ (max value $c_n + F(n-2)$) and those that <i>exclude</i> $c_n$ (max value $F(n-1)$):<br>$F(n) = \\max\\{c_n + F(n-2),\\; F(n-1)\\}$ for $n > 1$, with base cases $F(0) = 0,\\; F(1) = c_1$.</li><li><b>Slide & Exam Trace on Coins `[5, 1, 2, 10, 6, 2]`</b>:<ul><li>$F(0) = 0,\\; F(1) = 5$</li><li>$F(2) = \\max(1 + 0, 5) = 5$</li><li>$F(3) = \\max(2 + 5, 5) = 7$</li><li>$F(4) = \\max(10 + 5, 7) = 15$</li><li>$F(5) = \\max(6 + 7, 15) = 15$</li><li>$F(6) = \\max(2 + 15, 15) = \\mathbf{17}$ (optimal coins: $c_1=5, c_4=10, c_6=2$). Time: $\\Theta(n)$, Space: $\\Theta(n)$.</li></ul></li></ul>",
-                "<b>2. Computing Binomial Coefficients $C(n, k)$ by DP (Slides 14.10–14.15)</b>:<ul><li><b>Pascal's Recurrence</b>: $C(n, k) = C(n-1, k) + C(n-1, k-1)$ for $n > k > 0$, with $C(n, 0) = C(n, n) = 1$.</li><li>Fills an $(n+1) \\times (k+1)$ Pascal triangle table row-by-row (`for i = 0 to n: for j = 0 to min(i, k)`).</li><li><b>Time & Space Efficiency</b>: $\\mathbf{\\Theta(nk)}$ time and $\\mathbf{\\Theta(nk)}$ space. Slide Exercise: $C(6, 3) = C(5, 3) + C(5, 2) = 10 + 10 = \\mathbf{20}$.</li></ul>"
+                "A <b>recursive</b> function solves a problem by calling itself on smaller inputs and combining the answers; the base cases stop the recursion.",
+                "A <b>recurrence</b> is the equation that describes that cost or answer, for example T(n) = T(n − 1) + T(n − 2).",
+                "A naive recursive evaluation re-solves the same subproblem many times: in Fibonacci, f(n − 2) is computed twice, f(n − 3) three times, and so on — exponentially often.",
+                "<b>Overlapping subproblems</b> means exactly that: the set of distinct subproblems is small (here n of them) while the recursion tree is huge.",
+                "The fix has two names for the same idea: <b>memoization</b> (remember an answer the first time you compute it, top-down) or <b>tabulation</b> (fill a table bottom-up, small cases first).",
+                "DP applies when a problem has (a) overlapping subproblems and (b) <b>optimal substructure</b>: the best answer to the whole can be built from best answers to the parts."
+              ]
+            },
+            {
+              "h": "Before you start: reading a table and backtracing an index",
+              "lead": "The exam asks you to fill a table and then to read the answer out of it, so practise both directions.",
+              "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+              "pts": [
+                "A DP table is indexed by the subproblem, for example F(i) for a row of coins, C(i, j) for two strings of lengths i and j, or V(i, j) for the first i items and capacity j.",
+                "When there are two indices, the row usually means \"how much of the input we have used\" and the column means \"how much room is left\".",
+                "<b>Backtracing</b> means starting from the last cell and asking \"which decision produced this value?\", then walking to the cell that decision came from, until you reach a base case.",
+                "In the knapsack pseudocode the slides draw the arrow with a pointer table P: P[i, j] records the column the value came from, so the path is read without recomputing anything.",
+                "A cell depends only on cells already computed: the one above, the one to the left, or the one diagonally up-left. Fill the table in an order that respects those dependencies — row by row is always safe.",
+                "Space efficiency is worth one line in an answer: many DP tables only ever read the previous row, so Θ(nm) memory can often be reduced, but the slides keep the full table because it allows backtracing."
+              ]
+            },
+            {
+              "h": "The idea of dynamic programming (Slides 14.1–14.2)",
+              "lead": "A general design technique for optimisation problems, invented by Richard Bellman in the 1950s.",
+              "pts": [
+                "In the name, <b>\"programming\" means planning</b>, not writing code — the slides make this point explicitly.",
+                "Main idea: set up a <b>recurrence</b> relating the solution of a larger instance to solutions of smaller instances.",
+                "Solve each smaller instance <b>once</b> and record the answer in a <b>table</b>.",
+                "Extract the solution of the original instance from that table, usually by backtracing.",
+                "The difference from divide and conquer: the subproblems <b>overlap</b>, so the table prevents the exponential re-solving that plain recursion does.",
+                "The problems of this lecture: Fibonacci numbers, the coin-row problem, binomial coefficients, robot coin collection, longest common subsequence, and 0/1 knapsack."
+              ]
+            },
+            {
+              "h": "Fibonacci: top-down recursion versus bottom-up iteration (Slides 14.3–14.4)",
+              "lead": "The smallest possible example of the whole technique.",
+              "formula": [
+                "f(0) = 0, f(1) = 1",
+                "f(n) = f(n − 1) + f(n − 2)"
               ],
+              "fig": [
+                "ag-14-fib"
+              ],
+              "figH": {
+                "ag-14-fib": "The recursion tree of f(n): the same subtrees are solved again and again"
+              },
+              "figAt": {
+                "ag-14-fib": 2
+              },
+              "pts": [
+                "<b>Top-down</b> (the slide's tree): f(n) calls f(n − 1) and f(n − 2); f(n − 2) is computed twice, f(n − 3) three times, f(n − 4) five times — the costs follow the Fibonacci numbers themselves, so Θ(1.618ⁿ) calls.",
+                "<b>Bottom-up</b> (the slide's list): f(0) = 0, f(1) = 1, f(2) = 0 + 1 = 1, f(3) = 1 + 1 = 2, f(4) = 1 + 2 = 3, f(5) = 2 + 3 = 5, and so on up to f(n).",
+                "This is Θ(n) additions instead of exponential calls: the table is just the last two values, so it is Θ(n) time and Θ(1) space.",
+                "The lesson the slides draw: solve the small instances first, store each answer once, and never recompute it."
+              ]
+            },
+            {
+              "h": "The coin-row problem and its recurrence (Slides 14.6–14.8)",
+              "lead": "Pick coins from a row for maximum value, but no two adjacent coins.",
+              "fig": [
+                "ag-14-coinrow"
+              ],
+              "figH": {
+                "ag-14-coinrow": "The slide row 5, 1, 2, 10, 6, 2 and the best legal selection"
+              },
+              "figAt": {
+                "ag-14-coinrow": 1
+              },
+              "formula": [
+                "F(n) = max{cₙ + F(n − 2), F(n − 1)} for n > 1",
+                "F(0) = 0, F(1) = c₁"
+              ],
+              "pts": [
+                "<b>Problem</b> (Slide 14.6): a row of n coins with positive values c₁ … cₙ, not necessarily distinct. Pick the maximum amount of money subject to: <b>no two adjacent coins</b> may be picked.",
+                "Example of the slides: <b>5, 1, 2, 10, 6, 2</b> — the best selection is 5, 10, 2 for a total of 17.",
+                "Let F(n) be the best total from the first n coins. The slides derive the recurrence by splitting every legal selection into two groups:",
+                "Those <b>without</b> the last coin — the best they can be is F(n − 1). Those <b>with</b> the last coin — then coin n − 1 is forbidden, so the best is cₙ + F(n − 2).",
+                "Hence F(n) = max{cₙ + F(n − 2), F(n − 1)}, with base cases F(0) = 0 (no coins) and F(1) = c₁ (one coin, take it).",
+                "This two-way split — \"last element excluded / last element included\" — is the pattern behind nearly every DP recurrence in this lecture, including knapsack."
+              ]
+            },
+            {
+              "h": "The coin-row table and the answer (Slide 14.9)",
+              "lead": "One row of the table, one pass over the coins, one backtrace for the coins themselves.",
               "table": [
                 [
-                  "Index i",
+                  "n",
                   "0",
                   "1",
                   "2",
@@ -22323,7 +21777,7 @@ window.COURSES.algo = {
                   "6"
                 ],
                 [
-                  "Coin c_i",
+                  "coin cₙ",
                   "—",
                   "5",
                   "1",
@@ -22333,1699 +21787,613 @@ window.COURSES.algo = {
                   "2"
                 ],
                 [
-                  "F(i) = max(c_i + F(i−2), F(i−1))",
+                  "F(n)",
                   "0",
                   "5",
                   "5",
                   "7",
                   "15",
                   "15",
-                  "17 (Coins 1, 4, 6)"
+                  "17"
                 ]
               ],
+              "pts": [
+                "F(0) = 0 and F(1) = c₁ = 5. F(2) = max{1 + F(0), F(1)} = max{1, 5} = 5 — skip the coin 1 because taking it forbids the 5.",
+                "F(3) = max{2 + F(1), F(2)} = max{2 + 5, 5} = 7 — now taking the 2 is worth it together with the 5.",
+                "F(4) = max{10 + F(2), F(3)} = max{10 + 5, 7} = 15. F(5) = max{6 + F(3), F(4)} = max{13, 15} = 15. F(6) = max{2 + F(4), F(5)} = max{17, 15} = 17.",
+                "<b>Max amount = 17.</b> The coins of the optimal solution are recovered by walking back: F(6) came from 2 + F(4), F(4) came from 10 + F(2), F(2) came from F(1) which is c₁ = 5. So the coins are 5, 10, 2.",
+                "<b>Time efficiency Θ(n)</b>, <b>space Θ(n)</b> for the table (Θ(1) if you keep only the last two values and no backtrace).",
+                "The slide adds the sentence to remember: <b>all smaller instances were solved</b> — that is what makes the later values cheap."
+              ],
+              "viz": {
+                "type": "dp",
+                "method": "coinrow",
+                "title": "Lecture 14 Slide 14.9: the coin-row table for 5, 1, 2, 10, 6, 2",
+                "coins": [
+                  5,
+                  1,
+                  2,
+                  10,
+                  6,
+                  2
+                ]
+              }
+            },
+            {
+              "h": "Binomial coefficients by DP (Slides 14.10–14.14)",
+              "lead": "Pascal's triangle, read as a table of overlapping subproblems.",
+              "formula": [
+                "C(n, k) = C(n − 1, k) + C(n − 1, k − 1) for n > k > 0",
+                "C(n, 0) = 1, C(n, n) = 1"
+              ],
               "fig": [
-                "ag-14-fib",
-                "ag-14-coinrow",
                 "ag-14-binom"
               ],
+              "figH": {
+                "ag-14-binom": "Filling Pascal's triangle cell by cell, then reading C(6,3)"
+              },
               "figAt": {
-                "ag-14-fib": 0,
-                "ag-14-coinrow": 1,
                 "ag-14-binom": 2
               },
-              "figH": {
-                "ag-14-fib": "Fibonacci: the top-down recursion tree repeats work, the bottom-up table does each value once",
-                "ag-14-coinrow": "Coin-row on 5, 1, 2, 10, 6, 2: F(0) … F(6) filled one by one, then the chosen coins",
-                "ag-14-binom": "C(6, 3) by DP: the Pascal table filled row by row"
-              }
+              "pts": [
+                "C(n, k) counts the k-element subsets of an n-element set; it is the coefficient of a<sup>n−k</sup>b<sup>k</sup> in (a + b)ⁿ.",
+                "The recurrence comes from the same split as the coin row: the subsets that <b>exclude</b> the last element number C(n − 1, k), and those that <b>include</b> it number C(n − 1, k − 1).",
+                "Base cases: C(n, 0) = 1 (only the empty set) and C(n, n) = 1 (only the full set).",
+                "Fill the table row by row: each cell is the sum of the cell above and the cell above-left. That is exactly Pascal's triangle.",
+                "The slide's in-class exercise is <b>C(6, 3)</b>: the triangle gives 1, 6, 15, 20, 15, 6, 1 on row 6, so C(6, 3) = <b>20</b>.",
+                "<b>Time Θ(nk)</b>, <b>space Θ(nk)</b> for the full table; the slides compute the value, not the subsets."
+              ]
             },
             {
-              "h": "Robot Coin Collection & Longest Common Subsequence (LCS, Slides 14.16–14.30)",
-              "pts": [
-                "<b>3. Robot Coin Collection on an $n \\times m$ Board (Slides 14.16–14.19 & Final 2018 I Q6 / II Q9)</b>:<ul><li><b>Problem</b>: A robot starts at $(1, 1)$ and moves only <b>right</b> or <b>down</b> to $(n, m)$, collecting at most 1 coin per cell ($c_{ij} \\in \\{0, 1\\}$). Maximize total coins collected.</li><li><b>Recurrence</b>: $F[i, j] = \\max(F[i-1, j],\\; F[i, j-1]) + c_{ij}$ for $1 \\le i \\le n, 1 \\le j \\le m$, with $F[0, j] = F[i, 0] = 0$.</li><li><b>Complexity</b>: $\\mathbf{\\Theta(nm)}$ time and $\\mathbf{\\Theta(nm)}$ space! (Note from Lec 15 Slide 18: A greedy robot that just looks 1 step ahead fails because a local coin can trap the robot away from a rich row/column!)</li></ul>",
-                "<b>4. Longest Common Subsequence (LCS, Slides 14.20–14.30 & Final 2016 Q5 / Final 5 Q5)</b>:<ul><li><b>Problem</b>: Given strings $A = a_1 \\dots a_m$ and $B = b_1 \\dots b_n$, find the longest subsequence present in both (not necessarily contiguous).</li><li><b>Slide Examples</b>: `\"president\"` & `\"providence\"` $\\rightarrow$ `\"priden\"` (length $6$); `\"algorithm\"` & `\"alignment\"` $\\rightarrow$ `\"algm\"` or `\"algt\"` or `\"alim\"` (length $4$).</li><li><b>Recurrence for `len[i, j]`</b>:<ul><li>If $i = 0$ or $j = 0$: $\\text{len}[i, j] = 0$.</li><li>If $a_i == b_j$: $\\text{len}[i, j] = \\text{len}[i-1, j-1] + 1$ (record arrow `↖`).</li><li>If $a_i \\ne b_j$: $\\text{len}[i, j] = \\max(\\text{len}[i-1, j],\\; \\text{len}[i, j-1])$ (record `↑` or `←`).</li></ul></li><li><b>Complexity</b>: Table construction takes $\\mathbf{O(mn)}$ time and $\\mathbf{O(mn)}$ memory; backtracing from $(m, n)$ to $(0, 0)$ takes $\\mathbf{O(m + n)}$ time.</li></ul>"
-              ],
+              "h": "Robot coin collection (Slides 14.16–14.19)",
+              "lead": "A grid, two possible moves, and coins sitting in the cells.",
               "fig": [
-                "ag-14-robot",
-                "ag-14-lcs-match",
+                "ag-14-robot"
+              ],
+              "figH": {
+                "ag-14-robot": "The board and the two-move robot, filled cell by cell from the top-left"
+              },
+              "figAt": {
+                "ag-14-robot": 1
+              },
+              "formula": [
+                "F(i, j) = max{F(i − 1, j), F(i, j − 1)} + c(i, j)"
+              ],
+              "pts": [
+                "<b>Problem</b> (Slide 14.16): coins are placed in the cells of an n × m board. A robot starts in the upper-left cell and must reach the bottom-right cell, moving only <b>one cell right</b> or <b>one cell down</b> at each step. Collect as much money as possible.",
+                "Every path from the corner to a cell (i, j) arrives either from <b>above</b> (i − 1, j) or from the <b>left</b> (i, j − 1) — those are the only two ways in.",
+                "So F(i, j), the best total reachable at (i, j), is the better of the two neighbours plus the coin lying in the cell: F(i, j) = max{F(i − 1, j), F(i, j − 1)} + c(i, j).",
+                "First row: only from the left, so F(1, j) = F(1, j − 1) + c(1, j). First column: only from above. Those two lines are the base cases.",
+                "Fill row by row, then read the answer in the bottom-right cell and backtrace the moves that produced it.",
+                "The slides devote three pages to the filled board and the backtrace; the recurrence and the two base lines are what you must be able to write."
+              ]
+            },
+            {
+              "h": "Longest common subsequence: definition and recurrence (Slides 14.20–14.23)",
+              "lead": "Delete letters, keep the order, share as many as possible.",
+              "fig": [
                 "ag-14-lcs"
               ],
+              "figH": {
+                "ag-14-lcs": "len(i, j) built from the three cases the recurrence describes"
+              },
               "figAt": {
-                "ag-14-robot": 0,
-                "ag-14-lcs-match": 1,
                 "ag-14-lcs": 1
               },
+              "formula": [
+                "len(i, j) = len(i − 1, j − 1) + 1 if aᵢ = bⱼ",
+                "len(i, j) = max{len(i − 1, j), len(i, j − 1)} otherwise"
+              ],
+              "pts": [
+                "A <b>subsequence</b> of S is obtained by deleting zero or more symbols of S: the remaining letters keep their order but need not be consecutive. Subsequences of \"president\" include pred, sdn and predent.",
+                "The <b>LCS problem</b>: given two sequences, find a common subsequence of maximum length.",
+                "Example of the slides: \"president\" and \"providence\" have LCS <b>priden</b> (length 6). A second example: \"algorithm\" and \"alignment\" have LCS <b>algm</b>.",
+                "Let len(i, j) be the length of an LCS between the first i letters of A and the first j letters of B.",
+                "If aᵢ = bⱼ, those two letters can end a common subsequence: len(i, j) = len(i − 1, j − 1) + 1.",
+                "If aᵢ ≠ bⱼ, at least one of them is not used, so len(i, j) = max{len(i − 1, j), len(i, j − 1)}. The first row and column are 0 — the empty prefix shares nothing."
+              ]
+            },
+            {
+              "h": "Filling the LCS table and reading the subsequence back (Slides 14.24–14.26)",
+              "lead": "Θ(mn) cells, each from three neighbours; the letters come from a backtrace.",
+              "fig": [
+                "ag-14-lcs-match"
+              ],
               "figH": {
-                "ag-14-robot": "Robot coin collecting: F(i, j) on the slide's 5 × 6 board and the best path",
-                "ag-14-lcs-match": "Common subsequences drawn as non-crossing lines: president / providence and algorithm / alignment",
-                "ag-14-lcs": "LCS-Length table for president / providence with prev arrows, then Output-LCS prints priden"
+                "ag-14-lcs-match": "Matches (diagonal) and non-matches (max of up and left) in the same grid"
+              },
+              "figAt": {
+                "ag-14-lcs-match": 2
+              },
+              "pts": [
+                "Table shape: rows are the letters of A (with an empty row 0), columns the letters of B (with an empty column 0).",
+                "A cell where the letters <b>match</b> takes the diagonal value plus one. A cell where they differ takes the larger of the cell above and the cell to its left.",
+                "The bottom-right cell holds the <b>length</b> of an LCS; for \"president\"/\"providence\" that value is 6.",
+                "To recover the letters, walk back from the bottom-right: on a match, take the letter and move diagonally up-left; otherwise move to the neighbour that supplied the value (up or left, ties pick either).",
+                "One of the longest common subsequences of \"algorithm\" and \"alignment\" is <b>algm</b> — the slides say \"one of\", because several may share the maximum length.",
+                "Running time and memory are both <b>O(mn)</b>; the backtrace itself is O(m + n)."
+              ],
+              "viz": {
+                "type": "dp",
+                "method": "lcs",
+                "title": "Lecture 14 Slides 14.24–14.26: the len(i, j) table, filled cell by cell",
+                "first": "BANANA",
+                "second": "ATANA"
               }
             },
             {
-              "h": "0/1 Knapsack by Dynamic Programming vs. Greedy (Slides 14.31–14.37)",
-              "pts": [
-                "<b>5. The 0/1 Knapsack Problem (Slides 14.31–14.37, Final 1 Q2 & Final 2019 Credit Q6)</b>:<ul><li><b>Problem</b>: Given $n$ items with integer weights $w_1, \\dots, w_n$ and values $v_1, \\dots, v_n$, and knapsack capacity $W$, select a subset of items with total weight $\\le W$ maximizing total value.</li><li><b>Recurrence</b>: Let $V[i, j]$ be the max value using a subset of items $1..i$ with capacity $j$ ($0 \\le j \\le W$):<br>$V[i, j] = V[i-1, j]$ if $j < w_i$; and $V[i, j] = \\max\\{V[i-1, j],\\; v_i + V[i-1, j - w_i]\\}$ if $j \\ge w_i$, with base cases $V[0, j] = 0$ and $V[i, 0] = 0$.</li><li><b>Time & Space Complexity</b>: $\\mathbf{\\Theta(nW)}$ time and $\\mathbf{\\Theta(nW)}$ space.</li></ul>",
-                "<b>Worked Exam Comparison 1 (Final 2019 Credit Q6: $W = 5$, Items `1:(w=1,v=10), 2:(w=2,v=15), 3:(w=3,v=14), 4:(w=1,v=12)`)</b>:<ul><li><b>DP Solution</b>: Selects items `{1, 2, 4}` with total weight $1 + 2 + 1 = 4 \\le 5$ and optimal value $10 + 15 + 12 = \\mathbf{37}$.</li><li><b>Greedy (by max value)</b>: Picks item 2 ($w=2, v=15$) then item 3 ($w=3, v=14$) for total weight $5$ and value $15 + 14 = \\mathbf{29 < 37}$. (Even greedy by value/weight ratio $12/1, 10/1, 15/2$ picks `{4, 1, 2}` $= 37$ here, whereas in Final 1 Q2 with items `1:(1,9), 2:(2,14), 3:(3,13), 4:(1,11)` and $W=5$, DP picks `{1, 2, 4}` with weight $4$ and value $9+14+11 = \\mathbf{34}$, beating max-value greedy `14+13=27`!).</li></ul>"
-              ],
-              "table": [
-                [
-                  "Item i (Final 1 Q2: W=5)",
-                  "w=0",
-                  "w=1",
-                  "w=2",
-                  "w=3",
-                  "w=4",
-                  "w=5"
-                ],
-                [
-                  "i = 0 (Empty)",
-                  "0",
-                  "0",
-                  "0",
-                  "0",
-                  "0",
-                  "0"
-                ],
-                [
-                  "i = 1 (w₁=1, v₁=9)",
-                  "0",
-                  "9",
-                  "9",
-                  "9",
-                  "9",
-                  "9"
-                ],
-                [
-                  "i = 2 (w₂=2, v₂=14)",
-                  "0",
-                  "9",
-                  "14",
-                  "23",
-                  "23",
-                  "23"
-                ],
-                [
-                  "i = 3 (w₃=3, v₃=13)",
-                  "0",
-                  "9",
-                  "14",
-                  "23",
-                  "23",
-                  "27"
-                ],
-                [
-                  "i = 4 (w₄=1, v₄=11)",
-                  "0",
-                  "11",
-                  "20",
-                  "25",
-                  "34",
-                  "34 (Items 1,2,4)"
-                ]
-              ],
+              "h": "0/1 knapsack by DP: the recurrence (Slides 14.28–14.30)",
+              "lead": "The same include/exclude split, now with a capacity index.",
               "fig": [
-                "algo-dp-sim",
-                "ag-14-knap",
+                "ag-14-knap"
+              ],
+              "figH": {
+                "ag-14-knap": "The slide instance W = 5 filled with V[i, j] and the optimal subset 30"
+              },
+              "figAt": {
+                "ag-14-knap": 2
+              },
+              "formula": [
+                "V(i, j) = max{V(i − 1, j), vᵢ + V(i − 1, j − wᵢ)} if j − wᵢ ≥ 0",
+                "V(i, j) = V(i − 1, j) if j − wᵢ < 0",
+                "V(0, j) = 0 and V(i, 0) = 0"
+              ],
+              "pts": [
+                "<b>Problem</b>: n items with integer weights w₁ … wₙ and values v₁ … vₙ, and a knapsack of integer capacity W. Find the most valuable subset of items whose total weight fits.",
+                "Let V(i, j) be the best value using some of the first i items with capacity j.",
+                "If item i is <b>not</b> taken, the answer is V(i − 1, j). If it <b>is</b> taken, it must fit (wᵢ ≤ j) and the rest is the best of the first i − 1 items with the remaining capacity: vᵢ + V(i − 1, j − wᵢ). Take the maximum.",
+                "If wᵢ > j the item cannot be taken at all, so V(i, j) = V(i − 1, j) — that is the second line of the recurrence.",
+                "The slide instance: W = 5, items (w = 2, $12), (w = 1, $10), (w = 3, $20), (w = 2, $15).",
+                "Filling the table: row 1 is 0, 0, 12, 12, 12, 12; row 2 is 0, 10, 12, 22, 22, 22; row 3 is 0, 10, 12, 22, 30, 32; row 4 is 0, 10, 15, 25, 30, 37. The best value is <b>37</b>."
+              ],
+              "viz": {
+                "type": "dp",
+                "method": "knapsack",
+                "title": "Lecture 14 Slides 14.28–14.30: W = 5, items (2, $12), (1, $10), (3, $20), (2, $15)",
+                "items": [
+                  [
+                    2,
+                    12
+                  ],
+                  [
+                    1,
+                    10
+                  ],
+                  [
+                    3,
+                    20
+                  ],
+                  [
+                    2,
+                    15
+                  ]
+                ],
+                "capacity": 5
+              }
+            },
+            {
+              "h": "Knapsack pseudocode, backtracing and the DP summary (Slides 14.31–14.33)",
+              "lead": "The slides end with the pseudocode, the pointer table and the cost.",
+              "fig": [
                 "ag-14-change"
               ],
-              "figAt": {
-                "ag-14-knap": 0
-              },
               "figH": {
-                "ag-14-knap": "0/1 knapsack, W = 5: V[i, j] filled cell by cell, then backtracing finds items {1, 2, 4}",
-                "ag-14-change": "Change-making by DP: c[p] (fewest coins) and s[p] (last coin) for n = 16, D = {1, 5, 12, 25}"
-              }
+                "ag-14-change": "The optimal subset recovered from the filled table"
+              },
+              "figAt": {
+                "ag-14-change": 1
+              },
+              "code": [
+                "Algorithm DPKnapsack(w[1..n], v[1..n], W)",
+                "var V[0..n, 0..W], P[1..n, 1..W]: int",
+                "for j := 0 to W do V[0, j] := 0",
+                "for i := 0 to n do V[i, 0] := 0",
+                "for i := 1 to n do",
+                "  for j := 1 to W do",
+                "    if w[i] ≤ j and v[i] + V[i−1, j−w[i]] > V[i−1, j] then",
+                "      V[i, j] := v[i] + V[i−1, j−w[i]]; P[i, j] := j − w[i]",
+                "    else V[i, j] := V[i−1, j]; P[i, j] := j",
+                "return V[n, W] and the optimal subset by backtracing"
+              ],
+              "pts": [
+                "The <b>pointer table P</b> stores where each value came from: the column j − wᵢ when item i was taken, and the same column j when it was not.",
+                "Backtrace from (n, W): if V[i, j] equals the value in the row above, item i was <b>not</b> taken and you move up one row; otherwise item i <b>was</b> taken and you move up one row and left by wᵢ.",
+                "For the slide instance the answer 37 is reached with items 4, 2 and 1 (weights 2 + 1 + 2 = 5, values 15 + 10 + 12 = 37).",
+                "<b>Running time O(nW)</b> and <b>space O(nW)</b>; the lecture calls this pseudo-polynomial, because the cost depends on the numeric value W and not only on the number of items.",
+                "Compare with the greedy idea: taking the best value-to-weight item first can be wrong for 0/1 knapsack, which is exactly why the table is needed.",
+                "<b>DP in one line</b>: write the recurrence, fill the table in dependency order, read the answer, backtrace the choices. The six problems of this lecture are six instances of that one sentence."
+              ]
             }
           ],
           "cards": [
             [
-              "Coin-Row DP Recurrence",
-              "F(n) = max{c_n + F(n−2), F(n−1)} for n > 1, with F(0) = 0, F(1) = c₁. Runs in Θ(n) time."
+              "Dynamic programming, definition",
+              "A design technique for optimisation problems: set up a recurrence, solve each smaller instance once, record it in a table, then read the answer and backtrace."
             ],
             [
-              "Binomial Coefficient C(n, k) DP",
-              "C(n, k) = C(n−1, k) + C(n−1, k−1) with C(n, 0) = C(n, n) = 1. Runs in Θ(nk) time and Θ(nk) space."
+              "What \"programming\" means here",
+              "Planning. The name is Bellman's (1950s) and has nothing to do with writing code."
             ],
             [
-              "Robot Coin Collection DP Recurrence",
-              "F[i, j] = max(F[i−1, j], F[i, j−1]) + c_{ij} on an n × m grid in Θ(nm) time and space."
+              "Overlapping subproblems",
+              "The recursion calls the same smaller instances many times; a table computes each one once. Fibonacci without a table is exponential, with one it is Θ(n)."
             ],
             [
-              "LCS DP Recurrence & Complexity",
-              "If a_i == b_j: len[i,j] = len[i−1,j−1] + 1; else max(len[i−1,j], len[i,j−1]). Time: Θ(mn), Space: Θ(mn), Backtrace: O(m + n)."
+              "Optimal substructure",
+              "The best solution of the whole is built from best solutions of the parts — the property that makes a recurrence valid."
             ],
             [
-              "0/1 Knapsack DP Recurrence & Complexity",
-              "V[i, j] = max(V[i−1, j], v_i + V[i−1, j − w_i]) for j ≥ w_i. Time: Θ(nW), Space: Θ(nW)."
+              "Fibonacci bottom-up table",
+              "f(0) = 0, f(1) = 1, then f(n) = f(n − 1) + f(n − 2) for n = 2, 3, … ; Θ(n) time, Θ(1) space if only two values are kept."
             ],
             [
-              "Dynamic Programming Principles, Coin-Row & Binomial Coefficients (Slides 14.1–14.15) — Core Principle & Complexity",
-              "<b>Dynamic Programming Overview (Slides 14.2–14.4)</b>: Invented by <b>Richard Bellman</b> (1950s) to solve optimization problems with <b>overlapping subproblems</b> and <b>optimal substructure</b>. Instead of recomputing shared subproblems exponentially (as in top-down recursion), DP solves each smaller subproblem <i>once</i> and stores its answer in a table (bottom-up iteration or memoization). <b>1. The Coin-Row Problem (Slides 14.6–14.9 & Exam Examples Q9)</b>:<ul><li><b>Problem</b>: Given a row of $n$ coins with values $c_1, c_2, \\dots, c_n$, pick a subset of coins with maximum total value such that <b>no two adjacent coins are selected</b>.</li><li><b>Recurrence</b>: Partition allowed selections for $1..n$ into those that <i>include</i> $c_n$ (max value $c_n + F(n-2)$) and those that <i>exclude</i> $c_n$ (max value $F(n-1)$):<br>$F(n) = \\max\\{c_n + F(n-2),\\; F(n-1)\\}$ for $n > 1$, with base cases $F(0) = 0,\\; F(1) = c_1$.</li><li><b>Slide & Exam Trace on Coins `[5, 1, 2, 10, 6, 2]`</b>:<ul><li>$F(0) = 0,\\; F(1) = 5$</li><li>$F(2) = \\max(1 + 0, 5) = 5$</li><li>$F(3) = \\max(2 + 5, 5) = 7$</li><li>$F(4) = \\max(10 + 5, 7) = 15$</li><li>$F(5) = \\max(6 + 7, 15) = 15$</li><li>$F(6) = \\max(2 + 15, 15) = \\mathbf{17}$ (optimal coins: $c_1=5, c_4=10, c_6=2$). Time: $\\Theta(n)$, Space: $\\Theta(n)$.</li></ul></li></ul>"
+              "Coin-row recurrence",
+              "F(n) = max{cₙ + F(n − 2), F(n − 1)} with F(0) = 0, F(1) = c₁. Split every legal selection into \"last coin excluded\" and \"last coin included\"."
             ],
             [
-              "Robot Coin Collection & Longest Common Subsequence (LCS, Slides 14.16–14.30) — Core Principle & Complexity",
-              "<b>3. Robot Coin Collection on an $n \\times m$ Board (Slides 14.16–14.19 & Final 2018 I Q6 / II Q9)</b>:<ul><li><b>Problem</b>: A robot starts at $(1, 1)$ and moves only <b>right</b> or <b>down</b> to $(n, m)$, collecting at most 1 coin per cell ($c_{ij} \\in \\{0, 1\\}$). Maximize total coins collected.</li><li><b>Recurrence</b>: $F[i, j] = \\max(F[i-1, j],\\; F[i, j-1]) + c_{ij}$ for $1 \\le i \\le n, 1 \\le j \\le m$, with $F[0, j] = F[i, 0] = 0$.</li><li><b>Complexity</b>: $\\mathbf{\\Theta(nm)}$ time and $\\mathbf{\\Theta(nm)}$ space! (Note from Lec 15 Slide 18: A greedy robot that just looks 1 step ahead fails because a local coin can trap the robot away from a rich row/column!)</li></ul> <b>4. Longest Common Subsequence (LCS, Slides 14.20–14.30 & Final 2016 Q5 / Final 5 Q5)</b>:<ul><li><b>Problem</b>: Given strings $A = a_1 \\dots a_m$ and $B = b_1 \\dots b_n$, find the longest subsequence present in both (not necessarily contiguous).</li><li><b>Slide Examples</b>: `\"president\"` & `\"providence\"` $\\rightarrow$ `\"priden\"` (length $6$); `\"algorithm\"` & `\"alignment\"` $\\rightarrow$ `\"algm\"` or `\"algt\"` or `\"alim\"` (length $4$).</li><li><b>Recurrence for `len[i, j]`</b>:<ul><li>If $i = 0$ or $j = 0$: $\\text{len}[i, j] = 0$.</li><li>If $a_i == b_j$: $\\text{len}[i, j] = \\text{len}[i-1, j-1] + 1$ (record arrow `↖`).</li><li>If $a_i \\ne b_j$: $\\text{len}[i, j] = \\max(\\text{len}[i-1, j],\\; \\text{len}[i, j-1])$ (record `↑` or `←`).</li></ul></li><li><b>Complexity</b>: Table construction takes $\\mathbf{O(mn)}$ time and $\\mathbf{O(mn)}$ memory; backtracing from $(m, n)$ to $(0, 0)$ takes $\\mathbf{O(m + n)}$ time.</li></ul>"
+              "Coin-row worked instance",
+              "Row 5, 1, 2, 10, 6, 2 gives F = 0, 5, 5, 7, 15, 15, 17; the best amount is 17 with coins 5, 10, 2."
             ],
             [
-              "0/1 Knapsack by Dynamic Programming vs. Greedy (Slides 14.31–14.37) — Core Principle & Complexity",
-              "<b>5. The 0/1 Knapsack Problem (Slides 14.31–14.37, Final 1 Q2 & Final 2019 Credit Q6)</b>:<ul><li><b>Problem</b>: Given $n$ items with integer weights $w_1, \\dots, w_n$ and values $v_1, \\dots, v_n$, and knapsack capacity $W$, select a subset of items with total weight $\\le W$ maximizing total value.</li><li><b>Recurrence</b>: Let $V[i, j]$ be the max value using a subset of items $1..i$ with capacity $j$ ($0 \\le j \\le W$):<br>$V[i, j] = V[i-1, j]$ if $j < w_i$; and $V[i, j] = \\max\\{V[i-1, j],\\; v_i + V[i-1, j - w_i]\\}$ if $j \\ge w_i$, with base cases $V[0, j] = 0$ and $V[i, 0] = 0$.</li><li><b>Time & Space Complexity</b>: $\\mathbf{\\Theta(nW)}$ time and $\\mathbf{\\Theta(nW)}$ space.</li></ul> <b>Worked Exam Comparison 1 (Final 2019 Credit Q6: $W = 5$, Items `1:(w=1,v=10), 2:(w=2,v=15), 3:(w=3,v=14), 4:(w=1,v=12)`)</b>:<ul><li><b>DP Solution</b>: Selects items `{1, 2, 4}` with total weight $1 + 2 + 1 = 4 \\le 5$ and optimal value $10 + 15 + 12 = \\mathbf{37}$.</li><li><b>Greedy (by max value)</b>: Picks item 2 ($w=2, v=15$) then item 3 ($w=3, v=14$) for total weight $5$ and value $15 + 14 = \\mathbf{29 < 37}$. (Even greedy by value/weight ratio $12/1, 10/1, 15/2$ picks `{4, 1, 2}` $= 37$ here, whereas in Final 1 Q2 with items `1:(1,9), 2:(2,14), 3:(3,13), 4:(1,11)` and $W=5$, DP picks `{1, 2, 4}` with weight $4$ and value $9+14+11 = \\mathbf{34}$, beating max-value greedy `14+13=27`!).</li></ul>"
+              "Coin-row cost",
+              "Θ(n) time and Θ(n) space for the table; the coins are recovered by backtracing F."
+            ],
+            [
+              "Binomial recurrence",
+              "C(n, k) = C(n − 1, k) + C(n − 1, k − 1) with C(n, 0) = C(n, n) = 1; the table is Pascal's triangle."
+            ],
+            [
+              "Binomial cost and example",
+              "Θ(nk) time and space; the slides' exercise C(6, 3) = 20."
+            ],
+            [
+              "Robot coin collection",
+              "n × m board, robot from upper-left to bottom-right moving right or down: F(i, j) = max{F(i − 1, j), F(i, j − 1)} + c(i, j), first row and column as base cases."
+            ],
+            [
+              "Subsequence",
+              "Obtained by deleting zero or more symbols; the rest keep their order but need not be adjacent. \"pred\", \"sdn\" and \"predent\" are subsequences of \"president\"."
+            ],
+            [
+              "LCS recurrence",
+              "If aᵢ = bⱼ then len(i, j) = len(i − 1, j − 1) + 1; otherwise len(i, j) = max{len(i − 1, j), len(i, j − 1)}. Row 0 and column 0 are 0."
+            ],
+            [
+              "LCS worked examples",
+              "\"president\" and \"providence\" → LCS length 6 (\"priden\"); \"algorithm\" and \"alignment\" → \"algm\"."
+            ],
+            [
+              "LCS cost and backtrace",
+              "O(mn) time and memory; backtrace from the bottom-right cell, taking the letter on a match and moving up or left otherwise."
+            ],
+            [
+              "Knapsack recurrence",
+              "V(i, j) = max{V(i − 1, j), vᵢ + V(i − 1, j − wᵢ)} when j ≥ wᵢ, else V(i − 1, j); V(0, j) = V(i, 0) = 0."
+            ],
+            [
+              "Knapsack slide instance",
+              "W = 5, items (2, $12), (1, $10), (3, $20), (2, $15): the last row is 0, 10, 15, 25, 30, 37 and the best value is 37 with items 4, 2 and 1."
+            ],
+            [
+              "Knapsack cost",
+              "O(nW) time and space — pseudo-polynomial, because W is a value, not a count of items."
+            ],
+            [
+              "What the pointer table P is for",
+              "It records the column each cell came from, so the optimal subset is recovered by walking back from V(n, W) without recomputing the table."
+            ],
+            [
+              "The four DP moves",
+              "Write the recurrence, define the base cases, fill the table in dependency order, read the answer and backtrace the choices."
             ]
           ],
           "qa": [
             [
-              "Solve the Coin-Row problem for the coins [5, 1, 2, 10, 6, 2] using Dynamic Programming, showing the recurrence, table values, maximum value, and chosen coins.",
-              "Using $F(0)=0, F(1)=c_1=5$, and $F(i) = \\max(c_i + F(i-2), F(i-1))$:<br>• $F(1) = 5$<br>• $F(2) = \\max(1+0, 5) = 5$<br>• $F(3) = \\max(2+5, 5) = 7$<br>• $F(4) = \\max(10+5, 7) = 15$<br>• $F(5) = \\max(6+7, 15) = 15$<br>• $F(6) = \\max(2+15, 15) = \\mathbf{17}$.<br>Backtracing gives coins at indices $6, 4, 1$ with values $\\mathbf{2 + 10 + 5 = 17}$.",
-              "Exam Examples Q9 & Lecture 14 · Slides 14.6–14.9"
+              "Solve the coin-row problem for 5, 1, 2, 10, 6, 2 and show the table.",
+              "F(0) = 0, F(1) = 5.<br>F(2) = max{1 + F(0), F(1)} = max{1, 5} = 5.<br>F(3) = max{2 + F(1), F(2)} = max{7, 5} = 7.<br>F(4) = max{10 + F(2), F(3)} = max{15, 7} = 15.<br>F(5) = max{6 + F(3), F(4)} = max{13, 15} = 15.<br>F(6) = max{2 + F(4), F(5)} = max{17, 15} = 17.<br>Table: n = 0..6, F = 0, 5, 5, 7, 15, 15, 17. <b>Best amount 17</b>, and backtracing (F(6) ← 2 + F(4), F(4) ← 10 + F(2), F(2) ← F(1) = 5) gives the coins <b>5, 10, 2</b>. Time Θ(n), space Θ(n)."
             ],
             [
-              "Find the Longest Common Subsequence (LCS) between 'algorithm' and 'alignment' using Dynamic Programming.",
-              "Building the $9 \\times 9$ DP table for $A = \\text{algorithm}$ and $B = \\text{alignment}$ yields maximum length $\\text{len}[9, 9] = \\mathbf{4}$, corresponding to the common subsequences <code>\"algm\"</code>, <code>\"algt\"</code>, or <code>\"alim\"</code> (matched characters: `a` at (1,1), `l` at (2,2), `g` at (3,4) or `i` at (6,3), and `m` at (9,6) or `t` at (7,9)).",
-              "Final 2016 Q5, Final 5 Q5 & Lecture 14 · Slide 14.22"
+              "Compute C(6, 3) with the DP recurrence and give the cost.",
+              "C(n, 0) = C(n, n) = 1, and C(n, k) = C(n − 1, k) + C(n − 1, k − 1).<br>Rows: n=0: 1. n=1: 1 1. n=2: 1 2 1. n=3: 1 3 3 1. n=4: 1 4 6 4 1. n=5: 1 5 10 10 5 1. n=6: 1 6 15 20 15 6 1.<br>Reading position k = 3 on row 6 gives <b>C(6, 3) = 20</b>. Cost: Θ(nk) time and Θ(nk) space for the full triangle."
+            ],
+            [
+              "Write the LCS recurrence and explain how the actual subsequence is recovered.",
+              "Let len(i, j) be the LCS length of the first i letters of A and the first j letters of B, with len(0, ·) = len(·, 0) = 0.<br>If aᵢ = bⱼ: len(i, j) = len(i − 1, j − 1) + 1.<br>Otherwise: len(i, j) = max{len(i − 1, j), len(i, j − 1)}.<br>The value in the bottom-right cell is the length (6 for \"president\"/\"providence\"). To recover a sequence, walk back from that cell: on a match, output the letter and move diagonally up-left; otherwise move up or left to the neighbour whose value equals the current cell. Cost O(mn) time and memory, O(m + n) for the backtrace."
+            ],
+            [
+              "Fill the 0/1 knapsack table for W = 5 with items (2, $12), (1, $10), (3, $20), (2, $15) and state the optimal subset.",
+              "Using V(i, j) = max{V(i − 1, j), vᵢ + V(i − 1, j − wᵢ)} whenever j ≥ wᵢ:<br>row 0: 0 0 0 0 0 0<br>row 1 (w=2, v=12): 0 0 12 12 12 12<br>row 2 (w=1, v=10): 0 10 12 22 22 22<br>row 3 (w=3, v=20): 0 10 12 22 30 32<br>row 4 (w=2, v=15): 0 10 15 25 30 37<br>The answer is <b>V(4, 5) = 37</b>. Backtracing: 37 differs from the cell above (32), so item 4 is taken and j becomes 5 − 2 = 3; at (3, 3) the value 22 equals the row above, so item 3 is not taken; at (2, 3) 22 differs from 12, so item 2 is taken and j becomes 2; at (1, 2) 12 differs from 0, so item 1 is taken. Subset: <b>items 4, 2, 1</b> — weight 2 + 1 + 2 = 5, value 15 + 10 + 12 = 37."
+            ],
+            [
+              "Why is 0/1 knapsack solved by DP and not by a greedy rule?",
+              "A greedy rule (take the items with the best value per unit of weight first) can lock in a locally good choice and then fail to fill the capacity well. The classic counterexample: capacity 10 with items (weight 6, value 30), (weight 5, value 25) and (weight 5, value 25). Ratio-greedy takes the first item, value 30, and cannot take anything else; the optimal answer is the two 5-weight items, value 50. DP avoids this because it compares the only two meaningful cases for every item and capacity — included or excluded — and keeps the best value for every capacity, not just one guess. Cost O(nW) time and space."
+            ],
+            [
+              "Give the general shape of a dynamic-programming solution, using this lecture's examples.",
+              "1. <b>Define the state</b>: F(n) for a row of coins, C(n, k) for binomials, len(i, j) for two prefixes, V(i, j) for items and capacity, F(i, j) for a board cell. 2. <b>Write the recurrence</b> that relates the state to smaller states — usually by splitting on the last element (excluded/included) or on the last move (from above/from the left). 3. <b>Give the base cases</b>: F(0) = 0, len(0, ·) = 0, V(0, j) = V(i, 0) = 0. 4. <b>Fill the table</b> in an order where every dependency is already computed, usually row by row. 5. <b>Read the answer</b> from the final cell and, if the solution itself is wanted, <b>backtrace</b> the choices."
             ]
           ],
           "quiz": [
             {
-              "q": "What distinguishing feature should cause us to choose Dynamic Programming rather than a standard Divide-and-Conquer approach to a problem?",
+              "q": "What is the main idea of dynamic programming as the lecture states it?",
               "o": [
                 [
-                  "The problem can be solved recursively",
-                  "Both Divide-and-Conquer and DP use recursive formulations."
+                  "Try every possible solution and keep the cheapest",
+                  "Wrong: that is brute force; DP never enumerates the solutions."
                 ],
                 [
-                  "The subproblems for the solution overlap (are shared and would be recomputed repeatedly by top-down Divide-and-Conquer)",
-                  "Correct! Final Summer Q21: Overlapping subproblems are the hallmark that distinguishes Dynamic Programming from Divide-and-Conquer (which solves disjoint subproblems)."
+                  "Set up a recurrence, solve each smaller instance once, record the answers in a table, read the answer from the table",
+                  "Right: that is the slides' summary — programming here means planning (Slides 14.1–14.2)."
                 ],
                 [
-                  "The problem does not have a brute-force solution",
-                  "Optimization problems solved by DP do have brute-force solutions, which are exponential."
+                  "Split the problem into independent halves and combine them",
+                  "Wrong: that is divide and conquer. DP is needed precisely because the subproblems overlap."
                 ],
                 [
-                  "The input is already sorted",
-                  "Irrelevant to choosing DP vs. D&C."
+                  "Sort the input and apply a greedy choice",
+                  "Wrong: greedy is a different technique, and the lecture warns that it fails on 0/1 knapsack."
                 ]
               ],
               "a": 1,
-              "src": "Exam · Final Summer Q21 & Exam Examples Q21"
+              "src": "Lecture 14 · Slides 14.1–14.2"
             },
             {
-              "q": "Given items as {value, weight} pairs {{60, 20}, {50, 25}, {20, 5}} and knapsack capacity W = 40, what is the maximum value assuming items are divisible (Fractional Knapsack) and non-divisible (0/1 Knapsack) respectively?",
+              "q": "Why is the naive recursive Fibonacci computation exponential while the bottom-up one is Θ(n)?",
               "o": [
                 [
-                  "100 and 80",
-                  "In fractional knapsack we can also take 15/25 of the {50,25} item after taking {20,5} and {60,20}."
+                  "Because recursion is always slower than iteration",
+                  "Wrong: the recursion here is slow for a specific reason — the same subproblems are re-solved."
                 ],
                 [
-                  "110 and 70",
-                  "In 0/1 knapsack, taking {60,20} + {20,5} gives weight 25 ≤ 40 and value 80 > 70."
+                  "Because the same subproblems (f(n − 2), f(n − 3), …) are recomputed exponentially often; the table computes each once",
+                  "Right: the recursion tree has about 1.618ⁿ nodes while there are only n distinct subproblems (Slides 14.3–14.4)."
                 ],
                 [
-                  "130 and 110",
-                  "Total weight of all three items is 50 > 40."
+                  "Because the bottom-up version uses fewer additions per step",
+                  "Wrong: both use one addition per subproblem; the difference is how many times a subproblem is solved."
                 ],
                 [
-                  "110 and 80",
-                  "Correct! Final 2022 Q18: Value/weight ratios are {20,5}=4, {60,20}=3, {50,25}=2. Fractional takes {20,5} (w=5,v=20) + {60,20} (w=20,v=60) + (15/25) of {50,25} (w=15,v=30) = 110. 0/1 Knapsack takes {20,5} + {60,20} (w=25, v=80) since {50,25} + {20,5} is only 70."
-                ]
-              ],
-              "a": 3,
-              "src": "Exam · Final 2022 Q18"
-            },
-            {
-              "q": "Bottom-up Dynamic Programming works by:",
-              "o": [
-                [
-                  "Doubling the recursive calls at each level",
-                  "That leads to O(2ⁿ) exponential blowup."
-                ],
-                [
-                  "Transforming recursive calls into an iterative loop that solves smaller subproblems first and stores their values in a table",
-                  "Correct! Final 2021 Q38 & Final Summer Q17: Bottom-up DP replaces recursion with a loop that fills a table from smallest subproblems to largest."
-                ],
-                [
-                  "Solving the same subproblem multiple times",
-                  "DP solves each subproblem exactly once."
-                ],
-                [
-                  "Solving larger subproblems first, followed by smaller subproblems",
-                  "Bottom-up solves smaller subproblems first."
+                  "Because Fibonacci numbers overflow",
+                  "Wrong: overflow is an implementation detail, not the complexity argument."
                 ]
               ],
               "a": 1,
-              "src": "Exam · Final 2021 Q38 & Final Summer Q17"
+              "src": "Lecture 14 · Slides 14.3–14.4"
+            },
+            {
+              "q": "Give the recurrence for the coin-row problem.",
+              "o": [
+                [
+                  "F(n) = cₙ + F(n − 1)",
+                  "Wrong: that always takes the last coin and ignores the no-two-adjacent rule."
+                ],
+                [
+                  "F(n) = max{cₙ + F(n − 2), F(n − 1)}, with F(0) = 0 and F(1) = c₁",
+                  "Right: the split is \"last coin excluded\" → F(n − 1), \"last coin included\" → cₙ + F(n − 2) (Slide 14.8)."
+                ],
+                [
+                  "F(n) = max{cₙ + F(n − 1), cₙ₋₁ + F(n − 2)}",
+                  "Wrong: mixing the two coins in one option breaks the adjacency rule on both sides."
+                ],
+                [
+                  "F(n) = min{cₙ + F(n − 2), F(n − 1)}",
+                  "Wrong: the problem maximises the money, so the two candidates are compared with max, not min."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 14 · Slide 14.8"
+            },
+            {
+              "q": "For the row 5, 1, 2, 10, 6, 2, what is the maximum amount and which coins give it?",
+              "o": [
+                [
+                  "17, with coins 5, 10, 2",
+                  "Right: F = 0, 5, 5, 7, 15, 15, 17 and the backtrace gives 5 + 10 + 2 (Slide 14.9)."
+                ],
+                [
+                  "17, with coins 5, 10, 6",
+                  "Wrong: 6 is adjacent to 10 in the row, so 10 and 6 cannot both be taken."
+                ],
+                [
+                  "18, with coins 5, 2, 10, 1",
+                  "Wrong: 2 is adjacent to both 1 and 10, and the total exceeds what the table allows."
+                ],
+                [
+                  "21, with coins 5, 10, 6",
+                  "Wrong: an illegal selection, and 21 is not in the F table at all."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 14 · Slide 14.9"
+            },
+            {
+              "q": "What is the time and space efficiency of the coin-row DP?",
+              "o": [
+                [
+                  "Θ(n) time, Θ(n) space for the table",
+                  "Right: one pass over the coins, one entry per prefix (Slide 14.9)."
+                ],
+                [
+                  "Θ(n²) time, Θ(n) space",
+                  "Wrong: each entry is computed from two earlier entries, so the fill is linear."
+                ],
+                [
+                  "Θ(2ⁿ) time, Θ(n) space",
+                  "Wrong: that is the naive recursion over all selections; DP removes the exponential factor."
+                ],
+                [
+                  "Θ(n log n) time, Θ(1) space",
+                  "Wrong: no sorting is involved, and the table needs one entry per prefix."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 14 · Slide 14.9"
+            },
+            {
+              "q": "Which recurrence computes the binomial coefficient C(n, k)?",
+              "o": [
+                [
+                  "C(n, k) = C(n − 1, k) + C(n − 1, k − 1)",
+                  "Right: split the k-subsets into those excluding and those including the last element; base cases C(n, 0) = C(n, n) = 1 (Slide 14.12)."
+                ],
+                [
+                  "C(n, k) = C(n, k − 1) + C(n − 1, k)",
+                  "Wrong: this mixes different n and k in a way that does not correspond to any split of the subsets."
+                ],
+                [
+                  "C(n, k) = n · C(n − 1, k) / k",
+                  "Wrong: the division formula is a different identity; the DP recurrence is a sum."
+                ],
+                [
+                  "C(n, k) = C(n − 1, k) · C(n − 1, k − 1)",
+                  "Wrong: the two groups of subsets are added, not multiplied."
+                ]
+              ],
+              "a": 0,
+              "src": "Lecture 14 · Slide 14.12"
+            },
+            {
+              "q": "Filling Pascal's triangle by DP, what is C(6, 3)?",
+              "o": [
+                [
+                  "15",
+                  "Wrong: 15 sits at k = 2 and k = 4 on row 6."
+                ],
+                [
+                  "20",
+                  "Right: row 6 is 1, 6, 15, 20, 15, 6, 1, so C(6, 3) = 20."
+                ],
+                [
+                  "18",
+                  "Wrong: 18 is not on row 6 at all."
+                ],
+                [
+                  "120",
+                  "Wrong: that is 6! / 6, i.e. a permutation count, not the combination C(6, 3)."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 14 · Slides 14.13–14.14"
+            },
+            {
+              "q": "In the robot coin-collection problem, why is F(i, j) = max{F(i − 1, j), F(i, j − 1)} + c(i, j)?",
+              "o": [
+                [
+                  "Because the robot may move right, down or diagonally",
+                  "Wrong: only right and down are allowed, and that is exactly why there are two predecessors."
+                ],
+                [
+                  "Because every path to (i, j) arrives either from above or from the left, and the cell's coin is collected on arrival",
+                  "Right: the two moves into a cell give the two candidates, and the coin in the cell is added unconditionally (Slide 14.16)."
+                ],
+                [
+                  "Because the robot must maximise the number of cells visited",
+                  "Wrong: the objective is the money collected, not the number of steps."
+                ],
+                [
+                  "Because the board is filled column by column",
+                  "Wrong: fill order is a detail of implementation; the recurrence comes from the allowed moves."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 14 · Slides 14.16–14.18"
+            },
+            {
+              "q": "What does len(i, j) mean in the LCS recurrence?",
+              "o": [
+                [
+                  "The number of letters that differ between the first i and first j letters",
+                  "Wrong: the recurrence counts the common subsequence, not the differences."
+                ],
+                [
+                  "The length of a longest common subsequence of the first i letters of A and the first j letters of B",
+                  "Right: that is the state definition, with len(0, ·) = len(·, 0) = 0 (Slide 14.23)."
+                ],
+                [
+                  "The length of the longest common <i>substring</i> (consecutive letters)",
+                  "Wrong: a subsequence need not be consecutive — \"priden\" from \"president\"/\"providence\" is the counterexample."
+                ],
+                [
+                  "The position of the first mismatch",
+                  "Wrong: no mismatch position is stored; the table stores lengths."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 14 · Slide 14.23"
+            },
+            {
+              "q": "If aᵢ ≠ bⱼ, which recurrence does the LCS table use?",
+              "o": [
+                [
+                  "len(i, j) = len(i − 1, j − 1)",
+                  "Wrong: the diagonal is used on a match, not on a mismatch."
+                ],
+                [
+                  "len(i, j) = max{len(i − 1, j), len(i, j − 1)}",
+                  "Right: at least one of the two letters is unused, so take the better of dropping one from either side (Slide 14.23)."
+                ],
+                [
+                  "len(i, j) = min{len(i − 1, j), len(i, j − 1)}",
+                  "Wrong: taking the minimum would discard the better option and understate the length."
+                ],
+                [
+                  "len(i, j) = len(i − 1, j) + len(i, j − 1)",
+                  "Wrong: the two alternatives are exclusive choices, so they are compared, not added."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 14 · Slide 14.23"
+            },
+            {
+              "q": "For W = 5 and items (2,$12), (1,$10), (3,$20), (2,$15), what is V(4, 5)?",
+              "o": [
+                [
+                  "32",
+                  "Wrong: 32 is V(3, 5) — taking item 3 with the earlier items — and it ignores item 4."
+                ],
+                [
+                  "37",
+                  "Right: the last row of the slide table ends at 37, achieved by items 4, 2 and 1 (weights 2 + 1 + 2 = 5)."
+                ],
+                [
+                  "30",
+                  "Wrong: 30 is V(3, 3) and V(4, 4), not the full capacity of the last row."
+                ],
+                [
+                  "45",
+                  "Wrong: that would need all four items, whose total weight 8 exceeds the capacity 5."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 14 · Slides 14.29–14.30"
+            },
+            {
+              "q": "What is the running time of the 0/1 knapsack DP, and why is it called pseudo-polynomial?",
+              "o": [
+                [
+                  "O(n log n), because the items are sorted by value",
+                  "Wrong: no sorting happens in the DP; the two nested loops dominate."
+                ],
+                [
+                  "O(nW), because the table has n rows and W columns — the cost depends on the numeric value of W, not only on the number of items",
+                  "Right: that is what pseudo-polynomial means (Slide 14.31)."
+                ],
+                [
+                  "O(2ⁿ), because each item is either taken or not",
+                  "Wrong: that is the brute-force enumeration the DP replaces."
+                ],
+                [
+                  "O(n + W), because each cell is visited once along a path",
+                  "Wrong: every one of the n · W cells is computed, so the cost is the size of the table."
+                ]
+              ],
+              "a": 1,
+              "src": "Lecture 14 · Slide 14.31"
             }
           ],
           "extra": [
             {
               "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 14?",
-              "o": [
-                [
-                  "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-                  "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-                ],
-                [
-                  "The algorithm requires O(2ⁿ) exponential space in the best case",
-                  "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-                ],
-                [
-                  "The algorithm only works when n ≤ 10",
-                  "False — Asymptotic analysis applies as n → ∞."
-                ],
-                [
-                  "Correctness does not depend on loop invariants or optimal substructure",
-                  "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-                ]
-              ],
-              "a": 0
-            }
-          ]
-        },
-        {
-          "n": 15,
-          "code": "Lec 15",
-          "title": "Lecture 15: Greedy Algorithms Overview — Coin Changing, Multiprocessor Scheduling, Huffman, MST & Counterexamples",
-          "videos": [
-            {
-              "id": "ARvQcqJ_-NY",
-              "title": "3. Greedy Method — Introduction, Locally Optimal Choices & Counterexamples",
-              "channel": "Abdul Bari",
-              "duration": "12:02",
-              "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "How Greedy Algorithms make locally optimal choices hoping for a global optimum"
-                }
-              ]
-            }
-          ],
-          "notes": [
-            {
-              "h": "Greedy Strategy, Coin Changing & The Krons Counterexample (Slides 15.1–15.8)",
-              "pts": [
-                "<b>Greedy Algorithms Principle (Slides 15.3 & Final 2021 Q36)</b>: A greedy algorithm works in phases, making the <b>locally optimal choice</b> at each step without regard for future consequences, hoping it leads to a <b>globally optimal solution</b>.",
-                "<b>When Greedy Succeeds vs. Fails in Coin Changing (Slides 15.4–15.5 & Final 2 Q57–Q59)</b>:<ul><li><b>US Coins (`25¢, 10¢, 5¢, 1¢`)</b>: Greedy always produces the minimum number of coins (e.g., `$6.39 = $5 + $1 + 25¢ + 10¢ + 4×1¢`).</li><li><b>Slide 15.5 ”Krons” Counterexample (`1, 7, 10` krons for sum `15`)</b>: Greedy picks `10 + 1 + 1 + 1 + 1 + 1` (<b>6 coins</b>), whereas the optimal solution is `7 + 7 + 1` (<b>3 coins</b>)!</li><li><b>Final Exam Counterexample (`1, 3, 4` coins for sum `6`, Final 2 Q58)</b>: Greedy picks `4 + 1 + 1` (<b>3 coins</b>), whereas optimal is `3 + 3` (<b>2 coins</b>)! General Coin Change requires Dynamic Programming in $O(S \\cdot N)$ time (Final 2 Q59).</li></ul>",
-                "<b>Multiprocessor Job Scheduling Counterexample (Slides 15.6–15.8)</b>: Given 9 jobs `[3, 5, 6, 10, 11, 14, 15, 18, 20]` on 3 processors:<ul><li><b>Longest-Job-First (LPT) Greedy</b>: Completion time = $18 + 11 + 6 = \\mathbf{35}$ min.</li><li><b>Shortest-Job-First (SPT) Greedy</b>: Completion time = $6 + 14 + 20 = \\mathbf{40}$ min.</li><li><b>Global Optimum</b> (`P1: 20+14=34`, `P2: 18+11+5=34`, `P3: 15+10+6+3=34`): Completion time = $\\mathbf{34}$ min (finding the exact optimum is NP-complete!).</li></ul>"
-              ],
-              "fig": [
-                "ag-15-money",
-                "ag-15-sched"
-              ],
-              "figAt": {
-                "ag-15-money": 1,
-                "ag-15-sched": 2
-              },
-              "figH": {
-                "ag-15-money": "Counting money greedily: $6.39 in US money (optimal) and 15 krons with 1, 7, 10 coins (not optimal)",
-                "ag-15-sched": "Nine jobs on three processors: longest-first (35), shortest-first (40) and the optimum (34)"
-              }
-            },
-            {
-              "h": "Where Greedy is Provably Optimal vs. Suboptimal (Slides 15.9–15.18)",
-              "pts": [
-                "<b>Where Greedy Succeeds (Optimal)</b>:<ul><li><b>1. Huffman Encoding (Slide 15.9)</b>: Repeatedly merge the two lowest-frequency symbols (`A:22, B:12, C:24, D:6, E:27, F:9` $\\to$ merges `D(6)+F(9)=15`, `B(12)+15=27`, `A(22)+C(24)=46`, `E(27)+27=54`, `46+54=100`, giving average length $2.42$ bits/char).</li><li><b>2. Minimum Spanning Tree (Prim's & Kruskal's, Slide 15.10)</b>: Always yields a minimum-weight spanning tree.</li><li><b>3. Dijkstra's Shortest Path on Non-Negative Weights (Slides 15.13–15.16)</b>: Always yields exact shortest paths from source $s$.</li><li><b>4. Connecting $n$ White and $n$ Black Collinear Dots (Slide 15.17)</b>: Pairing the leftmost unmatched white dot with the leftmost unmatched black dot is provably optimal.</li></ul>",
-                "<b>Where Greedy Fails (Suboptimal)</b>:<ul><li><b>1. Traveling Salesman Problem (TSP, Slide 15.11)</b>: Nearest-neighbor greedy gets trapped into taking expensive return edges.</li><li><b>2. Robot Coin Collection on a Checkerboard (Slide 15.18)</b>: Looking only 1 step ahead misses richer paths further down/right (requires DP!).</li></ul>"
-              ],
-              "fig": [
-                "ag-15-huffman",
-                "ag-15-mst",
-                "ag-15-wires",
-                "ag-15-tsp",
-                "ag-15-robots"
-              ],
-              "figAt": {
-                "ag-15-huffman": 0,
-                "ag-15-mst": 0,
-                "ag-15-wires": 0,
-                "ag-15-tsp": 1,
-                "ag-15-robots": 1
-              },
-              "figH": {
-                "ag-15-huffman": "Huffman encoding: combine the two smallest numbers until one tree is left, average 2.42 bits/char",
-                "ag-15-mst": "Minimum spanning tree: grow the tree by the cheapest edge to a new node, total 3+3+2+2+2 = 12",
-                "ag-15-wires": "Connecting white and black dots with the least wire",
-                "ag-15-tsp": "Greedy traveling salesman: nearest city first gives ABDBCE (16), the best route is ADBCE (14)",
-                "ag-15-robots": "Collecting all the coins on the checkerboard with the fewest right/down robots"
-              }
-            }
-          ],
-          "cards": [
-            [
-              "Greedy Core Principle (Final Q36)",
-              "Greedy algorithms make LOCALLY optimal choices at each step leading (when the greedy-choice property holds) to GLOBALLY optimal solutions."
-            ],
-            [
-              "Krons Coin Counterexample (Slide 15.5)",
-              "Denominations {1, 7, 10} for target 15: Greedy picks 10+1+1+1+1+1 (6 coins), while optimal is 7+7+1 (3 coins)."
-            ],
-            [
-              "Exam Coin Change Counterexample (Final 2 Q58)",
-              "Denominations {1, 3, 4} for target S = 6: Greedy picks 4+1+1 (3 coins), while optimal is 3+3 (2 coins)."
-            ],
-            [
-              "Greedy Strategy, Coin Changing & The Krons Counterexample (Slides 15.1–15.8) — Core Principle & Complexity",
-              "<b>Greedy Algorithms Principle (Slides 15.3 & Final 2021 Q36)</b>: A greedy algorithm works in phases, making the <b>locally optimal choice</b> at each step without regard for future consequences, hoping it leads to a <b>globally optimal solution</b>. <b>When Greedy Succeeds vs. Fails in Coin Changing (Slides 15.4–15.5 & Final 2 Q57–Q59)</b>:<ul><li><b>US Coins (`25¢, 10¢, 5¢, 1¢`)</b>: Greedy always produces the minimum number of coins (e.g., `$6.39 = $5 + $1 + 25¢ + 10¢ + 4×1¢`).</li><li><b>Slide 15.5 ”Krons” Counterexample (`1, 7, 10` krons for sum `15`)</b>: Greedy picks `10 + 1 + 1 + 1 + 1 + 1` (<b>6 coins</b>), whereas the optimal solution is `7 + 7 + 1` (<b>3 coins</b>)!</li><li><b>Final Exam Counterexample (`1, 3, 4` coins for sum `6`, Final 2 Q58)</b>: Greedy picks `4 + 1 + 1` (<b>3 coins</b>), whereas optimal is `3 + 3` (<b>2 coins</b>)! General Coin Change requires Dynamic Programming in $O(S \\cdot N)$ time (Final 2 Q59).</li></ul>"
-            ],
-            [
-              "Where Greedy is Provably Optimal vs. Suboptimal (Slides 15.9–15.18) — Core Principle & Complexity",
-              "<b>Where Greedy Succeeds (Optimal)</b>:<ul><li><b>1. Huffman Encoding (Slide 15.9)</b>: Repeatedly merge the two lowest-frequency symbols (`A:22, B:12, C:24, D:6, E:27, F:9` $\\to$ merges `D(6)+F(9)=15`, `B(12)+15=27`, `A(22)+C(24)=46`, `E(27)+27=54`, `46+54=100`, giving average length $2.42$ bits/char).</li><li><b>2. Minimum Spanning Tree (Prim's & Kruskal's, Slide 15.10)</b>: Always yields a minimum-weight spanning tree.</li><li><b>3. Dijkstra's Shortest Path on Non-Negative Weights (Slides 15.13–15.16)</b>: Always yields exact shortest paths from source $s$.</li><li><b>4. Connecting $n$ White and $n$ Black Collinear Dots (Slide 15.17)</b>: Pairing the leftmost unmatched white dot with the leftmost unmatched black dot is provably optimal.</li></ul> <b>Where Greedy Fails (Suboptimal)</b>:<ul><li><b>1. Traveling Salesman Problem (TSP, Slide 15.11)</b>: Nearest-neighbor greedy gets trapped into taking expensive return edges.</li><li><b>2. Robot Coin Collection on a Checkerboard (Slide 15.18)</b>: Looking only 1 step ahead misses richer paths further down/right (requires DP!).</li></ul>"
-            ]
-          ],
-          "qa": [
-            [
-              "Give a counterexample showing that the greedy coin-changing algorithm does not always yield the minimum number of coins.",
-              "• <b>Slide 15.5 Counterexample</b>: With coin denominations $\\{1, 7, 10\\}$ and target sum $15$, greedy chooses one $10$ and five $1$s ($6$ coins), whereas two $7$s and one $1$ uses only $3$ coins.<br>• <b>Final Exam Counterexample</b>: With denominations $\\{1, 3, 4\\}$ and target sum $6$, greedy chooses $4 + 1 + 1$ ($3$ coins), whereas $3 + 3$ uses only $2$ coins.",
-              "Lecture 15 · Slide 15.5 & Final 2 Q58"
-            ]
-          ],
-          "quiz": [
-            {
-              "q": "Greedy algorithms make _______________ optimal choices in the hope of leading to _______________ optimal solutions.",
-              "o": [
-                [
-                  "Globally, locally",
-                  "Reversed."
-                ],
-                [
-                  "Top-down, bottom-up",
-                  "These describe traversal directions, not optimality scopes."
-                ],
-                [
-                  "Locally, globally",
-                  "Correct! Final 2021 Q36 & Final Summer Q15: Greedy algorithms make locally optimal choices leading to globally optimal solutions."
-                ],
-                [
-                  "Bottom-up, top-down",
-                  "Incorrect."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final 2021 Q36 & Final Summer Q15"
-            },
-            {
-              "q": "Suppose you have coins of denominations 1, 3, and 4, and you use a greedy algorithm that always picks the largest coin ≤ remaining sum. For which of the following sums will the greedy algorithm NOT produce an optimal answer?",
-              "o": [
-                [
-                  "20",
-                  "20 = 4×5 (5 coins, optimal)."
-                ],
-                [
-                  "12",
-                  "12 = 4×3 (3 coins, optimal)."
-                ],
-                [
-                  "6",
-                  "Correct! Final 2 Q58: For sum 6, greedy picks 4 + 1 + 1 (3 coins), whereas 3 + 3 uses only 2 coins!"
-                ],
-                [
-                  "5",
-                  "5 = 4 + 1 (2 coins, optimal)."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final 2 Q58"
-            }
-          ],
-          "extra": [
-            {
-              "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 15?",
-              "o": [
-                [
-                  "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-                  "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-                ],
-                [
-                  "The algorithm requires O(2ⁿ) exponential space in the best case",
-                  "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-                ],
-                [
-                  "The algorithm only works when n ≤ 10",
-                  "False — Asymptotic analysis applies as n → ∞."
-                ],
-                [
-                  "Correctness does not depend on loop invariants or optimal substructure",
-                  "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-                ]
-              ],
-              "a": 0
-            }
-          ]
-        },
-        {
-          "n": 16,
-          "code": "Lec 16",
-          "title": "Lecture 16: Greedy Algorithms & Graphs — Representations, Handshaking Lemma, MST Proofs & Prim's Algorithm",
-          "videos": [
-            {
-              "id": "FPEMBWg_WlY",
-              "title": "MIT 6.046J Lec 16: Greedy Algorithms, Minimum Spanning Trees & Prim's Algorithm (Prof. Charles Leiserson)",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:24:07",
-              "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Graph representations: Adjacency Matrix Θ(V²) vs. Adjacency List Θ(V + E)"
-                },
-                {
-                  "t": 660,
-                  "time": "11:00",
-                  "label": "Minimum Spanning Tree definition and Optimal Substructure cut-and-paste proof"
-                },
-                {
-                  "t": 1500,
-                  "time": "25:00",
-                  "label": "Greedy-Choice Cut Property theorem and proof"
-                },
-                {
-                  "t": 2160,
-                  "time": "36:00",
-                  "label": "Prim's Algorithm trace and complexity: Array O(V²), Binary Heap O(E lg V), Fibonacci Heap O(E + V lg V)"
-                }
-              ]
-            }
-          ],
-          "notes": [
-            {
-              "h": "Graph Representations & The Handshaking Lemma (Slides 16.1–16.7)",
-              "pts": [
-                "<b>Graph Edge Bounds (Slide 16.2)</b>: In a directed or undirected graph $G = (V, E)$, $|E| = O(V^2)$. If $G$ is connected, $|E| \\ge |V| - 1$, which implies $\\lg |E| = \\Theta(\\lg V)$.",
-                "<b>Adjacency Matrix vs. Adjacency List (Slides 16.3–16.7, Final 2021 Q19 & Final Summer Q11–Q12)</b>:<ul><li><b>Adjacency Matrix $A[1..n, 1..n]$</b>: Requires $\\mathbf{\\Theta(V^2)}$ storage ($n^2$ boolean/weight entries, e.g., $20^2 = 400$ entries for $|V|=20$, Final 2021 Q19). Ideal for <b>dense graphs</b>.</li><li><b>Adjacency List `Adj[v]`</b>: By the <b>Handshaking Lemma</b> ($\\sum_{v \\in V} \\deg(v) = 2|E|$ for undirected graphs; $\\sum_{v \\in V} \\text{out-deg}(v) = |E|$ for digraphs), adjacency lists use $\\mathbf{\\Theta(V + E)}$ storage. Ideal for <b>sparse graphs</b>.</li></ul>"
-              ],
-              "fig": [
-                "ag-16-adj"
-              ],
-              "figAt": {
-                "ag-16-adj": 1
-              },
-              "figH": {
-                "ag-16-adj": "Adjacency matrix vs. adjacency lists for the slide's digraph, and the Handshaking Lemma"
-              }
-            },
-            {
-              "h": "Minimum Spanning Trees: Optimal Substructure & Greedy-Choice Cut Property (Slides 16.8–16.25)",
-              "pts": [
-                "<b>Minimum Spanning Tree (MST) Properties (Slides 16.8–16.9 & Final 2021 Q40)</b>: Given a connected undirected weighted graph $G = (V, E, w)$, an MST $T \\subseteq E$ is an <b>acyclic</b> subset connecting all $|V|$ vertices with minimum total weight $w(T) = \\sum_{(u,v) \\in T} w(u, v)$.<ul><li>Has <b>no cycles</b>.</li><li>Has <b>exactly $|V| - 1$ edges</b> (whereas creating a cyclic graph on $n$ vertices requires at least $n$ edges, Final 2021 Q3).</li><li>May <b>not be unique</b> if edge weights are not all distinct.</li></ul>",
-                "<b>Optimal Substructure Proof (Cut-and-Paste, Slides 16.12–16.18)</b>: Removing any edge $(u, v) \\in T$ partitions $T$ into two subtrees $T_1, T_2$ over induced subgraphs $G_1, G_2$. Then $T_1$ must be an MST of $G_1$ (and $T_2$ of $G_2$), because if a lighter spanning tree $T'_1$ existed for $G_1$, then $T' = \\{(u, v)\\} \\cup T'_1 \\cup T_2$ would be a lighter spanning tree of $G$ than $T$—contradiction!",
-                "<b>Greedy-Choice Property (Cut Theorem, Slides 16.20–16.25)</b>: Let $A \\subseteq V$ be any subset of vertices ($\\emptyset \\ne A \\ne V$), and let $(u, v)$ be a <b>minimum-weight (light) edge crossing the cut $(A, V - A)$</b>. Then $(u, v)$ belongs to some MST of $G$!<ul><li><b>Cut-and-Paste Proof</b>: Suppose MST $T$ does not contain $(u, v)$. Adding $(u, v)$ to $T$ creates a unique cycle that must cross the cut $(A, V - A)$ via at least one other edge $(x, y) \\in T$ with $w(u, v) \\le w(x, y)$. Removing $(x, y)$ yields a spanning tree $T' = T - \\{(x, y)\\} \\cup \\{(u, v)\\}$ with $w(T') = w(T) - w(x, y) + w(u, v) \\le w(T)$, so $T'$ is also an MST containing $(u, v)$!</li></ul>"
-              ],
-              "fig": [
-                "ag-16-mst-example",
-                "ag-16-opt-sub",
-                "ag-16-cut-proof"
-              ],
-              "figAt": {
-                "ag-16-mst-example": 0,
-                "ag-16-opt-sub": 1,
-                "ag-16-cut-proof": 2
-              },
-              "figH": {
-                "ag-16-mst-example": "Example of an MST: the slide's graph and its minimum spanning tree, w(T) = 53",
-                "ag-16-opt-sub": "Optimal substructure: remove (u, v) from T, and each subtree must be an MST of its part (cut and paste)",
-                "ag-16-cut-proof": "Proof of the cut theorem: swap the light edge (u, v) into T along the u-to-v path"
-              }
-            },
-            {
-              "h": "Prim's MST Algorithm & Priority Queue Complexity Analysis (Slides 16.26–16.52)",
-              "pts": [
-                "<b>Prim's Algorithm Mechanics (Slides 16.26–16.39)</b>: Grows a <b>single tree $A$</b> starting from an arbitrary root vertex $r$. Maintains remaining vertices $Q = V - A$ in a Min-Priority Queue keyed on `key[v]` = minimum weight of any edge connecting $v$ to a vertex already in $A$ (with parent pointer $\\pi[v]$).",
-                "<b>Exact Complexity Breakdown (Slides 16.40–16.50)</b>:<ul><li>`EXTRACT-MIN(Q)` is called <b>once per vertex</b> = $\\Theta(V)$ times.</li><li>By the Handshaking Lemma, the adjacency list loop inspects $2|E|$ edge endpoints, performing at most $\\Theta(E)$ implicit `DECREASE-KEY` operations.</li><li><b>Total Running Time $T = \\Theta(V) \\cdot T_{\\text{EXTRACT-MIN}} + \\Theta(E) \\cdot T_{\\text{DECREASE-KEY}}$</b>:<ul><li><b>1. Simple Array</b>: $T_{\\text{EXTRACT-MIN}} = O(V)$, $T_{\\text{DECREASE-KEY}} = O(1) \\implies \\mathbf{O(V^2)}$.</li><li><b>2. Binary Min-Heap</b>: $T_{\\text{EXTRACT-MIN}} = O(\\lg V)$, $T_{\\text{DECREASE-KEY}} = O(\\lg V) \\implies \\mathbf{O(E \\lg V)}$.</li><li><b>3. Fibonacci Heap</b>: $T_{\\text{EXTRACT-MIN}} = O(\\lg V)$ amortized, $T_{\\text{DECREASE-KEY}} = O(1)$ amortized $\\implies \\mathbf{O(E + V \\lg V)}$.</li></ul></li></ul>"
-              ],
-              "table": [
-                [
-                  "Priority Queue Implementation",
-                  "T_EXTRACT-MIN (× V)",
-                  "T_DECREASE-KEY (× E)",
-                  "Total Time (Prim / Dijkstra)"
-                ],
-                [
-                  "1. Unsorted Array",
-                  "O(V)",
-                  "O(1)",
-                  "O(V²) — best for dense graphs E = Θ(V²)"
-                ],
-                [
-                  "2. Binary Min-Heap",
-                  "O(lg V)",
-                  "O(lg V)",
-                  "O(E lg V) — standard for sparse graphs"
-                ],
-                [
-                  "3. Fibonacci Heap",
-                  "O(lg V) (amortized)",
-                  "O(1) (amortized)",
-                  "O(E + V lg V) — fastest asymptotically"
-                ]
-              ],
-              "code": "MST-PRIM(G, w, r)\n1  Q ← V[G]\n2  for each u ∈ Q\n3      do key[u] ← ∞\n4         π[u] ← NIL\n5  key[r] ← 0\n6  while Q ≠ ∅\n7      do u ← EXTRACT-MIN(Q)\n8         for each v ∈ Adj[u]\n9             do if v ∈ Q and w(u, v) < key[v]\n10                  then π[v] ← u\n11                       key[v] ← w(u, v)   // Implicit DECREASE-KEY",
-              "fig": [
-                "algo-graph-sim",
-                "ag-16-prim",
-                "ag-16-prim-cost"
-              ],
-              "figAt": {
-                "ag-16-prim": 0,
-                "ag-16-prim-cost": 1
-              },
-              "figH": {
-                "ag-16-prim": "Prim's algorithm on the slide's graph: EXTRACT-MIN and key updates step by step (or your own weights and root)",
-                "ag-16-prim-cost": "Analysis of Prim: counting each line, then the cost with an array, a binary heap and a Fibonacci heap"
-              }
-            }
-          ],
-          "cards": [
-            [
-              "Handshaking Lemma",
-              "In any undirected graph, Σ_{v∈V} degree(v) = 2|E|, which is why Adjacency Lists use Θ(V + E) space and Prim/Dijkstra relaxations run Θ(E) times."
-            ],
-            [
-              "Minimum Spanning Tree (MST) Properties",
-              "Connects all |V| vertices, has NO cycles, has exactly |V| − 1 edges, has minimal total edge weight, and is NOT necessarily unique."
-            ],
-            [
-              "Prim's Algorithm Complexity (3 PQ Types)",
-              "Array: O(V²); Binary Min-Heap: O(E lg V); Fibonacci Heap: O(E + V lg V)."
-            ],
-            [
-              "Graph Representations & The Handshaking Lemma (Slides 16.1–16.7) — Core Principle & Complexity",
-              "<b>Graph Edge Bounds (Slide 16.2)</b>: In a directed or undirected graph $G = (V, E)$, $|E| = O(V^2)$. If $G$ is connected, $|E| \\ge |V| - 1$, which implies $\\lg |E| = \\Theta(\\lg V)$. <b>Adjacency Matrix vs. Adjacency List (Slides 16.3–16.7, Final 2021 Q19 & Final Summer Q11–Q12)</b>:<ul><li><b>Adjacency Matrix $A[1..n, 1..n]$</b>: Requires $\\mathbf{\\Theta(V^2)}$ storage ($n^2$ boolean/weight entries, e.g., $20^2 = 400$ entries for $|V|=20$, Final 2021 Q19). Ideal for <b>dense graphs</b>.</li><li><b>Adjacency List `Adj[v]`</b>: By the <b>Handshaking Lemma</b> ($\\sum_{v \\in V} \\deg(v) = 2|E|$ for undirected graphs; $\\sum_{v \\in V} \\text{out-deg}(v) = |E|$ for digraphs), adjacency lists use $\\mathbf{\\Theta(V + E)}$ storage. Ideal for <b>sparse graphs</b>.</li></ul>"
-            ],
-            [
-              "Minimum Spanning Trees: Optimal Substructure & Greedy-Choice Cut Property (Slides 16.8–16.25) — Core Principle & Complexity",
-              "<b>Minimum Spanning Tree (MST) Properties (Slides 16.8–16.9 & Final 2021 Q40)</b>: Given a connected undirected weighted graph $G = (V, E, w)$, an MST $T \\subseteq E$ is an <b>acyclic</b> subset connecting all $|V|$ vertices with minimum total weight $w(T) = \\sum_{(u,v) \\in T} w(u, v)$.<ul><li>Has <b>no cycles</b>.</li><li>Has <b>exactly $|V| - 1$ edges</b> (whereas creating a cyclic graph on $n$ vertices requires at least $n$ edges, Final 2021 Q3).</li><li>May <b>not be unique</b> if edge weights are not all distinct.</li></ul> <b>Optimal Substructure Proof (Cut-and-Paste, Slides 16.12–16.18)</b>: Removing any edge $(u, v) \\in T$ partitions $T$ into two subtrees $T_1, T_2$ over induced subgraphs $G_1, G_2$. Then $T_1$ must be an MST of $G_1$ (and $T_2$ of $G_2$), because if a lighter spanning tree $T'_1$ existed for $G_1$, then $T' = \\{(u, v)\\} \\cup T'_1 \\cup T_2$ would be a lighter spanning tree of $G$ than $T$—contradiction!"
-            ],
-            [
-              "Prim's MST Algorithm & Priority Queue Complexity Analysis (Slides 16.26–16.52) — Core Principle & Complexity",
-              "<b>Prim's Algorithm Mechanics (Slides 16.26–16.39)</b>: Grows a <b>single tree $A$</b> starting from an arbitrary root vertex $r$. Maintains remaining vertices $Q = V - A$ in a Min-Priority Queue keyed on `key[v]` = minimum weight of any edge connecting $v$ to a vertex already in $A$ (with parent pointer $\\pi[v]$). <b>Exact Complexity Breakdown (Slides 16.40–16.50)</b>:<ul><li>`EXTRACT-MIN(Q)` is called <b>once per vertex</b> = $\\Theta(V)$ times.</li><li>By the Handshaking Lemma, the adjacency list loop inspects $2|E|$ edge endpoints, performing at most $\\Theta(E)$ implicit `DECREASE-KEY` operations.</li><li><b>Total Running Time $T = \\Theta(V) \\cdot T_{\\text{EXTRACT-MIN}} + \\Theta(E) \\cdot T_{\\text{DECREASE-KEY}}$</b>:<ul><li><b>1. Simple Array</b>: $T_{\\text{EXTRACT-MIN}} = O(V)$, $T_{\\text{DECREASE-KEY}} = O(1) \\implies \\mathbf{O(V^2)}$.</li><li><b>2. Binary Min-Heap</b>: $T_{\\text{EXTRACT-MIN}} = O(\\lg V)$, $T_{\\text{DECREASE-KEY}} = O(\\lg V) \\implies \\mathbf{O(E \\lg V)}$.</li><li><b>3. Fibonacci Heap</b>: $T_{\\text{EXTRACT-MIN}} = O(\\lg V)$ amortized, $T_{\\text{DECREASE-KEY}} = O(1)$ amortized $\\implies \\mathbf{O(E + V \\lg V)}$.</li></ul></li></ul>"
-            ]
-          ],
-          "qa": [
-            [
-              "Trace Prim's MST algorithm on the Midterm 2023 Q(a) undirected graph starting from node 2 (Step 1: S={2}, d[0]=7, d[1]=8, d[3]=5, d[4]=∞, d[5]=10) and state the sum of d[i] and sum of p[i] for i ∉ S with d[i] ≠ ∞ after steps 2, 3, 4, and 5.",
-              "Edges of the Midterm 2023 Q(a) graph: `(0,1)=3, (0,2)=7, (1,2)=8, (1,3)=2, (1,4)=12, (0,4)=9, (2,3)=5, (2,5)=10, (3,4)=4, (3,5)=1, (4,5)=6`.<br>• <b>Step 1 ($S = \\{2\\}$)</b>: $d[0]=7(p=2),\\; d[1]=8(p=2),\\; d[3]=5(p=2),\\; d[4]=\\infty,\\; d[5]=10(p=2)$.<br>• <b>Step 2 (Pick min $3$, $S = \\{2, 3\\}$)</b>: Update via $3$: $d[1]=\\min(8,2)=2(p=3),\\; d[4]=4(p=3),\\; d[5]=\\min(10,1)=1(p=3),\\; d[0]=7(p=2)$.<br>  $\\sum d[i] = 7 + 2 + 4 + 1 = \\mathbf{14}$ (Choice C); $\\sum p[i] = 2 + 3 + 3 + 3 = \\mathbf{11}$ (Choice D).<br>• <b>Step 3 (Pick min $5$, $S = \\{2, 3, 5\\}$)</b>: Edge $(5,4)=6 > d[4]=4$, so remaining $i \\notin S$: $d[0]=7(p=2),\\; d[1]=2(p=3),\\; d[4]=4(p=3)$.<br>  $\\sum d[i] = 7 + 2 + 4 = \\mathbf{13}$ (Choice B); $\\sum p[i] = 2 + 3 + 3 = \\mathbf{8}$ (Choice B).<br>• <b>Step 4 (Pick min $1$, $S = \\{2, 3, 5, 1\\}$)</b>: Edge $(1,0)=3 < 7 \\implies d[0]=3(p=1)$; $d[4]=4(p=3)$.<br>  $\\sum d[i] = 3 + 4 = \\mathbf{7}$ (Choice A); $\\sum p[i] = 1 + 3 = \\mathbf{4}$ (Choice B).<br>• <b>Step 5 (Pick min $0$, $S = \\{2, 3, 5, 1, 0\\}$)</b>: Remaining node $4$ has $d[4]=4(p=3)$.<br>  $\\sum d[i] = \\mathbf{4}$ (Choice B); $\\sum p[i] = \\mathbf{3}$ (Choice C).",
-              "Midterm 2023 Q(a) (Q1–Q8)"
-            ]
-          ],
-          "quiz": [
-            {
-              "q": "Which of the following is NOT a property of a Minimum Spanning Tree (MST) of a connected graph G = (V, E)?",
-              "o": [
-                [
-                  "It may have one or more cycles",
-                  "Correct! Final 2021 Q40 & Final Summer Q19: A spanning tree is acyclic by definition; it can NEVER contain a cycle."
-                ],
-                [
-                  "It has |V| − 1 edges",
-                  "True property of every spanning tree."
-                ],
-                [
-                  "It is not necessarily unique",
-                  "True when multiple edges share the same weight."
-                ],
-                [
-                  "The sum of weights of the edges is minimal",
-                  "True by definition of an MST."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final 2021 Q40 & Final Summer Q19"
-            },
-            {
-              "q": "If G is a directed graph with 20 vertices, how many boolean values are needed to represent G using an Adjacency Matrix?",
-              "o": [
-                [
-                  "20",
-                  "That is |V|, not |V|²."
-                ],
-                [
-                  "40",
-                  "That is 2|V|."
-                ],
-                [
-                  "200",
-                  "Incorrect."
-                ],
-                [
-                  "400",
-                  "Correct! Final 2021 Q19 & Final 2022 Q33: An adjacency matrix for |V| = 20 vertices is a 20 × 20 matrix containing 20² = 400 boolean values."
-                ]
-              ],
-              "a": 3,
-              "src": "Exam · Final 2021 Q19 & Final 2022 Q33"
-            },
-            {
-              "q": "Which of the following is true regarding Prim's algorithm for finding a Minimum Spanning Tree?",
-              "o": [
-                [
-                  "The starting node must be connected to the global minimum-weight edge",
-                  "Prim's algorithm works correctly starting from ANY arbitrary vertex r ∈ V."
-                ],
-                [
-                  "The algorithm grows only a single connected tree from start to finish",
-                  "Correct! Final Summer Q20 & Slide 17.22: Prim's algorithm always maintains a single tree A that grows vertex-by-vertex, whereas Kruskal's maintains a forest of trees."
-                ],
-                [
-                  "Marked nodes indicate nodes that will not be in the final tree",
-                  "Every vertex is included in the final spanning tree."
-                ],
-                [
-                  "When selecting the next edge, we consider only edges connecting two unmarked nodes",
-                  "Prim's selects the lightest edge crossing the cut between marked (tree) and unmarked (non-tree) nodes."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final Summer Q20 & Exam Examples Q20"
-            }
-          ],
-          "extra": [
-            {
-              "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 16?",
-              "o": [
-                [
-                  "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-                  "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-                ],
-                [
-                  "The algorithm requires O(2ⁿ) exponential space in the best case",
-                  "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-                ],
-                [
-                  "The algorithm only works when n ≤ 10",
-                  "False — Asymptotic analysis applies as n → ∞."
-                ],
-                [
-                  "Correctness does not depend on loop invariants or optimal substructure",
-                  "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-                ]
-              ],
-              "a": 0
-            }
-          ]
-        },
-        {
-          "n": 17,
-          "code": "Lec 17",
-          "title": "Lecture 17: Greedy Design Theory — Kruskal's MST, Huffman Prefix Codes (Optimality Proofs) & Activity Selection",
-          "videos": [
-            {
-              "id": "4ZlRH0eK-qQ",
-              "title": "3.5 Prim's and Kruskal's Algorithms — Greedy Minimum Spanning Tree",
-              "channel": "Abdul Bari",
-              "duration": "20:12",
-              "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Prim's vs. Kruskal's MST step-by-step trace and cycle detection via Disjoint Sets"
-                }
-              ]
-            },
-            {
-              "id": "co4_ahEDCho",
-              "title": "3.4 Huffman Coding — Optimal Prefix Code Tree Construction",
-              "channel": "Abdul Bari",
-              "duration": "17:33",
-              "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Variable-length prefix codes and greedy Huffman tree construction"
-                }
-              ]
-            }
-          ],
-          "notes": [
-            {
-              "h": "Greedy vs. Dynamic Programming & Kruskal's MST Algorithm (Slides 17.1–17.27)",
-              "pts": [
-                "<b>Greedy vs. Dynamic Programming (Slide 17.7)</b>:<ul><li>In <b>Dynamic Programming</b>, the choice at each step depends on the solutions to smaller subproblems, progressing <b>bottom-up</b>.</li><li>In a <b>Greedy Algorithm</b>, we make the locally best choice <i>first</i> (without solving subproblems first) and then solve the single remaining subproblem, progressing <b>top-down</b>.</li></ul>",
-                "<b>Kruskal's MST Algorithm (Slides 17.18–17.23)</b>:<ul><li><b>Concept</b>: Maintains a <b>forest of trees</b> (initially each vertex is its own tree via `MAKE-SET(v)`). Sorts all edges in non-decreasing order of weight, and adds edge $(u, v)$ to $A$ iff `FIND-SET(u) ≠ FIND-SET(v)` (i.e., it does not form a cycle), then merges their trees via `UNION(u, v)`.</li><li><b>Complexity Breakdown (Slide 17.21)</b>: Initializing sets takes $O(V)$, sorting edges takes $O(E \\log E)$, and $O(E)$ Disjoint-Set operations take $O(E \\log V)$ (or $O(E \\alpha(V))$). Since $|E| \\le |V|^2 \\implies \\log E \\le 2 \\log V$, total running time is $\\mathbf{O(E \\log E) = O(E \\log V)}$.</li></ul>",
-                "<b>Final 2021 Q17–Q18 & Final 2 Q33–Q34 Graph Trace (`A, B, C, D, E, F, G`)</b>:<ul><li>Edges: `(A,G)=1, (B,C)=1, (F,E)=1, (A,B)=2, (C,G)=4, (B,G)=3, (A,D)=3, (C,F)=3, (D,E)=5, (D,G)=5, (G,F)=6, (D,F)=4`.</li><li><b>Prim's Order starting at `A` (Q17)</b>: `(A,G)=1` $\\to$ `(A,B)=2` $\\to$ `(B,C)=1` $\\to$ `(A,D)=3` $\\to$ `(C,F)=3` $\\to$ `(F,E)=1` (<b>Choice b</b>!).</li><li><b>Kruskal's Global Sorted Edge Order (Q18)</b>: Picks all weight-1 edges first `(A,G)=1, (B,C)=1, (E,F)=1`, then weight-2 `(A,B)=2`, then weight-3 `(C,F)=3` and `(A,D)=3` (or `(D,F)=4`/`(D,E)`) (<b>Choice c</b>: `(A,G) then (B,C) then (E,F) then (A,B) then (C,F) then (D,E)`!).</li></ul>"
-              ],
-              "code": "MST-KRUSKAL(G, w)\n1  A ← ∅\n2  for each vertex v ∈ V[G]\n3      do MAKE-SET(v)\n4  sort the edges of E into nondecreasing order by weight w\n5  for each edge (u, v) ∈ E, taken in nondecreasing order by weight\n6      do if FIND-SET(u) ≠ FIND-SET(v)\n7            then A ← A ∪ {(u, v)}\n8                 UNION(u, v)\n9  return A",
-              "fig": [
-                "ag-17-cut",
-                "ag-17-kruskal",
-                "ag-17-costs",
-                "ag-17-prim"
-              ],
-              "figAt": {
-                "ag-17-cut": 1,
-                "ag-17-kruskal": 1,
-                "ag-17-costs": 1,
-                "ag-17-prim": 2
-              },
-              "figH": {
-                "ag-17-cut": "Cuts and light edges: why the light edge crossing a cut that respects A is safe",
-                "ag-17-kruskal": "Kruskal's algorithm on the slide's graph: sorted edges, FIND-SET test and the growing forest (or your own graph)",
-                "ag-17-costs": "Running times of MST-KRUSKAL and PRIM, line by line",
-                "ag-17-prim": "Prim's algorithm on the same graph: keys, π and EXTRACT-MIN step by step, ending in the keys of slide 26 (or the exam graph from A)"
-              }
-            },
-            {
-              "h": "Huffman Prefix Codes: Full Binary Tree Theorem & Optimality Proofs (Slides 17.28–17.46)",
-              "pts": [
-                "<b>Prefix Codes & Tree Cost $B(T)$ (Slides 17.29–17.37)</b>: In a <b>prefix code</b>, no codeword is a prefix of another codeword, so decoding is unambiguous without delimiters. An optimal prefix code is always represented by a <b>full binary tree</b> (every internal node has 2 children):<ul><li><b>Theorem (Slide 17.35)</b>: A full binary tree for an alphabet $C$ of $|C|$ characters has <b>exactly $|C|$ leaves</b> and <b>exactly $|C| - 1$ internal nodes</b>.</li><li><b>Tree Cost</b>: $B(T) = \\sum_{c \\in C} f(c) \\cdot d_T(c)$, where $f(c)$ is the frequency of $c$ and $d_T(c)$ is the depth of leaf $c$ (length of its codeword).</li><li><b>`HUFFMAN(C)` Algorithm</b>: Inserts all $|C|$ characters into a Min-Priority Queue $Q$, then runs $n - 1$ iterations of extracting the two minimum-frequency nodes $x, y$, creating parent $z$ with $f[z] = f[x] + f[y]$, and inserting $z$ into $Q$. Total time: $\\mathbf{O(n \\log n)}$.</li></ul>",
-                "<b>Proof of Greedy-Choice Property (Exchange Argument, Slides 17.38–17.42 & Midterm 2024 Retake Qc)</b>: Let $x, y$ be the two characters with lowest frequency, and let $a, b$ be sibling leaves of maximum depth in an arbitrary optimal tree $T$. Exchanging $a \\leftrightarrow x$ (forming $T'$) and $b \\leftrightarrow y$ (forming $T''$) gives $B(T) - B(T') = (f(a) - f(x))(d_T(a) - d_T(x)) \\ge 0$ since $f(a) \\ge f(x)$ and $d_T(a) \\ge d_T(x)$. Thus $B(T'') \\le B(T)$, so placing $x, y$ as sibling leaves at maximum depth is optimal!",
-                "<b>Proof of Optimal Substructure (Slides 17.43–17.46)</b>: Merging $x, y$ into leaf $z$ with $f(z) = f(x) + f(y)$ yields tree $T'$ with $B(T) = B(T') + f(x) + f(y)$. If $T'$ were not optimal for $C' = C - \\{x, y\\} \\cup \\{z\\}$, replacing $T'$ with a better $T''$ would yield a tree for $C$ with cost $< B(T)$—contradiction!",
-                "<b>Final Exam Workout (Final 2018 I Q5 & II Q8: `A=20, B=30, C=15, D=5, E=8, F=22`)</b>:<ul><li>1. Merge `D(5) + E(8) = DE(13)`.</li><li>2. Merge `DE(13) + C(15) = DEC(28)`.</li><li>3. Merge `A(20) + F(22) = AF(42)`.</li><li>4. Merge `DEC(28) + B(30) = DECB(58)`.</li><li>5. Merge `AF(42) + DECB(58) = Root(100)`.</li><li><b>Resulting Codewords</b> (`0` left, `1` right): `A = 00` (len 2), `F = 01` (len 2), `B = 11` (len 2), `C = 101` (len 3), `D = 1000` (len 4), `E = 1001` (len 4). Average bits = $(20\\cdot2 + 22\\cdot2 + 30\\cdot2 + 15\\cdot3 + 5\\cdot4 + 8\\cdot4)/100 = \\mathbf{2.41}$ bits/char!</li></ul>"
-              ],
-              "fig": [
-                "ag-17-huffman",
-                "ag-17-full-trees",
-                "ag-17-huff-exchange",
-                "ag-17-huff-sub",
-                "ag-17-huffman-sim"
-              ],
-              "figAt": {
-                "ag-17-huffman": 0,
-                "ag-17-full-trees": 0,
-                "ag-17-huff-exchange": 1,
-                "ag-17-huff-sub": 2,
-                "ag-17-huffman-sim": 3
-              },
-              "figH": {
-                "ag-17-huffman": "Prefix codes, and the slide's Huffman tree built merge by merge",
-                "ag-17-full-trees": "Full binary trees for 1 to 5 letters: each new letter adds one leaf and one internal node",
-                "ag-17-huff-exchange": "Exchange argument: swap x and y down to the deepest sibling leaves without raising B(T)",
-                "ag-17-huff-sub": "Optimal substructure: B(T) = B(T′) + f[x] + f[y], with the numbers of the slide example",
-                "ag-17-huffman-sim": "HUFFMAN(C) step by step: the slide's alphabet, the Final 2018 alphabet, or your own"
-              }
-            },
-            {
-              "h": "Activity Selection (Interval Scheduling, Slides 17.47–17.58)",
-              "pts": [
-                "<b>Activity Selection Problem (Slides 17.48–17.58)</b>: Given $n$ activities $S = \\{a_1, \\dots, a_n\\}$ with start and finish times $[s_i, f_i)$ sorted by finish time $f_1 \\le f_2 \\le \\dots \\le f_n$, find a maximum-size subset of mutually compatible activities ($f_i \\le s_j$ or $f_j \\le s_i$).",
-                "<b>Greedy Choice</b>: Always pick the compatible activity $a_m$ with the <b>earliest finish time</b>! After sorting in $O(n \\log n)$, `GREEDY-ACTIVITY-SELECTOR` scans once in $\\mathbf{\\Theta(n)}$ time."
-              ],
-              "fig": [
-                "ag-17-act-example",
-                "ag-17-act-dp",
-                "ag-17-act-proof",
-                "ag-17-act-greedy"
-              ],
-              "figAt": {
-                "ag-17-act-example": 0,
-                "ag-17-act-dp": 0,
-                "ag-17-act-proof": 1,
-                "ag-17-act-greedy": 1
-              },
-              "figH": {
-                "ag-17-act-example": "The slide's 12 activities and three different maximum compatible subsets",
-                "ag-17-act-dp": "Subproblems S<sub>ij</sub> and the recurrence c[i, j] = c[i, k] + c[k, j] + 1",
-                "ag-17-act-proof": "Why the earliest-finishing activity is safe: the exchange, and why S<sub>im</sub> is empty",
-                "ag-17-act-greedy": "GREEDY-ACTIVITY-SELECTOR on the slide's activities (or your own)"
-              }
-            }
-          ],
-          "cards": [
-            [
-              "Kruskal's vs. Prim's MST",
-              "Kruskal's grows a forest of trees by adding the lightest global edge that doesn't create a cycle (via Disjoint-Set Union-Find in O(E log V)); Prim's grows a single tree from a start vertex."
-            ],
-            [
-              "Huffman Full Binary Tree Theorem",
-              "An optimal prefix code for |C| letters is a full binary tree with exactly |C| leaves and |C| − 1 internal nodes, built in O(|C| log |C|) time."
-            ],
-            [
-              "Huffman Code for Geometric Probabilities (1/2, 1/4, 1/8, 1/16, 1/32)",
-              "a=0, b=10, c=110, d=1110, e=1111 (Final 2021 Q9 & Final 2022 Q27)."
-            ],
-            [
-              "Activity Selection Greedy Rule",
-              "Sort activities by finish time f₁ ≤ f₂ ≤ … ≤ fₙ and repeatedly select the first activity whose start time s_m ≥ finish time of the previously selected activity."
-            ],
-            [
-              "Greedy vs. Dynamic Programming & Kruskal's MST Algorithm (Slides 17.1–17.27) — Core Principle & Complexity",
-              "<b>Greedy vs. Dynamic Programming (Slide 17.7)</b>:<ul><li>In <b>Dynamic Programming</b>, the choice at each step depends on the solutions to smaller subproblems, progressing <b>bottom-up</b>.</li><li>In a <b>Greedy Algorithm</b>, we make the locally best choice <i>first</i> (without solving subproblems first) and then solve the single remaining subproblem, progressing <b>top-down</b>.</li></ul> <b>Kruskal's MST Algorithm (Slides 17.18–17.23)</b>:<ul><li><b>Concept</b>: Maintains a <b>forest of trees</b> (initially each vertex is its own tree via `MAKE-SET(v)`). Sorts all edges in non-decreasing order of weight, and adds edge $(u, v)$ to $A$ iff `FIND-SET(u) ≠ FIND-SET(v)` (i.e., it does not form a cycle), then merges their trees via `UNION(u, v)`.</li><li><b>Complexity Breakdown (Slide 17.21)</b>: Initializing sets takes $O(V)$, sorting edges takes $O(E \\log E)$, and $O(E)$ Disjoint-Set operations take $O(E \\log V)$ (or $O(E \\alpha(V))$). Since $|E| \\le |V|^2 \\implies \\log E \\le 2 \\log V$, total running time is $\\mathbf{O(E \\log E) = O(E \\log V)}$.</li></ul>"
-            ],
-            [
-              "Huffman Prefix Codes: Full Binary Tree Theorem & Optimality Proofs (Slides 17.28–17.46) — Core Principle & Complexity",
-              "<b>Prefix Codes & Tree Cost $B(T)$ (Slides 17.29–17.37)</b>: In a <b>prefix code</b>, no codeword is a prefix of another codeword, so decoding is unambiguous without delimiters. An optimal prefix code is always represented by a <b>full binary tree</b> (every internal node has 2 children):<ul><li><b>Theorem (Slide 17.35)</b>: A full binary tree for an alphabet $C$ of $|C|$ characters has <b>exactly $|C|$ leaves</b> and <b>exactly $|C| - 1$ internal nodes</b>.</li><li><b>Tree Cost</b>: $B(T) = \\sum_{c \\in C} f(c) \\cdot d_T(c)$, where $f(c)$ is the frequency of $c$ and $d_T(c)$ is the depth of leaf $c$ (length of its codeword).</li><li><b>`HUFFMAN(C)` Algorithm</b>: Inserts all $|C|$ characters into a Min-Priority Queue $Q$, then runs $n - 1$ iterations of extracting the two minimum-frequency nodes $x, y$, creating parent $z$ with $f[z] = f[x] + f[y]$, and inserting $z$ into $Q$. Total time: $\\mathbf{O(n \\log n)}$.</li></ul> <b>Proof of Greedy-Choice Property (Exchange Argument, Slides 17.38–17.42 & Midterm 2024 Retake Qc)</b>: Let $x, y$ be the two characters with lowest frequency, and let $a, b$ be sibling leaves of maximum depth in an arbitrary optimal tree $T$. Exchanging $a \\leftrightarrow x$ (forming $T'$) and $b \\leftrightarrow y$ (forming $T''$) gives $B(T) - B(T') = (f(a) - f(x))(d_T(a) - d_T(x)) \\ge 0$ since $f(a) \\ge f(x)$ and $d_T(a) \\ge d_T(x)$. Thus $B(T'') \\le B(T)$, so placing $x, y$ as sibling leaves at maximum depth is optimal!"
-            ],
-            [
-              "Activity Selection (Interval Scheduling, Slides 17.47–17.58) — Core Principle & Complexity",
-              "<b>Activity Selection Problem (Slides 17.48–17.58)</b>: Given $n$ activities $S = \\{a_1, \\dots, a_n\\}$ with start and finish times $[s_i, f_i)$ sorted by finish time $f_1 \\le f_2 \\le \\dots \\le f_n$, find a maximum-size subset of mutually compatible activities ($f_i \\le s_j$ or $f_j \\le s_i$). <b>Greedy Choice</b>: Always pick the compatible activity $a_m$ with the <b>earliest finish time</b>! After sorting in $O(n \\log n)$, `GREEDY-ACTIVITY-SELECTOR` scans once in $\\mathbf{\\Theta(n)}$ time."
-            ]
-          ],
-          "qa": [
-            [
-              "Construct the variable-length Huffman code for the character frequencies A = 20, B = 30, C = 15, D = 5, E = 8, F = 22 (Final 2018 I Q5, Final 2018 II Q8 & Exam Examples Q8).",
-              "1. Initial sorted queue: `D(5), E(8), C(15), A(20), F(22), B(30)`.<br>2. Combine `D(5) + E(8) → DE(13)`. Queue: `DE(13), C(15), A(20), F(22), B(30)`.<br>3. Combine `DE(13) + C(15) → DEC(28)`. Queue: `A(20), F(22), DEC(28), B(30)`.<br>4. Combine `A(20) + F(22) → AF(42)`. Queue: `DEC(28), B(30), AF(42)`.<br>5. Combine `DEC(28) + B(30) → DECB(58)`. Queue: `AF(42), DECB(58)`.<br>6. Combine `AF(42) + DECB(58) → Root(100)`.<br><b>Codes</b>: `A: 00`, `F: 01`, `B: 11`, `C: 101`, `D: 1000`, `E: 1001` (total cost = $241$ bits).",
-              "Final 2018 I Q5, Final 2018 II Q8 & Exam Examples Q8"
-            ]
-          ],
-          "quiz": [
-            {
-              "q": "What will be the Huffman code for the letters a, b, c, d, e if their probabilities are 1/2, 1/4, 1/8, 1/16, 1/32?",
-              "o": [
-                [
-                  "0, 10, 110, 1110, 1111",
-                  "Correct! Final 2021 Q9 & Final 2022 Q27: Merging from smallest to largest creates a right-skewed full binary tree where a has depth 1 ('0'), b has depth 2 ('10'), c has depth 3 ('110'), and d, e are siblings at depth 4 ('1110', '1111'), satisfying the prefix property!"
-                ],
-                [
-                  "10, 011, 11, 001, 010",
-                  "Does not assign shortest 1-bit code to probability 1/2."
-                ],
-                [
-                  "10, 01, 0001, 100, 1010",
-                  "'10' is a prefix of '100' and '1010', violating the prefix-code property!"
-                ],
-                [
-                  "100, 110, 001, 000, 010",
-                  "Fixed-length 3-bit code, not optimal Huffman coding."
-                ]
-              ],
-              "a": 0,
-              "src": "Exam · Final 2021 Q9 & Final 2022 Q27"
-            },
-            {
-              "q": "For the 7-vertex graph in Final 2021 Q17–18 (with edges (A,G)=1, (B,C)=1, (E,F)=1, (A,B)=2, (A,D)=3, (B,G)=3, (C,F)=3, (C,G)=4, (D,F)=4, (D,E)=5, (D,G)=5, (F,G)=6), starting at vertex A, what is the correct order for Prim's MST algorithm to add edges?",
-              "o": [
-                [
-                  "(A,G) then (G,C) then (C,B) then (C,F) then (F,E) then (E,D)",
-                  "(A,B)=2 is lighter than (G,C)=4, so Prim's adds (A,B) before (G,C)."
-                ],
-                [
-                  "(A,G) then (A,B) then (B,C) then (A,D) then (C,F) then (F,E)",
-                  "Correct! Final 2021 Q17: From {A}, lightest is (A,G)=1; from {A,G}, lightest is (A,B)=2; from {A,G,B}, lightest is (B,C)=1; from {A,G,B,C}, lightest are (A,D)=3 and (C,F)=3; finally from F, lightest is (F,E)=1!"
-                ],
-                [
-                  "(A,G) then (B,C) then (E,F) then (A,B) then (C,F) then (D,E)",
-                  "This is Kruskal's order (adding disconnected weight-1 edges (B,C) and (E,F) before connecting them to A), not Prim's."
-                ],
-                [
-                  "(A,G) then (A,B) then (A,C) then (A,D) then (A,D) then (C,F)",
-                  "Repeats (A,D) and omits E."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2021 Q17 & Final 2 Q33"
-            }
-          ],
-          "extra": [
-            {
-              "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 17?",
-              "o": [
-                [
-                  "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-                  "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-                ],
-                [
-                  "The algorithm requires O(2ⁿ) exponential space in the best case",
-                  "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-                ],
-                [
-                  "The algorithm only works when n ≤ 10",
-                  "False — Asymptotic analysis applies as n → ∞."
-                ],
-                [
-                  "Correctness does not depend on loop invariants or optimal substructure",
-                  "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-                ]
-              ],
-              "a": 0
-            }
-          ]
-        },
-        {
-          "n": 18,
-          "code": "Lec 18",
-          "title": "Lecture 18: Shortest Paths I — Optimal Substructure, Triangle Inequality, Dijkstra's Algorithm & Breadth-First Search",
-          "videos": [
-            {
-              "id": "xhG2DyCX3uA",
-              "title": "MIT 6.046J Lec 17: Shortest Paths I — Properties, Dijkstra's Algorithm & Breadth-First Search (Prof. Erik Demaine)",
-              "channel": "MIT OpenCourseWare",
-              "duration": "1:24:34",
-              "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Shortest path definitions, Optimal Substructure, Triangle Inequality & negative-weight cycles"
-                },
-                {
-                  "t": 780,
-                  "time": "13:00",
-                  "label": "Dijkstra's Single-Source Shortest Path algorithm and edge relaxation"
-                },
-                {
-                  "t": 1140,
-                  "time": "19:00",
-                  "label": "Full step-by-step trace of Dijkstra on 5-vertex directed graph {A, B, C, D, E}"
-                },
-                {
-                  "t": 1680,
-                  "time": "28:00",
-                  "label": "3-Part Correctness Proof of Dijkstra's Algorithm"
-                },
-                {
-                  "t": 2280,
-                  "time": "38:00",
-                  "label": "Complexity Analysis (Array, Binary Min-Heap, Fibonacci Heap) & BFS on unweighted graphs"
-                }
-              ]
-            },
-            {
-              "id": "XB4MIexjvY0",
-              "title": "3.6 Dijkstra's Algorithm — Single Source Shortest Path (Greedy Method)",
-              "channel": "Abdul Bari",
-              "duration": "18:35",
-              "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Relaxation mechanics and why Dijkstra fails on negative-weight edges"
-                }
-              ]
-            }
-          ],
-          "notes": [
-            {
-              "h": "Shortest-Path Properties, Optimal Substructure & Triangle Inequality (Slides 18.1–18.12)",
-              "pts": [
-                "<b>Path Weight & Shortest-Path Weight $\\delta(u, v)$ (Slides 18.2–18.4)</b>: In a weighted digraph $G = (V, E, w)$, the weight of path $p = v_1 \\to v_2 \\to \\dots \\to v_k$ is $w(p) = \\sum_{i=1}^{k-1} w(v_i, v_{i+1})$. The shortest-path weight is $\\delta(u, v) = \\min\\{w(p) : u \\stackrel{p}{\\leadsto} v\\}$ (or $\\infty$ if unreachable).",
-                "<b>Optimal Substructure Theorem (Slides 18.5–18.7)</b>: <b>Every subpath of a shortest path is itself a shortest path!</b> (Proved by cut-and-paste: if a shorter subpath existed, splicing it in would produce a shorter overall path.)",
-                "<b>Triangle Inequality Theorem (Slides 18.8–18.9)</b>: For all $u, v, x \\in V$, $\\delta(u, v) \\le \\delta(u, x) + \\delta(x, v)$.",
-                "<b>Well-Definedness & Negative-Weight Cycles (Slides 18.10–18.11)</b>: If $G$ contains a <b>negative-weight cycle</b> reachable from $s$, then shortest paths are not well-defined ($\\delta(s, v) = -\\infty$ by traversing the negative cycle arbitrarily many times). <b>Dijkstra's algorithm requires all edge weights $w(u, v) \\ge 0$</b> and cannot detect negative-weight cycles (unlike Bellman-Ford and Floyd-Warshall, Final 2021 Q16 & Final 2022 Q32)."
-              ],
-              "fig": [
-                "ag-18-path-weight",
-                "ag-18-cut-paste",
-                "ag-18-triangle",
-                "ag-18-neg-cycle"
-              ],
-              "figAt": {
-                "ag-18-path-weight": 0,
-                "ag-18-cut-paste": 1,
-                "ag-18-triangle": 2,
-                "ag-18-neg-cycle": 3
-              },
-              "figH": {
-                "ag-18-path-weight": "Weight of a path: w(p) = 4 + (−2) + (−5) + 1 = −2",
-                "ag-18-cut-paste": "Optimal substructure: the cut-and-paste proof",
-                "ag-18-triangle": "Triangle inequality: δ(u, v) ≤ δ(u, x) + δ(x, v)",
-                "ag-18-neg-cycle": "A negative-weight cycle makes δ(u, v) = −∞"
-              }
-            },
-            {
-              "h": "Dijkstra's Algorithm, Slide Trace & 3-Part Correctness Proof (Slides 18.13–18.42)",
-              "pts": [
-                "<b>Dijkstra's Algorithm Mechanics (Slides 18.13–18.15)</b>:<ul><li>Initialize $d[s] \\leftarrow 0$, $d[v] \\leftarrow \\infty$ for all $v \\in V - \\{s\\}$, settled set $S \\leftarrow \\emptyset$, and priority queue $Q \\leftarrow V$.</li><li>While $Q \\ne \\emptyset$: extract $u \\leftarrow \\text{EXTRACT-MIN}(Q)$, add $u$ to $S$, and <b>relax</b> every outgoing edge $(u, v)$ for $v \\in \\text{Adj}[u]$:<br><code>if d[v] > d[u] + w(u, v) then d[v] ← d[u] + w(u, v)</code> (an implicit `DECREASE-KEY` operation in $Q$).</li></ul>",
-                "<b>Slide 18.16–18.26 Trace on `{A, B, C, D, E}` (Edges: `A→B:10, A→C:3, B→C:1, B→D:2, C→B:4, C→D:8, C→E:2, D→E:7, E→D:9`)</b>:<ul><li><b>Init</b>: $d = [A:0, B:\\infty, C:\\infty, D:\\infty, E:\\infty]$, $S = \\emptyset$.</li><li><b>Step 1 (Extract `A`, $d[A]=0$)</b>: Relax `A→B` ($d[B]=10$), `A→C` ($d[C]=3$). $S = \\{A\\}$.</li><li><b>Step 2 (Extract `C`, $d[C]=3$)</b>: Relax `C→B` ($d[B] = \\min(10, 3+4) = 7$), `C→D` ($d[D] = 3+8 = 11$), `C→E` ($d[E] = 3+2 = 5$). $S = \\{A, C\\}$.</li><li><b>Step 3 (Extract `E`, $d[E]=5$)</b>: Relax `E→D` ($5+9 = 14 > 11$, no change). $S = \\{A, C, E\\}$.</li><li><b>Step 4 (Extract `B`, $d[B]=7$)</b>: Relax `B→C` ($7+1 > 3$), `B→D` ($d[D] = \\min(11, 7+2) = 9$). $S = \\{A, C, E, B\\}$.</li><li><b>Step 5 (Extract `D`, $d[D]=9$)</b>: $S = \\{A, C, E, B, D\\}$. Final shortest distances from `A`: $\\mathbf{[A:0, B:7, C:3, D:9, E:5]}$.</li></ul>",
-                "<b>3-Part Correctness Proof (Slides 18.27–18.33)</b>:<ul><li><b>Lemma 1</b>: $d[v] \\ge \\delta(s, v)$ holds at all times (relaxation only sets $d[v]$ to actual path lengths).</li><li><b>Lemma 2</b>: If $u$ is $v$'s predecessor on a shortest path from $s$ and $d[u] = \\delta(s, u)$ when $(u, v)$ is relaxed, then $d[v] = \\delta(s, v)$ thereafter.</li><li><b>Theorem</b>: Suppose for contradiction $u$ is the <i>first</i> vertex added to $S$ with $d[u] > \\delta(s, u)$. Along a true shortest path $s \\leadsto x \\to y \\leadsto u$, let $y \\in V - S$ be the first vertex outside $S$ (with predecessor $x \\in S$). Since $x$ was settled before $u$, $d[x] = \\delta(s, x)$ and $(x, y)$ was relaxed, so $d[y] = \\delta(s, y)$. Because all weights are non-negative, $d[y] = \\delta(s, y) \\le \\delta(s, u) < d[u]$, which contradicts that `EXTRACT-MIN` chose $u$ before $y$!</li></ul>",
-                "<b>Priority Queue Operation Counts (Final 2021 Q28–Q31 & Final 2022 Q40–Q44)</b>:<ul><li><b>3 Priority Queue operations</b> involved: `INSERT`, `EXTRACT-MIN`, and `DECREASE-KEY` (Q28).</li><li>`INSERT` and `EXTRACT-MIN` are invoked <b>1 time per vertex</b> ($|V|$ times total, Q29).</li><li>`DECREASE-KEY` is performed at most <b>Total number of edges $|E|$</b> times (Q30).</li><li>Running time: <b>Array = $O(V^2)$</b> (Q26/Q40), <b>Binary Min-Heap = $O(E \\log V)$</b> (Q31/Q44), <b>Fibonacci Heap = $O(E + V \\log V)$</b>.</li></ul>",
-                "<b>Breadth-First Search (BFS) on Unweighted Graphs ($w(u, v) = 1$, Slides 18.43–18.59)</b>: Replaces the priority queue $Q$ with a simple <b>FIFO queue</b>, running in $\\mathbf{O(V + E)}$ linear time!"
-              ],
-              "code": "DIJKSTRA(G, w, s)\n1  d[s] ← 0\n2  for each v ∈ V - {s} do d[v] ← ∞\n3  S ← ∅\n4  Q ← V    // Priority queue maintaining V - S keyed on d[v]\n5  while Q ≠ ∅\n6      do u ← EXTRACT-MIN(Q)\n7         S ← S ∪ {u}\n8         for each v ∈ Adj[u]\n9             do if d[v] > d[u] + w(u, v)\n10                  then d[v] ← d[u] + w(u, v)   // Implicit DECREASE-KEY",
-              "viz": {
-                "type": "dijkstra",
-                "title": "Lecture 18 Slide 18.16: Dijkstra's Algorithm on {A, B, C, D, E}",
-                "preset": "lec18"
-              },
-              "fig": [
-                "ag-18-dijkstra",
-                "ag-18-lemmas",
-                "ag-18-proof",
-                "ag-18-analysis",
-                "ag-18-bfs"
-              ],
-              "figAt": {
-                "ag-18-dijkstra": 1,
-                "ag-18-lemmas": 2,
-                "ag-18-proof": 2,
-                "ag-18-analysis": 3,
-                "ag-18-bfs": 4
-              },
-              "figH": {
-                "ag-18-dijkstra": "Dijkstra on the slide graph: EXTRACT-MIN and relaxation step by step",
-                "ag-18-lemmas": "Correctness parts I and II: the two lemmas",
-                "ag-18-proof": "Correctness part III: why u cannot be the first wrong vertex",
-                "ag-18-analysis": "Analysis: |V| EXTRACT-MINs, Θ(E) DECREASE-KEYs, and the three queues",
-                "ag-18-bfs": "Breadth-first search on the slide graph with a FIFO queue"
-              }
-            }
-          ],
-          "cards": [
-            [
-              "Triangle Inequality for Shortest Paths",
-              "For all u, v, x ∈ V: δ(u, v) ≤ δ(u, x) + δ(x, v)."
-            ],
-            [
-              "Why Dijkstra Fails on Negative Edges",
-              "Dijkstra assumes that once u = EXTRACT-MIN(Q) is added to S, no future path through V − S can have total weight < d[u], which breaks if a future edge has w < 0."
-            ],
-            [
-              "Dijkstra Priority Queue Operations (Final Q28–Q31)",
-              "3 operations: INSERT (1 per vertex), EXTRACT-MIN (1 per vertex), and DECREASE-KEY (at most |E| times total). Binary Min-Heap time: O(E log V); Array time: O(V²)."
-            ],
-            [
-              "BFS as Special Case of Dijkstra",
-              "When all edge weights w(u, v) = 1, a simple FIFO queue mimics the priority queue and computes shortest paths in O(V + E) time."
-            ],
-            [
-              "Shortest-Path Properties, Optimal Substructure & Triangle Inequality (Slides 18.1–18.12) — Core Principle & Complexity",
-              "<b>Path Weight & Shortest-Path Weight $\\delta(u, v)$ (Slides 18.2–18.4)</b>: In a weighted digraph $G = (V, E, w)$, the weight of path $p = v_1 \\to v_2 \\to \\dots \\to v_k$ is $w(p) = \\sum_{i=1}^{k-1} w(v_i, v_{i+1})$. The shortest-path weight is $\\delta(u, v) = \\min\\{w(p) : u \\stackrel{p}{\\leadsto} v\\}$ (or $\\infty$ if unreachable). <b>Optimal Substructure Theorem (Slides 18.5–18.7)</b>: <b>Every subpath of a shortest path is itself a shortest path!</b> (Proved by cut-and-paste: if a shorter subpath existed, splicing it in would produce a shorter overall path.)"
-            ],
-            [
-              "Dijkstra's Algorithm, Slide Trace & 3-Part Correctness Proof (Slides 18.13–18.42) — Core Principle & Complexity",
-              "<b>Dijkstra's Algorithm Mechanics (Slides 18.13–18.15)</b>:<ul><li>Initialize $d[s] \\leftarrow 0$, $d[v] \\leftarrow \\infty$ for all $v \\in V - \\{s\\}$, settled set $S \\leftarrow \\emptyset$, and priority queue $Q \\leftarrow V$.</li><li>While $Q \\ne \\emptyset$: extract $u \\leftarrow \\text{EXTRACT-MIN}(Q)$, add $u$ to $S$, and <b>relax</b> every outgoing edge $(u, v)$ for $v \\in \\text{Adj}[u]$:<br><code>if d[v] > d[u] + w(u, v) then d[v] ← d[u] + w(u, v)</code> (an implicit `DECREASE-KEY` operation in $Q$).</li></ul> <b>Slide 18.16–18.26 Trace on `{A, B, C, D, E}` (Edges: `A→B:10, A→C:3, B→C:1, B→D:2, C→B:4, C→D:8, C→E:2, D→E:7, E→D:9`)</b>:<ul><li><b>Init</b>: $d = [A:0, B:\\infty, C:\\infty, D:\\infty, E:\\infty]$, $S = \\emptyset$.</li><li><b>Step 1 (Extract `A`, $d[A]=0$)</b>: Relax `A→B` ($d[B]=10$), `A→C` ($d[C]=3$). $S = \\{A\\}$.</li><li><b>Step 2 (Extract `C`, $d[C]=3$)</b>: Relax `C→B` ($d[B] = \\min(10, 3+4) = 7$), `C→D` ($d[D] = 3+8 = 11$), `C→E` ($d[E] = 3+2 = 5$). $S = \\{A, C\\}$.</li><li><b>Step 3 (Extract `E`, $d[E]=5$)</b>: Relax `E→D` ($5+9 = 14 > 11$, no change). $S = \\{A, C, E\\}$.</li><li><b>Step 4 (Extract `B`, $d[B]=7$)</b>: Relax `B→C` ($7+1 > 3$), `B→D` ($d[D] = \\min(11, 7+2) = 9$). $S = \\{A, C, E, B\\}$.</li><li><b>Step 5 (Extract `D`, $d[D]=9$)</b>: $S = \\{A, C, E, B, D\\}$. Final shortest distances from `A`: $\\mathbf{[A:0, B:7, C:3, D:9, E:5]}$.</li></ul>"
-            ]
-          ],
-          "qa": [
-            [
-              "Trace Dijkstra's algorithm on the Midterm 2023 Q(b) directed graph starting from node 2 (Step 1: S={2}, d[0]=4, d[1]=8, d[3]=5, d[4]=∞, d[5]=2) and state the sum of d[i] and sum of p[i] for i ∉ S with d[i] ≠ ∞ after steps 2, 3, 4, and 5.",
-              "Directed edges of Midterm 2023 Q(b): `2→0:4, 2→1:8, 2→3:5, 2→5:2, 5→3:1, 5→4:5, 0→1:3, 3→1:2, 3→4:5, 1→4:1, 0→4:5`.<br>• <b>Step 1 ($S = \\{2\\}$)</b>: $d[0]=4(p=2),\\; d[1]=8(p=2),\\; d[3]=5(p=2),\\; d[4]=\\infty,\\; d[5]=2(p=2)$.<br>• <b>Step 2 (Pick min $5$, $d[5]=2, S=\\{2,5\\}$)</b>: Relax $5\\to 3$: $d[3]=\\min(5, 2+1)=3(p=5)$; relax $5\\to 4$: $d[4]=2+5=7(p=5)$. Remaining $i \\notin S$: $d[0]=4(p=2),\\; d[1]=8(p=2),\\; d[3]=3(p=5),\\; d[4]=7(p=5)$.<br>  $\\sum d[i] = 4 + 8 + 3 + 7 = \\mathbf{22}$ (Choice D); $\\sum p[i] = 2 + 2 + 5 + 5 = \\mathbf{14}$ (Choice D).<br>• <b>Step 3 (Pick min $3$, $d[3]=3, S=\\{2,5,3\\}$)</b>: Relax $3\\to 1$: $d[1]=\\min(8, 3+2)=5(p=3)$; $3\\to 4$: $3+5=8 > 7$. Remaining $i \\notin S$: $d[0]=4(p=2),\\; d[1]=5(p=3),\\; d[4]=7(p=5)$.<br>  $\\sum d[i] = 4 + 5 + 7 = \\mathbf{16}$ (Choice D); $\\sum p[i] = 2 + 3 + 5 = \\mathbf{10}$ (Choice E).<br>• <b>Step 4 (Pick min $0$, $d[0]=4, S=\\{2,5,3,0\\}$)</b>: Relax $0\\to 1$: $4+3=7 > 5$; $0\\to 4$: $4+5=9 > 7$. Remaining $i \\notin S$: $d[1]=5(p=3),\\; d[4]=7(p=5)$.<br>  $\\sum d[i] = 5 + 7 = \\mathbf{12}$ (Choice E); $\\sum p[i] = 3 + 5 = \\mathbf{8}$ (Choice E).<br>• <b>Step 5 (Pick min $1$, $d[1]=5, S=\\{2,5,3,0,1\\}$)</b>: Relax $1\\to 4$: $d[4]=\\min(7, 5+1)=6(p=1)$. Remaining $i \\notin S$: $d[4]=6(p=1)$.<br>  $\\sum d[i] = \\mathbf{6}$ (Choice D); $\\sum p[i] = \\mathbf{1}$ (Choice B).",
-              "Midterm 2023 Q(b) (Q9–Q16)"
-            ]
-          ],
-          "quiz": [
-            {
-              "q": "Which of the following shortest-path algorithms CANNOT detect the presence of a negative-weight cycle in a graph?",
-              "o": [
-                [
-                  "Bellman-Ford Algorithm",
-                  "Bellman-Ford detects negative-weight cycles on the |V|-th pass."
-                ],
-                [
-                  "Floyd-Warshall Algorithm",
-                  "Floyd-Warshall detects negative cycles via negative diagonal entries d[i][i] < 0."
-                ],
-                [
-                  "Dijkstra's Algorithm",
-                  "Correct! Final 2021 Q16 & Final 2022 Q32: Dijkstra's greedy strategy requires non-negative edge weights and cannot detect negative-weight cycles."
-                ],
-                [
-                  "None of the above",
-                  "Dijkstra's cannot."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final 2021 Q16 & Final 2022 Q32"
-            },
-            {
-              "q": "In Dijkstra's algorithm, the maximum number of times the DECREASE-KEY operation is performed is equal to:",
-              "o": [
-                [
-                  "Total number of vertices |V|",
-                  "|V| is the number of INSERT and EXTRACT-MIN operations."
-                ],
-                [
-                  "Total number of edges |E|",
-                  "Correct! Final 2021 Q30 & Final 2022 Q43: Each edge (u, v) is relaxed exactly once when u is extracted from Q, so DECREASE-KEY is performed at most |E| times."
-                ],
-                [
-                  "Number of vertices − 1",
-                  "Incorrect."
-                ],
-                [
-                  "Number of edges − 1",
-                  "Incorrect."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2021 Q30 & Final 2022 Q43"
-            },
-            {
-              "q": "What is the running time of Dijkstra's algorithm when the priority queue is implemented using a Binary Min-Heap?",
-              "o": [
-                [
-                  "O(V)",
-                  "Incorrect."
-                ],
-                [
-                  "O(V log V)",
-                  "Omits the O(E log V) edge relaxation term."
-                ],
-                [
-                  "O(E)",
-                  "Incorrect."
-                ],
-                [
-                  "O(E log V)",
-                  "Correct! Final 2021 Q31 & Final 2022 Q44: With a binary min-heap, V EXTRACT-MINs and E DECREASE-KEYs take O((V + E) log V) = O(E log V)."
-                ]
-              ],
-              "a": 3,
-              "src": "Exam · Final 2021 Q31 & Final 2022 Q44"
-            },
-            {
-              "q": "In the Final 2021 Q32 / Final 2022 Q45 directed graph (with edges b→a:4, b→g:1, b→c:2, g→a:2, g→f:8, c→g:3, c→d:10, g→e:4, e→f:1, a→f:5, d→e:6), if b is the source vertex, what is the minimum cost to reach vertex f?",
-              "o": [
-                [
-                  "8",
-                  "Path b→a→f costs 4+5=9, and b→g→f costs 1+8=9."
-                ],
-                [
-                  "9",
-                  "b→g→e→f is shorter than 9!"
-                ],
-                [
-                  "4",
-                  "No path from b to f has weight 4."
-                ],
-                [
-                  "6",
-                  "Correct! Final 2021 Q32 & Final 2022 Q45: From b, take b→g (cost 1), then g→e (cost 4, total 5), then e→f (cost 1, total 1 + 4 + 1 = 6)!"
-                ]
-              ],
-              "a": 3,
-              "src": "Exam · Final 2021 Q32 & Final 2022 Q45"
-            },
-            {
-              "q": "In the Final 2021 Q33 / Final 2 Q49 directed graph (with edges a→b:1, a→c:3, c→e:2, c→d:4, d→b:5, d→e:1, b→e:6), identify the shortest path having minimum cost to reach vertex e if a is the source vertex:",
-              "o": [
-                [
-                  "a-b-e",
-                  "a→b→e costs 1 + 6 = 7."
-                ],
-                [
-                  "a-c-e",
-                  "Correct! Final 2021 Q33: Path a→c→e has total cost 3 + 2 = 5, beating a→b→e (7) and a→c→d→e (3+4+1 = 8)."
-                ],
-                [
-                  "a-c-d-e",
-                  "Costs 3 + 4 + 1 = 8."
-                ],
-                [
-                  "a-c-d-b-e",
-                  "Costs 3 + 4 + 5 + 6 = 18."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2021 Q33 & Final 2 Q49"
-            }
-          ],
-          "extra": [
-            {
-              "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 18?",
-              "o": [
-                [
-                  "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-                  "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-                ],
-                [
-                  "The algorithm requires O(2ⁿ) exponential space in the best case",
-                  "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-                ],
-                [
-                  "The algorithm only works when n ≤ 10",
-                  "False — Asymptotic analysis applies as n → ∞."
-                ],
-                [
-                  "Correctness does not depend on loop invariants or optimal substructure",
-                  "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-                ]
-              ],
-              "a": 0
-            }
-          ]
-        },
-        {
-          "n": 19,
-          "code": "Lec 19",
-          "title": "Lecture 19: Dijkstra's Relaxation Table & Predecessor Path Reconstruction Workout (Dr. Basheer's Exam Format)",
-          "videos": [
-            {
-              "id": "2raV0H9KqY8",
-              "title": "Shortest Path Algorithms (Dijkstra & Predecessor Table Trace) — Simplified",
-              "channel": "Abdul Bari",
-              "duration": "26:13",
-              "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Constructing the vertex relaxation table and parent pointers"
-                }
-              ]
-            }
-          ],
-          "notes": [
-            {
-              "h": "Dr. Basheer's Signature Dijkstra Exam Table (Lec 19 Slides 1–2 & Final 2019 Credit Q7)",
-              "pts": [
-                "<b>Graph Specification (Lec 19 Slide 1 & Final 2019 Credit Q7)</b>: Directed weighted graph on 7 vertices `{A, B, C, D, E, F, G}` with source vertex `A` and directed edges:<ul><li>From `A`: `A → B (5)`, `A → C (3)`</li><li>From `B`: `B → G (1)`, `B → C (2)`, `B → E (3)`</li><li>From `C`: `C → D (7)`, `C → E (7)`</li><li>From `D`: `D → A (2)`, `D → F (6)`</li><li>From `E`: `E → D (2)`, `E → F (1)`</li><li>From `G`: `G → E (1)`</li></ul>",
-                "<b>How Dr. Basheer's Exam Table Works</b>:<ul><li>The top row `PARENT` records the final predecessor $\\pi[v]$ of each vertex $v \\in \\{B, C, D, E, F, G\\}$ whenever its distance $d[v]$ is improved.</li><li>Each subsequent row represents one iteration of `EXTRACT-MIN(Q)`. Once a vertex is extracted (settled in $S$), its column becomes blank in later rows! Unreached vertices ($\\infty$) are written as `-`.</li></ul>",
-                "<b>Step-by-Step Row-by-Row Derivation (Lec 19 Slide 1)</b>:<ul><li><b>Row 1 (Init at `A`)</b>: `A=0`, all others `-` ($\\infty$). Extract `A (0)`.</li><li><b>Row 2 (Relax from `A`)</b>: `A→B` sets `d[B]=5 (parent A)`; `A→C` sets `d[C]=3 (parent A)`. Minimum is `C (3)` $\\implies$ extract `C`.</li><li><b>Row 3 (Relax from `C`, `d[C]=3`)</b>: `C→D` sets `d[D]=3+7=10 (parent C)`; `C→E` sets `d[E]=3+7=10 (parent C)`; `d[B]` stays `5`. Minimum is `B (5)` $\\implies$ extract `B`.</li><li><b>Row 4 (Relax from `B`, `d[B]=5`)</b>: `B→G` sets `d[G]=5+1=6 (parent B)`; `B→E` improves `d[E]` from `10` to `5+3=8 (parent B)`; `d[D]` stays `10`. Minimum is `G (6)` $\\implies$ extract `G`.</li><li><b>Row 5 (Relax from `G`, `d[G]=6`)</b>: `G→E` improves `d[E]` from `8` to `6+1=7 (parent G)`; `d[D]` stays `10`. Minimum is `E (7)` $\\implies$ extract `E`.</li><li><b>Row 6 (Relax from `E`, `d[E]=7`)</b>: `E→D` improves `d[D]` from `10` to `7+2=9 (parent E)`; `E→F` sets `d[F]=7+1=8 (parent E)`. Minimum is `F (8)` $\\implies$ extract `F`.</li><li><b>Row 7 (Relax from `F`, `d[F]=8`)</b>: `F` has no outgoing edges; `d[D]=9` remains. Extract `D (9)` — Done!</li></ul>",
-                "<b>Reconstructed Shortest Paths & Total Weights (Lec 19 Slide 2)</b>:<ul><li>To `C`: `A → C = 3` (`PARENT[C] = A`)</li><li>To `B`: `A → B = 5` (`PARENT[B] = A`)</li><li>To `G`: `A → B → G = 6` (`PARENT[G] = B`)</li><li>To `E`: `A → B → G → E = 7` (`PARENT[E] = G`)</li><li>To `F`: `A → B → G → E → F = 8` (`PARENT[F] = E`)</li><li>To `D`: `A → B → G → E → D = 9` (`PARENT[D] = E`)</li></ul>"
-              ],
-              "table": [
-                [
-                  "PARENT",
-                  "(Source)",
-                  "A",
-                  "A",
-                  "E",
-                  "G",
-                  "E",
-                  "B"
-                ],
-                [
-                  "Step #",
-                  "A",
-                  "B",
-                  "C",
-                  "D",
-                  "E",
-                  "F",
-                  "G"
-                ],
-                [
-                  "1 (Init A)",
-                  "0",
-                  "-",
-                  "-",
-                  "-",
-                  "-",
-                  "-",
-                  "-"
-                ],
-                [
-                  "2 (After A=0)",
-                  "",
-                  "5",
-                  "3",
-                  "-",
-                  "-",
-                  "-",
-                  "-"
-                ],
-                [
-                  "3 (After C=3)",
-                  "",
-                  "5",
-                  "",
-                  "10",
-                  "10",
-                  "-",
-                  "-"
-                ],
-                [
-                  "4 (After B=5)",
-                  "",
-                  "",
-                  "",
-                  "10",
-                  "8",
-                  "-",
-                  "6"
-                ],
-                [
-                  "5 (After G=6)",
-                  "",
-                  "",
-                  "",
-                  "10",
-                  "7",
-                  "-",
-                  ""
-                ],
-                [
-                  "6 (After E=7)",
-                  "",
-                  "",
-                  "",
-                  "9",
-                  "",
-                  "8",
-                  ""
-                ],
-                [
-                  "7 (After F=8)",
-                  "",
-                  "",
-                  "",
-                  "9",
-                  "",
-                  "",
-                  ""
-                ]
-              ],
-              "fig": [
-                "algo-graph-sim",
-                "ag-19-table",
-                "ag-19-paths"
-              ],
-              "viz": {
-                "type": "dijkstra",
-                "title": "Lecture 19 & Final 2019 Q7: Dijkstra Table Trace on {A, B, C, D, E, F, G}",
-                "preset": "lec19"
-              },
-              "figAt": {
-                "ag-19-table": 2,
-                "ag-19-paths": 3
-              },
-              "figH": {
-                "ag-19-table": "The exam table filled row by row: one EXTRACT-MIN per row, PARENT on top",
-                "ag-19-paths": "Reading the shortest paths back through PARENT"
-              }
-            }
-          ],
-          "cards": [
-            [
-              "Lec 19 Dijkstra Final Parent Row (A..G)",
-              "PARENT: B←A, C←A, D←E, E←G, F←E, G←B."
-            ],
-            [
-              "Lec 19 Dijkstra Shortest Paths from A",
-              "AC = 3, AB = 5, ABG = 6, ABGE = 7, ABGEF = 8, ABGED = 9."
-            ],
-            [
-              "Dr. Basheer's Signature Dijkstra Exam Table (Lec 19 Slides 1–2 & Final 2019 Credit Q7) — Core Principle & Complexity",
-              "<b>Graph Specification (Lec 19 Slide 1 & Final 2019 Credit Q7)</b>: Directed weighted graph on 7 vertices `{A, B, C, D, E, F, G}` with source vertex `A` and directed edges:<ul><li>From `A`: `A → B (5)`, `A → C (3)`</li><li>From `B`: `B → G (1)`, `B → C (2)`, `B → E (3)`</li><li>From `C`: `C → D (7)`, `C → E (7)`</li><li>From `D`: `D → A (2)`, `D → F (6)`</li><li>From `E`: `E → D (2)`, `E → F (1)`</li><li>From `G`: `G → E (1)`</li></ul> <b>How Dr. Basheer's Exam Table Works</b>:<ul><li>The top row `PARENT` records the final predecessor $\\pi[v]$ of each vertex $v \\in \\{B, C, D, E, F, G\\}$ whenever its distance $d[v]$ is improved.</li><li>Each subsequent row represents one iteration of `EXTRACT-MIN(Q)`. Once a vertex is extracted (settled in $S$), its column becomes blank in later rows! Unreached vertices ($\\infty$) are written as `-`.</li></ul>"
-            ]
-          ],
-          "qa": [
-            [
-              "Find the shortest paths from node A to every other node in the Lecture 19 / Final 2019 Credit Q7 graph using Dijkstra's algorithm, showing the PARENT row, distance table, and full paths.",
-              "• <b>PARENT row</b>: `B: A`, `C: A`, `D: E`, `E: G`, `F: E`, `G: B`.<br>• <b>Settlement order</b>: `A(0) → C(3) → B(5) → G(6) → E(7) → F(8) → D(9)`.<br>• <b>Shortest Paths</b>:<br>  - `AC = 3`<br>  - `AB = 5`<br>  - `ABG = 6`<br>  - `ABGE = 7`<br>  - `ABGEF = 8`<br>  - `ABGED = 9`.",
-              "Lecture 19 · Slides 1–2 & Final 2019 (Credit) Q7"
-            ]
-          ],
-          "quiz": [
-            {
-              "q": "In the Lecture 19 / Final 2019 Credit Q7 Dijkstra trace starting from A, how many times is the distance estimate d[E] updated (improved from ∞) before E is extracted from the priority queue?",
-              "o": [
-                [
-                  "1 time (directly to 7)",
-                  "E is first reached via C, then improved via B, and improved again via G."
-                ],
-                [
-                  "2 times (10 → 7)",
-                  "Skips the intermediate improvement via B (d[E] = 5 + 3 = 8)."
-                ],
-                [
-                  "3 times: ∞ → 10 (via C) → 8 (via B) → 7 (via G)",
-                  "Correct! First C sets d[E]=3+7=10; then B relaxes B→E(3) to set d[E]=5+3=8; then G relaxes G→E(1) to set d[E]=6+1=7!"
-                ],
-                [
-                  "4 times",
-                  "Only C, B, and G have edges into E."
-                ]
-              ],
-              "a": 2,
-              "src": "Lecture 19 · Slide 1 & Final 2019 Credit Q7"
-            }
-          ],
-          "extra": [
-            {
-              "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 19?",
-              "o": [
-                [
-                  "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-                  "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-                ],
-                [
-                  "The algorithm requires O(2ⁿ) exponential space in the best case",
-                  "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-                ],
-                [
-                  "The algorithm only works when n ≤ 10",
-                  "False — Asymptotic analysis applies as n → ∞."
-                ],
-                [
-                  "Correctness does not depend on loop invariants or optimal substructure",
-                  "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-                ]
-              ],
-              "a": 0
-            }
-          ]
-        },
-        {
-          "n": 20,
-          "code": "Lec 20",
-          "title": "Lecture 20: P, NP, NP-Hard & NP-Complete — Reductions, SAT, TSP, Clique & 3-CNF SAT → CLIQUE",
-          "videos": [
-            {
-              "id": "e2cF8a5aAhE",
-              "title": "8. NP-Hard and NP-Complete Problems — Polynomial-Time Reductions & Satisfiability (SAT)",
-              "channel": "Abdul Bari",
-              "duration": "31:53",
-              "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Tractable (P) vs. Non-Deterministic Polynomial (NP) problems"
-                },
-                {
-                  "t": 900,
-                  "time": "15:00",
-                  "label": "Polynomial-time reductions, NP-Hard, and NP-Complete definitions"
-                }
-              ]
-            },
-            {
-              "id": "qZs767KQcvE",
-              "title": "8.1 NP-Hard Graph Problem — 3-CNF SAT to Clique Decision Problem Reduction",
-              "channel": "Abdul Bari",
-              "duration": "17:14",
-              "lang": "en",
-              "timestamps": [
-                {
-                  "t": 0,
-                  "time": "00:00",
-                  "label": "Constructing the k-Clique graph from a k-clause 3-CNF Boolean formula"
-                }
-              ]
-            }
-          ],
-          "notes": [
-            {
-              "h": "Search Space, Tractability, Class P & Class NP (Slides 20.1–20.20)",
-              "pts": [
-                "<b>Core Definitions (Slide 20.2)</b>:<ul><li><b>Problem</b>: Formulated as Input $\\to$ Processing $\\to$ Output.</li><li><b>Search Space (SS)</b>: All candidate output alternatives for a valid input.</li><li><b>Brute Force</b>: Visiting the entire search space sequentially.</li></ul>",
-                "<b>Class P — Polynomial-Time Solvable (Tractable, Slides 20.8–20.9 & Final 2 Q60–Q61)</b>:<ul><li>Problems solvable by a deterministic algorithm in $O(n^k)$ time for some constant $k$ (known as <b>tractable</b> problems, Final 2 Q60). The sum and composition of two polynomials are always polynomials (Final 2 Q61: True).</li><li><b>Examples in P</b>: Searching, Sorting, String Replacing, Shortest Path between two vertices in a graph, and Primality Testing (`IsPrime`).</li></ul>",
-                "<b>Class NP — Non-Deterministic Polynomial (Slides 20.11–20.20 & Final 2 Q62–Q63)</b>:<ul><li><b>NP</b> stands for <b>Non-deterministic Polynomial</b>: decision problems solvable by a non-deterministic polynomial algorithm, meaning a candidate solution (certificate) can be <b>verified in polynomial time</b>!</li><li><b>Examples in NP (and NP-Complete)</b>: Boolean Satisfiability (<b>SAT / 3-CNF SAT</b>), Traveling Salesman Problem (<b>TSP</b>), <b>Hamiltonian Path/Cycle</b> (Final 2022 Q11), and <b>CLIQUE</b>.</li><li><b>TSP Search Space Explosion (Slides 20.13–20.15 & Final 2022 Q47–Q49)</b>: Given an undirected graph with non-negative edge costs, find a min-cost tour visiting every vertex exactly once and returning to start. For $N$ cities, brute-force search space size is $N!$:<ul><li>$N = 3 \\implies 3! = 6$</li><li>$N = 6 \\implies 6! = \\mathbf{720}$ (Final 2022 Q49!)</li><li>$N = 12 \\implies 479{,}001{,}600$; $N = 25 \\implies 1.55 \\times 10^{25}$; $N = 100 \\implies 9.33 \\times 10^{157}$.</li></ul></li><li><b>CLIQUE Verification vs. Search (Slides 20.16–20.18)</b>: A <b>clique</b> is a subset of vertices where every pair is connected by an edge (a complete subgraph).<ul><li>Verifying whether a given set of $k$ vertices forms a clique takes <b>Polynomial time</b> $O(k^2)$.</li><li>Verifying whether a graph has a clique of a fixed constant size $k$ takes $O(V^k k^2)$ (polynomial for constant $k$, exponential when $k$ is part of the input).</li><li>Finding the maximum clique size is <b>NP-hard / NP-complete</b>!</li></ul></li></ul>"
-              ],
-              "table": [
-                [
-                  "Number of Cities N in TSP",
-                  "Search Space Size (N!)",
-                  "Feasibility by Brute Force"
-                ],
-                [
-                  "N = 3",
-                  "6",
-                  "Instant"
-                ],
-                [
-                  "N = 6 (Final 2022 Q49)",
-                  "720",
-                  "Instant (< 1 ms)"
-                ],
-                [
-                  "N = 12",
-                  "479,001,600",
-                  "Seconds"
-                ],
-                [
-                  "N = 18",
-                  "6,402,373,705,728,000",
-                  "Years"
-                ],
-                [
-                  "N = 25",
-                  "1.55 × 10²⁵",
-                  "Infeasible (Billions of years)"
-                ],
-                [
-                  "N = 50 / 100",
-                  "3.04 × 10⁶⁴ / 9.33 × 10¹⁵⁷",
-                  "Physically impossible"
-                ]
-              ],
-              "fig": [
-                "ag-20-bounds",
-                "ag-20-growth",
-                "ag-20-isprime",
-                "ag-20-tsp",
-                "ag-20-clique"
-              ],
-              "figAt": {
-                "ag-20-bounds": 0,
-                "ag-20-growth": 1,
-                "ag-20-isprime": 1,
-                "ag-20-tsp": 2,
-                "ag-20-clique": 2
-              },
-              "figH": {
-                "ag-20-bounds": "Big-O, Big-Omega and Theta: where c·g(n) bounds f(n) from n<sub>0</sub> on",
-                "ag-20-growth": "Complexity vs input length: polynomial against exponential growth",
-                "ag-20-isprime": "IsPrime(12) ⇒ No and IsPrime(1009) ⇒ Yes by trial division",
-                "ag-20-tsp": "TSP: the three tours of the slide's 4-city graph (OPT = 13) and the N! search space",
-                "ag-20-clique": "CLIQUE on the slide's graph: cliques of size 4 and 5, verifying a set, brute force over k-subsets"
-              }
-            },
-            {
-              "h": "NP-Hard, NP-Complete, Reductions & 3-CNF SAT → CLIQUE (Slides 20.21–20.36)",
-              "pts": [
-                "<b>NP-Hard vs. NP-Complete (Slides 20.21–20.24 & Final 2 Q64–Q65)</b>:<ul><li><b>NP-Hard</b>: A problem $H$ is NP-hard if <i>every</i> problem in NP can be reduced to $H$ in polynomial time ($L \\le_P H\\; \\forall L \\in \\text{NP}$).</li><li><b>NP-Complete</b>: A problem $C$ is NP-complete if (1) $C \\in \\text{NP}$ <b>AND</b> (2) $C$ is NP-hard! If any single NP-complete problem can be solved in polynomial time, then $\\text{P} = \\text{NP}$. Conversely, <b>assuming $\\text{P} \\ne \\text{NP}$, $\\text{NP-Complete} \\cap \\text{P} = \\emptyset$</b> (Final 2 Q65: Choice B!).</li></ul>",
-                "<b>Polynomial-Time Reduction $R \\le_P Q$ (Slides 20.25–20.26)</b>: Problem $R$ reduces to $Q$ if any instance of $R$ can be transformed in polynomial time into an instance of $Q$ whose solution gives the solution to $R$ (meaning $R$ is ”no harder than” $Q$). Elementary example: $\\text{LCM}(m, n) = \\frac{m \\cdot n}{\\text{GCD}(m, n)}$ reduces LCM to GCD.",
-                "<b>SAT & Reducing `3-CNF SAT` to `CLIQUE` (Slides 20.27–20.36)</b>:<ul><li><b>SAT (Cook-Levin Theorem)</b>: First known NP-complete problem! Determines whether the variables of a Boolean formula can be assigned `TRUE`/`FALSE` to make the formula evaluate to `TRUE`.<ul><li>Slide 20.28 Example: $(a \\lor b) \\land (a \\lor \\neg b)$ is satisfiable by setting $a = \\text{TRUE}$.</li></ul></li><li><b>Polynomial-Time Reduction Construction (`3-CNF SAT` with $k$ clauses $\\le_P$ `k-CLIQUE`, Slides 20.30–20.36)</b>:<ul><li><b>1. Vertices</b>: For each of the $k$ clauses, create one vertex for each literal in that clause ($3k$ vertices total, partitioned into $k$ groups/triples).</li><li><b>2. Edges</b>: Connect two vertices $(u, v)$ by an edge <b>if and only if</b> (a) they belong to <b>different clauses</b>, AND (b) their literals are <b>consistent (not negations of each other)</b>, i.e., $u \\ne \\neg v$ (since $x_i$ and $\\neg x_i$ cannot both be true!).</li><li><b>3. Correctness</b>: The formula is satisfiable $\\iff$ each clause has at least one `TRUE` literal $\\iff$ the $k$ chosen `TRUE` literals (one per clause) have no contradictions and are all mutually connected, forming a <b>Clique of size $k$</b>!</li></ul></li></ul>"
-              ],
-              "fig": [
-                "algo-np-sim",
-                "ag-20-classes",
-                "ag-20-reduce",
-                "ag-20-sat",
-                "ag-20-cnf-clique"
-              ],
-              "figAt": {
-                "ag-20-classes": 0,
-                "ag-20-reduce": 1,
-                "ag-20-sat": 2,
-                "ag-20-cnf-clique": 2
-              },
-              "figH": {
-                "ag-20-classes": "P vs NP, NP-hard and NP-complete as region diagrams, and the summary table",
-                "ag-20-reduce": "Reduction: LCM(m, n) solved through GCD(m, n), and linear to quadratic",
-                "ag-20-sat": "SAT: the slides' formulas with their truth tables, set the variables yourself",
-                "ag-20-cnf-clique": "3-CNF SAT to CLIQUE: build the graph for the slide's formula, a 3-clique gives a satisfying assignment"
-              }
-            }
-          ],
-          "cards": [
-            [
-              "Class P vs. Class NP",
-              "P: problems solvable in polynomial time O(n^k) (tractable). NP: decision problems whose solutions can be verified in polynomial time (non-deterministic polynomial)."
-            ],
-            [
-              "NP-Complete Definition",
-              "A problem is NP-Complete if it is BOTH in NP AND NP-Hard (every problem in NP reduces to it in polynomial time)."
-            ],
-            [
-              "TSP Search Space for N = 6 Cities (Final 2022 Q49)",
-              "6! = 720 tours (for N = 3 it is 3! = 6; for N = 12 it is 12! = 479,001,600)."
-            ],
-            [
-              "Assuming P ≠ NP, What is True? (Final 2 Q65)",
-              "NP-Complete ∩ P = ∅ (no NP-complete problem lies in P)."
-            ],
-            [
-              "3-CNF SAT to k-CLIQUE Reduction Rules",
-              "1. One vertex per literal in each of the k clauses; 2. Add edge between literals in DIFFERENT clauses iff they are not negations (u ≠ ¬v); 3. Formula is satisfiable ⟺ G has a clique of size k."
-            ],
-            [
-              "Search Space, Tractability, Class P & Class NP (Slides 20.1–20.20) — Core Principle & Complexity",
-              "<b>Core Definitions (Slide 20.2)</b>:<ul><li><b>Problem</b>: Formulated as Input $\\to$ Processing $\\to$ Output.</li><li><b>Search Space (SS)</b>: All candidate output alternatives for a valid input.</li><li><b>Brute Force</b>: Visiting the entire search space sequentially.</li></ul> <b>Class P — Polynomial-Time Solvable (Tractable, Slides 20.8–20.9 & Final 2 Q60–Q61)</b>:<ul><li>Problems solvable by a deterministic algorithm in $O(n^k)$ time for some constant $k$ (known as <b>tractable</b> problems, Final 2 Q60). The sum and composition of two polynomials are always polynomials (Final 2 Q61: True).</li><li><b>Examples in P</b>: Searching, Sorting, String Replacing, Shortest Path between two vertices in a graph, and Primality Testing (`IsPrime`).</li></ul>"
-            ],
-            [
-              "NP-Hard, NP-Complete, Reductions & 3-CNF SAT → CLIQUE (Slides 20.21–20.36) — Core Principle & Complexity",
-              "<b>NP-Hard vs. NP-Complete (Slides 20.21–20.24 & Final 2 Q64–Q65)</b>:<ul><li><b>NP-Hard</b>: A problem $H$ is NP-hard if <i>every</i> problem in NP can be reduced to $H$ in polynomial time ($L \\le_P H\\; \\forall L \\in \\text{NP}$).</li><li><b>NP-Complete</b>: A problem $C$ is NP-complete if (1) $C \\in \\text{NP}$ <b>AND</b> (2) $C$ is NP-hard! If any single NP-complete problem can be solved in polynomial time, then $\\text{P} = \\text{NP}$. Conversely, <b>assuming $\\text{P} \\ne \\text{NP}$, $\\text{NP-Complete} \\cap \\text{P} = \\emptyset$</b> (Final 2 Q65: Choice B!).</li></ul> <b>Polynomial-Time Reduction $R \\le_P Q$ (Slides 20.25–20.26)</b>: Problem $R$ reduces to $Q$ if any instance of $R$ can be transformed in polynomial time into an instance of $Q$ whose solution gives the solution to $R$ (meaning $R$ is ”no harder than” $Q$). Elementary example: $\\text{LCM}(m, n) = \\frac{m \\cdot n}{\\text{GCD}(m, n)}$ reduces LCM to GCD."
-            ]
-          ],
-          "qa": [
-            [
-              "Explain how to reduce 3-CNF SAT with k clauses to the CLIQUE problem in polynomial time (Lecture 20 Slides 30–36).",
-              "Given a 3-CNF formula $\\phi = C_1 \\land C_2 \\land \\dots \\land C_k$ with $k$ clauses:<br>1. <b>Vertices</b>: For each clause $C_r$, create a vertex for each literal in $C_r$ (up to $3k$ vertices).<br>2. <b>Edges</b>: Add an undirected edge between two vertices $u \\in C_r$ and $v \\in C_s$ iff $r \\ne s$ (they belong to different clauses) AND $u$ is not the negation of $v$ ($u \\ne \\neg v$).<br>3. <b>Equivalence</b>: Since no edges exist within the same clause, any clique can contain at most 1 vertex per clause. A clique of size $k$ exists iff we can pick 1 literal from each of the $k$ clauses such that no two picked literals contradict each other, which is equivalent to a satisfying truth assignment for $\\phi$. Construction takes $O(k^2)$ polynomial time.",
-              "Lecture 20 · Slides 20.30–20.36"
-            ]
-          ],
-          "quiz": [
-            {
-              "q": "The Hamiltonian path problem and the CNF-Satisfiability (SAT) problem belong to which complexity class?",
-              "o": [
-                [
-                  "P class problem",
-                  "No polynomial-time algorithm is known for either."
-                ],
-                [
-                  "NP-Complete problem",
-                  "Correct! Final 2022 Q11 & Final 2 Q64: Both Hamiltonian Path and CNF-SAT are classic NP-Complete problems."
-                ],
-                [
-                  "Logarithmic class problem",
-                  "Incorrect."
-                ],
-                [
-                  "Constant-time problem",
-                  "Incorrect."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2022 Q11 & Final 2 Q64"
-            },
-            {
-              "q": "According to Lecture 20 Slide 15 (and Final 2022 Q49), if the number of cities in the Traveling Salesman Problem (TSP) is N = 6, what is the search space size?",
-              "o": [
-                [
-                  "120",
-                  "120 is 5!."
-                ],
-                [
-                  "720",
-                  "Correct! Final 2022 Q49 & Slide 20.15: The table in Slide 20.15 gives Search Space Size = 6! = 720 for 6 cities."
-                ],
-                [
-                  "24",
-                  "24 is 4!."
-                ],
-                [
-                  "6",
-                  "6 is 3! (for 3 cities)."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2022 Q49 & Lecture 20 · Slide 20.15"
-            },
-            {
-              "q": "Assuming P ≠ NP, which of the following statements is true?",
-              "o": [
-                [
-                  "NP-Complete = NP",
-                  "NP also includes all problems in P, which are not NP-complete if P ≠ NP."
-                ],
-                [
-                  "NP-Complete ∩ P = ∅",
-                  "Correct! Final 2 Q65: If any NP-complete problem were in P, then P would equal NP. Therefore, under P ≠ NP, NP-Complete and P are strictly disjoint!"
-                ],
-                [
-                  "NP-Hard = NP",
-                  "NP-Hard contains undecidable problems (like the Halting Problem) that are not in NP."
-                ],
-                [
-                  "P = NP-Complete",
-                  "Contradicts P ≠ NP."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2 Q65"
-            },
-            {
-              "q": "Problems that can be solved by a deterministic algorithm in polynomial time O(n^k) are known as:",
-              "o": [
-                [
-                  "Intractable",
-                  "Intractable problems require super-polynomial / exponential time."
-                ],
-                [
-                  "Tractable",
-                  "Correct! Final 2 Q60: Polynomial-time solvable problems (Class P) are called tractable."
-                ],
-                [
-                  "Undecidable",
-                  "Undecidable problems cannot be solved by any algorithm in finite time."
-                ],
-                [
-                  "NP-Hard",
-                  "NP-Hard problems are believed to be intractable."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2 Q60"
-            }
-          ],
-          "extra": [
-            {
-              "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 20?",
               "o": [
                 [
                   "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
@@ -24235,7 +22603,8 @@ window.COURSES.algo = {
               "a": 1,
               "src": "Lecture · Lab 1&2 PDF · Pages 1 & 4"
             }
-          ]
+          ],
+          "extra": []
         },
         {
           "n": 2,
@@ -24317,7 +22686,8 @@ window.COURSES.algo = {
               "a": 1,
               "src": "Lecture · Lab 1&2 PDF · Pages 6–7"
             }
-          ]
+          ],
+          "extra": []
         },
         {
           "n": 3,
@@ -24381,31 +22751,8 @@ window.COURSES.algo = {
               "Midterm 2017 Q3, Final 2019 (Credit) Q1, Final Summer Q27 & Lab 3 Problem 3"
             ]
           ],
-          "quiz": [
-            {
-              "q": "In the successive k-way merge algorithm (merging the first 2 sorted arrays of size n, then merging the 3rd array into the result, ..., up to the kth array), what is the asymptotic running time as a function of k and n?",
-              "o": [
-                [
-                  "Θ(nk)",
-                  "That would only hold if k were constant."
-                ],
-                [
-                  "Θ(n²k)",
-                  "The sum is over 2n + 3n + … + kn, which is quadratic in k and linear in n."
-                ],
-                [
-                  "Θ(nk²)",
-                  "Correct! Final Summer Q27, Midterm 2017 Q3 & Lab 3: 2n + 3n + … + kn = n(k(k+1)/2 − 1) = Θ(nk²)."
-                ],
-                [
-                  "Θ(nk lg k)",
-                  "Θ(nk lg k) is the time for balanced divide-and-conquer / min-heap k-way merge, not successive one-by-one merging."
-                ]
-              ],
-              "a": 2,
-              "src": "Exam · Final Summer Q27, Midterm 2017 Q3 & Lab 3 PDF p. 6"
-            }
-          ]
+          "quiz": [],
+          "extra": []
         },
         {
           "n": 4,
@@ -24474,29 +22821,6 @@ window.COURSES.algo = {
           ],
           "quiz": [
             {
-              "q": "What is the minimum number of comparisons required to find BOTH the minimum and maximum of n elements simultaneously using the pairwise comparison algorithm?",
-              "o": [
-                [
-                  "2n − 2",
-                  "That is the naive approach of finding min and max separately."
-                ],
-                [
-                  "1.5n − 2 (i.e., 3n/2 − 2)",
-                  "Correct! Lab 3 pp. 7–8 & Final 2019 Credit Q5: Comparing n/2 pairs (n/2), finding min of the n/2 smaller elements (n/2 − 1), and max of the n/2 larger elements (n/2 − 1) totals 1.5n − 2 comparisons."
-                ],
-                [
-                  "n lg n",
-                  "Sorting the whole array is unnecessary."
-                ],
-                [
-                  "n − 1",
-                  "n − 1 is required just to find the minimum alone."
-                ]
-              ],
-              "a": 1,
-              "src": "Exam · Final 2019 (Credit) Q5 & Lab 3 PDF pp. 7–8"
-            },
-            {
               "q": "In a sorted array A[1..n] of n distinct integers, if we check the middle index m = ⌊n/2⌋ and find A[m] > m, where can an index i satisfying A[i] = i possibly lie?",
               "o": [
                 [
@@ -24519,7 +22843,8 @@ window.COURSES.algo = {
               "a": 0,
               "src": "Midterm 2022 Q3 & Lab 3 PDF p. 9"
             }
-          ]
+          ],
+          "extra": []
         },
         {
           "n": 5,
@@ -24596,7 +22921,8 @@ window.COURSES.algo = {
               "a": 2,
               "src": "Midterm 2023 Credit Q4"
             }
-          ]
+          ],
+          "extra": []
         },
         {
           "n": 6,
@@ -24681,7 +23007,8 @@ window.COURSES.algo = {
               "a": 0,
               "src": "Midterm 2024 Retake Qb"
             }
-          ]
+          ],
+          "extra": []
         }
       ]
     }
@@ -24693,72 +23020,22 @@ window.COURSES.algo = {
       "title": "Lecture 1: Introduction to Algorithms, Insertion Sort, Merge Sort, Recursion Trees and Complexity Cases",
       "videos": [
         {
-          "id": "JPyuH4qXLZ0",
-          "title": "MIT 6.046J Lec 1: Introduction, Insertion Sort & Mergesort (Prof. Charles Leiserson & Erik Demaine)",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:20:36",
+          "id": "W2Fl17HQgJM",
+          "title": "Lecture 1 · video 1",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Course overview: Analysis of Algorithms and why performance matters"
-            },
-            {
-              "t": 690,
-              "time": "11:30",
-              "label": "The sorting problem specification and Insertion Sort pseudocode"
-            },
-            {
-              "t": 1140,
-              "time": "19:00",
-              "label": "Step-by-step trace of Insertion Sort on [8, 2, 4, 9, 3, 6]"
-            },
-            {
-              "t": 1560,
-              "time": "26:00",
-              "label": "Worst-case, average-case, and best-case running time analysis"
-            },
-            {
-              "t": 2040,
-              "time": "34:00",
-              "label": "Machine-independent time and Asymptotic Theta (Θ) notation"
-            },
-            {
-              "t": 2580,
-              "time": "43:00",
-              "label": "Insertion Sort worst-case arithmetic series Θ(n²) vs. Merge Sort"
-            },
-            {
-              "t": 3180,
-              "time": "53:00",
-              "label": "Merging two sorted arrays in Θ(n) and solving T(n) = 2T(n/2) + cn via Recursion Tree"
-            }
-          ]
+          "track": "lectures",
+          "session": 1,
+          "sessionCode": "Lec 1"
         },
         {
-          "id": "mB5HXBb_HY8",
-          "title": "2.7.2 Merge Sort Algorithm — Divide & Conquer Trace and Time Complexity",
-          "channel": "Abdul Bari",
-          "duration": "20:23",
+          "id": "pWjGU8ypqMs",
+          "title": "Lecture 1 · video 2",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Two-way Merge subroutine on two sorted lists"
-            },
-            {
-              "t": 420,
-              "time": "07:00",
-              "label": "Recursive Merge Sort call tree and post-order merging trace"
-            },
-            {
-              "t": 900,
-              "time": "15:00",
-              "label": "Recurrence relation T(n) = 2T(n/2) + n and Θ(n log n) derivation"
-            }
-          ]
+          "track": "lectures",
+          "session": 1,
+          "sessionCode": "Lec 1"
         }
       ],
       "notes": [
@@ -25967,52 +24244,6 @@ window.COURSES.algo = {
           "src": "Lecture 1 · Slides 1.8–1.14"
         },
         {
-          "q": "Time required to merge two sorted lists of sizes m and n is:",
-          "o": [
-            [
-              "O(m | n)",
-              "Not a real expression: the bar | has no meaning inside O( ). Merging adds the two sizes, because every item is handled once."
-            ],
-            [
-              "O(m + n)",
-              "Correct. Each step compares the two heads and outputs one item, so m + n items cost O(m + n) with at most m + n − 1 comparisons."
-            ],
-            [
-              "O(m log n)",
-              "That would fit searching with a binary search for each item. MERGE never searches: it only looks at the two heads."
-            ],
-            [
-              "O(n log m)",
-              "Same mistake as O(m log n): no binary search or re-sorting is needed, as MERGE takes one linear pass."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2021 Q5 & Final 2022 Q4"
-        },
-        {
-          "q": "Which of the following is an example of a NOT in-place sorting algorithm?",
-          "o": [
-            [
-              "Bubble Sort",
-              "Bubble sort is in place: it only swaps neighbours inside the array, using O(1) extra memory."
-            ],
-            [
-              "Merge Sort",
-              "Correct. MERGE writes into a separate array, so merge sort needs Θ(n) extra space and is not in place."
-            ],
-            [
-              "Insertion Sort",
-              "Insertion sort is in place: only key, i and j are extra, which is O(1), as slide 1.7's single array shows."
-            ],
-            [
-              "All of the above",
-              "Wrong because bubble sort and insertion sort are both in place. Only merge sort here needs an auxiliary array."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2021 Q4 & Final 2022 Q23"
-        },
-        {
           "q": "For inputs of size n, Insertion Sort runs in 8n² steps while Merge Sort runs in 64n lg n steps. For which values of n does Insertion Sort beat Merge Sort?",
           "o": [
             [
@@ -26034,1066 +24265,6 @@ window.COURSES.algo = {
           ],
           "a": 0,
           "src": "Midterm 2021 Q3"
-        },
-        {
-          "q": "<b>Q1 (Prim's MST)</b>: Apply Prim's algorithm starting from node 2 (After 1st step: $S=\\{2\\}, d[0]=7, d[1]=8, d[3]=5, d[5]=10$). After executing the <b>2nd step</b> ($S=\\{2,3\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "10",
-              "10 was d[5] before step 2. The question sums all four nodes outside S: 7 + 2 + 4 + 1 = 14."
-            ],
-            [
-              "11",
-              "11 is the sum of the parents p[i] (the next question), not of the distances d[i]."
-            ],
-            [
-              "14",
-              "Correct. Adding node 3 gives d[0] = 7, d[1] = 2, d[4] = 4, d[5] = 1, and 7 + 2 + 4 + 1 = 14."
-            ],
-            [
-              "16",
-              "16 = 7 + 8 + 1 keeps the old d[1] = 8 and forgets the new d[4] = 4."
-            ],
-            [
-              "21",
-              "21 = 7 + 8 + 5 + 1 keeps the old d[1] = 8 and adds d[3] = 5, although node 3 is now in S."
-            ]
-          ],
-          "a": 2,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q2 (Prim's MST)</b>: After executing the <b>2nd step</b> ($S=\\{2,3\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "8",
-              "8 = 2 + 3 + 3 counts only three nodes. All four nodes outside S (0, 1, 4, 5) are in the sum."
-            ],
-            [
-              "9",
-              "9 = 2 + 2 + 3 + 2 leaves p[1] and p[5] at their old value 2. Step 2 sets both to 3."
-            ],
-            [
-              "10",
-              "10 = 2 + 2 + 3 + 3 leaves p[1] = 2. Edge (3,1) of weight 2 improved d[1], so p[1] = 3."
-            ],
-            [
-              "11",
-              "Correct. p[0] = 2, p[1] = 3, p[4] = 3, p[5] = 3, and 2 + 3 + 3 + 3 = 11."
-            ],
-            [
-              "12",
-              "12 = 3 + 3 + 3 + 3 sets p[0] to 3 too. d[0] stayed 7 through node 2, so p[0] = 2."
-            ]
-          ],
-          "a": 3,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q3 (Prim's MST)</b>: After executing the <b>3rd step</b> ($S=\\{2,3,5\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "11",
-              "11 = 7 + 4 leaves out d[1] = 2, but node 1 is still outside S and must be counted."
-            ],
-            [
-              "13",
-              "Correct. Node 5 joins S and edge (5,4) = 6 does not beat d[4] = 4, so 7 + 2 + 4 = 13."
-            ],
-            [
-              "14",
-              "14 is the previous step's sum. It still counts d[5] = 1, but node 5 has just joined S."
-            ],
-            [
-              "15",
-              "15 = 7 + 2 + 6 replaces d[4] by the edge (5,4) = 6, but Prim keeps the smaller value 4."
-            ],
-            [
-              "19",
-              "19 = 7 + 8 + 4 uses the old d[1] = 8. Step 2 already lowered d[1] to 2."
-            ]
-          ],
-          "a": 1,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q4 (Prim's MST)</b>: After executing the <b>3rd step</b> ($S=\\{2,3,5\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "7",
-              "7 = 2 + 2 + 3 uses the old p[1] = 2. Since step 2, p[1] = 3."
-            ],
-            [
-              "8",
-              "Correct. Outside S are 0, 1 and 4, with p[0] = 2, p[1] = 3, p[4] = 3, and 2 + 3 + 3 = 8."
-            ],
-            [
-              "9",
-              "9 = 3 + 3 + 3 changes p[0] to 3. Node 0 is still reached best through node 2."
-            ],
-            [
-              "10",
-              "10 = 2 + 3 + 5 changes p[4] to 5, but edge (5,4) = 6 did not improve d[4] = 4."
-            ],
-            [
-              "11",
-              "11 is the previous step's sum, which still counts p[5] = 3 for a node now in S."
-            ]
-          ],
-          "a": 1,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q5 (Prim's MST)</b>: After executing the <b>4th step</b> ($S=\\{2,3,5,1\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "7",
-              "Correct. Node 1 joins S and edge (1,0) = 3 lowers d[0] from 7 to 3. d[4] stays 4, and 3 + 4 = 7."
-            ],
-            [
-              "9",
-              "9 = 3 + 6 takes d[4] as edge (5,4) = 6. Prim keeps the smaller value 4."
-            ],
-            [
-              "11",
-              "11 = 7 + 4 misses the update: edge (1,0) = 3 lowers d[0] from 7 to 3."
-            ],
-            [
-              "13",
-              "13 is the previous step's sum, which still counts d[1] = 2 for a node that has joined S."
-            ],
-            [
-              "15",
-              "15 = 3 + 12 replaces d[4] by edge (1,4) = 12, which is larger than the current 4."
-            ]
-          ],
-          "a": 0,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q6 (Prim's MST)</b>: After executing the <b>4th step</b> ($S=\\{2,3,5,1\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "3",
-              "3 is p[4] alone. Node 0 is also outside S, so p[0] = 1 must be added."
-            ],
-            [
-              "4",
-              "Correct. p[0] = 1 (edge (1,0) improved it) and p[4] = 3, and 1 + 3 = 4."
-            ],
-            [
-              "5",
-              "5 = 2 + 3 uses the old p[0] = 2. Node 0 is now reached through node 1."
-            ],
-            [
-              "6",
-              "6 = 1 + 5 sets p[4] to 5, but edge (5,4) = 6 did not improve d[4]."
-            ],
-            [
-              "7",
-              "7 = 2 + 5 makes both mistakes: the old p[0] = 2 and a wrong p[4] = 5."
-            ]
-          ],
-          "a": 1,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q7 (Prim's MST)</b>: After executing the <b>5th step</b> ($S=\\{2,3,5,1,0\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "3",
-              "3 was d[0], but node 0 has just joined S and no longer counts."
-            ],
-            [
-              "4",
-              "Correct. Edge (0,4) = 9 does not beat 4, so the only node left, 4, has d[4] = 4."
-            ],
-            [
-              "5",
-              "5 is not a value of d[4] at any step. Node 4 keeps the value 4 from step 2."
-            ],
-            [
-              "7",
-              "7 was the previous step's sum d[0] + d[4]. Node 0 is now in S, so only d[4] counts."
-            ],
-            [
-              "12",
-              "12 is edge (1,4). It never replaced d[4] = 4, since Prim keeps the smaller value."
-            ]
-          ],
-          "a": 1,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q8 (Prim's MST)</b>: After executing the <b>5th step</b> ($S=\\{2,3,5,1,0\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "0",
-              "0 would mean edge (0,4) became node 4's link, but 9 &gt; 4, so it did not."
-            ],
-            [
-              "2",
-              "2 is a parent of other nodes. Node 4 was first reached from node 3 at step 2."
-            ],
-            [
-              "3",
-              "Correct. Node 4 is the only one left, and its parent is still 3 from step 2."
-            ],
-            [
-              "4",
-              "4 was the previous step's sum p[0] + p[4]. Only p[4] counts now."
-            ],
-            [
-              "5",
-              "5 would need edge (5,4) = 6 to improve d[4], but 6 &gt; 4, so it did not."
-            ]
-          ],
-          "a": 2,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q9 (Dijkstra)</b>: Apply Dijkstra's algorithm starting from node 2 (After 1st step: $S=\\{2\\}, d[0]=4, d[1]=8, d[3]=5, d[5]=2$). After executing the <b>2nd step</b> ($S=\\{2,5\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "15",
-              "15 = 4 + 8 + 3 forgets node 4, which relaxing 5→4 has just reached with d[4] = 7."
-            ],
-            [
-              "17",
-              "17 = 4 + 8 + 5 keeps the old d[3] = 5 and forgets d[4] = 7."
-            ],
-            [
-              "19",
-              "19 = 4 + 8 + 5 + 2 is the sum after step 1, including node 5 which is now in S."
-            ],
-            [
-              "22",
-              "Correct. Relaxing from node 5 gives d[3] = 3 and d[4] = 7, and 4 + 8 + 3 + 7 = 22."
-            ],
-            [
-              "24",
-              "24 = 4 + 8 + 5 + 7 keeps the old d[3] = 5. Relaxing 5→3 lowers it to 3."
-            ]
-          ],
-          "a": 3,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q10 (Dijkstra)</b>: After executing the <b>2nd step</b> ($S=\\{2,5\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "6",
-              "6 = 2 + 2 + 2 uses three nodes with the old parent 2. Nodes 3 and 4 now have parent 5."
-            ],
-            [
-              "9",
-              "9 = 2 + 2 + 5 counts only three nodes. All four of 0, 1, 3 and 4 are outside S."
-            ],
-            [
-              "11",
-              "11 = 2 + 2 + 2 + 5 leaves p[3] = 2. Relaxing 5→3 sets p[3] = 5."
-            ],
-            [
-              "14",
-              "Correct. p[0] = 2, p[1] = 2, p[3] = 5, p[4] = 5, and 2 + 2 + 5 + 5 = 14."
-            ],
-            [
-              "15",
-              "15 = 2 + 3 + 5 + 5 uses p[1] = 3 too early. That update happens at the next step."
-            ]
-          ],
-          "a": 3,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q11 (Dijkstra)</b>: After executing the <b>3rd step</b> ($S=\\{2,5,3\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "9",
-              "9 = 4 + 5 leaves out d[4] = 7, but node 4 is still outside S."
-            ],
-            [
-              "12",
-              "12 = 5 + 7 leaves out d[0] = 4. That is the next step's sum, after node 0 joins S."
-            ],
-            [
-              "15",
-              "15 = 3 + 5 + 7 counts d[3] = 3 for a node just added to S, instead of d[0] = 4."
-            ],
-            [
-              "16",
-              "Correct. Relaxing 3→1 lowers d[1] to 5, and 4 + 5 + 7 = 16."
-            ],
-            [
-              "19",
-              "19 = 4 + 8 + 7 keeps the old d[1] = 8. Relaxing 3→1 gives 3 + 2 = 5."
-            ]
-          ],
-          "a": 3,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q12 (Dijkstra)</b>: After executing the <b>3rd step</b> ($S=\\{2,5,3\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "4",
-              "4 = 2 + 2 leaves out node 4 and also leaves p[1] at its old value 2."
-            ],
-            [
-              "5",
-              "5 = 2 + 3 leaves out node 4, whose parent is 5."
-            ],
-            [
-              "6",
-              "6 = 2 + 3 + 1 uses p[4] = 1, which only happens at step 5."
-            ],
-            [
-              "9",
-              "9 = 2 + 2 + 5 keeps the old p[1] = 2. Relaxing 3→1 sets p[1] = 3."
-            ],
-            [
-              "10",
-              "Correct. p[0] = 2, p[1] = 3, p[4] = 5, and 2 + 3 + 5 = 10."
-            ]
-          ],
-          "a": 4,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q13 (Dijkstra)</b>: After executing the <b>4th step</b> ($S=\\{2,5,3,0\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "7",
-              "7 is d[4] alone, and is also node 1's candidate 4 + 3. Both d[1] = 5 and d[4] = 7 must be added."
-            ],
-            [
-              "8",
-              "8 was d[1] after step 1. Since step 3 d[1] = 5, and d[4] must also be added."
-            ],
-            [
-              "9",
-              "9 = 4 + 5 counts d[0], but node 0 has just joined S, and leaves out d[4] = 7."
-            ],
-            [
-              "11",
-              "11 = 4 + 7 counts d[0], which is in S, and drops d[1] = 5."
-            ],
-            [
-              "12",
-              "Correct. Edges from 0 give 7 &gt; 5 and 9 &gt; 7, so nothing improves, and 5 + 7 = 12."
-            ]
-          ],
-          "a": 4,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q14 (Dijkstra)</b>: After executing the <b>4th step</b> ($S=\\{2,5,3,0\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "4",
-              "4 = 3 + 1 uses p[4] = 1, which only happens at the next step. Here p[4] = 5."
-            ],
-            [
-              "5",
-              "5 is p[4] alone. Node 1 is also outside S, with p[1] = 3."
-            ],
-            [
-              "6",
-              "6 = 3 + 3 changes p[4] to 3, but relaxing 3→4 gives 8 &gt; 7, so it did not change."
-            ],
-            [
-              "7",
-              "7 = 2 + 5 keeps the old p[1] = 2. Since step 3, p[1] = 3."
-            ],
-            [
-              "8",
-              "Correct. Outside S are 1 and 4, with p[1] = 3, p[4] = 5, and 3 + 5 = 8."
-            ]
-          ],
-          "a": 4,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q15 (Dijkstra)</b>: After executing the <b>5th step</b> ($S=\\{2,5,3,0,1\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "3",
-              "3 was d[3], but node 3 has been in S since step 3 and no longer counts."
-            ],
-            [
-              "4",
-              "4 was d[0], but node 0 joined S at step 4 and no longer counts."
-            ],
-            [
-              "5",
-              "5 is d[1]. Node 1 joined S at this step, so it no longer counts."
-            ],
-            [
-              "6",
-              "Correct. Relaxing 1→4 (w = 1) lowers d[4] from 7 to 5 + 1 = 6, the only node left."
-            ],
-            [
-              "7",
-              "7 is d[4] before relaxing edge 1→4, which improves it to 6."
-            ]
-          ],
-          "a": 3,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q16 (Dijkstra)</b>: After executing the <b>5th step</b> ($S=\\{2,5,3,0,1\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-          "o": [
-            [
-              "0",
-              "0 would need edge 0→4 to improve d[4], but 4 + 5 = 9 &gt; 7, so it did not."
-            ],
-            [
-              "1",
-              "Correct. Relaxing 1→4 improved d[4], so node 4's parent is now 1."
-            ],
-            [
-              "2",
-              "2 is the start node. It has no edge that set d[4], which was ∞ after step 1."
-            ],
-            [
-              "3",
-              "3 would need edge 3→4 to improve d[4], but 3 + 5 = 8 &gt; 7, so it did not."
-            ],
-            [
-              "5",
-              "5 was p[4] before this step. Relaxing 1→4 replaced it with 1."
-            ]
-          ],
-          "a": 1,
-          "src": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)"
-        },
-        {
-          "q": "<b>Q1</b>: Which data structure is used by the system to perform recursion?",
-          "o": [
-            [
-              "Array",
-              "An array holds data by position. It does not by itself give the last-in, first-out order of unfinished calls."
-            ],
-            [
-              "Queue",
-              "A queue is first in, first out, but the newest recursive call must finish first."
-            ],
-            [
-              "Stack",
-              "Correct. Each call pushes a frame on the call stack and pops it on return: last in, first out."
-            ],
-            [
-              "Linked list",
-              "A linked list is a general structure with no built-in rule for which call resumes next."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q2</b>: What is the objective of the Knapsack problem?",
-          "o": [
-            [
-              "To get maximum total value in the knapsack subject to weight capacity",
-              "Correct. Choose items to get the largest total value without exceeding the weight capacity W."
-            ],
-            [
-              "To get minimum total value in the knapsack",
-              "Minimum value has the trivial answer of taking nothing. The goal is the largest value."
-            ],
-            [
-              "To get maximum weight in the knapsack regardless of value",
-              "Weight is only a limit here. Ignoring value is not the objective, and weight may not exceed W."
-            ],
-            [
-              "To get minimum weight in the knapsack",
-              "Again the trivial answer of an empty knapsack. The objective maximises value under the weight limit."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q3 & Q8</b>: What are the worst-case and average-case time complexities of Merge Sort?",
-          "o": [
-            [
-              "O(N log N)",
-              "Correct. T(N) = 2T(N/2) + Θ(N) gives Θ(N log N) in the worst and average cases, as the recursion tree shows."
-            ],
-            [
-              "O(N²)",
-              "O(N²) is insertion sort's worst case. Merge sort has lg N levels of N work each, not N levels."
-            ],
-            [
-              "O(log N)",
-              "O(log N) cannot be right: just merging touches all N items, so at least N work is needed."
-            ],
-            [
-              "O(log log N)",
-              "O(log log N) is even smaller than log N. Any sort must at least look at all N items."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q4</b>: Time required to merge two sorted lists of sizes $m$ and $n$ is:",
-          "o": [
-            [
-              "O(m | n)",
-              "Not a real expression: the bar | has no meaning inside O( ). The two sizes are added."
-            ],
-            [
-              "O(m + n)",
-              "Correct. Every item is output once, so m + n items cost O(m + n)."
-            ],
-            [
-              "O(m log n)",
-              "That would suit doing a binary search per item. MERGE only compares the two heads."
-            ],
-            [
-              "O(n log m)",
-              "Same mistake: no search is needed. One linear pass over both lists is enough."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q5</b>: What is the best-case time complexity of Selection Sort?",
-          "o": [
-            [
-              "O(n)",
-              "O(n) is the best case of insertion sort, which can stop early. Selection sort always rescans."
-            ],
-            [
-              "O(n²)",
-              "Correct. Selection sort scans all remaining items each pass: n(n − 1)/2 comparisons even on sorted input."
-            ],
-            [
-              "O(n log n)",
-              "O(n log n) is merge sort's cost. Selection sort has no halving and uses nested scans."
-            ],
-            [
-              "O(log n)",
-              "O(log n) is smaller than n. A sort must at least look at all n items."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q11</b>: The Hamiltonian Path problem is a(n): _________",
-          "o": [
-            [
-              "NP problem only",
-              "This is what slide 20.12 literally shows, listing it under examples of NP problems. It is true but incomplete: the official key asks for the stronger class."
-            ],
-            [
-              "N class problem",
-              "\"N class\" is not a complexity class used in the course. The classes are P, NP, NP-Hard and NP-Complete."
-            ],
-            [
-              "P class problem",
-              "P would mean a known polynomial-time algorithm, and none is known for Hamiltonian Path."
-            ],
-            [
-              "NP-Complete problem",
-              "Correct by the official key. Hamiltonian Path is NP-complete ‡. Slide 20.12 only lists it under examples of NP problems, and slide 20.24 defines NP-complete as both in NP and NP-hard."
-            ]
-          ],
-          "a": 3,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q12</b>: Which algorithm strategy builds up a solution by choosing the option that looks the best at every step?",
-          "o": [
-            [
-              "Greedy method",
-              "Correct. Greedy takes the choice that looks best right now, and never reconsiders."
-            ],
-            [
-              "Branch and bound",
-              "Branch and bound searches a state tree and prunes using bounds. It is not one-choice-per-step."
-            ],
-            [
-              "Dynamic programming",
-              "Dynamic programming stores solutions of subproblems and combines them, rather than committing at each step."
-            ],
-            [
-              "Divide and conquer",
-              "Divide and conquer splits a problem into parts and combines their answers. It makes no best-looking choice."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q13</b>: 0/1 Knapsack is based on which method to guarantee an optimal solution?",
-          "o": [
-            [
-              "Greedy method",
-              "Greedy by value per weight is optimal only for fractional knapsack. It can fail for 0/1 items."
-            ],
-            [
-              "Branch and bound",
-              "Branch and bound can solve it but is a search, and it is not the method the exam names."
-            ],
-            [
-              "Dynamic programming",
-              "Correct. 0/1 knapsack has overlapping subproblems, so a table of subproblem answers guarantees the optimum."
-            ],
-            [
-              "Divide and conquer",
-              "Divide and conquer's subproblems would overlap and repeat work, which is exactly what dynamic programming avoids."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q15</b>: What is the purpose of using Randomized Quick Sort over standard Quick Sort?",
-          "o": [
-            [
-              "To reduce worst-case space complexity",
-              "Randomization does not change quicksort's space need. Its goal concerns time, not memory."
-            ],
-            [
-              "To reduce/avoid worst-case time complexity on ordered inputs",
-              "Correct. A random pivot stops sorted or reverse-sorted inputs from always causing the Θ(n²) worst case."
-            ],
-            [
-              "To improve average-case time complexity",
-              "The average is already Θ(n lg n). Randomization removes the dependence on input order; it does not improve the average."
-            ],
-            [
-              "To improve accuracy",
-              "Both versions sort correctly. Accuracy is not at stake, only the running time."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q16</b>: Time taken in decreasing a node's key value (<code>DECREASE-KEY</code>) in a Binary Min-Heap of $n$ elements is:",
-          "o": [
-            [
-              "O(n)",
-              "O(n) would be scanning the heap. Decreasing a key only moves one node up one path."
-            ],
-            [
-              "O(1)",
-              "O(1) would need no movement, but the node may have to rise all the way to the root."
-            ],
-            [
-              "O(log n)",
-              "Correct. The node bubbles up at most the heap's height, which is O(log n)."
-            ],
-            [
-              "O(n log n)",
-              "O(n log n) is the cost of many heap operations. This is a single decrease."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q18</b>: Given items as <code>{value, weight}</code> pairs <code>{{60, 20}, {50, 25}, {20, 5}}</code> and knapsack capacity $W = 40$, find the maximum value assuming items are divisible (Fractional) and non-divisible (0/1) respectively:",
-          "o": [
-            [
-              "100 - 80",
-              "100 is too low for fractional, which reaches 110. The 80 for 0/1 is right, so the pair as a whole is wrong."
-            ],
-            [
-              "110 - 70",
-              "110 is right for fractional, but 70 (items {50,25} and {20,5}) is not the best 0/1 choice: 80 is."
-            ],
-            [
-              "130 - 110",
-              "130 is impossible: all items together are worth 130 but weigh 50, more than W = 40. 110 for 0/1 is impossible too."
-            ],
-            [
-              "110 - 80",
-              "Correct. Fractional: 20 + 60 + (15/25) × 50 = 110. 0/1: {60,20} + {20,5} = 80, weight 25."
-            ]
-          ],
-          "a": 3,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q19</b>: The time complexity of computing the Longest Common Subsequence (LCS) of strings of lengths $M$ and $N$ using DP is:",
-          "o": [
-            [
-              "O(M!)",
-              "O(M!) is like trying all orderings, which the table avoids entirely."
-            ],
-            [
-              "O(M · N)",
-              "Correct. The DP table has M × N cells, and each is filled in O(1) time."
-            ],
-            [
-              "O(N!)",
-              "O(N!) is also a brute-force count. LCS by DP is polynomial."
-            ],
-            [
-              "O(N)",
-              "O(N) ignores the other string. The table depends on both lengths."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q20</b>: What is the time complexity of <code>fun(int n)</code>?<br><code>for (int i = n; i &gt; 0; i /= 2) for (int j = 0; j &lt; i; j++) count += 1;</code>",
-          "o": [
-            [
-              "O(n log n)",
-              "The outer loop runs about log n times, but inner lengths shrink, so multiplying by n overcounts."
-            ],
-            [
-              "O(n²)",
-              "O(n²) would need n outer passes. i halves each time, so there are only about lg n."
-            ],
-            [
-              "O(n)",
-              "Correct. Inner passes total n + n/2 + n/4 + ... + 1 ≤ 2n, a geometric series, so O(n)."
-            ],
-            [
-              "O(log n)",
-              "O(log n) counts only the outer loop. The first pass alone already does n inner steps."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q22</b>: The minimum number of edges required to create a cyclic graph of $n$ vertices is:",
-          "o": [
-            [
-              "n",
-              "Correct. A connected graph on n vertices with n − 1 edges is a tree, with no cycle, so a connected cyclic graph needs n edges."
-            ],
-            [
-              "n − 1",
-              "A connected graph with n − 1 edges is a tree, which has no cycle at all, so one more edge is needed."
-            ],
-            [
-              "n + 1",
-              "n + 1 is more than necessary. The cycle already appears with n edges."
-            ],
-            [
-              "2n",
-              "2n is far more than necessary. A single cycle through n vertices uses just n edges."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q24</b>: Which of the following algorithm design approaches uses memoization?",
-          "o": [
-            [
-              "Greedy approach",
-              "Greedy keeps one choice per step and stores no table of earlier answers."
-            ],
-            [
-              "Divide and conquer approach",
-              "Divide and conquer splits into independent parts, so it has nothing to remember."
-            ],
-            [
-              "Dynamic programming approach",
-              "Correct. Top-down dynamic programming caches each subproblem's answer, which is memoization."
-            ],
-            [
-              "None",
-              "Wrong because dynamic programming does use memoization. It is the method the term belongs to."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q25 & Q26</b>: A Heap is an example of a _____________, while the access time of an unbalanced Binary Search Tree may degrade in the worst case up to _____________.",
-          "o": [
-            [
-              "Complete binary tree; O(n)",
-              "Correct. A heap is a complete binary tree, and an unbalanced BST can become a chain costing O(n)."
-            ],
-            [
-              "Spanning tree; O(n log n)",
-              "A spanning tree is a graph concept, and access to a chain costs O(n), not O(n log n)."
-            ],
-            [
-              "Sparse tree; O(n²)",
-              "\"Sparse tree\" does not describe a heap, and O(n²) is too large for walking one chain."
-            ],
-            [
-              "Binary search tree; O(1)",
-              "A heap is not a BST, and O(1) access is what the worst case certainly does not give."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q30</b>: The time complexity of merging three sorted lists of sizes $m, n,$ and $p$ is:",
-          "o": [
-            [
-              "Θ(m + n + p)",
-              "Correct. Each item in the three lists is handled a constant number of times, so Θ(m + n + p)."
-            ],
-            [
-              "Θ(min(m, n, p))",
-              "The minimum ignores the two longer lists, yet every item must be output."
-            ],
-            [
-              "Θ(max(m, n, p))",
-              "Mathematically Θ(max(m, n, p)) is the same set as the sum, since max ≤ sum ≤ 3 × max. The exam's official answer is written as the sum."
-            ],
-            [
-              "Θ(m · n · p)",
-              "A product would suit nested loops over the lists. Merging is one pass over all items."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q41</b>: Dijkstra's Algorithm cannot be applied on:",
-          "o": [
-            [
-              "Directed and weighted graphs",
-              "Dijkstra works on directed weighted graphs with non-negative weights. They are its main use."
-            ],
-            [
-              "Graphs having a negative weight function",
-              "Correct. Its greedy step assumes distances never improve later, and a negative edge breaks that assumption."
-            ],
-            [
-              "Unweighted graphs",
-              "Unweighted graphs work: treat each edge as weight 1. BFS is just simpler there."
-            ],
-            [
-              "Undirected and unweighted graphs",
-              "Undirected unweighted graphs also work, for the same reason as the previous option."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q48 & Q49</b>: In the TSP problem on an undirected graph with non-negative edge costs, if the number of cities is $6$, what is the search space size (Slide 20.15)?",
-          "o": [
-            [
-              "120",
-              "120 = 5! fixes a start city but still counts orders. Slide 20.15's table gives 720 for 6 cities."
-            ],
-            [
-              "720",
-              "Correct by Slide 20.15's table: 6 cities give a search space of 6! = 720."
-            ],
-            [
-              "60",
-              "60 = 5!/2 removes rotations and reversals, but the slide's table uses 6! = 720."
-            ],
-            [
-              "24",
-              "24 = 4! matches no entry on the slide. The search space for 6 cities is 720."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Exam 2022 (CS316: Complete Objective Paper with Official Answers)"
-        },
-        {
-          "q": "<b>Q1 & Q2</b>: What is a hash table, and what is it called when several elements compete for the same bucket?",
-          "o": [
-            [
-              "A structure that maps keys to values; Collision",
-              "Correct. A hash table maps keys to values, and several keys wanting one bucket is a collision."
-            ],
-            [
-              "A structure that maps values to keys; Diffusion",
-              "It is keys to values, not values to keys, and the term here is collision, not diffusion."
-            ],
-            [
-              "A structure used to implement stack; Replication",
-              "A hash table does not implement a stack, and competition for a bucket is not called replication."
-            ],
-            [
-              "A tree structure; Duplication",
-              "A hash table is array-based, not a tree, and the term is collision, not duplication."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-        },
-        {
-          "q": "<b>Q3, Q4 & Q5</b>: In the division method, what is the hash function, what is the best choice for $m$, and where is key $172$ placed when $m = 157$?",
-          "o": [
-            [
-              "h(k) = k mod m; Any prime number not close to a power of 2; Position 15",
-              "Correct. h(k) = k mod m; choose m prime and not close to a power of 2; 172 mod 157 = 15."
-            ],
-            [
-              "h(k) = k / m; Any even number; Position 19",
-              "k / m is not a position in 0 .. m − 1, and an even m is a bad choice."
-            ],
-            [
-              "h(k) = m mod k; 2^p; Position 72",
-              "m mod k reverses the operands, and 2^p makes h use only the low bits of k."
-            ],
-            [
-              "h(k) = m / k; 2^p − 1; Position 17",
-              "m / k is not the division method, and the position 172 mod 157 is 15, not 17."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-        },
-        {
-          "q": "<b>Q7, Q9 & Q10</b>: What is the average retrieval time when all $n$ keys hash to the same slot, and what is the search complexity in direct addressing?",
-          "o": [
-            [
-              "Θ(n) when all n keys hash to one slot; O(1) in direct addressing (with a distinct array position for every possible key)",
-              "Correct. All keys in one slot make one chain of n: Θ(n). Direct addressing gives each key its own slot: O(1)."
-            ],
-            [
-              "Θ(n²) when all n keys hash to one slot; O(log n) in direct addressing",
-              "One chain is searched linearly, so Θ(n), not Θ(n²), and direct addressing does not need O(log n)."
-            ],
-            [
-              "Θ(n log n); O(n)",
-              "Θ(n log n) is above linear search of a single chain, and direct addressing is O(1), not O(n)."
-            ],
-            [
-              "O(1); O(n log n)",
-              "O(1) ignores that all keys share one chain, and O(n log n) has no place in direct addressing."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-        },
-        {
-          "q": "<b>Q13, Q14 & Q15</b>: In separate chaining, what is the load factor $\\alpha$, what is Simple Uniform Hashing, and what data structure is used for chains?",
-          "o": [
-            [
-              "Average chain length (n/m); Every element has equal probability of hashing into any slot; Doubly/Singly linked list",
-              "Correct. α = n/m is the average chain length, SUH gives each slot equal probability, and chains are linked lists."
-            ],
-            [
-              "Average array size; Weighted probability; Stack",
-              "α is not an array size, simple uniform hashing has no weights, and chains are not stacks."
-            ],
-            [
-              "Average key size; Priority hashing; Binary heap",
-              "α is about keys per slot, not key length, and chains are not binary heaps."
-            ],
-            [
-              "Average table length; Sequential hashing; Array",
-              "α is not a table length, and simple uniform hashing does not mean sequential placement."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-        },
-        {
-          "q": "<b>Q17 (and Final 2021 Q1)</b>: The maximum number of nodes in a binary tree of height $k$, where the root is at height $0$, is:",
-          "o": [
-            [
-              "2^k − 1",
-              "2^k − 1 counts nodes for height k − 1. With the root at height 0 there is one more level."
-            ],
-            [
-              "2^(k+1) − 1",
-              "Correct. Levels 0 to k hold 1 + 2 + 4 + ... + 2^k = 2^(k+1) − 1 nodes."
-            ],
-            [
-              "2^(k−1) + 1",
-              "2^(k−1) + 1 is too small: level k alone can already hold 2^k nodes."
-            ],
-            [
-              "2^k + 1",
-              "2^k + 1 is only slightly more than level k alone, and it ignores the other levels."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-        },
-        {
-          "q": "<b>Q57 & Q59</b>: Given infinite coins of $N$ denominations $v_1, \\dots, v_N$ and target sum $S$, which general technique solves the minimum-coin change problem optimally for arbitrary denominations, and what is its DP time complexity?",
-          "o": [
-            [
-              "Dynamic Programming; O(S · N)",
-              "Correct. Arbitrary denominations need dynamic programming, filling an S × N table in O(S · N)."
-            ],
-            [
-              "Greedy algorithm; O(N)",
-              "Greedy can fail for arbitrary coin sets, and O(N) is too cheap to examine the target S."
-            ],
-            [
-              "Divide and conquer; O(N²)",
-              "Divide and conquer repeats overlapping subproblems, and O(N²) ignores S altogether."
-            ],
-            [
-              "Backtracking; O(S)",
-              "Backtracking is exhaustive and does not have an O(S) cost. DP is the optimal general method."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-        },
-        {
-          "q": "<b>Q62 & Q63</b>: _________ is the class of decision problems solvable by non-deterministic polynomial algorithms, and a non-deterministic algorithm is non-deterministic polynomial iff its verification stage runs in polynomial time.",
-          "o": [
-            [
-              "NP; True",
-              "Correct. NP is the class of decision problems with nondeterministic polynomial algorithms, and the verification claim is True."
-            ],
-            [
-              "P; False",
-              "P is solvable deterministically in polynomial time, and the statement about verification is true, not false."
-            ],
-            [
-              "NP-Hard; False",
-              "NP-Hard problems need not be in NP at all, and the statement about verification is true."
-            ],
-            [
-              "NP-Complete; True",
-              "NP-Complete is only the hardest part of NP, so it does not name the whole class."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam (65-Question Comprehensive Objective Paper: With Official Answers)"
-        },
-        {
-          "q": "For two algorithms A and B, if O(A) = n<sup>100</sup> and O(B) = 10<sup>n</sup>, then algorithm A is the better asymptotic choice.",
-          "o": [
-            [
-              "True",
-              "Correct. Any polynomial eventually grows slower than any exponential, so n¹⁰⁰ is the better choice for large n."
-            ],
-            [
-              "False",
-              "False would need 10ⁿ to stay ahead of n¹⁰⁰ for large n, but exponentials overtake every polynomial, as slide 1.74's order shows."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Summer TF 1"
-        },
-        {
-          "q": "To perform a binary search, the data set must be sorted.",
-          "o": [
-            [
-              "True",
-              "Correct. Comparing x with S[mid] discards a half only because sorted order says x cannot be on that side."
-            ],
-            [
-              "False",
-              "Without sorted order, x &lt; S[mid] tells us nothing about which half x is in, so no half could be discarded."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Summer TF 2"
         },
         {
           "q": "Which kind of analysis does slide 1.20 call \"bogus\"?",
@@ -27872,28 +25043,13 @@ window.COURSES.algo = {
       "title": "Lecture 2: Mathematical Background, Proofs (Induction, Counterexample, Contradiction) & Asymptotic Notation (O, Ω, Θ)",
       "videos": [
         {
-          "id": "A03oI0znAoc",
-          "title": "1.8.1 Asymptotic Notations: Big-Oh (O), Big-Omega (Ω) & Theta (Θ)",
-          "channel": "Abdul Bari",
-          "duration": "15:46",
+          "id": "v4Tu4pP6oBw",
+          "title": "Lecture 2",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Big-Oh O(g(n)) upper bound definition and witnesses c, n₀"
-            },
-            {
-              "t": 420,
-              "time": "07:00",
-              "label": "Big-Omega Ω(g(n)) lower bound and Theta Θ(g(n)) tight bound"
-            },
-            {
-              "t": 680,
-              "time": "11:20",
-              "label": "Hierarchy of complexity growth functions"
-            }
-          ]
+          "track": "lectures",
+          "session": 2,
+          "sessionCode": "Lec 2"
         }
       ],
       "notes": [
@@ -28481,7 +25637,95 @@ window.COURSES.algo = {
             "ag-2-growth": "The 7 functions used in analysis, drawn one by one",
             "ag-2-growtab": "How the 7 functions grow for n = 5 to 10000"
           },
-          "lead": "Which reference functions do running times get compared to, and how far apart are they?"
+          "lead": "Which reference functions do running times get compared to, and how far apart are they?",
+          "viz": {
+            "type": "table",
+            "title": "Slide 2.53–2.55: the functions of growth, sized up",
+            "cols": [
+              "function",
+              "n = 1",
+              "n = 2",
+              "n = 4",
+              "n = 8",
+              "n = 16",
+              "n = 32"
+            ],
+            "rows": [
+              [
+                "log₂ n",
+                "0",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5"
+              ],
+              [
+                "n",
+                "1",
+                "2",
+                "4",
+                "8",
+                "16",
+                "32"
+              ],
+              [
+                "n log₂ n",
+                "0",
+                "2",
+                "8",
+                "24",
+                "64",
+                "160"
+              ],
+              [
+                "n²",
+                "1",
+                "4",
+                "16",
+                "64",
+                "256",
+                "1024"
+              ]
+            ],
+            "steps": [
+              {
+                "r": 0,
+                "cap": [
+                  "The seven functions of Slide 2.53, four of them here: log n, n, n log n, n². Read a column as one input size.",
+                  "أربع دوال من السبع اللي في السلايد 2.53: log n و n و n log n و n². كل عمود حجم إدخال."
+                ]
+              },
+              {
+                "r": 1,
+                "cap": [
+                  "log₂ n only counts how many times you can halve n before reaching 1: it grows by 1 each time n doubles. For n = 32 it is 5, while n alone is already 32.",
+                  "log₂ n بيزيد 1 كل ما n يتضاعف. عند n = 32 قيمته 5 بس."
+                ]
+              },
+              {
+                "r": 2,
+                "cap": [
+                  "n log n = n × log n: twice as big as n for large n, and it is the cost of the best comparison sorts (merge sort). Note it is 0 at n = 1.",
+                  "n log n = n × log n، ودي تكلفة أفضل خوارزميات الترتيب بالمقارنة."
+                ]
+              },
+              {
+                "r": 3,
+                "cap": [
+                  "n² beats everything to its left once n passes a constant: doubling n multiplies n² by 4 but n log n by only about 2. This is the definition of a higher order of growth.",
+                  "n² تكسب كل اللي فوقها لما n تكبر: مضاعفة n تضرب n² في 4."
+                ]
+              },
+              {
+                "r": 0,
+                "cap": [
+                  "Exam habit: identify the term with the fastest growth, drop the constant. If f(n) = 3n² + 5n + 7 then f(n) = Θ(n²) — everything else is a lower-order term.",
+                  "القاعدة: خد أسرع حد نموًا واشيل الثابت. f(n) = 3n² + 5n + 7 يعني Θ(n²)."
+                ]
+              }
+            ]
+          }
         },
         {
           "h": "Comparing three algorithms for 1 + 2 + … + n (Slides 2.56–2.59)",
@@ -28982,75 +26226,6 @@ window.COURSES.algo = {
       ],
       "quiz": [
         {
-          "q": "Select the correct asymptotic notation for the function f(n) = n³ + 1000 − 100n² − 100n:",
-          "o": [
-            [
-              "Θ(n³)",
-              "Correct: the n³ term dominates. For n ≥ 202, n³/2 ≤ f(n) ≤ 2n³, so c₁ = 1/2, c₂ = 2 and n₀ = 202 witness Θ(n³)."
-            ],
-            [
-              "O(n lg n)",
-              "Wrong: f(n) / (n lg n) behaves like n²/lg n, which tends to infinity, so no constant c can keep f(n) below c·n lg n."
-            ],
-            [
-              "Ω(2ⁿ)",
-              "Wrong: this claims f grows at least as fast as 2ⁿ, but 2ⁿ / n³ tends to infinity, so no c > 0 gives f(n) ≥ c·2ⁿ for all large n."
-            ],
-            [
-              "Θ(n²)",
-              "Wrong: it confuses the middle term with the leading one. f(n)/n² behaves like n, which grows without bound, so f is not O(n²)."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final 2021 Q35 & Final Summer Q14"
-        },
-        {
-          "q": "What is the final value of x in: x = 0; For (t = 1; t < N; t++) For (p = 1; p <= t; p++) x = x + 1;",
-          "o": [
-            [
-              "x = N + 1",
-              "Wrong: this treats the nested loops as a single loop. For N = 4 the loops add 1 + 2 + 3 = 6, while N + 1 would be 5."
-            ],
-            [
-              "x = N(N − 1) / 2",
-              "Correct: t runs from 1 to N − 1 and pass t adds t, so x = 1 + 2 + … + (N − 1) = N(N − 1)/2. For N = 4 that is 6."
-            ],
-            [
-              "x = N(N + 1) / 2",
-              "Wrong: that is the sum up to N, which needs t <= N. The test here is t < N, so the last pass is t = N − 1."
-            ],
-            [
-              "x = N²",
-              "Wrong: that would need the inner loop to run N times on every pass, but pass t runs only t times. For N = 4 it would give 16, not 6."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2021 Q13 & Final 2022 Q29"
-        },
-        {
-          "q": "What is the smallest integer n > 1 such that an algorithm with running time n² runs slower than one with running time 3n + 1?",
-          "o": [
-            [
-              "2",
-              "Wrong: at n = 2, n² = 4 and 3n + 1 = 7, so 4 < 7 and n² is still the faster one here."
-            ],
-            [
-              "25",
-              "Wrong: n² is already slower at n = 4, so 25 is not the smallest. It is the size slide 2.38 uses for a different question."
-            ],
-            [
-              "4",
-              "Correct: at n = 3, 9 < 10, so n² is still faster; at n = 4, 16 > 13, so n² is slower. 4 is the first such value."
-            ],
-            [
-              "15",
-              "Wrong: n² passes 3n + 1 well before this, at n = 4 (16 > 13), so 15 cannot be the smallest."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final Summer Q26"
-        },
-        {
           "q": "n<sup>2.1</sup> = O(n² log n).",
           "o": [
             [
@@ -29064,67 +26239,6 @@ window.COURSES.algo = {
           ],
           "a": 1,
           "src": "Midterm 2022 Q4.2"
-        },
-        {
-          "q": "For two algorithms A and B, if O(A) = n<sup>100</sup> and O(B) = 10<sup>n</sup>, then algorithm A is the better asymptotic choice.",
-          "o": [
-            [
-              "True",
-              "Correct: any polynomial grows more slowly than any exponential with base above 1, so for large enough n, n<sup>100</sup> is smaller than 10<sup>n</sup>."
-            ],
-            [
-              "False",
-              "Not true: n<sup>100</sup> is huge for small n, but asymptotic means large n, and 10<sup>n</sup> / n<sup>100</sup> tends to infinity, so A wins eventually."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Summer TF 1"
-        },
-        {
-          "q": "What is the time complexity of <code>fun(int n)</code>?<br><code>for (int i = n; i &gt; 0; i /= 2) for (int j = 0; j &lt; i; j++) count += 1;</code>",
-          "o": [
-            [
-              "O(n log n)",
-              "Wrong: this would need n steps in every one of the lg n passes, like Example 12. Here the inner count shrinks as i halves."
-            ],
-            [
-              "O(n²)",
-              "Wrong: there are only about lg n outer passes, and each does at most n steps. A total of n² steps is not reachable."
-            ],
-            [
-              "O(n)",
-              "Correct: the total is n + ⌊n/2⌋ + ⌊n/4⌋ + … + 1, which is below 2n by the geometric sum. For n = 16 it is 31, so c = 2, n₀ = 1."
-            ],
-            [
-              "O(log n)",
-              "Wrong: lg n is only the number of outer passes. The very first pass alone already does n steps."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final 2022 Q20"
-        },
-        {
-          "q": "Which data structure is used by the system to perform recursion?",
-          "o": [
-            [
-              "Array",
-              "Wrong: an array has no last-in, first-out discipline by itself, while recursive calls must finish in reverse order of being made."
-            ],
-            [
-              "Queue",
-              "Wrong: a queue is first-in, first-out, which would resume the oldest waiting call first. Recursion resumes the newest call first."
-            ],
-            [
-              "Stack",
-              "Correct: each call pushes a frame and each return pops one, so the last call made is the first to finish. fact(4) waits for fact(3), and so on."
-            ],
-            [
-              "Linked list",
-              "Wrong: a linked list is a way of storing items, not the mechanism used by the system to hold waiting calls in last-in, first-out order."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final 2022 Q1"
         },
         {
           "q": "Example 12: what is the time complexity of `sum = 0; for (k=1; k<=n; k*=2) for (j=1; j<=n; j++) sum++;`",
@@ -29850,42 +26964,40 @@ window.COURSES.algo = {
       "title": "Lecture 3: Solving Recurrences with the Iteration, Substitution, Recursion-Tree and Master Methods",
       "videos": [
         {
-          "id": "whjt_N9uYFI",
-          "title": "MIT 6.046J Lec 2: Recurrences — Substitution, Recursion Tree & Master Method",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:10:31",
+          "id": "WTiUdymhXNU",
+          "title": "Lecture 3 · video 1",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 1320,
-              "time": "22:00",
-              "label": "Substitution Method (Guess & Strong Induction)"
-            },
-            {
-              "t": 2280,
-              "time": "38:00",
-              "label": "Recursion-Tree Method"
-            },
-            {
-              "t": 3120,
-              "time": "52:00",
-              "label": "The Master Theorem: Cases 1, 2, and 3"
-            }
-          ]
+          "track": "lectures",
+          "session": 3,
+          "sessionCode": "Lec 3"
         },
         {
-          "id": "OynWkEj0S-s",
-          "title": "2.4.1 Master's Theorem in Algorithms for Dividing Functions",
-          "channel": "Abdul Bari",
-          "duration": "16:50",
+          "id": "Ob8SM0fz6p0",
+          "title": "Lecture 3 · video 2",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Comparing n^(log_b a) vs f(n) across Cases 1, 2, and 3"
-            }
-          ]
+          "track": "lectures",
+          "session": 3,
+          "sessionCode": "Lec 3"
+        },
+        {
+          "id": "sLNPd_nPGIc",
+          "title": "Lecture 3 · video 3",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 3,
+          "sessionCode": "Lec 3"
+        },
+        {
+          "id": "03FZos3Dtc4",
+          "title": "Lecture 3 · video 4",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 3,
+          "sessionCode": "Lec 3"
         }
       ],
       "notes": [
@@ -30322,7 +27434,86 @@ window.COURSES.algo = {
             "ag-3-tree-sq": "Recursion tree of T(n) = T(n/4) + T(n/2) + n², level by level",
             "algo-rec-sim": "Watch a recursion call itself and return"
           },
-          "lead": "How do we get a guess when the recurrence is messy? Slide 3.21: convert the recurrence into a tree, then sum the costs of all levels."
+          "lead": "How do we get a guess when the recurrence is messy? Slide 3.21: convert the recurrence into a tree, then sum the costs of all levels.",
+          "viz": {
+            "type": "table",
+            "title": "Recursion tree of T(n) = 2T(n/2) + n (n = 8)",
+            "cols": [
+              "level",
+              "subproblems",
+              "size of each",
+              "work on the level"
+            ],
+            "rows": [
+              [
+                "level 0 (root)",
+                "1",
+                "n = 8",
+                "n"
+              ],
+              [
+                "level 1",
+                "2",
+                "4",
+                "n"
+              ],
+              [
+                "level 2",
+                "4",
+                "2",
+                "n"
+              ],
+              [
+                "level 3 (leaves)",
+                "8",
+                "1",
+                "n"
+              ],
+              [
+                "sum over levels",
+                "15 nodes",
+                "—",
+                "n · log₂ n = 24"
+              ]
+            ],
+            "steps": [
+              {
+                "r": 0,
+                "cap": [
+                  "Recursion tree of T(n) = 2T(n/2) + n with n = 8. The root costs n and splits into two subproblems of size n/2.",
+                  "شجرة تكرار T(n) = 2T(n/2) + n عند n = 8: الجذر بيكلف n وينقسم لمسألتين حجم n/2."
+                ]
+              },
+              {
+                "r": 1,
+                "cap": [
+                  "Level 1: 2 subproblems of size 4, each costing 4 → the whole level costs 2 × 4 = n. The level work is constant, not growing.",
+                  "المستوى 1: مسألتان حجم 4، تكلفة المستوى 2 × 4 = n. شغل المستوى ثابت."
+                ]
+              },
+              {
+                "r": 2,
+                "cap": [
+                  "Level 2: 4 subproblems of size 2 → 4 × 2 = n again. In general level d has 2^d subproblems of size n/2^d, and 2^d · n/2^d = n.",
+                  "المستوى 2: 4 × 2 = n. عمومًا المستوى d فيه 2^d مسألة حجم n/2^d، وحاصل الضرب n دايمًا."
+                ]
+              },
+              {
+                "r": 3,
+                "cap": [
+                  "Level 3: 8 leaves of size 1 → 8 × 1 = n. The tree has log₂ n + 1 = 4 levels because the size halves at each step (8 → 4 → 2 → 1).",
+                  "المستوى 3: 8 أوراق حجم 1 → 8 × 1 = n. عدد المستويات log₂ n + 1 = 4."
+                ]
+              },
+              {
+                "r": 4,
+                "cap": [
+                  "Sum the level work: n at each of the log₂ n + 1 levels → T(n) = n(log₂ n + 1) = Θ(n log n). That is Master Case 2, a = b = 2, k = 1.",
+                  "نجمع شغل المستويات: n في كل مستوى → T(n) = Θ(n log n). دي الحالة 2 في Master."
+                ]
+              }
+            ]
+          }
         },
         {
           "h": "The recursion tree of T(n) = 2T(n/2) + 4n (handwritten Slide 3.23)",
@@ -30858,29 +28049,6 @@ window.COURSES.algo = {
           "src": "Midterm 2020 Q2.B & Undated Midterm Q2.B"
         },
         {
-          "q": "Which of the three algorithms is fastest: (A) 5T(n/2) + O(n), (B) 2T(n−1) + O(1), or (C) 9T(n/3) + O(n²)?",
-          "o": [
-            [
-              "Algorithm A: Θ(n^(lg 5)) ≈ Θ(n^2.32)",
-              "A is correctly Θ(n^2.32) by Case 1, but n^2.32 grows faster than n² lg n, so A is slower than C."
-            ],
-            [
-              "Algorithm B: Θ(2ⁿ)",
-              "B makes two calls of size n−1: iterating gives 1 + 2 + 4 + … = Θ(2ⁿ), which is exponential and by far the slowest."
-            ],
-            [
-              "Algorithm C: Θ(n² lg n)",
-              "Correct: a = 9, b = 3, n^(log₃ 9) = n², f = n²: Case 2 gives Θ(n² lg n), smaller than n^2.32 and 2ⁿ."
-            ],
-            [
-              "All three have the same complexity",
-              "They differ: A has exponent about 2.32, B is exponential and C is n² lg n, so they are not equal."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final 2018 I Q1.I & Exam Examples Q4.I"
-        },
-        {
           "q": "If T(n) ≤ 10T(n/3) + n³ and T(1) = 1, then T(n) = O(n³).",
           "o": [
             [
@@ -30924,52 +28092,6 @@ window.COURSES.algo = {
           ],
           "a": 1,
           "src": "Midterm 2022 Q4.4"
-        },
-        {
-          "q": "What are the worst-case and average-case time complexities of Merge Sort?",
-          "o": [
-            [
-              "O(N log N)",
-              "Correct: T(N) = 2T(N/2) + Θ(N), and Master Case 2 gives Θ(N lg N) in worst and average cases alike."
-            ],
-            [
-              "O(N²)",
-              "N² is the quadratic class of insertion sort. Merge sort halves every time, so it has lg N rows of N work."
-            ],
-            [
-              "O(log N)",
-              "log N is only the number of rows of the recursion tree. Each row still costs N, so log N is too small."
-            ],
-            [
-              "O(log log N)",
-              "log log N is far too small: merge sort has to read every one of the N elements, so at least N steps."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final 2022 Q3 & Q8"
-        },
-        {
-          "q": "What is the time complexity of the nested loop: <code>for (int i = n; i &gt; 0; i /= 2) for (int j = 0; j &lt; i; j++) count += 1;</code>?",
-          "o": [
-            [
-              "O(n log n)",
-              "n log n assumes each of the log n passes costs n, but the passes shrink: n, n/2, n/4, and so on."
-            ],
-            [
-              "O(n²)",
-              "n² would need about n passes of n steps. There are only lg n passes, and their sizes shrink."
-            ],
-            [
-              "O(n)",
-              "Correct: n + n/2 + n/4 + … + 1 has ratio ½, so the first term wins: at most 2n − 1, equal when n is a power of 2, so Θ(n)."
-            ],
-            [
-              "O(log n)",
-              "log n counts only the number of passes of the outer loop. The inner loop does much more work."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final 2022 Q20"
         },
         {
           "q": "A recurrence is:",
@@ -31749,33 +28871,13 @@ window.COURSES.algo = {
       "title": "Lecture 4: Divide and Conquer: Binary Search, Fast Powering, Fibonacci by Matrix Squaring, Strassen's Algorithm and VLSI Layout",
       "videos": [
         {
-          "id": "-EQTVuAhSFY",
-          "title": "MIT 6.046J Lec 3: Divide-and-Conquer — Binary Search, Powering, Fibonacci, Strassen & VLSI",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:08:33",
+          "id": "hBIHAp-FU3M",
+          "title": "Lecture 4",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 450,
-              "time": "07:30",
-              "label": "Binary Search and Fast Exponentiation aⁿ in Θ(lg n)"
-            },
-            {
-              "t": 1140,
-              "time": "19:00",
-              "label": "Fibonacci 2×2 Matrix Recursive Squaring in Θ(lg n)"
-            },
-            {
-              "t": 1980,
-              "time": "33:00",
-              "label": "Strassen's Matrix Multiplication in Θ(n^lg 7)"
-            },
-            {
-              "t": 3120,
-              "time": "52:00",
-              "label": "VLSI H-Tree Embedding in Θ(n) area"
-            }
-          ]
+          "track": "lectures",
+          "session": 4,
+          "sessionCode": "Lec 4"
         }
       ],
       "notes": [
@@ -32852,21 +29954,6 @@ window.COURSES.algo = {
           "src": "Midterm 2022 Q4.5"
         },
         {
-          "q": "To perform a binary search, the data set must be sorted.",
-          "o": [
-            [
-              "True",
-              "Correct (Final Summer TF 2): only sorted order lets one comparison with the middle element rule out a whole half of the array."
-            ],
-            [
-              "False",
-              "Without sorted order, an element smaller than the middle could be on either side, so no half could be discarded safely."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Summer TF 2"
-        },
-        {
           "q": "The solution of the recurrence T(n) = 4T(n/2) + O(n) is Θ(n³).",
           "o": [
             [
@@ -32895,29 +29982,6 @@ window.COURSES.algo = {
           ],
           "a": 0,
           "src": "Midterm 2022 Q4.1"
-        },
-        {
-          "q": "What are the worst-case and average-case time complexities of Merge Sort?",
-          "o": [
-            [
-              "O(N log N)",
-              "Correct (Final 2022 Q3 and Q8): T(N) = 2T(N/2) + Θ(N) falls in Case 2 with k = 0 and gives Θ(N lg N) on every input."
-            ],
-            [
-              "O(N²)",
-              "N² is the worst case of insertion sort or quicksort. Merge sort always splits evenly, so it never degrades to N²."
-            ],
-            [
-              "O(log N)",
-              "Log N is what binary search costs. Merge sort must at least touch all N elements, so it cannot be this small."
-            ],
-            [
-              "O(log log N)",
-              "This is far below the N steps needed even to read the input once, so no sorting algorithm can run in this time."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final 2022 Q3 & Q8"
         },
         {
           "q": "What is the correct order of the steps in the divide-and-conquer paradigm?",
@@ -34018,62 +31082,13 @@ window.COURSES.algo = {
       "title": "Lecture 5: Quicksort, the PARTITION Subroutine, Worst, Best and Almost-Best Cases, and Randomized Quicksort Analysis",
       "videos": [
         {
-          "id": "vK_q-C-kXhs",
-          "title": "MIT 6.046J Lec 4: Quicksort — Partitioning, Worst/Best Case Trees & Randomized Quicksort Expected Time",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:20:33",
+          "id": "1Cjd0F_eVQ0",
+          "title": "Lecture 5",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Hoare's Quicksort divide-and-conquer structure and in-place sorting"
-            },
-            {
-              "t": 360,
-              "time": "06:00",
-              "label": "Linear-time PARTITION(A, p, q) subroutine and loop invariant"
-            },
-            {
-              "t": 720,
-              "time": "12:00",
-              "label": "Step-by-step Partition trace on [6, 10, 13, 5, 8, 3, 2, 11]"
-            },
-            {
-              "t": 1200,
-              "time": "20:00",
-              "label": "Worst-case analysis T(n) = T(0) + T(n-1) + cn = Θ(n²)"
-            },
-            {
-              "t": 1680,
-              "time": "28:00",
-              "label": "Almost-best 1/10 : 9/10 split recursion tree and Alternating Lucky/Unlucky proof"
-            },
-            {
-              "t": 2400,
-              "time": "40:00",
-              "label": "Randomized Quicksort indicator random variables and E[T(n)] = Θ(n lg n) proof"
-            }
-          ]
-        },
-        {
-          "id": "7h1s2SojIRw",
-          "title": "2.8.1 QuickSort Algorithm & Partitioning Mechanics",
-          "channel": "Abdul Bari",
-          "duration": "13:43",
-          "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Pivot selection and partitioning invariant"
-            },
-            {
-              "t": 450,
-              "time": "07:30",
-              "label": "Complete Quicksort trace and comparison with Merge Sort"
-            }
-          ]
+          "track": "lectures",
+          "session": 5,
+          "sessionCode": "Lec 5"
         }
       ],
       "notes": [
@@ -34859,52 +31874,6 @@ window.COURSES.algo = {
         ]
       ],
       "quiz": [
-        {
-          "q": "The recurrence equation T(n) = T(n − 1) + Θ(n) represents the:",
-          "o": [
-            [
-              "Best-case running time for Quicksort",
-              "The best case of quicksort has an even split, so its recurrence is 2T(n/2) + Θ(n), not T(n − 1) + Θ(n)."
-            ],
-            [
-              "Worst-case running time for Quicksort",
-              "Correct: a split of 0 : n−1 leaves one subproblem of size n − 1, and PARTITION costs Θ(n), so T(n) = T(n − 1) + Θ(n) = Θ(n²)."
-            ],
-            [
-              "Best-case running time for Heapsort",
-              "Heapsort runs in O(n lg n), so a recurrence that solves to Θ(n²) cannot describe even its best case."
-            ],
-            [
-              "Worst-case running time for Heapsort",
-              "Heapsort is O(n lg n) even in the worst case, so its worst case cannot be described by a recurrence that solves to Θ(n²)."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Summer Q23"
-        },
-        {
-          "q": "What is the purpose of using Randomized Quicksort over standard Quicksort?",
-          "o": [
-            [
-              "To reduce worst-case space complexity",
-              "Randomization changes which element is the pivot, not the memory used; quicksort is already in place, so this is not the purpose."
-            ],
-            [
-              "To prevent any specific input ordering from consistently triggering worst-case time complexity",
-              "Correct: with a random pivot no particular input order, such as sorted or reverse sorted, can force the Θ(n²) case. Final 2022 Q15."
-            ],
-            [
-              "To improve best-case time complexity to O(n)",
-              "The best case is still Θ(n lg n), because every level of recursion must still scan its elements; randomizing the pivot does not make it O(n)."
-            ],
-            [
-              "To improve accuracy",
-              "Both versions sort correctly; accuracy is not the issue. Randomization affects only how fast the algorithm runs."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2022 Q15"
-        },
         {
           "q": "Quicksort was proposed by:",
           "o": [
@@ -35844,28 +32813,22 @@ window.COURSES.algo = {
       "title": "Lecture 6: Sorting Lower Bounds (Decision Trees), Counting Sort, Radix Sort and Punched Cards",
       "videos": [
         {
-          "id": "0VqawRl3Xzs",
-          "title": "MIT 6.046J Lec 5: Linear-Time Sorting — Lower Bounds, Counting Sort & Radix Sort",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:16:50",
+          "id": "0ufNJSWOTqo",
+          "title": "Lecture 6 · video 1",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Decision-Tree model and Ω(n lg n) lower bound proof"
-            },
-            {
-              "t": 1260,
-              "time": "21:00",
-              "label": "Counting Sort trace, Θ(n + k) analysis & stability"
-            },
-            {
-              "t": 2220,
-              "time": "37:00",
-              "label": "Radix Sort & choosing digit size r = lg n"
-            }
-          ]
+          "track": "lectures",
+          "session": 6,
+          "sessionCode": "Lec 6"
+        },
+        {
+          "id": "pJ1IQD5rv4o",
+          "title": "Lecture 6 · video 2",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 6,
+          "sessionCode": "Lec 6"
         }
       ],
       "notes": [
@@ -37258,52 +34221,6 @@ window.COURSES.algo = {
       ],
       "quiz": [
         {
-          "q": "Which sorting algorithm requires the minimum number of swaps in the worst case?",
-          "o": [
-            [
-              "Bubble Sort",
-              "Bubble sort swaps neighbours for every out-of-order pair, so on a reversed list it makes Θ(n²) swaps."
-            ],
-            [
-              "Quick Sort",
-              "Partition can perform Θ(n) swaps on each of Θ(n) levels in its worst case, so quicksort can reach Θ(n²) swaps."
-            ],
-            [
-              "Merge Sort",
-              "Merge sort copies elements into an auxiliary array at each of the lg n levels; it does Θ(n lg n) writes, not few swaps."
-            ],
-            [
-              "Selection Sort",
-              "Each outer pass makes one swap, at most n − 1 swaps in total, so O(n) swaps is the minimum among these options."
-            ]
-          ],
-          "a": 3,
-          "src": "Exam · Final 2021 Q10 & Final 2022 Q28"
-        },
-        {
-          "q": "Which sorting algorithm has the lowest worst-case time complexity among the choices?",
-          "o": [
-            [
-              "Bubble Sort",
-              "Bubble sort performs Θ(n²) comparisons in the worst case, for example on a reversed list, so it is not the lowest."
-            ],
-            [
-              "Quick Sort",
-              "Quicksort degrades to Θ(n²) in the worst case when the pivot keeps splitting badly, even though its average is Θ(n lg n)."
-            ],
-            [
-              "Merge Sort",
-              "Merge sort always takes Θ(n lg n), which is the lowest worst case here and meets the Ω(n lg n) lower bound of slide 6.9."
-            ],
-            [
-              "Selection Sort",
-              "Selection sort always scans the remaining part, so it makes Θ(n²) comparisons in every case, including the worst."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final 2021 Q11"
-        },
-        {
           "q": "What is the worst-case running time of Counting Sort? (Also asked in writing in Midterm 2016 Q3 / 2017 Q5 / 2018 Q3.)",
           "o": [
             [
@@ -38218,23 +35135,22 @@ window.COURSES.algo = {
       "title": "Lecture 7: Order Statistics, Randomized Selection (RAND-SELECT) and Worst-Case Linear-Time Selection (Median of Medians)",
       "videos": [
         {
-          "id": "mR_RUjsJnV8",
-          "title": "MIT 6.046J Lec 6: Order Statistics & Median — Randomized Select & Worst-Case Linear-Time Select",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:08:49",
+          "id": "OS5lg9Cxocs",
+          "title": "Lecture 7 · video 1",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 300,
-              "time": "05:00",
-              "label": "RAND-SELECT(A, p, q, i) algorithm and trace"
-            },
-            {
-              "t": 2040,
-              "time": "34:00",
-              "label": "Blum-Floyd-Pratt-Rivest-Tarjan deterministic O(n) SELECT (groups of 5)"
-            }
-          ]
+          "track": "lectures",
+          "session": 7,
+          "sessionCode": "Lec 7"
+        },
+        {
+          "id": "513-g74Kk8M",
+          "title": "Lecture 7 · video 2",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 7,
+          "sessionCode": "Lec 7"
         }
       ],
       "notes": [
@@ -38403,7 +35319,21 @@ window.COURSES.algo = {
           "figH": {
             "ag-7-randsel": "RAND-SELECT on the slide example (i = 7), or your own array with random pivots"
           },
-          "lead": "How does one partition tell us which side the answer is on?"
+          "lead": "How does one partition tell us which side the answer is on?",
+          "viz": {
+            "type": "select",
+            "title": "Lecture 7: the same partition idea, keeping one side only — SELECT for rank 4 of [12, 3, 5, 7, 4, 19, 26]",
+            "arr": [
+              12,
+              3,
+              5,
+              7,
+              4,
+              19,
+              26
+            ],
+            "rank": 4
+          }
         },
         {
           "h": "Intuition: lucky and unlucky pivots (Slide 7.5)",
@@ -39970,52 +36900,49 @@ window.COURSES.algo = {
       "title": "Lecture 8: Hash Functions, Amortized Table Doubling, Separate Chaining and Open Addressing",
       "videos": [
         {
-          "id": "JZHBa-rLrBA",
-          "title": "MIT 6.046J Lec 7: Hashing, Hash Functions, Chaining & Open Addressing (Prof. Charles Leiserson)",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:17:39",
+          "id": "aULjfgOYiZI",
+          "title": "Lecture 8 · video 1",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Direct-address tables vs. Hash tables and the collision problem"
-            },
-            {
-              "t": 900,
-              "time": "15:00",
-              "label": "Chaining analysis under Simple Uniform Hashing: Θ(1 + α)"
-            },
-            {
-              "t": 1800,
-              "time": "30:00",
-              "label": "Division and Multiplication hash functions"
-            },
-            {
-              "t": 2700,
-              "time": "45:00",
-              "label": "Open Addressing: Linear Probing, Quadratic Probing & Double Hashing"
-            }
-          ]
+          "track": "lectures",
+          "session": 8,
+          "sessionCode": "Lec 8"
         },
         {
-          "id": "mFY0J5W8Udk",
-          "title": "Hashing Technique — Separate Chaining, Linear, Quadratic & Double Hashing Simplified",
-          "channel": "Abdul Bari",
-          "duration": "17:04",
+          "id": "E_Dz3nhpT2k",
+          "title": "Lecture 8 · video 2",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Hash functions and collision resolution overview"
-            },
-            {
-              "t": 480,
-              "time": "08:00",
-              "label": "Step-by-step traces of Chaining, Linear Probing, Quadratic Probing, and Double Hashing"
-            }
-          ]
+          "track": "lectures",
+          "session": 8,
+          "sessionCode": "Lec 8"
+        },
+        {
+          "id": "jqr9Gg5bPm4",
+          "title": "Lecture 8 · video 3",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 8,
+          "sessionCode": "Lec 8"
+        },
+        {
+          "id": "tBhzJkaCdpI",
+          "title": "Lecture 8 · video 4",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 8,
+          "sessionCode": "Lec 8"
+        },
+        {
+          "id": "XX7DeDqqrV8",
+          "title": "Lecture 8 · video 5",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 8,
+          "sessionCode": "Lec 8"
         }
       ],
       "notes": [
@@ -40917,190 +37844,6 @@ window.COURSES.algo = {
         ]
       ],
       "quiz": [
-        {
-          "q": "Using the division method in a hash table of size m = 157, at which position will the key k = 172 be placed?",
-          "o": [
-            [
-              "19",
-              "Wrong: 172 − 157 = 15, not 19. 19 would come from a subtraction slip; the remainder of 172 divided by 157 is 15."
-            ],
-            [
-              "72",
-              "Wrong: 72 is 172 mod 100 (the last two digits). The division method divides by the table size m = 157, not by 100."
-            ],
-            [
-              "15",
-              "Right: h(k) = k mod m, and 172 = 1 · 157 + 15, so h(172) = 15 (Slide 8.7, Final 2 Q5)."
-            ],
-            [
-              "17",
-              "Wrong: 17 is just the first two digits of 172. The division method takes the remainder 172 mod 157 = 15."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final 2 Q5"
-        },
-        {
-          "q": "What is the table size m when the parameter p = 7 in the binary implementation of the multiplication method of creating hash functions?",
-          "o": [
-            [
-              "14",
-              "Wrong: 14 is 2 × 7. In the binary implementation the table size is a power of 2, m = 2ᵖ, so p = 7 gives 2⁷."
-            ],
-            [
-              "128",
-              "Right: the binary multiplication method uses a table of size m = 2ᵖ (it is not critical for the method, Slide 8.10), so p = 7 gives 2⁷ = 128."
-            ],
-            [
-              "49",
-              "Wrong: 49 is 7², the square of p. The table size is 2 raised to p, 2⁷ = 128."
-            ],
-            [
-              "127",
-              "Wrong: 127 is 2⁷ − 1, the largest index of the table, not its size. The size is m = 2⁷ = 128."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2 Q6"
-        },
-        {
-          "q": "A hash table of length 10 uses open addressing with h(k) = k mod 10 and linear probing. After inserting 6 values into an empty table, slots 2..7 contain: [2: 42, 3: 23, 4: 34, 5: 52, 6: 46, 7: 33]. Which of the following is a valid insertion order?",
-          "o": [
-            [
-              "46, 42, 34, 52, 23, 33",
-              "Wrong: 52 (home 2) arrives while slot 3 is still empty, so it lands in 3; then 23 is pushed to 5 and 33 to 7. Slot 3 would hold 52, not 23."
-            ],
-            [
-              "34, 42, 23, 52, 33, 46",
-              "Wrong: 33 (home 3) arrives before 46 and probes 3, 4, 5, then finds slot 6 empty, so 33 lands in 6 and 46 is pushed to 7."
-            ],
-            [
-              "46, 34, 42, 23, 52, 33",
-              "Right: 46 → 6, 34 → 4, 42 → 2, 23 → 3; then 52 probes 2, 3, 4 and lands in 5; 33 probes 3, 4, 5, 6 and lands in 7. Exactly the given table."
-            ],
-            [
-              "42, 46, 33, 23, 34, 52",
-              "Wrong: 33 arrives while slot 3 is empty and takes it, so 23 goes to 4, 34 to 5 and 52 to 7. Slot 3 would hold 33, not 23."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final 2 Q16"
-        },
-        {
-          "q": "What is the amortized cost of n insertions into a dynamic hash table that starts at size 1 and doubles in size (1, 2, 4, 8, …) when full, analyzed by the Aggregate Method?",
-          "o": [
-            [
-              "O(n) total for n insertions (O(1) per insertion)",
-              "Right: the n writes cost n and the copies 1 + 2 + 4 + … form a geometric series below 2n, so the total is < 3n = O(n), O(1) amortized per insertion (Slides 8.22–8.23)."
-            ],
-            [
-              "O(n²) total",
-              "Wrong: n² comes from the naive bound of Slide 8.19 (n insertions × O(n) each). Copies happen only at powers of 2, so the real total is < 3n."
-            ],
-            [
-              "O(n lg n) total",
-              "Wrong: it would hold if each of the lg n doublings copied n items, but they copy 1, 2, 4, …, so the copies add up to less than 2n."
-            ],
-            [
-              "O(2ⁿ) total",
-              "Wrong: nothing grows exponentially in n; the table size doubles only about lg n times, and the total work is linear, < 3n."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Summer Q28 & Exam Examples Q28"
-        },
-        {
-          "q": "<b>Q1 & Q2</b>: What is a hash table, and what is it called when several elements compete for the same bucket?",
-          "o": [
-            [
-              "A structure that maps keys to values; Collision",
-              "Right: the hash function maps a key to a position holding its value (Slide 8.4), and two keys wanting the same slot is a collision (Slide 8.7)."
-            ],
-            [
-              "A structure that maps values to keys; Diffusion",
-              "Wrong: the direction is reversed (we look up by key, not by value) and \"diffusion\" is not the term; competing keys cause a collision."
-            ],
-            [
-              "A structure used to implement stack; Replication",
-              "Wrong: a hash table implements a dictionary (insert, search, delete by key), not a stack; replication is not about two keys sharing a slot."
-            ],
-            [
-              "A tree structure; Duplication",
-              "Wrong: a hash table is an array of slots (trees appear only inside slots in the extended technique), and two keys in one slot is a collision."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Q1 & Q2"
-        },
-        {
-          "q": "<b>Q3, Q4 & Q5</b>: In the division method, what is the hash function, what is the best choice for $m$, and where is key $172$ placed when $m = 157$?",
-          "o": [
-            [
-              "h(k) = k mod m; Any prime number not close to a power of 2; Position 15",
-              "Right: the division method takes the remainder k mod m (Slide 8.7), m should be prime (Slide 8.8), and 172 mod 157 = 15."
-            ],
-            [
-              "h(k) = k / m; Any even number; Position 19",
-              "Wrong: the hash is the remainder, not the quotient; even sizes share the factor 2 with many keys (bad, Slide 8.9); and 172 mod 157 is 15."
-            ],
-            [
-              "h(k) = m mod k; 2^p; Position 72",
-              "Wrong: the operands are swapped (key mod size), powers of 2 are the bad sizes of Slide 8.8, and 72 is 172 mod 100."
-            ],
-            [
-              "h(k) = m / k; 2^p − 1; Position 17",
-              "Wrong: a division m / k is not a slot index, 2ᵖ − 1 is not the recommended choice, and 17 is not the remainder 172 mod 157 = 15."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Q3, Q4 & Q5"
-        },
-        {
-          "q": "<b>Q7, Q9 & Q10</b>: What is the average retrieval time when all $n$ keys hash to the same slot, and what is the search complexity in direct addressing?",
-          "o": [
-            [
-              "Θ(n) when all n keys hash to one slot; O(1) in direct addressing (with a distinct array position for every possible key)",
-              "Right: one chain of n keys must be scanned, Θ(n) (Slide 8.37), while direct hashing h(K) = K reaches the key in one access (Slide 8.6)."
-            ],
-            [
-              "Θ(n²) when all n keys hash to one slot; O(log n) in direct addressing",
-              "Wrong: scanning one chain of n items is linear, not quadratic, and direct addressing needs no search at all: O(1), not O(log n)."
-            ],
-            [
-              "Θ(n log n); O(n)",
-              "Wrong: n log n is a sorting cost, not a chain scan (Θ(n)); and direct addressing is O(1) because the key is the address."
-            ],
-            [
-              "O(1); O(n log n)",
-              "Wrong: O(1) is the average with keys spread out, not with all n keys in one slot (that is Θ(n)), and direct addressing is O(1)."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Q7, Q9 & Q10"
-        },
-        {
-          "q": "<b>Q13, Q14 & Q15</b>: In separate chaining, what is the load factor $\\alpha$, what is Simple Uniform Hashing, and what data structure is used for chains?",
-          "o": [
-            [
-              "Average chain length (n/m); Every element has equal probability of hashing into any slot; Doubly/Singly linked list",
-              "Right: α = n/m is the expected chain length (Slide 8.33), simple uniform hashing gives probability 1/m per slot, and chains are linked lists (Slide 8.31)."
-            ],
-            [
-              "Average array size; Weighted probability; Stack",
-              "Wrong: α counts keys per slot, not array size; the probabilities are equal, not weighted; and chains are linked lists, not stacks."
-            ],
-            [
-              "Average key size; Priority hashing; Binary heap",
-              "Wrong: α is n/m, unrelated to how big a key is; \"priority hashing\" is not the assumption; chains are linked lists, not heaps."
-            ],
-            [
-              "Average table length; Sequential hashing; Array",
-              "Wrong: α is the average chain length, the assumption is uniform (not sequential) hashing, and a chain is a linked list (it grows without reallocation)."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Q13, Q14 & Q15"
-        },
         {
           "q": "Direct hashing (h(K) = K) gives O(1) search, insert and delete. What is its disadvantage?",
           "o": [
@@ -42069,33 +38812,31 @@ window.COURSES.algo = {
       "title": "Lecture 9: Balanced Search Trees, Red-Black Tree Properties, Height Bound h ≤ 2 lg(n + 1), Rotations and Insertion",
       "videos": [
         {
-          "id": "O3hI9FdxFOM",
-          "title": "MIT 6.046J Lec 10: Red-Black Trees, Rotations, Insertions & Deletions (Prof. Erik Demaine)",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:23:52",
+          "id": "bbkxIn52tmQ",
+          "title": "Lecture 9 · video 1",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Balanced search trees overview and the 4/5 Red-Black Tree properties"
-            },
-            {
-              "t": 720,
-              "time": "12:00",
-              "label": "Proof that a Red-Black Tree with n keys has height h ≤ 2 lg(n + 1) via 2-3-4 trees"
-            },
-            {
-              "t": 1560,
-              "time": "26:00",
-              "label": "Left and Right Rotations in O(1) time preserving inorder key order"
-            },
-            {
-              "t": 2160,
-              "time": "36:00",
-              "label": "RB-INSERT algorithm and Cases 1, 2, and 3 trace"
-            }
-          ]
+          "track": "lectures",
+          "session": 9,
+          "sessionCode": "Lec 9"
+        },
+        {
+          "id": "oTSmKQoq8P0",
+          "title": "Lecture 9 · video 2",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 9,
+          "sessionCode": "Lec 9"
+        },
+        {
+          "id": "dzxqAlTwU5k",
+          "title": "Lecture 9 · video 3",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 9,
+          "sessionCode": "Lec 9"
         }
       ],
       "notes": [
@@ -42360,6 +39101,84 @@ window.COURSES.algo = {
           },
           "figH": {
             "ag-9-induct": "The induction lemma checked on the slides' tree: keys under x ≥ 2<sup>bh(x)</sup> − 1"
+          },
+          "viz": {
+            "type": "table",
+            "title": "Height bound h ≤ 2 lg(n + 1) on real numbers",
+            "cols": [
+              "size n",
+              "lg(n + 1)",
+              "2 lg(n + 1) = max h",
+              "red-black worst height",
+              "chain worst height"
+            ],
+            "rows": [
+              [
+                "n = 7",
+                "3",
+                "6",
+                "6",
+                "7"
+              ],
+              [
+                "n = 15",
+                "4",
+                "8",
+                "8",
+                "15"
+              ],
+              [
+                "n = 63",
+                "6",
+                "12",
+                "12",
+                "63"
+              ],
+              [
+                "n = 255",
+                "8",
+                "16",
+                "16",
+                "255"
+              ],
+              [
+                "n = 1023",
+                "10",
+                "20",
+                "20",
+                "1023"
+              ]
+            ],
+            "steps": [
+              {
+                "r": 0,
+                "cap": [
+                  "Height bound of a red-black tree (Slide 9.9): h ≤ 2 lg(n + 1). Both columns 3 and 4 are lg(n+1) and 2 lg(n+1).",
+                  "حد الارتفاع في شجرة RB: h ≤ 2 lg(n + 1)."
+                ]
+              },
+              {
+                "r": 1,
+                "cap": [
+                  "For n = 15: lg 16 = 4, so a red-black tree of 15 nodes is at most 8 levels. A chain of the same 15 keys would be 15 levels deep.",
+                  "عند n = 15: أقصى ارتفاع مسموح 8. شجرة سلسلة بنفس الـ 15 مفتاح تبقى بارتفاع 15."
+                ]
+              },
+              {
+                "r": 2,
+                "cap": [
+                  "The gap widens: at n = 1023 a chain needs 1023 comparisons, a red-black tree at most 20. This is what makes every query O(lg n).",
+                  "الفرق بيكبر: عند n = 1023 السلسلة محتاجة 1023 مقارنة، وشجرة RB 20 على الأكثر."
+                ]
+              },
+              {
+                "r": 3,
+                "cap": [
+                  "Exam answer: the height bound is proved by induction using bh(x) ≥ h(x)/2 — at most every other node on any root-to-leaf path is red, so no path has more than twice the black height.",
+                  "الإثبات بالاستقراء باستخدام bh(x) ≥ h(x)/2: مفيش مسار فيه أكتر من ضعف عدد العقد السوداء."
+                ]
+              }
+            ]
           }
         },
         {
@@ -42376,6 +39195,7 @@ window.COURSES.algo = {
           ]
         },
         {
+          "viz": { "type": "rbt", "title": "Slides 9.17–9.18 in motion: insert 10, 20, 30 — Case 4 (a straight red-red pair) rotates the grandparent, then Case 0 paints the root black", "keys": [10, 20, 30] },
           "h": "Modifying operations and rotations (Slides 9.17–9.18)",
           "pts": [
             "INSERT and DELETE change the tree (slide 9.17) in three ways:<ul><li>the operation itself (the BST insert or delete)</li><li><b>colour changes</b></li><li>restructuring the links of the tree via <b>rotations</b></li></ul>",
@@ -42399,6 +39219,7 @@ window.COURSES.algo = {
           }
         },
         {
+          "viz": { "type": "rbt", "title": "Lecture 9's own example with x = 15: the uncle is red first (Case 1), then the mirror zig-zag (Case 5) and the mirror straight line (Case 4)", "start": [7, 3, 18, 10, 22, 8, 11, 26], "keys": [15] },
           "h": "Insertion idea and the example: insert x = 15 (Slides 9.19–9.23)",
           "pts": [
             "<b>IDEA</b> (slide 9.19): insert x in the tree (ordinary BST insert). Colour x <b>red</b>. Only red-black property 3 might be violated. Move the violation up the tree by recolouring until it can be fixed with rotations and recolouring.",
@@ -42426,6 +39247,7 @@ window.COURSES.algo = {
           }
         },
         {
+          "viz": { "type": "rbt", "title": "The pseudocode's cases on the slide's tree: insert 8, then 11 (Case 1 — the uncle is red), then 10 (Case 1 again, then Case 2 — one rotation)", "start": [7, 5, 9, 12], "keys": [8, 11, 10] },
           "h": "RB-INSERT pseudocode, Cases 1–3 and analysis (Slides 9.24–9.29)",
           "table": [
             [
@@ -42676,120 +39498,6 @@ window.COURSES.algo = {
         ]
       ],
       "quiz": [
-        {
-          "q": "The basic restructuring operation for maintaining balance in Red-Black Trees is:",
-          "o": [
-            [
-              "Dynamic programming",
-              "Dynamic programming is an algorithm design method (storing subproblem answers), not an operation that restructures a tree."
-            ],
-            [
-              "Binary sort",
-              "There is no \"binary sort\" step in red-black trees; balancing is done by recolouring and rotating, never by sorting the keys."
-            ],
-            [
-              "Depth-first search",
-              "DFS is a way to visit graph or tree nodes; it changes no links, so it cannot restore balance."
-            ],
-            [
-              "Rotation",
-              "Correct (Final 2021 Q37, Final Summer Q16): slides 9.17–9.18, a rotation relinks a node and its child in O(1) time and keeps the inorder order."
-            ]
-          ],
-          "a": 3,
-          "src": "Exam · Final 2021 Q37 & Final Summer Q16"
-        },
-        {
-          "q": "Why are Red-Black Trees often preferred over Hash Tables even though Hash Tables have O(1) average-case time complexity?",
-          "o": [
-            [
-              "No, they are never preferred",
-              "Wrong: when key order matters (min, max, successor, range queries) or worst-case guarantees matter, red-black trees are the better choice."
-            ],
-            [
-              "Because of resizing issues in hash tables and better key ordering (min, max, predecessor, successor) in Red-Black Trees",
-              "Correct (Final 2021 Q23, Final 2022 Q37): a hash table keeps no key order and needs costly resizing; a red-black tree gives ordered queries in O(lg n) worst case (slide 9.16)."
-            ],
-            [
-              "Because Red-Black Trees use O(1) total memory",
-              "Both structures store all n keys, so both use Θ(n) memory; a red-black tree even adds a colour bit and pointers per node."
-            ],
-            [
-              "Because Red-Black Trees do not use pointers",
-              "A red-black tree node has left, right and parent pointers (rotations relink them), so this is false."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2021 Q23 & Final 2022 Q37"
-        },
-        {
-          "q": "A Heap is an example of a _____________, while the access time of an unbalanced Binary Search Tree may degrade in the worst case up to _____________.",
-          "o": [
-            [
-              "Complete binary tree; O(n)",
-              "Correct (Final 2022 Q25 & Q26): a binary heap is a complete binary tree, and an unbalanced BST can become a chain of height n − 1 (sorted input), so access costs O(n)."
-            ],
-            [
-              "Spanning tree; O(n log n)",
-              "A spanning tree belongs to graphs (MST), not heaps; and one BST access walks one path, at most n nodes, never n log n."
-            ],
-            [
-              "Sparse tree; O(n²)",
-              "\"Sparse tree\" is not what a heap is, and one access walks a single path of at most n nodes, so O(n²) is far too big."
-            ],
-            [
-              "Binary search tree; O(1)",
-              "A heap does not keep the BST order (only parent ≥ children), and O(1) is impossible for a degenerate tree where the key may be n levels down."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Exam 2022 Q25 & Q26"
-        },
-        {
-          "q": "Printing every node in a balanced binary search tree takes Θ(lg n) time.",
-          "o": [
-            [
-              "True",
-              "Not true: printing must output all n keys, so it cannot take less than n steps; lg n is the cost of one search path, not of visiting every node."
-            ],
-            [
-              "False",
-              "Correct, it is False: an inorder traversal visits each of the n nodes once, so printing takes Θ(n) in any BST, balanced or not."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Summer TF 5"
-        },
-        {
-          "q": "In a Red-Black Tree, a black node must have only red children.",
-          "o": [
-            [
-              "True",
-              "Not true: no property restricts the children of a black node. In the slides' tree, black 7 has a black child 3 and a red child 18, and black 3 has only NIL (black) leaves."
-            ],
-            [
-              "False",
-              "Correct, it is False: property 3 restricts red nodes only (a red node's parent is black). A black node may have red or black children, e.g. 7 with children 3 (black) and 18 (red)."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Summer TF 6"
-        },
-        {
-          "q": "We do not have to make any key comparisons to find the minimum or maximum node of a Binary Search Tree.",
-          "o": [
-            [
-              "True",
-              "Correct, it is True: TREE-MINIMUM just follows left pointers until left is NIL (TREE-MAXIMUM follows right pointers); only pointers are tested, never keys."
-            ],
-            [
-              "False",
-              "Not false: the BST property already puts the smallest key at the far left and the largest at the far right, so no key needs comparing."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Summer TF 13"
-        },
         {
           "q": "In the example red-black tree of slide 9.8, what is the black-height of the root 7?",
           "o": [
@@ -43544,23 +40252,31 @@ window.COURSES.algo = {
       "title": "Lecture 10: Red-Black Trees in Depth: Colouring, the Insertion Problem, Rotations and Insert Cases 1-6",
       "videos": [
         {
-          "id": "jDM6_TnYIqE",
-          "title": "Balanced Search Tree Rotations (LL, RR, LR, RL) & Rebalancing Mechanics",
-          "channel": "Abdul Bari",
-          "duration": "43:08",
+          "id": "bbkxIn52tmQ",
+          "title": "Lecture 10 · video 1",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Why unbalanced BSTs degrade to O(n) and how rotations restore O(log n) height"
-            },
-            {
-              "t": 900,
-              "time": "15:00",
-              "label": "Left and Right Rotations pointer updates"
-            }
-          ]
+          "track": "lectures",
+          "session": 10,
+          "sessionCode": "Lec 10"
+        },
+        {
+          "id": "oTSmKQoq8P0",
+          "title": "Lecture 10 · video 2",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 10,
+          "sessionCode": "Lec 10"
+        },
+        {
+          "id": "dzxqAlTwU5k",
+          "title": "Lecture 10 · video 3",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 10,
+          "sessionCode": "Lec 10"
         }
       ],
       "notes": [
@@ -43714,7 +40430,8 @@ window.COURSES.algo = {
           },
           "figH": {
             "ag-10-problem": "The problem with insertion: where do 8, 11 and 10 go, and what colour?"
-          }
+          },
+          "viz": { "type": "rbt", "title": "Slides 10.9–10.16: insert 8, then 11 into 7, 5, 9, 12 — the first fix-up is Case 1, an uncle that is red", "start": [7, 5, 9, 12], "keys": [8, 11] }
         },
         {
           "h": "The problem with insertion: inserting 10 (Slides 10.17–10.19)",
@@ -43879,9 +40596,12 @@ window.COURSES.algo = {
             "Why #4 holds: before, every path from the top met one black (C) above the Δ's; after, it meets one black (B). The top node is black before and after, so nothing above changes.",
             "The loop ends: x's parent B is black, so the while test fails. Case 2 + Case 3 use at most 2 rotations.",
             "Example: inserting 10 into slide 10.16's tree (10 lands under 11 as on slides 10.17–10.19) is Case 3 directly (10 is already a left child, so Case 2 is skipped): 11 black, 12 red, rightRotate(12). Result: 7 (B); 9 (R) with children 8 (B) and 11 (B); 11 with children 10 (R) and 12 (R). Every path from 7 has 2 blacks below 7."
+          ,
+            "<b>Lab 5 numbers these cases differently</b>, and the visualiser above follows the sheet: Case 0 = the new node is the root, so paint it black · Case 1 = the uncle is red (slide Case 1, both mirrors) · Case 2 = p a left child and z a left child — the straight line (slide Case 3) · Case 3 = p a left child and z a right child — the zig-zag (slide Case 2) · Case 4 = the mirror straight line (slide Case 6) · Case 5 = the mirror zig-zag (slide Case 5). Every trace below names its case <b>before</b> the rotation, exactly as the sheet does."
           ]
         },
         {
+          "viz": { "type": "rbt", "title": "Lab 5's Example-1 in full: insert 10, 85, 15, 70, 20, 60, 30, 50, 65, 80, 90, 40, 5, 55 — every case is announced before it is performed", "keys": [10, 85, 15, 70, 20, 60, 30, 50, 65, 80, 90, 40, 5, 55] },
           "h": "Cases 4-6: the mirror image, and a full run (Slide 10.31)",
           "pts": [
             "Slide 10.31: Cases 1-3 hold if x's parent is a <b>left</b> child. If x's parent is a <b>right</b> child, Cases 4-6 are symmetric (swap left for right).",
@@ -43904,6 +40624,7 @@ window.COURSES.algo = {
           }
         },
         {
+          "viz": { "type": "rbt", "title": "Slide 10.32's first deletion: remove 5 (a red leaf — Step 2, no fix-up), then remove 10 (its red child absorbs the missing black)", "start": [10, 5, 15], "op": "delete", "keys": [5, 10] },
           "h": "Deletion (Slide 10.32)",
           "pts": [
             "\"And you thought insertion was tricky…\": deleting can remove a black node, which breaks #4 on all paths that went through it, so the repair is harder than for insertion.",
@@ -44115,82 +40836,6 @@ window.COURSES.algo = {
         ]
       ],
       "quiz": [
-        {
-          "q": "Which of the following is ALWAYS true for a valid Red-Black Tree?",
-          "o": [
-            [
-              "The root is red",
-              "Wrong: property 5 says the root is always black. A red root would also be fixed at once by colouring it black."
-            ],
-            [
-              "The root and leaves (NIL) are black",
-              "Correct (Final Summer Q22): property 5 makes the root black and property 2 makes every leaf (NULL pointer, T.nil) black."
-            ],
-            [
-              "All simple paths from a node to the leaves contain the same total number of red and black nodes",
-              "Wrong: property 4 equalises only the BLACK nodes. In slide 10.4, 7 → 3 → NIL has 2 nodes below 7 but 7 → 18 → 10 → 8 → NIL has 4."
-            ],
-            [
-              "A black node must have only red children",
-              "Wrong (Final Summer Q6 is False): only a red node has a rule about its children. In slide 10.4 black 7 has a black child 3."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Summer Q6 & Q22"
-        },
-        {
-          "q": "What are the operations that can be performed in O(log n) worst-case time complexity on a Red-Black Tree of n nodes?",
-          "o": [
-            [
-              "Insertion, deletion, finding predecessor, and finding successor (as well as search, min, max)",
-              "Correct (Final 2021 Q22, Final 2022 Q36): the height is ≤ 2 lg(n + 1), so every operation that walks one path, plus Insert/Delete with their fix-ups, is O(lg n)."
-            ],
-            [
-              "Only insertion",
-              "Wrong: slide 10.7 lists Minimum, Maximum, Successor, Predecessor and Search as O(lg n) too; Delete is O(lg n) as well."
-            ],
-            [
-              "Only finding predecessor and successor",
-              "Wrong: Search, Min, Max, Insert and Delete also run in O(lg n), since all of them follow one root-to-leaf path."
-            ],
-            [
-              "Printing every node in the tree",
-              "Wrong (Final Summer Q5 is False): printing visits all n nodes, so it takes Θ(n) however balanced the tree is."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final 2021 Q22, Final 2022 Q36 & Final Summer Q5"
-        },
-        {
-          "q": "True or false: in a Red-Black Tree, a black node must have only red children.",
-          "o": [
-            [
-              "True",
-              "Wrong: property 3 constrains only RED nodes (their children must be black). Nothing restricts a black node: in slide 10.4, black 10 has red children but black 7 has a black child 3."
-            ],
-            [
-              "False",
-              "Correct (official answer False): a black node may have red or black children or one of each; e.g. slide 10.8's answer has black 9 with a NIL (black) child and red child 12."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Summer Q6"
-        },
-        {
-          "q": "True or false: printing every node in a balanced binary search tree takes Θ(lg n) time.",
-          "o": [
-            [
-              "True",
-              "Wrong: Θ(lg n) is the cost of walking ONE path (search, min, successor). Printing must output all n keys, so it cannot be faster than n steps."
-            ],
-            [
-              "False",
-              "Correct (official answer False): an inorder walk visits every one of the n nodes once, so it takes Θ(n), even when the height is O(lg n)."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Summer Q5"
-        },
         {
           "q": "What is the worst-case running time of Search, Insert and Delete in a red-black tree with n nodes?",
           "o": [
@@ -45006,18 +41651,31 @@ window.COURSES.algo = {
       "title": "Lecture 11: Red-Black Trees, Insertion Traces (with Exam Workouts) and Deletion with rbTreeFix Cases 1–4",
       "videos": [
         {
-          "id": "O3hI9FdxFOM",
-          "title": "MIT 6.046J Lec 10: Red-Black Tree Insertion & Deletion Fixup Cases",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:23:52",
+          "id": "bbkxIn52tmQ",
+          "title": "Lecture 11 · video 1",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 2160,
-              "time": "36:00",
-              "label": "Complete step-by-step Red-Black Tree insertion and rotation traces"
-            }
-          ]
+          "track": "lectures",
+          "session": 11,
+          "sessionCode": "Lec 11"
+        },
+        {
+          "id": "oTSmKQoq8P0",
+          "title": "Lecture 11 · video 2",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 11,
+          "sessionCode": "Lec 11"
+        },
+        {
+          "id": "dzxqAlTwU5k",
+          "title": "Lecture 11 · video 3",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 11,
+          "sessionCode": "Lec 11"
         }
       ],
       "notes": [
@@ -45102,6 +41760,7 @@ window.COURSES.algo = {
           "callout": "Background the slides assume. It is not on the slides, but you need it to follow them."
         },
         {
+          "viz": { "type": "rbt", "title": "Slides 11.1–11.11 with the lab's case list: insert 65, then 82 (Case 1), then 87 (Case 1, then the zig-zag of Case 3 and the straight line of Case 2)", "start": [47, 32, 71, 93], "keys": [65, 82, 87] },
           "h": "Insertion example: insert 65, 82, 87 (Slides 11.1–11.11)",
           "pts": [
             "Start tree (slide 11.1): root <b>47</b> black; left child 32 black; right child 71 black; <b>93</b> red, the right child of 71. All other children are NIL (black dots on the slide). Every root-to-NIL path has 3 black nodes.",
@@ -45179,7 +41838,8 @@ window.COURSES.algo = {
           },
           "figH": {
             "ag-11-exam1": "rbInsert step by step: insert 2, 1, 4, 5, 9, 3, 6, 7 (or your own keys)"
-          }
+          },
+          "viz": { "type": "rbt", "title": "Lab 5 homework 1 / Final 2016 Q4: insert 2, 1, 4, 5, 9, 3, 6, 7 — Case 1 for 5, Case 4 for 9, 3 and 6, and 7 closes with Case 3 then Case 2", "keys": [2, 1, 4, 5, 9, 3, 6, 7] }
         },
         {
           "h": "Exam workout 2: insert 5, 1, 4, 10, 9, 20, 6, 7 (Final 2018 I Q4, Final 2018 II Q7 & Exam Examples Q7)",
@@ -45207,7 +41867,8 @@ window.COURSES.algo = {
           },
           "figH": {
             "ag-11-exam2": "rbInsert step by step: insert 5, 1, 4, 10, 9, 20, 6, 7"
-          }
+          },
+          "viz": { "type": "rbt", "title": "Final 2018 Q4: insert 5, 1, 4, 10, 9, 20, 6, 7 — the one workout that walks all six cases (0 through 5)", "keys": [5, 1, 4, 10, 9, 20, 6, 7] }
         },
         {
           "h": "Red-black tree deletion: the method (Slides 11.15–11.16)",
@@ -45222,6 +41883,7 @@ window.COURSES.algo = {
           ]
         },
         {
+          "viz": { "type": "rbt", "title": "Slides 11.17–11.21: delete 87, then delete 71 — both need the successor and both splice out a red node, so Step 2 ends each one with no fix-up", "start": [47, 32, 71, 93, 65, 82, 87, 51], "op": "delete", "keys": [87, 71] },
           "h": "Deletion examples 1 and 2: delete 87, delete 71 (Slides 11.17–11.21)",
           "pts": [
             "Example 1 starts from the insertion result (example 2 adds a red 51 under 65, see below): 47 black; 32 black; 71 red with 65 black and 87 black; 87 has red children 82 and 93.",
@@ -45246,6 +41908,7 @@ window.COURSES.algo = {
           }
         },
         {
+          "viz": { "type": "rbt", "title": "Slides 11.22–11.29: delete 32 — the sibling is red first (Case 1), then both nephews are black (Case 2) and the red parent P = 47 absorbs the double black", "start": [47, 32, 71, 93, 65, 82, 87], "op": "delete", "keys": [32] },
           "h": "Deletion example 3: delete 32, rbTreeFix cases (2) then (3) (Slides 11.22–11.24, 11.27–11.29)",
           "pts": [
             "Start tree (slide 11.22): the insertion result again (47; 32; 71 red with 65 and 87; 87 with red 82 and 93). <b>Delete 32</b>: it is black with no real children. (The \"Example 3\" tab of the deletion visual in the previous section runs the same trace with the code's wording.)",
@@ -45282,6 +41945,7 @@ window.COURSES.algo = {
           "code": "TreeNode<T> rbDelete(TreeNode<T> root,TreeNode<T> z)\n//return new root, z contains item to be deleted\n{\n  TreeNode<T> x,y;\n  // find node y, which is going to be removed\n  if (z.getLeft() == null || z.getRight() == null)\n    y = z;\n  else {\n    y = successor(z); // or predecessor\n    z.setItem(y.getItem); // move data from y to z\n  }\n  // find child x of y\n  if (y.getRight() != null)\n    x = y.getRight();\n  else\n    x = y.getLeft();\n  // Note x might be null; create a pretend node\n  if (x == null) {\n    x = new TreeNode<T>(null);\n    x.setColor(black);\n  }\n  x.setParent(y.getParent()); // detach x from y\n  if (y.getParent() == null)\n    // if y was the root, x is a new root\n    root = x;\n  else\n    // Atttach x to y's parent\n    if (y == y.getParent().getLeft()) // left child\n      y.getParent().setLeft(x);\n    else\n      y.getParent().setRight(x);\n  if (y.getColor() == black)\n    root=rbTreeFix(root,x);\n  if (x.getItem() == null) // x is a pretend node\n    if (x==x.getParent().getLeft())\n      x.getParent().setLeft(null);\n    else\n      x.getParent().setRight(null);\n  return root;\n}"
         },
         {
+          "viz": { "type": "rbt", "title": "A deletion that walks three fix-up cases in a row — delete 33 from 33, 34, 15, 18, 5, 28: Case 1 (red sibling), Case 3 (near nephew red), Case 4 (far nephew red)", "start": [33, 34, 15, 18, 5, 28], "op": "delete", "keys": [33] },
           "h": "The four cases of rbTreeFix (Slides 11.30, 11.33–11.36)",
           "pts": [
             "In all cases x holds the black token. Cases are checked in this order; the pictures show x as a left child, and each has a mirror for x as a right child.",
@@ -45299,6 +41963,8 @@ window.COURSES.algo = {
             "Example of subcase (ii) directly ‡: delete 65 from the insertion result tree. x is a pretend node (left child of red 71); the sibling 87 is black and its far nephew 93 is red: 87 becomes red (71's colour), 71 black, 93 black, left-rotate 71.",
             "Result of that example: under 47 the right subtree is 87 red, with children 71 black (right child 82 red) and 93 black. Every root-to-NIL path still has 3 black nodes ‡.",
             "How long it takes: case (3) moves the token up one level per iteration, at most the height O(lg n). Cases (2) and (4) do a constant number of rotations and lead to the end. Total at most 3 rotations ‡ and <b>O(lg n)</b> time."
+          ,
+            "<b>Lab 6 numbers the deletion cases</b>, and the visualiser above follows the sheet: Step 1 = the plain BST splice (two children → the successor is copied in and the successor node is the one removed) · Step 2 = the colour of the spliced-out node: red → the job is done, black with a red child → paint that child black · then the double-black repair: Case 0 = the double black is the root · Case 1 = the sibling is red (slide case (2)) · Case 2 = both nephews are black (slide case (3)) · Case 3 = the near nephew is red (slide case (4-i)) · Case 4 = the far nephew is red (slide case (4-ii))."
           ],
           "table": [
             [
@@ -45638,120 +42304,6 @@ window.COURSES.algo = {
         ]
       ],
       "quiz": [
-        {
-          "q": "What is the below pseudocode trying to do, where pt is a new node pointer and root is the root pointer?\nredblack(Node root, Node pt):\n  if (root == NULL) return pt\n  if (pt.data < root.data) { root.left = redblack(root.left, pt); root.left.parent = root; }\n  else if (pt.data > root.data) { root.right = redblack(root.right, pt); root.right.parent = root; }\n  return root",
-          "o": [
-            [
-              "Insert a new node (the standard BST insertion phase of RB-Insert)",
-              "Correct (Final 2021 Q24, Final 2022 Q38). It walks left or right by comparing pt.data with root.data and hangs pt where it finds NULL, setting the parent pointer: this is bstInsert, the first line of rbInsert (slide 11.13)."
-            ],
-            [
-              "Delete a node",
-              "Wrong: no pointer is ever set to remove a node. Every assignment links root.left or root.right to the result of a recursive call that finally returns the new node pt."
-            ],
-            [
-              "Search for a node without modifying the tree",
-              "Wrong: a search would only compare and return, but this code assigns root.left / root.right and parent pointers, and at NULL it returns pt, which links pt into the tree."
-            ],
-            [
-              "Count the number of nodes",
-              "Wrong: a count would return an integer such as 1 + left + right. This function returns a Node (the subtree root, or pt at an empty spot)."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final 2021 Q24 & Final 2022 Q38"
-        },
-        {
-          "q": "When inserting the sequence (1, 2, 3, 4) into an initially empty Red-Black Tree, what is the root of the final tree and what are the colors of 1, 2, 3, 4?",
-          "o": [
-            [
-              "Root is 1(B) with right chain 2(R) → 3(B) → 4(R)",
-              "Wrong: inserting 3 makes 1 → 2 → 3 a straight line with a NIL (black) uncle, so Case 3 (mirror) left-rotates 1 and 2 becomes the root. A chain would also break property 3 or 4."
-            ],
-            [
-              "Root is 2(B), with left child 1(B), right child 3(B), and 4(R) as right child of 3",
-              "Correct (Final Summer Q29). After 1, 2, 3: 2 black with red 1 and 3. 4 goes under red 3 with red uncle 1: Case 1 colours 1 and 3 black, 2 red, and the root is coloured black again."
-            ],
-            [
-              "Root is 3(B), with left child 2(R) and right child 4(R)",
-              "Wrong: 3 never becomes the root. The rotation at the third insert lifts 2, and inserting 4 only recolours (Case 1). This option also loses key 1."
-            ],
-            [
-              "Root is 2(B), with left child 1(R), right child 3(R), and 4(B) as right child of 3",
-              "Wrong: a new node is always inserted red, and here Case 1 recolours 1 and 3 black, not 4. Black 4 under red 3 would give its path one more black node than the path to 1."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Summer Q29 & Exam Examples Q29"
-        },
-        {
-          "q": "In a red-black tree, a black node must have only red children.",
-          "o": [
-            [
-              "True",
-              "Wrong: property 3 restricts red nodes (a red node's parent is black), not black ones. In the slide tree 47 is black with a black child 32, and after deletion example 3 the black root 71 has two black children."
-            ],
-            [
-              "False",
-              "Correct: a black node may have red or black children. Only a red node must have black children (property 3 / no two reds in a row)."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Summer Q6"
-        },
-        {
-          "q": "We do not have to make any key comparisons to find the minimum or maximum node of a binary search tree.",
-          "o": [
-            [
-              "True",
-              "Correct: the minimum is reached by following left pointers until NIL and the maximum by right pointers. The predecessor used in the deletion examples is found the same way: one step left, then right until NIL."
-            ],
-            [
-              "False",
-              "Wrong: comparisons are needed only to search for a given key. The BST property already puts the smallest key at the end of the leftmost path, so no key has to be compared."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final Summer Q13"
-        },
-        {
-          "q": "Printing every node in a balanced binary search tree takes Θ(lg n) time.",
-          "o": [
-            [
-              "True",
-              "Wrong: O(lg n) is the cost of one search, insert or delete (slide 11.39), which visits one path. Printing must visit all n nodes, so it cannot be faster than n steps."
-            ],
-            [
-              "False",
-              "Correct: an inorder walk prints all n keys in Θ(n) time. The O(log n) bound of balanced trees is per single operation, not for listing the whole tree."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Summer Q5"
-        },
-        {
-          "q": "A heap is an example of a _____, while the access time of an unbalanced binary search tree may degrade in the worst case up to _____.",
-          "o": [
-            [
-              "Complete binary tree; O(n)",
-              "Correct (Final 2022 Q25 & Q26): a binary heap is a complete binary tree (every level full except possibly the last, which is filled left to right), and an unbalanced BST can become a chain of n nodes, so access is O(n). That is why RB trees keep the height O(log n)."
-            ],
-            [
-              "Spanning tree; O(n log n)",
-              "Wrong: a spanning tree is a graph concept (it connects all vertices of a graph). A chain-shaped BST costs one step per level, n levels, so O(n), not O(n log n)."
-            ],
-            [
-              "Sparse tree; O(n²)",
-              "Wrong: \"sparse tree\" is not the heap's shape, and one access in a degenerate BST follows one path of at most n nodes: O(n), not O(n²)."
-            ],
-            [
-              "Binary search tree; O(1)",
-              "Wrong: a heap orders parent vs children, not left vs right, so it is not a BST. O(1) access would need hashing or direct addressing, not an unbalanced tree."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final 2022 Q25 & Q26"
-        },
         {
           "q": "Insert 82 into the tree 47 (B); 32 (B), 71 (B); 65 (R) left of 71, 93 (R) right of 71. Which case applies and what changes?",
           "o": [
@@ -46407,157 +42959,819 @@ window.COURSES.algo = {
       "title": "Lecture 12: Augmenting Data Structures — Order-Statistics Trees (OS-SELECT, OS-RANK) & Interval Trees",
       "videos": [
         {
-          "id": "RHyGlha7bjE",
-          "title": "MIT 6.046J Lec 11: Augmenting Data Structures, Dynamic Order Statistics & Interval Trees (Prof. Charles Leiserson)",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:23:45",
+          "id": "GLQVT6fi3B0",
+          "title": "Lecture 12",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Dynamic Order-Statistics Trees: augmenting Red-Black Trees with size[x]"
-            },
-            {
-              "t": 540,
-              "time": "09:00",
-              "label": "OS-SELECT(x, i) and OS-RANK(T, x) in O(lg n) time"
-            },
-            {
-              "t": 1260,
-              "time": "21:00",
-              "label": "Maintaining size[x] during insertions and O(1) rotation updates"
-            },
-            {
-              "t": 1920,
-              "time": "32:00",
-              "label": "4-Step Data Structure Augmentation Methodology"
-            },
-            {
-              "t": 2280,
-              "time": "38:00",
-              "label": "Interval Trees: augmenting with max high endpoint m[x] and INTERVAL-SEARCH"
-            }
-          ]
+          "track": "lectures",
+          "session": 12,
+          "sessionCode": "Lec 12"
         }
       ],
       "notes": [
         {
-          "h": "Dynamic Order-Statistics Trees: OS-SELECT & OS-RANK (Slides 12.1–12.8)",
+          "h": "Before you start: rank, order statistics and why a BST is the right base",
+          "lead": "The slides jump straight to \"keep subtree sizes in the nodes\". These five ideas are what that sentence assumes.",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
           "pts": [
-            "<b>Augmenting Red-Black Trees with Subtree Sizes (Slides 12.2–12.3)</b>: Store in each node $x$ the number of internal nodes in the subtree rooted at $x$: `size[x] = size[left[x]] + size[right[x]] + 1` (with sentinel `size[NIL] = 0`).",
-            "<b>Why Not Store Ranks Directly in Nodes? (Slide 12.6)</b>: If we stored each node's global rank in the tree, inserting a new minimum element would force us to increment the rank of all $n$ nodes ($\\Theta(n)$ time)! Subtree sizes `size[x]` only change along the $O(\\lg n)$ root-to-leaf path and can be recomputed in $O(1)$ time during a rotation.",
-            "<b>`OS-SELECT(x, i)` — Finding the $i$-th Smallest Element in $O(\\lg n)$ (Slides 12.4–12.5)</b>:<ul><li>Compute $k = \\text{size}[\\text{left}[x]] + 1$ (the relative rank of $x$ within the subtree rooted at $x$).</li><li>If $i == k$, return $x$; if $i < k$, recurse on `OS-SELECT(left[x], i)`; if $i > k$, recurse on `OS-SELECT(right[x], i - k)`.</li><li><b>Slide Trace `OS-SELECT(root, 5)` on `{M(9), C(5), P(3), A(1), F(3), D(1), H(1), N(1), Q(1)}`</b>: At `M`, $k = 5 + 1 = 6$ ($i=5 < 6 \\to$ go left to `C`); at `C`, $k = 1 + 1 = 2$ ($i=5 > 2 \\to$ go right to `F` with $i = 5 - 2 = 3$); at `F`, $k = 1 + 1 = 2$ ($i=3 > 2 \\to$ go right to `H` with $i = 3 - 2 = 1$); at `H`, $k = 0 + 1 = 1 == i \\to$ return `H`!</li></ul>",
-            "<b>`OS-RANK(T, x)` — Finding the Rank of Node $x$ in $O(\\lg n)$ (Midterm 2025 Q6)</b>:<ul><li>Initialize $r = \\text{size}[\\text{left}[x]] + 1$ (rank of $x$ within its own subtree) and set $y = x$.</li><li>Climb up to the root (`while y ≠ T.root`): whenever $y$ is a <b>right child</b> of its parent (`if y == y.p.right`), add the left sibling's subtree plus the parent itself: `r = r + y.p.left.size + 1`. Set `y = y.p`.</li></ul>"
+            "The <b>rank</b> of an element is its position in sorted order: the smallest element has rank 1, the fifth smallest has rank 5.",
+            "An <b>order statistic</b> is the <i>i</i>-th smallest element of the set. Rank 1 is the minimum, rank n the maximum, rank ⌊(n+1)/2⌋ the median.",
+            "In a binary search tree an in-order walk lists the keys in sorted order, so \"the i-th smallest\" is the i-th key you meet in that walk.",
+            "Walking the whole tree is Θ(n). The aim of this lecture is to answer the same query in O(lg n) on a red-black tree, by storing <b>one extra number per node</b>.",
+            "A rotation changes the shape of a BST but never its in-order sequence. That is why extra information per node must be repairable in O(1) per rotation — the whole design turns on this.",
+            "A red-black tree of n nodes has height O(lg n), so any query that walks one root-to-leaf path costs O(lg n). Both new operations are single-path walks."
+          ]
+        },
+        {
+          "h": "What the slides want to add: dynamic order statistics (Slides 12.1–12.3)",
+          "lead": "Two queries on a dynamic set S that changes under INSERT and DELETE.",
+          "pts": [
+            "<b>OS-SELECT(i, S)</b>: return the i-th smallest element of the dynamic set S.",
+            "<b>OS-RANK(x, S)</b>: return the rank of the element x inside S — where x would sit in sorted order.",
+            "The set is <b>dynamic</b>, so the structure must survive insertions and deletions, not just answer queries on a frozen array.",
+            "Idea of the slides (12.3): use a <b>red-black tree</b> for S, and store in every node, next to its key, the <b>size</b> of the subtree rooted there.",
+            "Notation for a node in the slides: the key above, the subtree size below — M/9 means key M, subtree of 9 nodes.",
+            "The slides note that the textbook gives OS-RANK in full while the deck only sketches it; both are worked out below."
+          ]
+        },
+        {
+          "h": "The size field and the OS-tree (Slides 12.3–12.4)",
+          "lead": "One number per node, defined by the sizes of the two subtrees.",
+          "formula": [
+            "size[x] = size[left[x]] + size[right[x]] + 1"
           ],
-          "code": "OS-SELECT(x, i)   // Returns ith smallest node in subtree at x\n1  k ← size[left[x]] + 1\n2  if i = k then return x\n3  if i < k\n4     then return OS-SELECT(left[x], i)\n5     else return OS-SELECT(right[x], i - k)\n\nOS-RANK(T, x)     // Returns rank of x in T (Midterm 2025 Q6)\n1  r ← x.left.size + 1\n2  y ← x\n3  while y ≠ T.root\n4      do if y = y.p.right\n5            then r ← r + y.p.left.size + 1\n6         y ← y.p\n7  return r",
           "fig": [
-            "ag-12-os-tree",
-            "ag-12-insert",
-            "ag-12-rotate-size",
-            "ag-12-select",
-            "ag-12-rank"
+            "ag-12-os-tree"
           ],
-          "figAt": {
-            "ag-12-os-tree": 0,
-            "ag-12-insert": 1,
-            "ag-12-rotate-size": 1,
-            "ag-12-select": 2,
-            "ag-12-rank": 3
-          },
           "figH": {
-            "ag-12-os-tree": "The OS-tree of the slides: every size[x] computed bottom up",
-            "ag-12-insert": "INSERT(“K”): sizes change only on the path, ranks would change everywhere",
-            "ag-12-rotate-size": "A rotation fixes subtree sizes in O(1)",
-            "ag-12-select": "OS-SELECT(root, i) step by step (the slide traces i = 5)",
-            "ag-12-rank": "OS-RANK(T, x) on the same tree: climb to the root, adding at every right turn"
+            "ag-12-os-tree": "The slide tree: keys in BST order, subtree sizes below each key"
+          },
+          "figAt": {
+            "ag-12-os-tree": 2
+          },
+          "pts": [
+            "Every node stores <b>size[x]</b> = number of nodes in the subtree rooted at x, counting x itself.",
+            "In the slide tree the root M has size 9: its left subtree (C, A, F, D, H) has 5 nodes and its right subtree (N, Q, P) has 3, so 5 + 3 + 1 = 9.",
+            "A leaf has size 1. The empty tree is handled by a <b>sentinel</b>: a dummy NIL record with size[NIL] = 0, so the formula needs no special case for a missing child.",
+            "Because size is defined leaf-up, it is correct in every node by construction — you never store a rank, you store a count.",
+            "The in-order position of a node inside its own subtree is exactly size[left[x]] + 1, and that equality is the engine of both operations."
+          ]
+        },
+        {
+          "h": "OS-SELECT: one walk down (Slides 12.4–12.5)",
+          "lead": "Compare the wanted rank with the rank of the current node, then drop one side.",
+          "code": [
+            "OS-SELECT(x, i)   ▹ i-th smallest in the subtree rooted at x",
+            "k ← size[left[x]] + 1     ▹ k = rank of x inside its subtree",
+            "if i = k then return x",
+            "if i < k then return OS-SELECT(left[x], i)",
+            "else return OS-SELECT(right[x], i − k)"
+          ],
+          "pts": [
+            "Compute k, the rank of x inside its own subtree: everything in the left subtree comes before x, then x itself.",
+            "If i = k, x is the answer. If i &lt; k the wanted element is in the left subtree and the index does not change.",
+            "If i &gt; k the answer is in the right subtree, but the first k elements are already \"spent\", so the new index is i − k.",
+            "Each call moves one level down, so the running time is O(h) = O(lg n) on a red-black tree, and Θ(1) extra space because the recursion is a single path.",
+            "The slides stress the sentinel trick: with size[NIL] = 0 the k of a node with no left child is 1, correctly."
+          ]
+        },
+        {
+          "h": "The slide worked example: OS-SELECT(root, 5) (Slide 12.5)",
+          "lead": "Four nodes visited, four comparisons, answer H.",
+          "table": [
+            [
+              "Node visited",
+              "size[left[x]]",
+              "k",
+              "Compare",
+              "Move"
+            ],
+            [
+              "M",
+              "size[C] = 5",
+              "6",
+              "5 &lt; 6",
+              "left to C, i stays 5"
+            ],
+            [
+              "C",
+              "size[A] = 1",
+              "2",
+              "5 &gt; 2",
+              "right to F, i = 5 − 2 = 3"
+            ],
+            [
+              "F",
+              "size[D] = 1",
+              "2",
+              "3 &gt; 2",
+              "right to H, i = 3 − 2 = 1"
+            ],
+            [
+              "H",
+              "size[NIL] = 0",
+              "1",
+              "1 = 1",
+              "return H"
+            ]
+          ],
+          "fig": [
+            "ag-12-select"
+          ],
+          "figH": {
+            "ag-12-select": "Step through OS-SELECT(root, 5) exactly as the slide draws it"
+          },
+          "figAt": {
+            "ag-12-select": 0
+          },
+          "pts": [
+            "The 5th smallest key of the slide tree is <b>H</b>, which you can confirm independently by reading the in-order sequence: A, C, D, F, H, M, N, P, Q.",
+            "Three of the four steps moved down one level each; the total work is the height of the visited part of the tree.",
+            "The subtractions matter: every time the walk goes right, the ranks to the left are discarded, and the index shrinks by exactly k."
+          ],
+          "viz": {
+            "type": "table",
+            "title": "OS-SELECT(root, 5) on the slide tree: k = size[left[x]] + 1 at every node",
+            "cols": [
+              "node x",
+              "size[left[x]]",
+              "k = size[left[x]] + 1",
+              "i",
+              "action"
+            ],
+            "rows": [
+              [
+                "M (root)",
+                "5",
+                "5 + 1 = 6",
+                "5",
+                "i < k → go left to C, i stays 5"
+              ],
+              [
+                "C",
+                "1",
+                "1 + 1 = 2",
+                "5",
+                "i > k → go right to F, i ← 5 − 2 = 3"
+              ],
+              [
+                "F",
+                "1",
+                "1 + 1 = 2",
+                "3",
+                "i > k → go right to H, i ← 3 − 2 = 1"
+              ],
+              [
+                "H",
+                "0",
+                "0 + 1 = 1",
+                "1",
+                "i = k → return H"
+              ]
+            ],
+            "steps": [
+              {
+                "r": 0,
+                "cap": [
+                  "OS-SELECT(root, 5) on the slide tree: keys in order A C D F H M N P Q, size[M] = 9. At each node x, k = size[left[x]] + 1 is the rank of x inside its own subtree.",
+                  "OS-SELECT(root, 5): عند كل عقدة k = size[left[x]] + 1 هو رتبة العقدة داخل شجرتها."
+                ]
+              },
+              {
+                "r": 1,
+                "cap": [
+                  "At M: size[left[M]] = size[C] = 5, so k = 6. Since i = 5 < 6 the answer is somewhere to the left: recurse on C without changing i.",
+                  "عند M: k = 6 و i = 5 أصغر، فننزل شمال من غير ما نغيّر i."
+                ]
+              },
+              {
+                "r": 2,
+                "cap": [
+                  "At C: size[A] = 1, so k = 2 and i = 5 > 2. Everything in C's left subtree is already counted, so go right and subtract: i ← 5 − 2 = 3.",
+                  "عند C: k = 2 و i = 5 أكبر، فنروح يمين ونطرح: i = 3."
+                ]
+              },
+              {
+                "r": 3,
+                "cap": [
+                  "At F: size[D] = 1, k = 2, i = 3 > 2 → go right with i ← 3 − 2 = 1. One walk down, O(h) = O(lg n) steps, no sorting.",
+                  "عند F: k = 2 و i = 3 أكبر → يمين بـ i = 1. نزلة واحدة O(lg n)."
+                ]
+              },
+              {
+                "r": 4,
+                "cap": [
+                  "At H: size[left[H]] = 0, so k = 1 = i → return H. The 5th smallest key of the set is H, in 4 comparisons.",
+                  "عند H: k = 1 = i → النتيجة H. العنصر الخامس هو H في 4 مقارنات."
+                ]
+              }
+            ]
           }
         },
         {
-          "h": "Data-Structure Augmentation Methodology & Interval Trees (Slides 12.9–12.25)",
-          "pts": [
-            "<b>4-Step Data-Structure Augmentation Methodology (Slide 12.9)</b>:<ul><li><b>1.</b> Choose an underlying data structure (e.g., Red-Black Tree).</li><li><b>2.</b> Determine additional information to store in each node (e.g., `size[x]` or `m[x]`).</li><li><b>3.</b> Verify that the information can be maintained in $O(\\lg n)$ during `RB-INSERT` and `RB-DELETE` (including $O(1)$ updates during rotations!).</li><li><b>4.</b> Develop new dynamic-set operations that use the information (e.g., `OS-SELECT`, `OS-RANK`, `INTERVAL-SEARCH`).</li></ul>",
-            "<b>Interval Trees & `INTERVAL-SEARCH(i)` (Slides 12.10–12.25)</b>:<ul><li><b>1. Underlying structure</b>: Red-Black Tree keyed on the <b>low (left) endpoint</b> `low[int[x]]`.</li><li><b>2. Additional info</b>: `m[x] = max(high[int[x]], m[left[x]], m[right[x]])` (the maximum endpoint in $x$'s subtree).</li><li><b>3. Maintaining `m[x]`</b>: Updated in $O(1)$ time during rotations and $O(\\lg n)$ down the insertion/deletion path.</li><li><b>4. `INTERVAL-SEARCH(i)`</b>: Starting at `x = root`, while `x ≠ NIL` and `i` does not overlap `int[x]` (i.e., `low[i] > high[int[x]]` or `low[int[x]] > high[i]`): if `left[x] ≠ NIL` and `low[i] ≤ m[left[x]]`, go left (`x ← left[x]`), else go right (`x ← right[x]`). Runs in $O(\\lg n)$ time!</li></ul>"
+          "h": "OS-RANK: one walk up (Slides 12.5)",
+          "lead": "The rank of x is its rank inside its own subtree plus everything smaller on the way to the root.",
+          "formula": [
+            "r = size[left[x]] + 1",
+            "if x is a right child: r += size[left[parent[x]]] + 1"
           ],
           "fig": [
+            "ag-12-rank"
+          ],
+          "figH": {
+            "ag-12-rank": "OS-RANK(H) on the slide tree: start with H, climb to F, then to C"
+          },
+          "figAt": {
+            "ag-12-rank": 1
+          },
+          "pts": [
+            "Start with <b>r = size[left[x]] + 1</b>: x and its left subtree are all smaller than x.",
+            "Climb to the parent. If x came from the <b>right</b>, the parent and the parent's whole left subtree are also smaller than x, so add size[left[parent]] + 1. If x came from the left, nothing new is smaller.",
+            "On the slide tree, OS-RANK(H): r = 0 + 1 = 1; H is a right child of F, so r += size[D] + 1 = 2 → 3; F is a right child of C, so r += size[A] + 1 = 2 → 5; C is a left child of M, so nothing is added. Rank(H) = 5.",
+            "That agrees with OS-SELECT(root, 5) = H, which is a quick way to check your own trace in the exam.",
+            "Both operations are O(lg n); OS-RANK is iterative, OS-SELECT is a tail recursion."
+          ]
+        },
+        {
+          "h": "Keeping the sizes correct: INSERT, DELETE and rotations (Slides 12.6–12.9)",
+          "lead": "The slides first ask why not store ranks, then show that sizes survive every repair.",
+          "fig": [
+            "ag-12-insert",
+            "ag-12-rotate-size"
+          ],
+          "figH": {
+            "ag-12-insert": "INSERT(\"K\"): every node on the search path grows by one",
+            "ag-12-rotate-size": "A rotation fixes two sizes in O(1) — the example from slide 12.9"
+          },
+          "figAt": {
+            "ag-12-insert": 1,
+            "ag-12-rotate-size": 5
+          },
+          "pts": [
+            "Why not store the rank in each node (Slide 12.6)? Because one insertion shifts the rank of every larger element — maintaining them would cost Θ(n).",
+            "Sizes are local: an insertion touches only the nodes on the root-to-leaf path. Slide 12.7: inserting K turns M 9→10, C 5→6, F 3→4, H 1→2 and gives the new leaf K size 1.",
+            "The new node gets size 1; then walk back up and add 1 on each ancestor. O(lg n) work, same path as the insertion itself.",
+            "Deletion is the mirror image: remove the node, then subtract 1 from each ancestor (and splice the child up if the deleted node had fewer than two children).",
+            "<b>Recolourings do not change sizes</b> — they change colours only. Only the structural change matters.",
+            "<b>Rotations change two sizes</b>, both in O(1). Slide 12.9: before the rotation at C the pair reads C/11 above E/16; after it, C holds the whole subtree (16) and E drops to 8, which is one subtraction plus one addition.",
+            "Therefore RB-INSERT and RB-DELETE still run in O(lg n) after augmentation: at most O(lg n) recolourings and O(1) rotations, each repaired in constant time."
+          ]
+        },
+        {
+          "h": "The augmentation methodology: four steps (Slide 12.10)",
+          "lead": "The same recipe produced order-statistics trees and will produce interval trees in the next slides.",
+          "table": [
+            [
+              "Step",
+              "Order-statistics tree",
+              "Interval tree"
+            ],
+            [
+              "1. Choose an underlying data structure",
+              "red-black tree keyed on the element",
+              "red-black tree keyed on the low endpoint"
+            ],
+            [
+              "2. Choose the extra information",
+              "size[x] = subtree size",
+              "m[x] = maximum high endpoint in the subtree"
+            ],
+            [
+              "3. Verify it survives modification",
+              "INSERT/DELETE add or subtract 1 up the path; rotations fix 2 sizes",
+              "INSERT fixes m on the way down; rotations fix m in O(1)"
+            ],
+            [
+              "4. Develop the new operations",
+              "OS-SELECT, OS-RANK",
+              "INTERVAL-SEARCH"
+            ]
+          ],
+          "pts": [
+            "Step 3 is the one students skip and the one the slides insist on: if the extra information cannot be repaired in O(1) per rotation, the augmentation is worthless.",
+            "Step 4 is where the new information pays off: the operation must be able to choose one child from the extra values alone.",
+            "The slides call these steps guidelines, not rigid rules, but every exam question on this lecture follows them in order."
+          ]
+        },
+        {
+          "h": "Interval trees: the structure and the max field (Slides 12.11–12.13)",
+          "lead": "Store intervals, not points, and ask which one overlaps a query interval.",
+          "fig": [
             "ag-12-intervals",
-            "ag-12-itree",
-            "ag-12-rotate-m",
-            "ag-12-isearch",
+            "ag-12-itree"
+          ],
+          "figH": {
+            "ag-12-intervals": "Nineteen intervals on a line, and the overlap question the tree must answer",
+            "ag-12-itree": "The interval tree of slide 12.13 with m[x] under each interval"
+          },
+          "figAt": {
+            "ag-12-intervals": 2,
+            "ag-12-itree": 3
+          },
+          "formula": [
+            "m[x] = max(high[int[x]], m[left[x]], m[right[x]])"
+          ],
+          "pts": [
+            "An interval [low, high] is written int[x]; two intervals <b>overlap</b> when low[i] ≤ high[int[x]] and low[int[x]] ≤ high[i]. Touching endpoints count as overlapping.",
+            "Underlying structure: a red-black tree <b>keyed on the low endpoint</b>, so an in-order walk lists intervals by their starts.",
+            "Extra information: <b>m[x]</b>, the largest high endpoint of any interval in the subtree at x.",
+            "m is computed from three candidates: the node's own high, the left subtree's m, the right subtree's m.",
+            "In the slide tree the root is [17,19] with m = 23, because [22,23] sits in its right subtree.",
+            "Slide 12.14 shows maintenance: on the way down, m's are repaired; a rotation repairs m in O(1), so INSERT and DELETE stay O(lg n)."
+          ]
+        },
+        {
+          "h": "INTERVAL-SEARCH and its two slide traces (Slides 12.15–12.21)",
+          "lead": "\"Go left only if the left subtree can still overlap me\" — that is the entire rule.",
+          "code": [
+            "INTERVAL-SEARCH(i)",
+            "x ← root",
+            "while x ≠ NIL and (low[i] > high[int[x]] or low[int[x]] > high[i])",
+            "  ▹ i and int[x] do not overlap",
+            "  if left[x] ≠ NIL and low[i] ≤ m[left[x]]",
+            "  then x ← left[x]",
+            "  else x ← right[x]",
+            "return x"
+          ],
+          "fig": [
+            "ag-12-isearch"
+          ],
+          "figH": {
+            "ag-12-isearch": "Both slide searches: [14,16] finds [15,18]; [12,14] ends at NIL"
+          },
+          "figAt": {
+            "ag-12-isearch": 1
+          },
+          "table": [
+            [
+              "Query",
+              "Root [17,19]",
+              "Then",
+              "Result"
+            ],
+            [
+              "[14,16]",
+              "no overlap, 14 ≤ m[left] = 18",
+              "left to [5,11]: no overlap, 14 &gt; m[left] = 8, so right to [15,18]",
+              "overlap → return [15,18]"
+            ],
+            [
+              "[12,14]",
+              "no overlap, 12 ≤ 18",
+              "left to [5,11]: no overlap, 12 &gt; 8, so right to [15,18]; no overlap (12 &gt; 10), 12 ≤ m[left] = 10 is false → right to NIL",
+              "NIL → no interval overlaps [12,14]"
+            ]
+          ],
+          "pts": [
+            "The while condition is the <b>non-overlap</b> test: the search stops as soon as it finds an overlapping interval.",
+            "The decision rule is not the ordinary BST comparison. Go <b>left</b> only when low[i] ≤ m[left[x]], i.e. when some interval in the left subtree reaches far enough right to touch i.",
+            "Otherwise no interval on the left can overlap i, so the only place left to look is the right subtree.",
+            "Each iteration does O(1) work and moves one level down, so the search costs O(h) = O(lg n)."
+          ]
+        },
+        {
+          "h": "Why taking one child is safe, and the analysis (Slides 12.22–12.25)",
+          "lead": "The correctness theorem is short and is a favourite written question.",
+          "fig": [
             "ag-12-proof"
           ],
-          "figAt": {
-            "ag-12-intervals": 1,
-            "ag-12-itree": 1,
-            "ag-12-rotate-m": 1,
-            "ag-12-isearch": 1,
-            "ag-12-proof": 1
-          },
           "figH": {
-            "ag-12-intervals": "Intervals and the overlap query: move the query interval",
-            "ag-12-itree": "The slide’s interval tree: keyed on low endpoints, m[x] filled bottom up",
-            "ag-12-rotate-m": "A rotation fixes m[x] in O(1)",
-            "ag-12-isearch": "INTERVAL-SEARCH on [14,16] and [12,14] (or your own query)",
-            "ag-12-proof": "Why one child is enough: the two cases of the correctness proof"
-          }
+            "ag-12-proof": "The two cases of the correctness proof"
+          },
+          "figAt": {
+            "ag-12-proof": 0
+          },
+          "pts": [
+            "<b>Theorem.</b> Let L be the intervals in the left subtree of x and R those in the right subtree. If the search goes right, then no interval of L overlaps i. If the search goes left, then no interval of R overlaps i (given none of L does).",
+            "<b>Going right.</b> The code went right because low[i] &gt; m[left[x]]. m[left[x]] is the high endpoint of some interval j in L, and no interval of L reaches further right. Since low[i] is already beyond that end, nothing in L overlaps i.",
+            "<b>Going left.</b> The code went left because low[i] ≤ m[left[x]] = high[j] for some j in L. If j does not overlap i then high[i] &lt; low[j]. By the BST property every interval in R starts at or after low[j], so every one of them starts after i ends: nothing in R overlaps i.",
+            "In short: it is always safe to take only one child — the search either finds an overlap or proves that none exists.",
+            "<b>Listing all k overlaps</b> (Slide 12.23): search, report, delete, repeat — O(k lg n) total with the deleted interval re-inserted at the end. This is output-sensitive; the best known result is O(k + lg n)."
+          ]
+        },
+        {
+          "h": "Summary: the two augmentations in one table",
+          "lead": "What to be able to reproduce on the exam sheet.",
+          "table": [
+            [
+              "Question",
+              "Order-statistics tree",
+              "Interval tree"
+            ],
+            [
+              "Key of each node",
+              "the element itself",
+              "the low endpoint of the interval"
+            ],
+            [
+              "Extra field",
+              "size[x] = nodes in subtree",
+              "m[x] = max high endpoint in subtree"
+            ],
+            [
+              "New operation",
+              "OS-SELECT (down), OS-RANK (up)",
+              "INTERVAL-SEARCH (down)"
+            ],
+            [
+              "Rule at each step",
+              "compare i with size[left] + 1",
+              "go left iff low[i] ≤ m[left[x]]"
+            ],
+            [
+              "Cost",
+              "O(lg n) per query, O(1) per rotation to repair",
+              "O(lg n) per query, O(1) per rotation to repair"
+            ],
+            [
+              "Why it works",
+              "sizes count exactly the smaller elements",
+              "m rules out a subtree that cannot overlap"
+            ]
+          ],
+          "pts": [
+            "Before the exam, be able to write both algorithms from memory and to repair the extra field after one rotation.",
+            "If a question gives you a tree and asks for the i-th smallest or the rank of a key, do exactly what the slide does: compute k at each node and move once.",
+            "If a question gives you intervals, draw the m values first; every wrong answer in practice comes from a wrong m."
+          ]
         }
       ],
       "cards": [
         [
-          "Order-Statistic Tree Augmentation",
-          "size[x] = size[left[x]] + size[right[x]] + 1 (with size[NIL] = 0). Maintained in O(lg n) on insert/delete and O(1) per rotation."
+          "OS-SELECT(i, S)",
+          "Returns the i-th smallest element of the dynamic set S. Runs in O(lg n) on an augmented red-black tree."
         ],
         [
-          "OS-RANK(T, x) Missing Lines (Midterm 2025 Q6)",
-          "Line 1: r = x.left.size + 1; Line 5 (when y == y.p.right): r = r + y.p.left.size + 1; Line 6: y = y.p."
+          "OS-RANK(x, S)",
+          "Returns the rank of x in sorted order. Starts at size[left[x]] + 1 and adds size[left[parent]] + 1 each time the climb goes up from a right child."
         ],
         [
-          "4-Step Augmentation Methodology",
-          "1. Choose underlying DS; 2. Choose extra node info; 3. Verify maintenance on insert/delete/rotations; 4. Design new operations."
+          "size[x]",
+          "Number of nodes in the subtree rooted at x, counting x: size[x] = size[left[x]] + size[right[x]] + 1. The sentinel NIL has size 0."
         ],
         [
-          "Interval Tree Key & Augmentation",
-          "Keyed on low[int[x]]; augmented with m[x] = max(high[int[x]], m[left[x]], m[right[x]])."
+          "Rank of x inside its subtree",
+          "k = size[left[x]] + 1. This is the number OS-SELECT compares i against at every node."
         ],
         [
-          "Dynamic Order-Statistics Trees: OS-SELECT & OS-RANK (Slides 12.1–12.8) — Core Principle & Complexity",
-          "<b>Augmenting Red-Black Trees with Subtree Sizes (Slides 12.2–12.3)</b>: Store in each node $x$ the number of internal nodes in the subtree rooted at $x$: `size[x] = size[left[x]] + size[right[x]] + 1` (with sentinel `size[NIL] = 0`). <b>Why Not Store Ranks Directly in Nodes? (Slide 12.6)</b>: If we stored each node's global rank in the tree, inserting a new minimum element would force us to increment the rank of all $n$ nodes ($\\Theta(n)$ time)! Subtree sizes `size[x]` only change along the $O(\\lg n)$ root-to-leaf path and can be recomputed in $O(1)$ time during a rotation."
+          "OS-SELECT rule",
+          "If i = k return x; if i < k go left with the same i; if i > k go right with i − k."
         ],
         [
-          "Data-Structure Augmentation Methodology & Interval Trees (Slides 12.9–12.25) — Core Principle & Complexity",
-          "<b>4-Step Data-Structure Augmentation Methodology (Slide 12.9)</b>:<ul><li><b>1.</b> Choose an underlying data structure (e.g., Red-Black Tree).</li><li><b>2.</b> Determine additional information to store in each node (e.g., `size[x]` or `m[x]`).</li><li><b>3.</b> Verify that the information can be maintained in $O(\\lg n)$ during `RB-INSERT` and `RB-DELETE` (including $O(1)$ updates during rotations!).</li><li><b>4.</b> Develop new dynamic-set operations that use the information (e.g., `OS-SELECT`, `OS-RANK`, `INTERVAL-SEARCH`).</li></ul> <b>Interval Trees & `INTERVAL-SEARCH(i)` (Slides 12.10–12.25)</b>:<ul><li><b>1. Underlying structure</b>: Red-Black Tree keyed on the <b>low (left) endpoint</b> `low[int[x]]`.</li><li><b>2. Additional info</b>: `m[x] = max(high[int[x]], m[left[x]], m[right[x]])` (the maximum endpoint in $x$'s subtree).</li><li><b>3. Maintaining `m[x]`</b>: Updated in $O(1)$ time during rotations and $O(\\lg n)$ down the insertion/deletion path.</li><li><b>4. `INTERVAL-SEARCH(i)`</b>: Starting at `x = root`, while `x ≠ NIL` and `i` does not overlap `int[x]` (i.e., `low[i] > high[int[x]]` or `low[int[x]] > high[i]`): if `left[x] ≠ NIL` and `low[i] ≤ m[left[x]]`, go left (`x ← left[x]`), else go right (`x ← right[x]`). Runs in $O(\\lg n)$ time!</li></ul>"
+          "Why not store ranks directly?",
+          "One insertion shifts the rank of every larger element, so maintaining them costs Θ(n). Subtree sizes are local to the search path."
+        ],
+        [
+          "Cost of INSERT with sizes",
+          "Increment size on every node of the root-to-leaf path: O(lg n). The recolourings change no sizes."
+        ],
+        [
+          "Cost of a rotation with sizes",
+          "Two nodes change size, each in O(1): the new parent takes the whole subtree size and the child loses the moved part."
+        ],
+        [
+          "Four-step augmentation methodology",
+          "1 choose the underlying structure, 2 choose the extra information, 3 verify it survives INSERT, DELETE and rotations, 4 develop the new operations."
+        ],
+        [
+          "Interval tree structure",
+          "Red-black tree keyed on the low endpoint, each node holding its interval int[x] and m[x] = the largest high endpoint in its subtree."
+        ],
+        [
+          "m[x] definition",
+          "m[x] = max(high[int[x]], m[left[x]], m[right[x]]); m[NIL] is treated as −∞ so a missing child never wins."
+        ],
+        [
+          "Intervals that overlap",
+          "i and int[x] overlap when low[i] ≤ high[int[x]] and low[int[x]] ≤ high[i]. Endpoints that touch count as overlap."
+        ],
+        [
+          "INTERVAL-SEARCH decision",
+          "Go left iff left[x] ≠ NIL and low[i] ≤ m[left[x]]; otherwise go right. Stop at the first overlap or at NIL."
+        ],
+        [
+          "Why the left test works",
+          "If low[i] > m[left[x]] then every interval on the left ends before i starts, so none of them can overlap i."
+        ],
+        [
+          "Why the right side is safe after a left move",
+          "Going left means low[i] ≤ high[j] for some j on the left. If j misses i then high[i] < low[j] ≤ every start on the right, so the right cannot overlap i either."
+        ],
+        [
+          "Cost of INTERVAL-SEARCH",
+          "O(h) = O(lg n): constant work per level along one root-to-leaf path."
+        ],
+        [
+          "Listing all overlapping intervals",
+          "Search, list, delete, repeat: O(k lg n) for k answers; the best known bound is O(k + lg n)."
+        ],
+        [
+          "Inserting into an interval tree",
+          "Fix the m values on the way down, then repair after rotations: O(lg n) total, O(1) per rotation."
         ]
       ],
       "qa": [
         [
-          "Complete the following code from Midterm 2025 Q6 to compute the rank of node x in an Order-Statistic Red-Black Tree T:\nOS-RANK(T, x)\n1 r = ............... ; 2 y = x ;\n3 while y <> T.root\n4   if y == y.p.right\n5     r = ............... ;\n6   y = ............... ; 7 return r;",
-          "• <b>Line 1</b>: <code>r = x.left.size + 1</code> (or <code>size[left[x]] + 1</code>)<br>• <b>Line 5</b>: <code>r = r + y.p.left.size + 1</code> (or <code>r + size[left[p[y]]] + 1</code>)<br>• <b>Line 6</b>: <code>y = y.p</code> (or <code>p[y]</code>).",
-          "Midterm 2025 Q6 & Lecture 12 · Slide 12.4"
+          "Given the slide tree (M with left subtree C, A, F, D, H and right subtree N, Q, P), trace OS-SELECT(root, 5) and OS-RANK(H).",
+          "<b>OS-SELECT(root, 5)</b>: at M, k = size[C] + 1 = 6, so 5 < 6 → go left to C with i = 5. At C, k = size[A] + 1 = 2, so 5 > 2 → go right to F with i = 5 − 2 = 3. At F, k = size[D] + 1 = 2, so 3 > 2 → go right to H with i = 3 − 2 = 1. At H, k = 0 + 1 = 1 = i → return <b>H</b>.<br><b>OS-RANK(H)</b>: r = size[NIL] + 1 = 1; H is the right child of F, so r += size[D] + 1 = 2 → 3; F is the right child of C, so r += size[A] + 1 = 2 → 5; C is the left child of M, so nothing is added. Rank(H) = <b>5</b>. The two operations agree, which is the check to run in an exam."
+        ],
+        [
+          "Why can we not store the rank of every element in the node instead of the subtree size?",
+          "Because a rank is a <i>global</i> position. Inserting one element shifts the rank of every larger element, so a single insertion could touch Θ(n) nodes and the structure would no longer be O(lg n). A subtree size is <i>local</i>: only the nodes on the inserted element's search path change, each by exactly +1. The slides make this point explicitly before introducing sizes (Slide 12.6)."
+        ],
+        [
+          "Show how a rotation is repaired when the extra field is the subtree size.",
+          "A left rotation at C with right child E moves E up and C down; the subtree total stays the same. Compute the new E first: size[E] = size[left[E]] + size[right[C]] + 1 (its new left child is C's old right subtree). Then size[C] = size[left[C]] + size[left[E]] + 1. Two additions, O(1). Slide 12.9 shows the slide numbers: C/11 above E/16 becomes C/16 above E/8 — C now owns the whole subtree and E keeps only the part that did not move."
+        ],
+        [
+          "Write INTERVAL-SEARCH and explain why one child always suffices.",
+          "INTERVAL-SEARCH(i): x ← root; while x ≠ NIL and i does not overlap int[x]: if left[x] ≠ NIL and low[i] ≤ m[left[x]] then x ← left[x] else x ← right[x]; return x.<br><b>Right is safe</b> when low[i] > m[left[x]]: m[left[x]] is the largest high endpoint on the left, so every interval there ends before i begins.<br><b>Left is safe</b> when the search chose left, i.e. low[i] ≤ m[left[x]] = high[j] for some j on the left. If j does not overlap i then high[i] < low[j], and by the BST property every interval in the right subtree starts at low[j] or later — so none of them can overlap i. Either the search finds an overlap, or it proves that none exists."
+        ],
+        [
+          "Give the four steps of the augmentation methodology and apply them to the order-statistics tree.",
+          "1. <b>Choose the underlying structure</b>: a red-black tree keyed on the elements. 2. <b>Choose the extra information</b>: size[x], the number of nodes in the subtree. 3. <b>Verify maintenance</b>: INSERT adds 1 on the search path, DELETE subtracts 1, recolourings change nothing, a rotation repairs two sizes in O(1) — so both modifying operations stay O(lg n). 4. <b>Develop the new operations</b>: OS-SELECT walks down comparing i with size[left] + 1, OS-RANK walks up adding size[left[parent]] + 1 whenever it climbs from a right child. Both are O(lg n)."
+        ],
+        [
+          "An exam asks: \"find every interval that overlaps [12,14] in this tree\". What is the cost and the algorithm?",
+          "The single-interval search is O(lg n). To list all k overlapping intervals: run INTERVAL-SEARCH, report the interval, <b>delete</b> it, and repeat; re-insert the deleted intervals at the end. Each round costs O(lg n), so the total is O(k lg n). The slides call this an output-sensitive bound and note that the best known result is O(k + lg n)."
         ]
       ],
       "quiz": [
         {
-          "q": "In an Order-Statistic Tree, why do we store subtree sizes size[x] in each node rather than storing each node's global rank directly?",
+          "q": "In an OS-tree, what exactly does the value stored under a node's key represent?",
           "o": [
             [
-              "Because global ranks cannot be used to answer OS-SELECT queries",
-              "If ranks were stored, OS-SELECT would be easy, but updating ranks on insert/delete would take O(n)."
+              "The rank of the node in the whole tree",
+              "Wrong: that is the quantity the lecture deliberately avoids storing, because one insertion would change it for every larger element."
             ],
             [
-              "Because global ranks are hard to maintain (O(n) updates) when the Red-Black Tree is modified by insertions, deletions, or rotations, whereas size[x] is maintained in O(lg n) time",
-              "Correct! Slide 12.6: Inserting a new smallest key changes the rank of every node in the tree, whereas size[x] only changes on the O(lg n) path to the root and takes O(1) to fix during a rotation."
+              "The number of nodes in the subtree rooted at that node, itself included",
+              "Right: size[x] = size[left[x]] + size[right[x]] + 1, with size[NIL] = 0 (Slide 12.4)."
             ],
             [
-              "Because size[x] requires only 1 bit of memory",
-              "size[x] requires an integer field."
+              "The height of the subtree rooted at that node",
+              "Wrong: height is a different augmentation (AVL trees). The lecture stores counts, not depths."
             ],
             [
-              "Because Red-Black Trees do not allow rotations if ranks are stored",
-              "Rotations are required in any Red-Black Tree."
+              "The number of keys smaller than the node anywhere in the tree",
+              "Wrong: that is the node's rank minus one — again a global value, not a subtree value."
             ]
           ],
           "a": 1,
-          "src": "Lecture 12 · Slide 12.6"
+          "src": "Lecture 12 · Slides 12.3–12.4"
+        },
+        {
+          "q": "Using the slide tree, what is the result of OS-SELECT(root, 5)?",
+          "o": [
+            [
+              "C",
+              "Wrong: at the root M we get k = size[C] + 1 = 6, and since 5 < 6 the walk goes left, so C is only the second node visited, not the fifth smallest key."
+            ],
+            [
+              "F",
+              "Wrong: F is reached with i = 3, and its k is 2, so the walk continues to the right child H."
+            ],
+            [
+              "H",
+              "Right: M(k=6) → left, C(k=2) → right with i=3, F(k=2) → right with i=1, H(k=1) = i (Slide 12.5)."
+            ],
+            [
+              "D",
+              "Wrong: D is the left child of F, which is never visited when the index i = 3 is greater than k = 2 at F."
+            ]
+          ],
+          "a": 2,
+          "src": "Lecture 12 · Slide 12.5"
+        },
+        {
+          "q": "OS-RANK(H) on the slide tree returns 5. Which additions produced that value?",
+          "o": [
+            [
+              "1 + 2 + 2, adding size[left[F]] + 1 and size[left[C]] + 1 to the initial 1",
+              "Right: r starts at size[left[H]] + 1 = 1; H is a right child of F so add size[D] + 1 = 2; F is a right child of C so add size[A] + 1 = 2; C is a left child of M so nothing is added. Total 5."
+            ],
+            [
+              "1 + 2 + 1, because C's left subtree has size 1",
+              "Wrong: size[A] = 1, so the term is size[left[C]] + 1 = 2, not 1."
+            ],
+            [
+              "5, because H is the fifth node in the in-order walk and no additions are needed",
+              "Wrong: the answer happens to be 5, but OS-RANK cannot count in-order; it climbs and adds the sizes of the left subtrees it passes."
+            ],
+            [
+              "1 + 5, adding the whole left subtree of the root",
+              "Wrong: the walk reaches C from the right (as F's parent), so it adds size[left[C]] = 1, not the whole subtree of size 5."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 12 · Slide 12.5"
+        },
+        {
+          "q": "After inserting the key K into the slide tree, which statement about the size fields is correct?",
+          "o": [
+            [
+              "Only the new leaf K gets size 1; nothing else changes",
+              "Wrong: every ancestor of the new leaf also grows by one, because K becomes part of their subtrees."
+            ],
+            [
+              "M, C, F and H each grow by one, and the new node K has size 1",
+              "Right: the search path is M → C → F → H, so those four nodes gain exactly one node each (Slide 12.7)."
+            ],
+            [
+              "The sizes stay as they are because a recolouring follows the insertion",
+              "Wrong: a recolouring changes colours only, but the insertion itself still adds a node to those four subtrees."
+            ],
+            [
+              "All nine nodes must be recomputed from scratch",
+              "Wrong: sizes are local, which is the point of the augmentation — only the search path is repaired, in O(lg n)."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 12 · Slide 12.7"
+        },
+        {
+          "q": "What does a rotation do to the value count stored in the nodes, and at what cost?",
+          "o": [
+            [
+              "Nothing: the in-order sequence is unchanged",
+              "Wrong: the in-order sequence is indeed unchanged, but the subtree each node owns does change, so two sizes must be corrected."
+            ],
+            [
+              "Every node in the moved subtree must be updated: O(k)",
+              "Wrong: that would destroy the O(lg n) bound; the sizes are chosen because they can be repaired locally."
+            ],
+            [
+              "Exactly two nodes change value and each is repaired in O(1)",
+              "Right: the node that moves up takes the merged subtree and the node that moves down loses it — one addition and one subtraction (Slide 12.9)."
+            ],
+            [
+              "Only the root of the whole tree changes",
+              "Wrong: a rotation can happen far from the root; the two nodes whose children changed are the ones repaired."
+            ]
+          ],
+          "a": 2,
+          "src": "Lecture 12 · Slides 12.9–12.10"
+        },
+        {
+          "q": "In an interval tree, what is m[x]?",
+          "o": [
+            [
+              "The midpoint of the interval stored at x",
+              "Wrong: no midpoint is stored anywhere; the field is a maximum of high endpoints."
+            ],
+            [
+              "The maximum high endpoint among the intervals in the subtree rooted at x",
+              "Right: m[x] = max(high[int[x]], m[left[x]], m[right[x]]) (Slide 12.12)."
+            ],
+            [
+              "The maximum number of intervals that overlap x",
+              "Wrong: m is an endpoint value, not a count of overlaps."
+            ],
+            [
+              "The length of the longest interval in the subtree",
+              "Wrong: the length would need both endpoints and could not be compared with low[i] to decide the search direction."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 12 · Slide 12.12"
+        },
+        {
+          "q": "A query [14, 16] is at the root [17,19] of the slide tree, whose left child has m = 18. What does INTERVAL-SEARCH do?",
+          "o": [
+            [
+              "Go right, because 17 > 16",
+              "Wrong: the algorithm does not compare the low endpoint of the node with the high endpoint of the query; that comparison sets only whether they overlap."
+            ],
+            [
+              "Go left, because 14 ≤ m[left] = 18",
+              "Right: the intervals do not overlap, and the left subtree still reaches far enough to touch 14, so the search descends left (Slide 12.16)."
+            ],
+            [
+              "Stop and return the root, because the intervals are adjacent",
+              "Wrong: [14,16] and [17,19] do not overlap — 16 < 17 — so the root cannot be the answer."
+            ],
+            [
+              "Stop and return NIL, because 14 < 17",
+              "Wrong: NIL is returned only when the descent reaches an empty subtree; here the left subtree can still contain an overlap."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 12 · Slide 12.16"
+        },
+        {
+          "q": "The search for [12,14] ends at NIL. What did that prove?",
+          "o": [
+            [
+              "That the tree is malformed, since every tree has an overlapping interval",
+              "Wrong: plenty of trees contain no interval that overlaps a given query."
+            ],
+            [
+              "That no interval in the tree overlaps [12,14]",
+              "Right: by the correctness theorem, every subtree the search skipped was provably free of overlaps, so NIL means the set has no overlap for this query (Slides 12.18–12.21)."
+            ],
+            [
+              "That [12,14] overlaps only intervals longer than 10",
+              "Wrong: nothing about lengths is used; the argument is about endpoints only."
+            ],
+            [
+              "That the query must be re-run from the right subtree of the root",
+              "Wrong: the skipped subtrees were ruled out by m and by the BST property; re-running would repeat the same path."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 12 · Slides 12.18–12.21"
+        },
+        {
+          "q": "Why is it safe to take only one child at each step of INTERVAL-SEARCH?",
+          "o": [
+            [
+              "Because a red-black tree is balanced, so both children always contain overlaps",
+              "Wrong: balance bounds the height; it says nothing about where overlaps live."
+            ],
+            [
+              "Because if the search goes right, low[i] > m[left] means every left interval ends before i starts; if it goes left, a left interval j that misses i implies every right interval starts after i ends",
+              "Right: this is exactly the correctness theorem and its proof on Slides 12.24–12.25."
+            ],
+            [
+              "Because intervals are stored in sorted order of their high endpoints",
+              "Wrong: the tree is keyed on the low endpoint; m is the maximum high endpoint, not the ordering key."
+            ],
+            [
+              "Because the query is always shorter than the intervals in the tree",
+              "Wrong: no assumption on the query length is made anywhere in the proof."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 12 · Slides 12.24–12.25"
+        },
+        {
+          "q": "What is the cost of listing all k intervals that overlap a query, by the slides' method?",
+          "o": [
+            [
+              "O(lg n), like a single search",
+              "Wrong: one search finds one overlap; listing all of them needs repeated searches."
+            ],
+            [
+              "O(k lg n), by searching, listing, deleting and repeating, then re-inserting",
+              "Right: each of the k rounds costs O(lg n); the slides note the best known bound is O(k + lg n) (Slide 12.23)."
+            ],
+            [
+              "O(n), by scanning the in-order walk",
+              "Wrong: a scan does find every interval, but the lecture presents the output-sensitive method, which is faster when k is small."
+            ],
+            [
+              "O(k + n) with a second tree",
+              "Wrong: no second structure is used; the extra tree is not part of the slides' method."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 12 · Slide 12.23"
+        },
+        {
+          "q": "Which of these is NOT one of the four steps of the augmentation methodology?",
+          "o": [
+            [
+              "Choose an underlying data structure",
+              "Wrong: that is step 1."
+            ],
+            [
+              "Determine the additional information to store",
+              "Wrong: that is step 2."
+            ],
+            [
+              "Prove that the augmented structure is asymptotically optimal",
+              "Right: the slides ask you to verify that the information can be maintained under modification (step 3) and to develop the new operations (step 4) — optimality is not part of the recipe (Slide 12.10)."
+            ],
+            [
+              "Develop new dynamic-set operations that use the information",
+              "Wrong: that is step 4."
+            ]
+          ],
+          "a": 2,
+          "src": "Lecture 12 · Slide 12.10"
+        },
+        {
+          "q": "An interval tree is keyed on the low endpoint. Which statement follows from that, and from the m field?",
+          "o": [
+            [
+              "An in-order walk lists intervals by their starting point, and m tells you whether a whole subtree can still reach the query",
+              "Right: the BST property gives the ordering on low, and m[left[x]] decides the direction of the search (Slides 12.12–12.15)."
+            ],
+            [
+              "An in-order walk lists intervals by length, and m is the median endpoint",
+              "Wrong: neither ordering is by length, and m is a maximum, not a median."
+            ],
+            [
+              "The tree cannot store two intervals with the same low endpoint",
+              "Wrong: intervals with equal low endpoints can be stored; the slides simply do not discuss duplicate keys."
+            ],
+            [
+              "INTERVAL-SEARCH degenerates to a linear scan when the intervals are long",
+              "Wrong: the search is always one root-to-leaf path, O(lg n), whatever the interval lengths."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 12 · Slides 12.12–12.15"
         }
       ],
       "extra": [
@@ -46591,122 +43805,604 @@ window.COURSES.algo = {
       "title": "Lecture 13: Skip Lists — Perfect vs. Randomized Skip Lists, Coin-Flip Promotion & O(log n) Backwards Analysis",
       "videos": [
         {
-          "id": "kBwUoWpeH_Q",
-          "title": "MIT 6.046J Lec 12: Skip Lists — Randomized Search, Insertion & Probabilistic Analysis (Prof. Erik Demaine)",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:25:32",
+          "id": "viWaq_jOfIk",
+          "title": "Lecture 13",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "From sorted linked lists to multi-level Skip Lists (Bill Pugh, 1990)"
-            },
-            {
-              "t": 900,
-              "time": "15:00",
-              "label": "Skip List search and randomized coin-flip insertion"
-            },
-            {
-              "t": 2400,
-              "time": "40:00",
-              "label": "Backwards analysis proving O(lg n) expected levels and search time"
-            }
-          ]
+          "track": "lectures",
+          "session": 13,
+          "sessionCode": "Lec 13"
         }
       ],
       "notes": [
         {
-          "h": "Perfect Skip Lists vs. Randomized Skip Lists (Slides 13.1–13.17)",
+          "h": "Before you start: linked lists, and why binary search does not work there",
+          "lead": "The deck opens with the trade-off that skip lists were invented to fix.",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
           "pts": [
-            "<b>Skip Lists Overview (Slides 13.2–13.3)</b>: Invented by Bill Pugh (1990). A generalization of a sorted linked list with multi-level forward pointers and $-\\infty / +\\infty$ header/sentinel nodes at every level.",
-            "<b>Perfect Skip Lists (Slides 13.4–13.11)</b>: Each higher level contains <i>exactly</i> $1/2$ the elements of the level below it, giving $\\lg n$ levels and $O(\\lg n)$ search time (visiting at most 2 nodes per level). <b>Drawback</b>: Like a perfect binary tree, inserting or deleting a single element can force rearranging the entire list ($\\Theta(n)$)!",
-            "<b>Randomized Skip Lists (Slides 13.12–13.17)</b>:<ul><li><b>Search(k)</b>: Start at the top-left header. If $k == \\text{key}$, done! If $k \\ge \\text{next key}$, <b>go right</b>; if $k < \\text{next key}$, <b>drop down one level</b>.</li><li><b>Insert(k)</b>: Search to find the position of $k$ at level $0$, insert $k$ at level $0$, and flip a fair coin (`while FLIP() == 'heads'`): each `heads` promotes the node one level higher (`i++`) with probability $1/2$.</li><li><b>Delete(k)</b>: Find $k$ and splice it out of every level in which it appears.</li></ul>"
-          ],
+            "A <b>singly linked list</b> keeps a key and one pointer to the next node. Insert and delete at a known position cost O(1).",
+            "Searching is linear: you can only walk one node at a time, so finding a key costs O(n) and there is no way to jump to the middle.",
+            "<b>Binary search</b> needs random access by index (an array), because it jumps to the middle of a range. A linked list cannot jump, so binary search cannot be used on it.",
+            "The deck lists exactly this as the motivation: linked lists are easy to modify but slow to search, arrays are quick to search but awkward to modify.",
+            "A skip list keeps the linked-list flexibility and adds extra <i>pointers</i> that skip over many nodes, so a search can descend instead of only walking.",
+            "Vocabulary used throughout: a <b>level</b> is one horizontal chain of pointers; level 0 is the bottom chain and holds every key."
+          ]
+        },
+        {
+          "h": "Before you start: expected values and the ½ probability",
+          "lead": "The randomized structure is analysed with expectations, so you must be comfortable with two small facts.",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "pts": [
+            "A fair coin gives heads with probability ½ and tails with probability ½; independent flips multiply, so \"three heads in a row\" has probability ⅛.",
+            "If every node is promoted to the next level with probability ½, the <b>expected</b> number of nodes that reach level 1 is n/2, level 2 is n/4, and generally n/2<sup>j</sup> at level j.",
+            "The expected number of levels is therefore about log₂ n, because n/2<sup>j</sup> falls below 1 when j &gt; log₂ n.",
+            "\"Expected\" means averaged over the coin flips, not over the keys: a run of inserts may look bad, but the average over all possible coin sequences is what the lecture proves.",
+            "The recurrence the deck solves, C(j) = 2 + C(j − 1), is the standard way to compute an expected number of steps; no probability theory beyond the two rules above is needed."
+          ]
+        },
+        {
+          "h": "Perfect skip lists: definition (Slides 13.1–13.5)",
+          "lead": "The idealised structure: every level carries half of the keys of the level below.",
           "fig": [
-            "ag-13-perfect",
-            "ag-13-find",
-            "ag-13-random"
+            "ag-13-perfect"
           ],
-          "figAt": {
-            "ag-13-perfect": 1,
-            "ag-13-find": 1,
-            "ag-13-random": 2
-          },
           "figH": {
-            "ag-13-perfect": "A perfect skip list, built level by level",
-            "ag-13-find": "Find 71 and Find 96 (or any key), one comparison at a time",
-            "ag-13-random": "Randomized skip list: insert 87 with coin flips, delete 87, or try your own"
+            "ag-13-perfect": "The slide's perfect skip list: 2 10 15 16 31 71 96 with express lanes above"
+          },
+          "figAt": {
+            "ag-13-perfect": 1
+          },
+          "pts": [
+            "<b>Keys are in sorted order</b> on every level.",
+            "There are <b>O(log n) levels</b>, and each higher level contains <b>half</b> the elements of the level below.",
+            "Level 0 has all n keys; level 1 has every second key (2, 31, 96 in the slide); level 2 has every fourth key (2, 31 …); and so on.",
+            "The <b>header</b> and the <b>sentinel</b> nodes appear on every level, so a search never runs off the end of a chain. The sentinel holds the value +∞ (drawn as \"Inf\" in the slides).",
+            "Nodes are of <b>variable size</b>: a node stores between 1 and O(log n) pointers, one per level it appears in, and pointers point to the start of each node.",
+            "They are called skip lists because the higher levels let a search <b>skip over</b> many items at once instead of walking them."
+          ]
+        },
+        {
+          "h": "Searching a perfect skip list (Slides 13.6–13.9)",
+          "lead": "Right while the next key is ≤ the target, down when you would overshoot.",
+          "fig": [
+            "ag-13-find"
+          ],
+          "figH": {
+            "ag-13-find": "Find 71 and find 96, comparison by comparison, as the slides draw them"
+          },
+          "figAt": {
+            "ag-13-find": 1
+          },
+          "pts": [
+            "The rule (Slide 13.8), for a search key k at the current node: if k equals the next key, done; if k &lt; the next key, <b>drop down one level</b>; if k ≥ the next key, <b>move right</b>.",
+            "In words: scan along the shortest list until you would pass the desired item, then drop to the slightly more complete list one level lower and continue.",
+            "Trace for <b>71</b>: at the top level 71 &lt; Inf, so right; 71 &lt; 91, so down; 71 &lt; 96, so down; on level 0, 71 &lt; 31 is false so right to 71 — found.",
+            "Trace for <b>96</b>: 96 &lt; Inf (right), 96 &lt; 91? no → right; 96 &lt; Inf → right … the walk reaches 96 at the top and then drills down the tower of 96 until the key matches.",
+            "Both traces visit at most <b>2 nodes per level</b> — if you visited more, the same key must have been reachable one level higher.",
+            "With O(log n) levels that gives <b>O(log n)</b> comparisons to find a key, and the deck also reminds you that this is exactly \"sorted sequential searching\" with a smarter route."
+          ],
+          "viz": {
+            "type": "skiplist",
+            "title": "Lecture 13 Slides 13.6–13.9: search for 71, level by level (levels come from the coin flips)",
+            "keys": [
+              2,
+              10,
+              15,
+              16,
+              31,
+              71,
+              96
+            ],
+            "heights": [
+              2,
+              0,
+              0,
+              1,
+              2,
+              1,
+              2
+            ],
+            "search": 71
           }
         },
         {
-          "h": "Skip List vs. BST & Backwards Probabilistic Analysis (Slides 13.18–13.23)",
+          "h": "Why perfect skip lists cannot be updated cheaply (Slides 13.10–13.11)",
+          "lead": "The idea that breaks: keeping \"exactly half\" after every insert.",
           "pts": [
-            "<b>Key Exam Question: Skip List vs. Binary Search Tree (Midterm 2016 Q4, Midterm 2017 Q6, Midterm 2018 Q4)</b>:<ul><li><b>Standard Binary Search Tree (BST)</b>: Average search/insert time is $O(\\lg n)$, <b>but it is sensitive to the input data order</b>—sorted or nearly-sorted input degenerates the BST into a chain with worst-case $\\mathbf{O(n)}$ time!</li><li><b>Randomized Skip List</b>: Because level heights are determined by random coin flips (`FLIP()`) rather than input insertion order, <b>there are no ”bad” input sequences</b>! It is <b>not sensitive to input order</b> and achieves $O(\\lg n)$ expected time for search, insert, and delete on <i>every</i> input sequence (at the cost of extra forward pointers per node), while being much simpler to implement than Red-Black Tree rotations.</li></ul>",
-            "<b>Backwards Analysis of Search Time (Slides 13.19–13.22)</b>:<ul><li>Expected nodes at level $i$ is $n/2^i$, so expected number of levels is $O(\\lg n)$.</li><li>Trace the search path <b>backwards</b> from the found node at level $0$ up to the top-left header: at each step, if the current node extends up to the level above (probability $0.5$), we move <b>UP</b>; otherwise (probability $0.5$), we move <b>LEFT</b>.</li><li>Let $C(j)$ be the expected number of steps to climb $j$ levels: $C(j) = 1 + 0.5 C(j-1) + 0.5 C(j) \\implies 0.5 C(j) = 1 + 0.5 C(j-1) \\implies C(j) = 2 + C(j-1) = \\mathbf{2j}$.</li><li>For $j = \\lg n$ levels, expected steps $= 2\\lg n = \\mathbf{O(\\lg n)}$!</li></ul>"
-          ],
+            "Inserting or deleting a key changes the exact half-split rule on many levels, so an update may need to <b>rearrange the whole list</b>.",
+            "The slides draw the analogy: perfect skip lists are like <b>perfect binary search trees</b> — beautiful when static, too structured to support efficient updates.",
+            "The fix is not to keep the half-split exactly, but to make it hold <b>in expectation</b>: design the structure so that about half of the nodes are carried up to the next level.",
+            "That is what makes the skip list a <b>randomized</b> data structure: the same sequence of inserts and deletes may produce different structures, depending on the outcome of random coin flips.",
+            "This mirrors what AVL trees do with rotations (+1, −1): allow some imbalance, but keep the expected behaviour identical to the perfect case."
+          ]
+        },
+        {
+          "h": "Randomized skip lists: promotion by coin flip (Slides 13.12–13.15)",
+          "lead": "Each node is promoted with probability ½ — the structure is decided by coins, never by the keys.",
           "formula": [
-            "Skip List Backwards Walk Recurrence: C(j) = 1 + 0.5·C(j−1) + 0.5·C(j)  ⇒  C(j) = 2j = 2 lg n = O(lg n)"
+            "P(a node reaches level j) = (1/2)^j",
+            "E[# nodes on level j] = n / 2^j"
+          ],
+          "fig": [
+            "ag-13-random"
+          ],
+          "figH": {
+            "ag-13-random": "The slide's randomized skip list, with the levels the flips produced"
+          },
+          "figAt": {
+            "ag-13-random": 2
+          },
+          "pts": [
+            "Every new node is created on level 0 (the full list). Then: while a fair coin comes up <b>heads</b>, promote the node one more level; stop at the first tail.",
+            "Expected effect: half the nodes reach level 1, a quarter reach level 2, an eighth reach level 3 — the same densities as the perfect skip list, only now produced by chance.",
+            "The promoted nodes are also expected to be <b>well distributed</b> along the list, which is what makes the express lanes useful rather than clumped.",
+            "The slides point out the consequence: with very small probability the structure degenerates — a plain linked list, or every node on every level — but those cases are astronomically unlikely.",
+            "Crucially, <b>the level structure is independent of the keys you insert</b>, so there is no \"bad\" input sequence an examiner could give you. That is the difference from a BST, where inserting sorted keys degenerates into a path."
+          ]
+        },
+        {
+          "h": "Insertion and deletion (Slides 13.14–13.16)",
+          "lead": "Both are a search followed by pointer surgery; only the height of the tower is random.",
+          "code": [
+            "INSERT(k)",
+            "search for k down to level 0, remembering the last node visited on each level",
+            "insert the new node into level 0 after that node",
+            "i ← 1",
+            "while FLIP() = \"heads\":",
+            "    insert the node into level i",
+            "    i ← i + 1"
+          ],
+          "pts": [
+            "<b>Insertion</b>: find where the key belongs (the search of the previous section), insert it on level 0, then flip coins and splice the same node into higher levels while the flips are heads.",
+            "Each splice is an ordinary linked-list insertion after \"the last visited node in level i\", so the whole insert costs the search plus O(1) per level reached — O(log n) expected.",
+            "The slide trace inserts <b>87</b> into the list, then shows it promoted to levels 1 and 2 by its coin flips.",
+            "<b>Deletion</b>: search for the key, then unlink the node from every level in which it appears. No rebalancing, no rotations, no recolouring.",
+            "The slide deletes <b>87</b> again and the structure returns to a valid skip list; nothing else moves.",
+            "Implementation note from the slides: node sizes are fixed once the node is created (only new nodes grow), and it is often convenient, though not required, to know the maximum number of levels in advance."
+          ]
+        },
+        {
+          "h": "Analysis: levels, and the number of steps (Slides 13.17–13.18)",
+          "lead": "Two separate claims: how many levels, and how many steps inside a level.",
+          "table": [
+            [
+              "Level",
+              "Expected number of nodes",
+              "With n = 16"
+            ],
+            [
+              "0",
+              "n",
+              "16"
+            ],
+            [
+              "1",
+              "n/2",
+              "8"
+            ],
+            [
+              "2",
+              "n/4",
+              "4"
+            ],
+            [
+              "j",
+              "n/2^j",
+              "16/2^j"
+            ],
+            [
+              "log₂ n",
+              "1",
+              "1"
+            ]
+          ],
+          "pts": [
+            "The expected number of levels is <b>O(log n)</b>: E[# nodes at level 1] = n/2, level 2 = n/4, …, level log n = 1.",
+            "That bounds the height of the structure, but not yet the work inside a level: a level could in principle be walked for many steps.",
+            "So the deck proves the second half separately, by looking at the search <b>backwards</b> — that is the next section.",
+            "Together the two halves give O(log n) expected search, insert and delete."
+          ]
+        },
+        {
+          "h": "Backwards analysis: at most 2 steps per level (Slides 13.18–13.21)",
+          "lead": "Walk the search path in reverse: going up costs nothing, because you always move up when you can.",
+          "formula": [
+            "C(j) = 1 + ½·C(j − 1) + ½·C(j)",
+            "⇒ C(j) = 2 + C(j − 1)",
+            "⇒ C(j) = 2j"
           ],
           "fig": [
             "ag-13-back"
           ],
+          "figH": {
+            "ag-13-back": "The reversed path of a search: up when possible, left otherwise"
+          },
           "figAt": {
             "ag-13-back": 1
           },
-          "figH": {
-            "ag-13-back": "Backwards analysis: reverse the search path, 2 steps per level"
-          }
+          "pts": [
+            "Take the path the successful search took and walk it <b>backwards</b>, from the found node to the header.",
+            "In reverse, you always move <b>up</b> when you can, because the forward search always enters a node from its topmost level.",
+            "At any step of the reverse walk, the probability that you can move up is <b>½</b> — that is exactly the coin flip that decided whether the node had a level above.",
+            "So the expected number of steps to climb j levels satisfies C(j) = 1 + ½·C(j − 1) + ½·C(j): make one step, then with probability ½ you went up and have j − 1 levels left, with probability ½ you went left and still have j.",
+            "Multiply by 2: 2C(j) = 2 + C(j − 1) + C(j), so C(j) = 2 + C(j − 1). Expanding gives <b>C(j) = 2j</b>: two steps per level, expected.",
+            "With O(log n) levels, the expected search cost is O(log n). This is the calculation to reproduce in a written question — the algebra is two lines."
+          ]
+        },
+        {
+          "h": "Skip lists against balanced trees, and the summary",
+          "lead": "Same expected cost as a balanced BST, far less machinery to maintain.",
+          "table": [
+            [
+              "Question",
+              "Skip list",
+              "Balanced BST (red-black / AVL)"
+            ],
+            [
+              "Expected search",
+              "O(log n)",
+              "O(log n) guaranteed"
+            ],
+            [
+              "Worst case",
+              "O(n), with probability about 1/n² for a bad coin sequence",
+              "O(log n) guaranteed"
+            ],
+            [
+              "Insert / delete",
+              "O(log n) expected, pointer splicing only",
+              "O(log n) with rotations and recolouring"
+            ],
+            [
+              "What decides the shape",
+              "coin flips, independent of the keys",
+              "the keys and the balancing rules"
+            ],
+            [
+              "Bad input sequences",
+              "none — the structure never looks at the key order",
+              "sorted inserts are the classic degenerate case for a plain BST"
+            ],
+            [
+              "Space",
+              "about 2n pointers expected",
+              "n nodes, 2–3 pointers each"
+            ]
+          ],
+          "pts": [
+            "The trade the slides describe: skip lists give up the worst-case guarantee but gain a very simple implementation — no rotations, no colour cases, no rebalancing.",
+            "Because promotions are independent of the keys, you cannot construct an adversarial sequence that degrades a skip list; you can only be unlucky with coins.",
+            "Exam-ready summary: insert = search + splice + coin flips; delete = search + unlink; search = right while the next key is ≤ target, else down.",
+            "The analysis to memorise: expected levels O(log n), expected steps per level 2, hence O(log n) expected total."
+          ]
         }
       ],
       "cards": [
         [
-          "Skip List vs. Binary Search Tree (Exam Question)",
-          "A BST has O(lg n) average time but degrades to O(n) worst-case on sorted input (order-sensitive). A Skip List uses random coin flips so it is NOT sensitive to input order and achieves O(lg n) expected time on all inputs using extra pointers."
+          "Why a linked list cannot be searched quickly",
+          "Search can only walk one node at a time — O(n). Binary search needs random access by index, which a linked list does not provide."
         ],
         [
-          "Skip List Backwards Analysis Equation",
-          "C(j) = 1 + 0.5 C(j−1) + 0.5 C(j) ⇒ C(j) = 2j, so climbing lg n levels takes 2 lg n = O(lg n) expected steps."
+          "Skip list, one sentence",
+          "A sorted linked list with extra pointer levels that act as express lanes, so a search skips many nodes instead of walking them."
         ],
         [
-          "Perfect Skip Lists vs. Randomized Skip Lists (Slides 13.1–13.17) — Core Principle & Complexity",
-          "<b>Skip Lists Overview (Slides 13.2–13.3)</b>: Invented by Bill Pugh (1990). A generalization of a sorted linked list with multi-level forward pointers and $-\\infty / +\\infty$ header/sentinel nodes at every level. <b>Perfect Skip Lists (Slides 13.4–13.11)</b>: Each higher level contains <i>exactly</i> $1/2$ the elements of the level below it, giving $\\lg n$ levels and $O(\\lg n)$ search time (visiting at most 2 nodes per level). <b>Drawback</b>: Like a perfect binary tree, inserting or deleting a single element can force rearranging the entire list ($\\Theta(n)$)!"
+          "Perfect skip list definition",
+          "Sorted keys, O(log n) levels, each level holding half the elements of the level below, with header and sentinel present on every level."
         ],
         [
-          "Skip List vs. BST & Backwards Probabilistic Analysis (Slides 13.18–13.23) — Core Principle & Complexity",
-          "<b>Key Exam Question: Skip List vs. Binary Search Tree (Midterm 2016 Q4, Midterm 2017 Q6, Midterm 2018 Q4)</b>:<ul><li><b>Standard Binary Search Tree (BST)</b>: Average search/insert time is $O(\\lg n)$, <b>but it is sensitive to the input data order</b>—sorted or nearly-sorted input degenerates the BST into a chain with worst-case $\\mathbf{O(n)}$ time!</li><li><b>Randomized Skip List</b>: Because level heights are determined by random coin flips (`FLIP()`) rather than input insertion order, <b>there are no ”bad” input sequences</b>! It is <b>not sensitive to input order</b> and achieves $O(\\lg n)$ expected time for search, insert, and delete on <i>every</i> input sequence (at the cost of extra forward pointers per node), while being much simpler to implement than Red-Black Tree rotations.</li></ul> <b>Backwards Analysis of Search Time (Slides 13.19–13.22)</b>:<ul><li>Expected nodes at level $i$ is $n/2^i$, so expected number of levels is $O(\\lg n)$.</li><li>Trace the search path <b>backwards</b> from the found node at level $0$ up to the top-left header: at each step, if the current node extends up to the level above (probability $0.5$), we move <b>UP</b>; otherwise (probability $0.5$), we move <b>LEFT</b>.</li><li>Let $C(j)$ be the expected number of steps to climb $j$ levels: $C(j) = 1 + 0.5 C(j-1) + 0.5 C(j) \\implies 0.5 C(j) = 1 + 0.5 C(j-1) \\implies C(j) = 2 + C(j-1) = \\mathbf{2j}$.</li><li>For $j = \\lg n$ levels, expected steps $= 2\\lg n = \\mathbf{O(\\lg n)}$!</li></ul>"
+          "Search rule in a skip list",
+          "If k equals the next key, done; if k < next key, go down a level; if k ≥ next key, go right."
+        ],
+        [
+          "Why a search is O(log n) in a perfect skip list",
+          "O(log n) levels and at most 2 nodes visited per level; visiting more would mean the key was reachable one level higher."
+        ],
+        [
+          "Why perfect skip lists fail on updates",
+          "Keeping exactly half the keys per level after each insert or delete can force a rearrangement of the whole list — too structured, like a perfect BST."
+        ],
+        [
+          "Randomized promotion",
+          "Each node starts at level 0 and is promoted one level for every consecutive \"heads\"; promotion probability ½ per level."
+        ],
+        [
+          "Expected nodes per level",
+          "E[# nodes at level j] = n / 2^j, so level 1 has n/2, level 2 n/4, and the number of levels is about log₂ n."
+        ],
+        [
+          "Insertion algorithm",
+          "Search to level 0 keeping the last node seen on each level, insert on level 0, then while FLIP() = heads splice the node into level i and increment i."
+        ],
+        [
+          "Deletion algorithm",
+          "Search for the key, then unlink the node from every level in which it appears. No rebalancing is needed."
+        ],
+        [
+          "Are there bad key sequences?",
+          "No. The level structure depends only on the coin flips, not on the keys, so no input sequence can force a degenerate list (only bad luck with coins can)."
+        ],
+        [
+          "Backwards analysis setup",
+          "Walk the successful search path in reverse from the found node to the header; in reverse you always move up when you can."
+        ],
+        [
+          "Backwards analysis recurrence",
+          "C(j) = 1 + ½C(j − 1) + ½C(j) ⇒ C(j) = 2 + C(j − 1) ⇒ C(j) = 2j steps to climb j levels."
+        ],
+        [
+          "Expected search cost",
+          "O(log n) levels × 2 steps per level = O(log n) expected comparisons; the worst case is O(n) with very small probability."
+        ],
+        [
+          "Skip list vs red-black tree",
+          "Same expected O(log n); the skip list has no rotations or colour cases, but loses the worst-case guarantee."
+        ],
+        [
+          "Space in a skip list",
+          "About 2n pointers expected: n on level 0 plus n/2 + n/4 + … promotions on the levels above."
+        ],
+        [
+          "What the header and sentinel do",
+          "They sit on every level so a search never runs off the end of a chain; the sentinel holds +∞."
+        ],
+        [
+          "Node size in a skip list",
+          "Variable: one pointer per level the node appears in, fixed at creation time. It is convenient (not required) to know the maximum number of levels in advance."
         ]
       ],
       "qa": [
         [
-          "What is the main difference between a Skip List and a Binary Search Tree (BST), and which is better for adversarially ordered data? (Midterm 2016 Q4, Midterm 2017 Q6 & Midterm 2018 Q4)",
-          "• <b>Binary Search Tree (BST)</b>: Average-case complexity is $O(\\lg n)$, but its structure is <b>sensitive to the order of input data</b>—if keys arrive in sorted or reverse-sorted order, the tree degenerates into a linear chain with $O(n)$ worst-case time.<br>• <b>Skip List</b>: Uses randomized coin flips (`p = 1/2`) to determine node heights, so its performance is <b>completely independent of input data order</b> (there are no bad input sequences) and achieves $O(\\lg n)$ expected time in all cases, at the cost of extra forward pointers.",
-          "Midterm 2016 Q4, Midterm 2017 Q6 & Midterm 2018 Q4"
+          "Explain why a perfect skip list supports O(log n) search but not efficient insertion.",
+          "<b>Search</b>: there are O(log n) levels and each level halves the number of keys, so a search visits at most 2 nodes per level — drop down when the next key is larger than the target, move right otherwise. Total O(log n).<br><b>Insertion</b>: the perfect structure requires each level to keep exactly half of the keys of the level below. Inserting one key would break that invariant on several levels at once, so the update could need to rebuild most of the list — the same problem perfect binary search trees have. The slides fix this by relaxing \"exactly half\" to \"half in expectation\", using a coin flip per promotion."
+        ],
+        [
+          "Give the insertion algorithm of a skip list and its expected cost.",
+          "First do a search for the key, recording the <b>last node visited on each level</b> (the node after which the key would be inserted). Insert the new node on level 0. Then set i = 1 and while FLIP() returns heads, insert the node into level i and increment i.<br><b>Cost</b>: the search dominates, O(log n) expected; splicing the node into one more level costs O(1) and the expected number of promotions is 1 (a geometric random variable with p = ½, mean 1). So insertion is O(log n) expected overall."
+        ],
+        [
+          "Prove that the expected number of steps per level in a skip list search is 2.",
+          "Run the successful search path <b>backwards</b>. In reverse the walk always goes up when it can, because the forward search enters each node from its topmost level. At each step the walk can move up with probability ½ (the coin that decided whether this node had a level above) and left with probability ½.<br>Let C(j) be the expected steps needed to climb j levels. Then C(j) = 1 + ½·C(j − 1) + ½·C(j). Multiplying by 2 gives 2C(j) = 2 + C(j − 1) + C(j), hence C(j) = 2 + C(j − 1), and with C(0) = 0 this expands to C(j) = 2j. So an expected <b>2 steps per level</b>, and O(log n) levels give O(log n) expected search time."
+        ],
+        [
+          "Why does the slides' analysis say there are no \"bad\" sequences for a skip list, while a binary search tree has them?",
+          "A plain BST takes its shape from the <b>order in which keys arrive</b>, so inserting keys in sorted order builds a path of height n and every operation degrades to Θ(n). A skip list decides each node's height by <b>independent coin flips</b>, which never look at the keys. The expected number of nodes at level j is n/2<sup>j</sup> whatever order the keys arrive in, so no key sequence can force the degenerate structure — only an unlucky sequence of coins can, and that has vanishing probability."
+        ],
+        [
+          "Compare a skip list with a red-black tree for a dictionary ADT.",
+          "Both give O(log n) expected or guaranteed search, insert and delete, and both support ordered traversal through level 0 (or the in-order walk).<br><b>Skip list advantages</b>: the implementation is only pointer splicing — no rotations, no colour cases, no fix-up after insert or delete; range queries are natural because level 0 is the sorted list. <b>Disadvantages</b>: the worst case is O(n) rather than O(log n), the space is about 2n pointers, and the structure uses randomness, so the running time is not deterministic."
         ]
       ],
       "quiz": [
         {
-          "q": "In the backwards analysis of a randomized Skip List (Slide 13.22), if C(j) is the expected number of steps to climb j levels where moving up has probability 0.5 and moving left has probability 0.5, what is the recurrence and solution for C(j)?",
+          "q": "Why can binary search not be used directly on a sorted linked list?",
           "o": [
             [
-              "C(j) = 1 + 0.5 C(j−1) + 0.5 C(j) ⇒ C(j) = 2j",
-              "Correct! Subtracting 0.5 C(j) from both sides gives 0.5 C(j) = 1 + 0.5 C(j−1) ⇒ C(j) = 2 + C(j−1) = 2j."
+              "Because a linked list is not sorted",
+              "Wrong: a sorted list is sorted; the problem is how you reach the middle."
             ],
             [
-              "C(j) = 1 + C(j/2) ⇒ C(j) = lg j",
-              "Each upward move climbs 1 level, not j/2 levels."
+              "Because reaching the middle element takes O(n) node steps, so the halving gains nothing",
+              "Right: binary search needs random access by index; in a linked list you must walk to the middle, which destroys the O(log n) argument (Slide 13.2)."
             ],
             [
-              "C(j) = 2 C(j−1) ⇒ C(j) = 2^j",
-              "Expected steps is linear in the number of levels j, not exponential."
+              "Because a linked list cannot store keys in order",
+              "Wrong: it can, and skip lists are built on exactly that ordering."
             ],
             [
-              "C(j) = 0.5 C(j−1) ⇒ C(j) = (1/2)^j",
-              "Omits the +1 step cost and the 0.5 C(j) horizontal step term."
+              "Because linked lists have no sentinel node",
+              "Wrong: a sentinel does not affect whether you can jump to the middle."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 13 · Slides 13.1–13.2"
+        },
+        {
+          "q": "In a perfect skip list with 7 keys on level 0, how many keys are on level 1 and level 2?",
+          "o": [
+            [
+              "4 and 2",
+              "Wrong: 4 would be ⌈7/2⌉; the perfect structure keeps every second key, which for the slide list gives 3 on level 1."
+            ],
+            [
+              "3 and 2",
+              "Right: level 1 holds every second key (2, 31, 96 — three keys) and level 2 holds every fourth. In the slide list 2 and 31 appear on level 2, plus the header and sentinel."
+            ],
+            [
+              "7 and 3",
+              "Wrong: level 1 never holds all the keys; level 0 does."
+            ],
+            [
+              "2 and 1",
+              "Wrong: that is what you get after two more halvings."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 13 · Slides 13.3–13.5"
+        },
+        {
+          "q": "State the search rule of a skip list.",
+          "o": [
+            [
+              "If k < next key go right, otherwise go down",
+              "Wrong: the directions are inverted — going right on a smaller key would walk away from the target."
+            ],
+            [
+              "If k equals the next key, done; if k < next key, go down; if k ≥ next key, go right",
+              "Right: scan along the shortest list until you would pass the item, then drop one level (Slide 13.8)."
+            ],
+            [
+              "Always go down first, then right until the key is found",
+              "Wrong: that reduces to a linear scan of level 0, O(n)."
+            ],
+            [
+              "Compare with the middle key of the level and halve it",
+              "Wrong: that describes binary search on an array; a skip list has no indexable middle."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 13 · Slide 13.8"
+        },
+        {
+          "q": "What makes a perfect skip list unsuitable for insertion and deletion?",
+          "o": [
+            [
+              "Its keys are stored in sorted order",
+              "Wrong: sorted order is what makes searching possible and is kept in the randomized version too."
+            ],
+            [
+              "Keeping exactly half of the keys on each level can force the whole list to be rearranged on one update",
+              "Right: the invariant is too rigid — the slides compare it to a perfect binary search tree (Slides 13.10–13.11)."
+            ],
+            [
+              "It uses too much memory",
+              "Wrong: a perfect skip list uses the least possible memory for its levels; the problem is maintenance, not space."
+            ],
+            [
+              "Nodes cannot hold more than one pointer",
+              "Wrong: nodes hold one pointer per level in both versions."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 13 · Slides 13.10–13.11"
+        },
+        {
+          "q": "In a randomized skip list, how is the height of a new node decided?",
+          "o": [
+            [
+              "By hashing its key",
+              "Wrong: the level structure must be independent of the keys — that independence is the whole point."
+            ],
+            [
+              "By the number of nodes already in the list",
+              "Wrong: the structure would then depend on the insertion order and could be forced to degenerate."
+            ],
+            [
+              "By fair coin flips: promote one level per head, stop at the first tail",
+              "Right: probability ½ per level, so the expected number of nodes at level j is n/2^j (Slides 13.12–13.13)."
+            ],
+            [
+              "By choosing the level that keeps the halves balanced",
+              "Wrong: that is the perfect structure, which cannot be maintained efficiently."
+            ]
+          ],
+          "a": 2,
+          "src": "Lecture 13 · Slides 13.12–13.13"
+        },
+        {
+          "q": "What is the expected number of nodes on level 2 of a randomized skip list with n keys?",
+          "o": [
+            [
+              "n",
+              "Wrong: all n keys are on level 0; higher levels hold fewer."
+            ],
+            [
+              "n/2",
+              "Wrong: n/2 is the expected count on level 1, one promotion."
+            ],
+            [
+              "n/4",
+              "Right: two promotions each with probability ½ gives (½)² = ¼ of the nodes (Slide 13.17)."
+            ],
+            [
+              "log n",
+              "Wrong: log n is the expected number of levels, not the number of nodes on a level."
+            ]
+          ],
+          "a": 2,
+          "src": "Lecture 13 · Slide 13.17"
+        },
+        {
+          "q": "Which statement about deleting a key from a skip list is correct?",
+          "o": [
+            [
+              "The tree must be rebalanced with rotations afterwards",
+              "Wrong: there are no rotations in a skip list."
+            ],
+            [
+              "The node is unlinked from every level it appears in, and nothing else changes",
+              "Right: deletion is a search plus pointer unlinking; the slide deletes 87 and the rest of the structure stays valid (Slide 13.16)."
+            ],
+            [
+              "Deleting a key forces every node above it down one level",
+              "Wrong: levels are decided at insertion time and are not reshuffled by another node's deletion."
+            ],
+            [
+              "Deletion is O(n) because the levels must be rebuilt",
+              "Wrong: it costs the search plus O(1) per level, O(log n) expected."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 13 · Slide 13.16"
+        },
+        {
+          "q": "Why does the lecture claim there are no \"bad\" key sequences for a skip list?",
+          "o": [
+            [
+              "Because the structure never looks at the key order when deciding levels",
+              "Right: promotions come from coin flips, so the level structure is independent of the keys; only bad luck with coins can degenerate it (Slide 13.13)."
+            ],
+            [
+              "Because the keys are hashed before insertion",
+              "Wrong: no hashing is involved."
+            ],
+            [
+              "Because the skip list is rebuilt after every insert",
+              "Wrong: inserts only splice one node into a few levels."
+            ],
+            [
+              "Because the sentinel prevents the list from degenerating",
+              "Wrong: the sentinel only stops a search from running off the end."
             ]
           ],
           "a": 0,
-          "src": "Lecture 13 · Slides 13.21–13.22"
+          "src": "Lecture 13 · Slide 13.13"
+        },
+        {
+          "q": "In the backwards analysis, why is the probability of moving up at a step exactly ½?",
+          "o": [
+            [
+              "Because half the keys are on the upper levels by construction",
+              "Wrong: that is the perfect structure; here the count is only correct in expectation."
+            ],
+            [
+              "Because whether the node had a level above was decided by one fair coin flip",
+              "Right: the reverse walk moves up exactly when the corresponding forward step came down from a higher level, which happened with probability ½ (Slides 13.19–13.20)."
+            ],
+            [
+              "Because the search path is symmetric",
+              "Wrong: the path is not symmetric; it is the coin flips that make the two cases equally likely."
+            ],
+            [
+              "Because the sentinel is on every level",
+              "Wrong: the sentinel affects the endpoints, not the probability of a promotion."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 13 · Slides 13.19–13.20"
+        },
+        {
+          "q": "Solving C(j) = 1 + ½C(j − 1) + ½C(j) gives which result?",
+          "o": [
+            [
+              "C(j) = j, one step per level",
+              "Wrong: substituting gives 1 + ½(j − 1) + ½j = j + ½, not j."
+            ],
+            [
+              "C(j) = 2j, two steps per level",
+              "Right: multiply by 2 to get 2C(j) = 2 + C(j − 1) + C(j), so C(j) = 2 + C(j − 1), hence C(j) = 2j (Slide 13.21)."
+            ],
+            [
+              "C(j) = j²",
+              "Wrong: a quadratic does not satisfy the recurrence: 2 + (j − 1)² ≠ j² for j > 0."
+            ],
+            [
+              "C(j) = log j",
+              "Wrong: the recurrence adds a constant per level, not a shrinking amount."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 13 · Slide 13.21"
         }
       ],
       "extra": [
@@ -46740,69 +44436,144 @@ window.COURSES.algo = {
       "title": "Lecture 14: Dynamic Programming — Coin-Row, Binomial Coefficients, Robot Coin Collection, LCS & 0/1 Knapsack",
       "videos": [
         {
-          "id": "V5hZoJ6uK-s",
-          "title": "MIT 6.046J Lec 15: Dynamic Programming & Longest Common Subsequence (LCS) (Prof. Erik Demaine)",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:11:00",
+          "id": "gZoIkvSpHHg",
+          "title": "Lecture 14 · video 1",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Dynamic Programming hallmarks: optimal substructure & overlapping subproblems"
-            },
-            {
-              "t": 900,
-              "time": "15:00",
-              "label": "Longest Common Subsequence (LCS) recurrence, bottom-up table & backtracing"
-            }
-          ]
+          "track": "lectures",
+          "session": 14,
+          "sessionCode": "Lec 14"
         },
         {
           "id": "nLmhmB6NzcM",
-          "title": "4.5 0/1 Knapsack Problem — Dynamic Programming Table & Backtracing",
-          "channel": "Abdul Bari",
-          "duration": "28:24",
+          "title": "0/1 knapsack",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "0/1 Knapsack DP recurrence V[i, w] = max(V[i-1, w], v_i + V[i-1, w - w_i])"
-            },
-            {
-              "t": 720,
-              "time": "12:00",
-              "label": "Filling the DP table row-by-row and backtracing selected items"
-            }
-          ]
+          "track": "lectures",
+          "session": 14,
+          "sessionCode": "Lec 14"
         },
         {
-          "id": "sSno9rV8Rhg",
-          "title": "4.9 Longest Common Subsequence (LCS) — Recursion, Memoization & Bottom-Up DP",
-          "channel": "Abdul Bari",
-          "duration": "23:35",
+          "id": "3D_Oj16EtD8",
+          "title": "Binomial coefficient",
+          "channel": "YouTube",
           "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "LCS recurrence and O(mn) dynamic programming table"
-            }
-          ]
+          "track": "lectures",
+          "session": 14,
+          "sessionCode": "Lec 14"
+        },
+        {
+          "id": "mSyiRGSAq7k",
+          "title": "Coin-row problem",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 14,
+          "sessionCode": "Lec 14"
+        },
+        {
+          "id": "KLBCUx1is2c",
+          "title": "Longest common subsequence (watch to 21:35)",
+          "channel": "YouTube",
+          "lang": "en",
+          "track": "lectures",
+          "session": 14,
+          "sessionCode": "Lec 14"
         }
       ],
       "notes": [
         {
-          "h": "Dynamic Programming Principles, Coin-Row & Binomial Coefficients (Slides 14.1–14.15)",
+          "h": "Before you start: recursion, recurrences and overlapping calls",
+          "lead": "Every DP solution in this lecture starts life as a recurrence. Read that word as \"a formula that calls itself on smaller inputs\".",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
           "pts": [
-            "<b>Dynamic Programming Overview (Slides 14.2–14.4)</b>: Invented by <b>Richard Bellman</b> (1950s) to solve optimization problems with <b>overlapping subproblems</b> and <b>optimal substructure</b>. Instead of recomputing shared subproblems exponentially (as in top-down recursion), DP solves each smaller subproblem <i>once</i> and stores its answer in a table (bottom-up iteration or memoization).",
-            "<b>1. The Coin-Row Problem (Slides 14.6–14.9 & Exam Examples Q9)</b>:<ul><li><b>Problem</b>: Given a row of $n$ coins with values $c_1, c_2, \\dots, c_n$, pick a subset of coins with maximum total value such that <b>no two adjacent coins are selected</b>.</li><li><b>Recurrence</b>: Partition allowed selections for $1..n$ into those that <i>include</i> $c_n$ (max value $c_n + F(n-2)$) and those that <i>exclude</i> $c_n$ (max value $F(n-1)$):<br>$F(n) = \\max\\{c_n + F(n-2),\\; F(n-1)\\}$ for $n > 1$, with base cases $F(0) = 0,\\; F(1) = c_1$.</li><li><b>Slide & Exam Trace on Coins `[5, 1, 2, 10, 6, 2]`</b>:<ul><li>$F(0) = 0,\\; F(1) = 5$</li><li>$F(2) = \\max(1 + 0, 5) = 5$</li><li>$F(3) = \\max(2 + 5, 5) = 7$</li><li>$F(4) = \\max(10 + 5, 7) = 15$</li><li>$F(5) = \\max(6 + 7, 15) = 15$</li><li>$F(6) = \\max(2 + 15, 15) = \\mathbf{17}$ (optimal coins: $c_1=5, c_4=10, c_6=2$). Time: $\\Theta(n)$, Space: $\\Theta(n)$.</li></ul></li></ul>",
-            "<b>2. Computing Binomial Coefficients $C(n, k)$ by DP (Slides 14.10–14.15)</b>:<ul><li><b>Pascal's Recurrence</b>: $C(n, k) = C(n-1, k) + C(n-1, k-1)$ for $n > k > 0$, with $C(n, 0) = C(n, n) = 1$.</li><li>Fills an $(n+1) \\times (k+1)$ Pascal triangle table row-by-row (`for i = 0 to n: for j = 0 to min(i, k)`).</li><li><b>Time & Space Efficiency</b>: $\\mathbf{\\Theta(nk)}$ time and $\\mathbf{\\Theta(nk)}$ space. Slide Exercise: $C(6, 3) = C(5, 3) + C(5, 2) = 10 + 10 = \\mathbf{20}$.</li></ul>"
+            "A <b>recursive</b> function solves a problem by calling itself on smaller inputs and combining the answers; the base cases stop the recursion.",
+            "A <b>recurrence</b> is the equation that describes that cost or answer, for example T(n) = T(n − 1) + T(n − 2).",
+            "A naive recursive evaluation re-solves the same subproblem many times: in Fibonacci, f(n − 2) is computed twice, f(n − 3) three times, and so on — exponentially often.",
+            "<b>Overlapping subproblems</b> means exactly that: the set of distinct subproblems is small (here n of them) while the recursion tree is huge.",
+            "The fix has two names for the same idea: <b>memoization</b> (remember an answer the first time you compute it, top-down) or <b>tabulation</b> (fill a table bottom-up, small cases first).",
+            "DP applies when a problem has (a) overlapping subproblems and (b) <b>optimal substructure</b>: the best answer to the whole can be built from best answers to the parts."
+          ]
+        },
+        {
+          "h": "Before you start: reading a table and backtracing an index",
+          "lead": "The exam asks you to fill a table and then to read the answer out of it, so practise both directions.",
+          "callout": "Background the slides assume. It is not on the slides, but you need it to follow them.",
+          "pts": [
+            "A DP table is indexed by the subproblem, for example F(i) for a row of coins, C(i, j) for two strings of lengths i and j, or V(i, j) for the first i items and capacity j.",
+            "When there are two indices, the row usually means \"how much of the input we have used\" and the column means \"how much room is left\".",
+            "<b>Backtracing</b> means starting from the last cell and asking \"which decision produced this value?\", then walking to the cell that decision came from, until you reach a base case.",
+            "In the knapsack pseudocode the slides draw the arrow with a pointer table P: P[i, j] records the column the value came from, so the path is read without recomputing anything.",
+            "A cell depends only on cells already computed: the one above, the one to the left, or the one diagonally up-left. Fill the table in an order that respects those dependencies — row by row is always safe.",
+            "Space efficiency is worth one line in an answer: many DP tables only ever read the previous row, so Θ(nm) memory can often be reduced, but the slides keep the full table because it allows backtracing."
+          ]
+        },
+        {
+          "h": "The idea of dynamic programming (Slides 14.1–14.2)",
+          "lead": "A general design technique for optimisation problems, invented by Richard Bellman in the 1950s.",
+          "pts": [
+            "In the name, <b>\"programming\" means planning</b>, not writing code — the slides make this point explicitly.",
+            "Main idea: set up a <b>recurrence</b> relating the solution of a larger instance to solutions of smaller instances.",
+            "Solve each smaller instance <b>once</b> and record the answer in a <b>table</b>.",
+            "Extract the solution of the original instance from that table, usually by backtracing.",
+            "The difference from divide and conquer: the subproblems <b>overlap</b>, so the table prevents the exponential re-solving that plain recursion does.",
+            "The problems of this lecture: Fibonacci numbers, the coin-row problem, binomial coefficients, robot coin collection, longest common subsequence, and 0/1 knapsack."
+          ]
+        },
+        {
+          "h": "Fibonacci: top-down recursion versus bottom-up iteration (Slides 14.3–14.4)",
+          "lead": "The smallest possible example of the whole technique.",
+          "formula": [
+            "f(0) = 0, f(1) = 1",
+            "f(n) = f(n − 1) + f(n − 2)"
           ],
+          "fig": [
+            "ag-14-fib"
+          ],
+          "figH": {
+            "ag-14-fib": "The recursion tree of f(n): the same subtrees are solved again and again"
+          },
+          "figAt": {
+            "ag-14-fib": 2
+          },
+          "pts": [
+            "<b>Top-down</b> (the slide's tree): f(n) calls f(n − 1) and f(n − 2); f(n − 2) is computed twice, f(n − 3) three times, f(n − 4) five times — the costs follow the Fibonacci numbers themselves, so Θ(1.618ⁿ) calls.",
+            "<b>Bottom-up</b> (the slide's list): f(0) = 0, f(1) = 1, f(2) = 0 + 1 = 1, f(3) = 1 + 1 = 2, f(4) = 1 + 2 = 3, f(5) = 2 + 3 = 5, and so on up to f(n).",
+            "This is Θ(n) additions instead of exponential calls: the table is just the last two values, so it is Θ(n) time and Θ(1) space.",
+            "The lesson the slides draw: solve the small instances first, store each answer once, and never recompute it."
+          ]
+        },
+        {
+          "h": "The coin-row problem and its recurrence (Slides 14.6–14.8)",
+          "lead": "Pick coins from a row for maximum value, but no two adjacent coins.",
+          "fig": [
+            "ag-14-coinrow"
+          ],
+          "figH": {
+            "ag-14-coinrow": "The slide row 5, 1, 2, 10, 6, 2 and the best legal selection"
+          },
+          "figAt": {
+            "ag-14-coinrow": 1
+          },
+          "formula": [
+            "F(n) = max{cₙ + F(n − 2), F(n − 1)} for n > 1",
+            "F(0) = 0, F(1) = c₁"
+          ],
+          "pts": [
+            "<b>Problem</b> (Slide 14.6): a row of n coins with positive values c₁ … cₙ, not necessarily distinct. Pick the maximum amount of money subject to: <b>no two adjacent coins</b> may be picked.",
+            "Example of the slides: <b>5, 1, 2, 10, 6, 2</b> — the best selection is 5, 10, 2 for a total of 17.",
+            "Let F(n) be the best total from the first n coins. The slides derive the recurrence by splitting every legal selection into two groups:",
+            "Those <b>without</b> the last coin — the best they can be is F(n − 1). Those <b>with</b> the last coin — then coin n − 1 is forbidden, so the best is cₙ + F(n − 2).",
+            "Hence F(n) = max{cₙ + F(n − 2), F(n − 1)}, with base cases F(0) = 0 (no coins) and F(1) = c₁ (one coin, take it).",
+            "This two-way split — \"last element excluded / last element included\" — is the pattern behind nearly every DP recurrence in this lecture, including knapsack."
+          ]
+        },
+        {
+          "h": "The coin-row table and the answer (Slide 14.9)",
+          "lead": "One row of the table, one pass over the coins, one backtrace for the coins themselves.",
           "table": [
             [
-              "Index i",
+              "n",
               "0",
               "1",
               "2",
@@ -46812,7 +44583,7 @@ window.COURSES.algo = {
               "6"
             ],
             [
-              "Coin c_i",
+              "coin cₙ",
               "—",
               "5",
               "1",
@@ -46822,1699 +44593,613 @@ window.COURSES.algo = {
               "2"
             ],
             [
-              "F(i) = max(c_i + F(i−2), F(i−1))",
+              "F(n)",
               "0",
               "5",
               "5",
               "7",
               "15",
               "15",
-              "17 (Coins 1, 4, 6)"
+              "17"
             ]
           ],
+          "pts": [
+            "F(0) = 0 and F(1) = c₁ = 5. F(2) = max{1 + F(0), F(1)} = max{1, 5} = 5 — skip the coin 1 because taking it forbids the 5.",
+            "F(3) = max{2 + F(1), F(2)} = max{2 + 5, 5} = 7 — now taking the 2 is worth it together with the 5.",
+            "F(4) = max{10 + F(2), F(3)} = max{10 + 5, 7} = 15. F(5) = max{6 + F(3), F(4)} = max{13, 15} = 15. F(6) = max{2 + F(4), F(5)} = max{17, 15} = 17.",
+            "<b>Max amount = 17.</b> The coins of the optimal solution are recovered by walking back: F(6) came from 2 + F(4), F(4) came from 10 + F(2), F(2) came from F(1) which is c₁ = 5. So the coins are 5, 10, 2.",
+            "<b>Time efficiency Θ(n)</b>, <b>space Θ(n)</b> for the table (Θ(1) if you keep only the last two values and no backtrace).",
+            "The slide adds the sentence to remember: <b>all smaller instances were solved</b> — that is what makes the later values cheap."
+          ],
+          "viz": {
+            "type": "dp",
+            "method": "coinrow",
+            "title": "Lecture 14 Slide 14.9: the coin-row table for 5, 1, 2, 10, 6, 2",
+            "coins": [
+              5,
+              1,
+              2,
+              10,
+              6,
+              2
+            ]
+          }
+        },
+        {
+          "h": "Binomial coefficients by DP (Slides 14.10–14.14)",
+          "lead": "Pascal's triangle, read as a table of overlapping subproblems.",
+          "formula": [
+            "C(n, k) = C(n − 1, k) + C(n − 1, k − 1) for n > k > 0",
+            "C(n, 0) = 1, C(n, n) = 1"
+          ],
           "fig": [
-            "ag-14-fib",
-            "ag-14-coinrow",
             "ag-14-binom"
           ],
+          "figH": {
+            "ag-14-binom": "Filling Pascal's triangle cell by cell, then reading C(6,3)"
+          },
           "figAt": {
-            "ag-14-fib": 0,
-            "ag-14-coinrow": 1,
             "ag-14-binom": 2
           },
-          "figH": {
-            "ag-14-fib": "Fibonacci: the top-down recursion tree repeats work, the bottom-up table does each value once",
-            "ag-14-coinrow": "Coin-row on 5, 1, 2, 10, 6, 2: F(0) … F(6) filled one by one, then the chosen coins",
-            "ag-14-binom": "C(6, 3) by DP: the Pascal table filled row by row"
-          }
+          "pts": [
+            "C(n, k) counts the k-element subsets of an n-element set; it is the coefficient of a<sup>n−k</sup>b<sup>k</sup> in (a + b)ⁿ.",
+            "The recurrence comes from the same split as the coin row: the subsets that <b>exclude</b> the last element number C(n − 1, k), and those that <b>include</b> it number C(n − 1, k − 1).",
+            "Base cases: C(n, 0) = 1 (only the empty set) and C(n, n) = 1 (only the full set).",
+            "Fill the table row by row: each cell is the sum of the cell above and the cell above-left. That is exactly Pascal's triangle.",
+            "The slide's in-class exercise is <b>C(6, 3)</b>: the triangle gives 1, 6, 15, 20, 15, 6, 1 on row 6, so C(6, 3) = <b>20</b>.",
+            "<b>Time Θ(nk)</b>, <b>space Θ(nk)</b> for the full table; the slides compute the value, not the subsets."
+          ]
         },
         {
-          "h": "Robot Coin Collection & Longest Common Subsequence (LCS, Slides 14.16–14.30)",
-          "pts": [
-            "<b>3. Robot Coin Collection on an $n \\times m$ Board (Slides 14.16–14.19 & Final 2018 I Q6 / II Q9)</b>:<ul><li><b>Problem</b>: A robot starts at $(1, 1)$ and moves only <b>right</b> or <b>down</b> to $(n, m)$, collecting at most 1 coin per cell ($c_{ij} \\in \\{0, 1\\}$). Maximize total coins collected.</li><li><b>Recurrence</b>: $F[i, j] = \\max(F[i-1, j],\\; F[i, j-1]) + c_{ij}$ for $1 \\le i \\le n, 1 \\le j \\le m$, with $F[0, j] = F[i, 0] = 0$.</li><li><b>Complexity</b>: $\\mathbf{\\Theta(nm)}$ time and $\\mathbf{\\Theta(nm)}$ space! (Note from Lec 15 Slide 18: A greedy robot that just looks 1 step ahead fails because a local coin can trap the robot away from a rich row/column!)</li></ul>",
-            "<b>4. Longest Common Subsequence (LCS, Slides 14.20–14.30 & Final 2016 Q5 / Final 5 Q5)</b>:<ul><li><b>Problem</b>: Given strings $A = a_1 \\dots a_m$ and $B = b_1 \\dots b_n$, find the longest subsequence present in both (not necessarily contiguous).</li><li><b>Slide Examples</b>: `\"president\"` & `\"providence\"` $\\rightarrow$ `\"priden\"` (length $6$); `\"algorithm\"` & `\"alignment\"` $\\rightarrow$ `\"algm\"` or `\"algt\"` or `\"alim\"` (length $4$).</li><li><b>Recurrence for `len[i, j]`</b>:<ul><li>If $i = 0$ or $j = 0$: $\\text{len}[i, j] = 0$.</li><li>If $a_i == b_j$: $\\text{len}[i, j] = \\text{len}[i-1, j-1] + 1$ (record arrow `↖`).</li><li>If $a_i \\ne b_j$: $\\text{len}[i, j] = \\max(\\text{len}[i-1, j],\\; \\text{len}[i, j-1])$ (record `↑` or `←`).</li></ul></li><li><b>Complexity</b>: Table construction takes $\\mathbf{O(mn)}$ time and $\\mathbf{O(mn)}$ memory; backtracing from $(m, n)$ to $(0, 0)$ takes $\\mathbf{O(m + n)}$ time.</li></ul>"
-          ],
+          "h": "Robot coin collection (Slides 14.16–14.19)",
+          "lead": "A grid, two possible moves, and coins sitting in the cells.",
           "fig": [
-            "ag-14-robot",
-            "ag-14-lcs-match",
+            "ag-14-robot"
+          ],
+          "figH": {
+            "ag-14-robot": "The board and the two-move robot, filled cell by cell from the top-left"
+          },
+          "figAt": {
+            "ag-14-robot": 1
+          },
+          "formula": [
+            "F(i, j) = max{F(i − 1, j), F(i, j − 1)} + c(i, j)"
+          ],
+          "pts": [
+            "<b>Problem</b> (Slide 14.16): coins are placed in the cells of an n × m board. A robot starts in the upper-left cell and must reach the bottom-right cell, moving only <b>one cell right</b> or <b>one cell down</b> at each step. Collect as much money as possible.",
+            "Every path from the corner to a cell (i, j) arrives either from <b>above</b> (i − 1, j) or from the <b>left</b> (i, j − 1) — those are the only two ways in.",
+            "So F(i, j), the best total reachable at (i, j), is the better of the two neighbours plus the coin lying in the cell: F(i, j) = max{F(i − 1, j), F(i, j − 1)} + c(i, j).",
+            "First row: only from the left, so F(1, j) = F(1, j − 1) + c(1, j). First column: only from above. Those two lines are the base cases.",
+            "Fill row by row, then read the answer in the bottom-right cell and backtrace the moves that produced it.",
+            "The slides devote three pages to the filled board and the backtrace; the recurrence and the two base lines are what you must be able to write."
+          ]
+        },
+        {
+          "h": "Longest common subsequence: definition and recurrence (Slides 14.20–14.23)",
+          "lead": "Delete letters, keep the order, share as many as possible.",
+          "fig": [
             "ag-14-lcs"
           ],
+          "figH": {
+            "ag-14-lcs": "len(i, j) built from the three cases the recurrence describes"
+          },
           "figAt": {
-            "ag-14-robot": 0,
-            "ag-14-lcs-match": 1,
             "ag-14-lcs": 1
           },
+          "formula": [
+            "len(i, j) = len(i − 1, j − 1) + 1 if aᵢ = bⱼ",
+            "len(i, j) = max{len(i − 1, j), len(i, j − 1)} otherwise"
+          ],
+          "pts": [
+            "A <b>subsequence</b> of S is obtained by deleting zero or more symbols of S: the remaining letters keep their order but need not be consecutive. Subsequences of \"president\" include pred, sdn and predent.",
+            "The <b>LCS problem</b>: given two sequences, find a common subsequence of maximum length.",
+            "Example of the slides: \"president\" and \"providence\" have LCS <b>priden</b> (length 6). A second example: \"algorithm\" and \"alignment\" have LCS <b>algm</b>.",
+            "Let len(i, j) be the length of an LCS between the first i letters of A and the first j letters of B.",
+            "If aᵢ = bⱼ, those two letters can end a common subsequence: len(i, j) = len(i − 1, j − 1) + 1.",
+            "If aᵢ ≠ bⱼ, at least one of them is not used, so len(i, j) = max{len(i − 1, j), len(i, j − 1)}. The first row and column are 0 — the empty prefix shares nothing."
+          ]
+        },
+        {
+          "h": "Filling the LCS table and reading the subsequence back (Slides 14.24–14.26)",
+          "lead": "Θ(mn) cells, each from three neighbours; the letters come from a backtrace.",
+          "fig": [
+            "ag-14-lcs-match"
+          ],
           "figH": {
-            "ag-14-robot": "Robot coin collecting: F(i, j) on the slide's 5 × 6 board and the best path",
-            "ag-14-lcs-match": "Common subsequences drawn as non-crossing lines: president / providence and algorithm / alignment",
-            "ag-14-lcs": "LCS-Length table for president / providence with prev arrows, then Output-LCS prints priden"
+            "ag-14-lcs-match": "Matches (diagonal) and non-matches (max of up and left) in the same grid"
+          },
+          "figAt": {
+            "ag-14-lcs-match": 2
+          },
+          "pts": [
+            "Table shape: rows are the letters of A (with an empty row 0), columns the letters of B (with an empty column 0).",
+            "A cell where the letters <b>match</b> takes the diagonal value plus one. A cell where they differ takes the larger of the cell above and the cell to its left.",
+            "The bottom-right cell holds the <b>length</b> of an LCS; for \"president\"/\"providence\" that value is 6.",
+            "To recover the letters, walk back from the bottom-right: on a match, take the letter and move diagonally up-left; otherwise move to the neighbour that supplied the value (up or left, ties pick either).",
+            "One of the longest common subsequences of \"algorithm\" and \"alignment\" is <b>algm</b> — the slides say \"one of\", because several may share the maximum length.",
+            "Running time and memory are both <b>O(mn)</b>; the backtrace itself is O(m + n)."
+          ],
+          "viz": {
+            "type": "dp",
+            "method": "lcs",
+            "title": "Lecture 14 Slides 14.24–14.26: the len(i, j) table, filled cell by cell",
+            "first": "BANANA",
+            "second": "ATANA"
           }
         },
         {
-          "h": "0/1 Knapsack by Dynamic Programming vs. Greedy (Slides 14.31–14.37)",
-          "pts": [
-            "<b>5. The 0/1 Knapsack Problem (Slides 14.31–14.37, Final 1 Q2 & Final 2019 Credit Q6)</b>:<ul><li><b>Problem</b>: Given $n$ items with integer weights $w_1, \\dots, w_n$ and values $v_1, \\dots, v_n$, and knapsack capacity $W$, select a subset of items with total weight $\\le W$ maximizing total value.</li><li><b>Recurrence</b>: Let $V[i, j]$ be the max value using a subset of items $1..i$ with capacity $j$ ($0 \\le j \\le W$):<br>$V[i, j] = V[i-1, j]$ if $j < w_i$; and $V[i, j] = \\max\\{V[i-1, j],\\; v_i + V[i-1, j - w_i]\\}$ if $j \\ge w_i$, with base cases $V[0, j] = 0$ and $V[i, 0] = 0$.</li><li><b>Time & Space Complexity</b>: $\\mathbf{\\Theta(nW)}$ time and $\\mathbf{\\Theta(nW)}$ space.</li></ul>",
-            "<b>Worked Exam Comparison 1 (Final 2019 Credit Q6: $W = 5$, Items `1:(w=1,v=10), 2:(w=2,v=15), 3:(w=3,v=14), 4:(w=1,v=12)`)</b>:<ul><li><b>DP Solution</b>: Selects items `{1, 2, 4}` with total weight $1 + 2 + 1 = 4 \\le 5$ and optimal value $10 + 15 + 12 = \\mathbf{37}$.</li><li><b>Greedy (by max value)</b>: Picks item 2 ($w=2, v=15$) then item 3 ($w=3, v=14$) for total weight $5$ and value $15 + 14 = \\mathbf{29 < 37}$. (Even greedy by value/weight ratio $12/1, 10/1, 15/2$ picks `{4, 1, 2}` $= 37$ here, whereas in Final 1 Q2 with items `1:(1,9), 2:(2,14), 3:(3,13), 4:(1,11)` and $W=5$, DP picks `{1, 2, 4}` with weight $4$ and value $9+14+11 = \\mathbf{34}$, beating max-value greedy `14+13=27`!).</li></ul>"
-          ],
-          "table": [
-            [
-              "Item i (Final 1 Q2: W=5)",
-              "w=0",
-              "w=1",
-              "w=2",
-              "w=3",
-              "w=4",
-              "w=5"
-            ],
-            [
-              "i = 0 (Empty)",
-              "0",
-              "0",
-              "0",
-              "0",
-              "0",
-              "0"
-            ],
-            [
-              "i = 1 (w₁=1, v₁=9)",
-              "0",
-              "9",
-              "9",
-              "9",
-              "9",
-              "9"
-            ],
-            [
-              "i = 2 (w₂=2, v₂=14)",
-              "0",
-              "9",
-              "14",
-              "23",
-              "23",
-              "23"
-            ],
-            [
-              "i = 3 (w₃=3, v₃=13)",
-              "0",
-              "9",
-              "14",
-              "23",
-              "23",
-              "27"
-            ],
-            [
-              "i = 4 (w₄=1, v₄=11)",
-              "0",
-              "11",
-              "20",
-              "25",
-              "34",
-              "34 (Items 1,2,4)"
-            ]
-          ],
+          "h": "0/1 knapsack by DP: the recurrence (Slides 14.28–14.30)",
+          "lead": "The same include/exclude split, now with a capacity index.",
           "fig": [
-            "algo-dp-sim",
-            "ag-14-knap",
+            "ag-14-knap"
+          ],
+          "figH": {
+            "ag-14-knap": "The slide instance W = 5 filled with V[i, j] and the optimal subset 30"
+          },
+          "figAt": {
+            "ag-14-knap": 2
+          },
+          "formula": [
+            "V(i, j) = max{V(i − 1, j), vᵢ + V(i − 1, j − wᵢ)} if j − wᵢ ≥ 0",
+            "V(i, j) = V(i − 1, j) if j − wᵢ < 0",
+            "V(0, j) = 0 and V(i, 0) = 0"
+          ],
+          "pts": [
+            "<b>Problem</b>: n items with integer weights w₁ … wₙ and values v₁ … vₙ, and a knapsack of integer capacity W. Find the most valuable subset of items whose total weight fits.",
+            "Let V(i, j) be the best value using some of the first i items with capacity j.",
+            "If item i is <b>not</b> taken, the answer is V(i − 1, j). If it <b>is</b> taken, it must fit (wᵢ ≤ j) and the rest is the best of the first i − 1 items with the remaining capacity: vᵢ + V(i − 1, j − wᵢ). Take the maximum.",
+            "If wᵢ > j the item cannot be taken at all, so V(i, j) = V(i − 1, j) — that is the second line of the recurrence.",
+            "The slide instance: W = 5, items (w = 2, $12), (w = 1, $10), (w = 3, $20), (w = 2, $15).",
+            "Filling the table: row 1 is 0, 0, 12, 12, 12, 12; row 2 is 0, 10, 12, 22, 22, 22; row 3 is 0, 10, 12, 22, 30, 32; row 4 is 0, 10, 15, 25, 30, 37. The best value is <b>37</b>."
+          ],
+          "viz": {
+            "type": "dp",
+            "method": "knapsack",
+            "title": "Lecture 14 Slides 14.28–14.30: W = 5, items (2, $12), (1, $10), (3, $20), (2, $15)",
+            "items": [
+              [
+                2,
+                12
+              ],
+              [
+                1,
+                10
+              ],
+              [
+                3,
+                20
+              ],
+              [
+                2,
+                15
+              ]
+            ],
+            "capacity": 5
+          }
+        },
+        {
+          "h": "Knapsack pseudocode, backtracing and the DP summary (Slides 14.31–14.33)",
+          "lead": "The slides end with the pseudocode, the pointer table and the cost.",
+          "fig": [
             "ag-14-change"
           ],
-          "figAt": {
-            "ag-14-knap": 0
-          },
           "figH": {
-            "ag-14-knap": "0/1 knapsack, W = 5: V[i, j] filled cell by cell, then backtracing finds items {1, 2, 4}",
-            "ag-14-change": "Change-making by DP: c[p] (fewest coins) and s[p] (last coin) for n = 16, D = {1, 5, 12, 25}"
-          }
+            "ag-14-change": "The optimal subset recovered from the filled table"
+          },
+          "figAt": {
+            "ag-14-change": 1
+          },
+          "code": [
+            "Algorithm DPKnapsack(w[1..n], v[1..n], W)",
+            "var V[0..n, 0..W], P[1..n, 1..W]: int",
+            "for j := 0 to W do V[0, j] := 0",
+            "for i := 0 to n do V[i, 0] := 0",
+            "for i := 1 to n do",
+            "  for j := 1 to W do",
+            "    if w[i] ≤ j and v[i] + V[i−1, j−w[i]] > V[i−1, j] then",
+            "      V[i, j] := v[i] + V[i−1, j−w[i]]; P[i, j] := j − w[i]",
+            "    else V[i, j] := V[i−1, j]; P[i, j] := j",
+            "return V[n, W] and the optimal subset by backtracing"
+          ],
+          "pts": [
+            "The <b>pointer table P</b> stores where each value came from: the column j − wᵢ when item i was taken, and the same column j when it was not.",
+            "Backtrace from (n, W): if V[i, j] equals the value in the row above, item i was <b>not</b> taken and you move up one row; otherwise item i <b>was</b> taken and you move up one row and left by wᵢ.",
+            "For the slide instance the answer 37 is reached with items 4, 2 and 1 (weights 2 + 1 + 2 = 5, values 15 + 10 + 12 = 37).",
+            "<b>Running time O(nW)</b> and <b>space O(nW)</b>; the lecture calls this pseudo-polynomial, because the cost depends on the numeric value W and not only on the number of items.",
+            "Compare with the greedy idea: taking the best value-to-weight item first can be wrong for 0/1 knapsack, which is exactly why the table is needed.",
+            "<b>DP in one line</b>: write the recurrence, fill the table in dependency order, read the answer, backtrace the choices. The six problems of this lecture are six instances of that one sentence."
+          ]
         }
       ],
       "cards": [
         [
-          "Coin-Row DP Recurrence",
-          "F(n) = max{c_n + F(n−2), F(n−1)} for n > 1, with F(0) = 0, F(1) = c₁. Runs in Θ(n) time."
+          "Dynamic programming, definition",
+          "A design technique for optimisation problems: set up a recurrence, solve each smaller instance once, record it in a table, then read the answer and backtrace."
         ],
         [
-          "Binomial Coefficient C(n, k) DP",
-          "C(n, k) = C(n−1, k) + C(n−1, k−1) with C(n, 0) = C(n, n) = 1. Runs in Θ(nk) time and Θ(nk) space."
+          "What \"programming\" means here",
+          "Planning. The name is Bellman's (1950s) and has nothing to do with writing code."
         ],
         [
-          "Robot Coin Collection DP Recurrence",
-          "F[i, j] = max(F[i−1, j], F[i, j−1]) + c_{ij} on an n × m grid in Θ(nm) time and space."
+          "Overlapping subproblems",
+          "The recursion calls the same smaller instances many times; a table computes each one once. Fibonacci without a table is exponential, with one it is Θ(n)."
         ],
         [
-          "LCS DP Recurrence & Complexity",
-          "If a_i == b_j: len[i,j] = len[i−1,j−1] + 1; else max(len[i−1,j], len[i,j−1]). Time: Θ(mn), Space: Θ(mn), Backtrace: O(m + n)."
+          "Optimal substructure",
+          "The best solution of the whole is built from best solutions of the parts — the property that makes a recurrence valid."
         ],
         [
-          "0/1 Knapsack DP Recurrence & Complexity",
-          "V[i, j] = max(V[i−1, j], v_i + V[i−1, j − w_i]) for j ≥ w_i. Time: Θ(nW), Space: Θ(nW)."
+          "Fibonacci bottom-up table",
+          "f(0) = 0, f(1) = 1, then f(n) = f(n − 1) + f(n − 2) for n = 2, 3, … ; Θ(n) time, Θ(1) space if only two values are kept."
         ],
         [
-          "Dynamic Programming Principles, Coin-Row & Binomial Coefficients (Slides 14.1–14.15) — Core Principle & Complexity",
-          "<b>Dynamic Programming Overview (Slides 14.2–14.4)</b>: Invented by <b>Richard Bellman</b> (1950s) to solve optimization problems with <b>overlapping subproblems</b> and <b>optimal substructure</b>. Instead of recomputing shared subproblems exponentially (as in top-down recursion), DP solves each smaller subproblem <i>once</i> and stores its answer in a table (bottom-up iteration or memoization). <b>1. The Coin-Row Problem (Slides 14.6–14.9 & Exam Examples Q9)</b>:<ul><li><b>Problem</b>: Given a row of $n$ coins with values $c_1, c_2, \\dots, c_n$, pick a subset of coins with maximum total value such that <b>no two adjacent coins are selected</b>.</li><li><b>Recurrence</b>: Partition allowed selections for $1..n$ into those that <i>include</i> $c_n$ (max value $c_n + F(n-2)$) and those that <i>exclude</i> $c_n$ (max value $F(n-1)$):<br>$F(n) = \\max\\{c_n + F(n-2),\\; F(n-1)\\}$ for $n > 1$, with base cases $F(0) = 0,\\; F(1) = c_1$.</li><li><b>Slide & Exam Trace on Coins `[5, 1, 2, 10, 6, 2]`</b>:<ul><li>$F(0) = 0,\\; F(1) = 5$</li><li>$F(2) = \\max(1 + 0, 5) = 5$</li><li>$F(3) = \\max(2 + 5, 5) = 7$</li><li>$F(4) = \\max(10 + 5, 7) = 15$</li><li>$F(5) = \\max(6 + 7, 15) = 15$</li><li>$F(6) = \\max(2 + 15, 15) = \\mathbf{17}$ (optimal coins: $c_1=5, c_4=10, c_6=2$). Time: $\\Theta(n)$, Space: $\\Theta(n)$.</li></ul></li></ul>"
+          "Coin-row recurrence",
+          "F(n) = max{cₙ + F(n − 2), F(n − 1)} with F(0) = 0, F(1) = c₁. Split every legal selection into \"last coin excluded\" and \"last coin included\"."
         ],
         [
-          "Robot Coin Collection & Longest Common Subsequence (LCS, Slides 14.16–14.30) — Core Principle & Complexity",
-          "<b>3. Robot Coin Collection on an $n \\times m$ Board (Slides 14.16–14.19 & Final 2018 I Q6 / II Q9)</b>:<ul><li><b>Problem</b>: A robot starts at $(1, 1)$ and moves only <b>right</b> or <b>down</b> to $(n, m)$, collecting at most 1 coin per cell ($c_{ij} \\in \\{0, 1\\}$). Maximize total coins collected.</li><li><b>Recurrence</b>: $F[i, j] = \\max(F[i-1, j],\\; F[i, j-1]) + c_{ij}$ for $1 \\le i \\le n, 1 \\le j \\le m$, with $F[0, j] = F[i, 0] = 0$.</li><li><b>Complexity</b>: $\\mathbf{\\Theta(nm)}$ time and $\\mathbf{\\Theta(nm)}$ space! (Note from Lec 15 Slide 18: A greedy robot that just looks 1 step ahead fails because a local coin can trap the robot away from a rich row/column!)</li></ul> <b>4. Longest Common Subsequence (LCS, Slides 14.20–14.30 & Final 2016 Q5 / Final 5 Q5)</b>:<ul><li><b>Problem</b>: Given strings $A = a_1 \\dots a_m$ and $B = b_1 \\dots b_n$, find the longest subsequence present in both (not necessarily contiguous).</li><li><b>Slide Examples</b>: `\"president\"` & `\"providence\"` $\\rightarrow$ `\"priden\"` (length $6$); `\"algorithm\"` & `\"alignment\"` $\\rightarrow$ `\"algm\"` or `\"algt\"` or `\"alim\"` (length $4$).</li><li><b>Recurrence for `len[i, j]`</b>:<ul><li>If $i = 0$ or $j = 0$: $\\text{len}[i, j] = 0$.</li><li>If $a_i == b_j$: $\\text{len}[i, j] = \\text{len}[i-1, j-1] + 1$ (record arrow `↖`).</li><li>If $a_i \\ne b_j$: $\\text{len}[i, j] = \\max(\\text{len}[i-1, j],\\; \\text{len}[i, j-1])$ (record `↑` or `←`).</li></ul></li><li><b>Complexity</b>: Table construction takes $\\mathbf{O(mn)}$ time and $\\mathbf{O(mn)}$ memory; backtracing from $(m, n)$ to $(0, 0)$ takes $\\mathbf{O(m + n)}$ time.</li></ul>"
+          "Coin-row worked instance",
+          "Row 5, 1, 2, 10, 6, 2 gives F = 0, 5, 5, 7, 15, 15, 17; the best amount is 17 with coins 5, 10, 2."
         ],
         [
-          "0/1 Knapsack by Dynamic Programming vs. Greedy (Slides 14.31–14.37) — Core Principle & Complexity",
-          "<b>5. The 0/1 Knapsack Problem (Slides 14.31–14.37, Final 1 Q2 & Final 2019 Credit Q6)</b>:<ul><li><b>Problem</b>: Given $n$ items with integer weights $w_1, \\dots, w_n$ and values $v_1, \\dots, v_n$, and knapsack capacity $W$, select a subset of items with total weight $\\le W$ maximizing total value.</li><li><b>Recurrence</b>: Let $V[i, j]$ be the max value using a subset of items $1..i$ with capacity $j$ ($0 \\le j \\le W$):<br>$V[i, j] = V[i-1, j]$ if $j < w_i$; and $V[i, j] = \\max\\{V[i-1, j],\\; v_i + V[i-1, j - w_i]\\}$ if $j \\ge w_i$, with base cases $V[0, j] = 0$ and $V[i, 0] = 0$.</li><li><b>Time & Space Complexity</b>: $\\mathbf{\\Theta(nW)}$ time and $\\mathbf{\\Theta(nW)}$ space.</li></ul> <b>Worked Exam Comparison 1 (Final 2019 Credit Q6: $W = 5$, Items `1:(w=1,v=10), 2:(w=2,v=15), 3:(w=3,v=14), 4:(w=1,v=12)`)</b>:<ul><li><b>DP Solution</b>: Selects items `{1, 2, 4}` with total weight $1 + 2 + 1 = 4 \\le 5$ and optimal value $10 + 15 + 12 = \\mathbf{37}$.</li><li><b>Greedy (by max value)</b>: Picks item 2 ($w=2, v=15$) then item 3 ($w=3, v=14$) for total weight $5$ and value $15 + 14 = \\mathbf{29 < 37}$. (Even greedy by value/weight ratio $12/1, 10/1, 15/2$ picks `{4, 1, 2}` $= 37$ here, whereas in Final 1 Q2 with items `1:(1,9), 2:(2,14), 3:(3,13), 4:(1,11)` and $W=5$, DP picks `{1, 2, 4}` with weight $4$ and value $9+14+11 = \\mathbf{34}$, beating max-value greedy `14+13=27`!).</li></ul>"
+          "Coin-row cost",
+          "Θ(n) time and Θ(n) space for the table; the coins are recovered by backtracing F."
+        ],
+        [
+          "Binomial recurrence",
+          "C(n, k) = C(n − 1, k) + C(n − 1, k − 1) with C(n, 0) = C(n, n) = 1; the table is Pascal's triangle."
+        ],
+        [
+          "Binomial cost and example",
+          "Θ(nk) time and space; the slides' exercise C(6, 3) = 20."
+        ],
+        [
+          "Robot coin collection",
+          "n × m board, robot from upper-left to bottom-right moving right or down: F(i, j) = max{F(i − 1, j), F(i, j − 1)} + c(i, j), first row and column as base cases."
+        ],
+        [
+          "Subsequence",
+          "Obtained by deleting zero or more symbols; the rest keep their order but need not be adjacent. \"pred\", \"sdn\" and \"predent\" are subsequences of \"president\"."
+        ],
+        [
+          "LCS recurrence",
+          "If aᵢ = bⱼ then len(i, j) = len(i − 1, j − 1) + 1; otherwise len(i, j) = max{len(i − 1, j), len(i, j − 1)}. Row 0 and column 0 are 0."
+        ],
+        [
+          "LCS worked examples",
+          "\"president\" and \"providence\" → LCS length 6 (\"priden\"); \"algorithm\" and \"alignment\" → \"algm\"."
+        ],
+        [
+          "LCS cost and backtrace",
+          "O(mn) time and memory; backtrace from the bottom-right cell, taking the letter on a match and moving up or left otherwise."
+        ],
+        [
+          "Knapsack recurrence",
+          "V(i, j) = max{V(i − 1, j), vᵢ + V(i − 1, j − wᵢ)} when j ≥ wᵢ, else V(i − 1, j); V(0, j) = V(i, 0) = 0."
+        ],
+        [
+          "Knapsack slide instance",
+          "W = 5, items (2, $12), (1, $10), (3, $20), (2, $15): the last row is 0, 10, 15, 25, 30, 37 and the best value is 37 with items 4, 2 and 1."
+        ],
+        [
+          "Knapsack cost",
+          "O(nW) time and space — pseudo-polynomial, because W is a value, not a count of items."
+        ],
+        [
+          "What the pointer table P is for",
+          "It records the column each cell came from, so the optimal subset is recovered by walking back from V(n, W) without recomputing the table."
+        ],
+        [
+          "The four DP moves",
+          "Write the recurrence, define the base cases, fill the table in dependency order, read the answer and backtrace the choices."
         ]
       ],
       "qa": [
         [
-          "Solve the Coin-Row problem for the coins [5, 1, 2, 10, 6, 2] using Dynamic Programming, showing the recurrence, table values, maximum value, and chosen coins.",
-          "Using $F(0)=0, F(1)=c_1=5$, and $F(i) = \\max(c_i + F(i-2), F(i-1))$:<br>• $F(1) = 5$<br>• $F(2) = \\max(1+0, 5) = 5$<br>• $F(3) = \\max(2+5, 5) = 7$<br>• $F(4) = \\max(10+5, 7) = 15$<br>• $F(5) = \\max(6+7, 15) = 15$<br>• $F(6) = \\max(2+15, 15) = \\mathbf{17}$.<br>Backtracing gives coins at indices $6, 4, 1$ with values $\\mathbf{2 + 10 + 5 = 17}$.",
-          "Exam Examples Q9 & Lecture 14 · Slides 14.6–14.9"
+          "Solve the coin-row problem for 5, 1, 2, 10, 6, 2 and show the table.",
+          "F(0) = 0, F(1) = 5.<br>F(2) = max{1 + F(0), F(1)} = max{1, 5} = 5.<br>F(3) = max{2 + F(1), F(2)} = max{7, 5} = 7.<br>F(4) = max{10 + F(2), F(3)} = max{15, 7} = 15.<br>F(5) = max{6 + F(3), F(4)} = max{13, 15} = 15.<br>F(6) = max{2 + F(4), F(5)} = max{17, 15} = 17.<br>Table: n = 0..6, F = 0, 5, 5, 7, 15, 15, 17. <b>Best amount 17</b>, and backtracing (F(6) ← 2 + F(4), F(4) ← 10 + F(2), F(2) ← F(1) = 5) gives the coins <b>5, 10, 2</b>. Time Θ(n), space Θ(n)."
         ],
         [
-          "Find the Longest Common Subsequence (LCS) between 'algorithm' and 'alignment' using Dynamic Programming.",
-          "Building the $9 \\times 9$ DP table for $A = \\text{algorithm}$ and $B = \\text{alignment}$ yields maximum length $\\text{len}[9, 9] = \\mathbf{4}$, corresponding to the common subsequences <code>\"algm\"</code>, <code>\"algt\"</code>, or <code>\"alim\"</code> (matched characters: `a` at (1,1), `l` at (2,2), `g` at (3,4) or `i` at (6,3), and `m` at (9,6) or `t` at (7,9)).",
-          "Final 2016 Q5, Final 5 Q5 & Lecture 14 · Slide 14.22"
+          "Compute C(6, 3) with the DP recurrence and give the cost.",
+          "C(n, 0) = C(n, n) = 1, and C(n, k) = C(n − 1, k) + C(n − 1, k − 1).<br>Rows: n=0: 1. n=1: 1 1. n=2: 1 2 1. n=3: 1 3 3 1. n=4: 1 4 6 4 1. n=5: 1 5 10 10 5 1. n=6: 1 6 15 20 15 6 1.<br>Reading position k = 3 on row 6 gives <b>C(6, 3) = 20</b>. Cost: Θ(nk) time and Θ(nk) space for the full triangle."
+        ],
+        [
+          "Write the LCS recurrence and explain how the actual subsequence is recovered.",
+          "Let len(i, j) be the LCS length of the first i letters of A and the first j letters of B, with len(0, ·) = len(·, 0) = 0.<br>If aᵢ = bⱼ: len(i, j) = len(i − 1, j − 1) + 1.<br>Otherwise: len(i, j) = max{len(i − 1, j), len(i, j − 1)}.<br>The value in the bottom-right cell is the length (6 for \"president\"/\"providence\"). To recover a sequence, walk back from that cell: on a match, output the letter and move diagonally up-left; otherwise move up or left to the neighbour whose value equals the current cell. Cost O(mn) time and memory, O(m + n) for the backtrace."
+        ],
+        [
+          "Fill the 0/1 knapsack table for W = 5 with items (2, $12), (1, $10), (3, $20), (2, $15) and state the optimal subset.",
+          "Using V(i, j) = max{V(i − 1, j), vᵢ + V(i − 1, j − wᵢ)} whenever j ≥ wᵢ:<br>row 0: 0 0 0 0 0 0<br>row 1 (w=2, v=12): 0 0 12 12 12 12<br>row 2 (w=1, v=10): 0 10 12 22 22 22<br>row 3 (w=3, v=20): 0 10 12 22 30 32<br>row 4 (w=2, v=15): 0 10 15 25 30 37<br>The answer is <b>V(4, 5) = 37</b>. Backtracing: 37 differs from the cell above (32), so item 4 is taken and j becomes 5 − 2 = 3; at (3, 3) the value 22 equals the row above, so item 3 is not taken; at (2, 3) 22 differs from 12, so item 2 is taken and j becomes 2; at (1, 2) 12 differs from 0, so item 1 is taken. Subset: <b>items 4, 2, 1</b> — weight 2 + 1 + 2 = 5, value 15 + 10 + 12 = 37."
+        ],
+        [
+          "Why is 0/1 knapsack solved by DP and not by a greedy rule?",
+          "A greedy rule (take the items with the best value per unit of weight first) can lock in a locally good choice and then fail to fill the capacity well. The classic counterexample: capacity 10 with items (weight 6, value 30), (weight 5, value 25) and (weight 5, value 25). Ratio-greedy takes the first item, value 30, and cannot take anything else; the optimal answer is the two 5-weight items, value 50. DP avoids this because it compares the only two meaningful cases for every item and capacity — included or excluded — and keeps the best value for every capacity, not just one guess. Cost O(nW) time and space."
+        ],
+        [
+          "Give the general shape of a dynamic-programming solution, using this lecture's examples.",
+          "1. <b>Define the state</b>: F(n) for a row of coins, C(n, k) for binomials, len(i, j) for two prefixes, V(i, j) for items and capacity, F(i, j) for a board cell. 2. <b>Write the recurrence</b> that relates the state to smaller states — usually by splitting on the last element (excluded/included) or on the last move (from above/from the left). 3. <b>Give the base cases</b>: F(0) = 0, len(0, ·) = 0, V(0, j) = V(i, 0) = 0. 4. <b>Fill the table</b> in an order where every dependency is already computed, usually row by row. 5. <b>Read the answer</b> from the final cell and, if the solution itself is wanted, <b>backtrace</b> the choices."
         ]
       ],
       "quiz": [
         {
-          "q": "What distinguishing feature should cause us to choose Dynamic Programming rather than a standard Divide-and-Conquer approach to a problem?",
+          "q": "What is the main idea of dynamic programming as the lecture states it?",
           "o": [
             [
-              "The problem can be solved recursively",
-              "Both Divide-and-Conquer and DP use recursive formulations."
+              "Try every possible solution and keep the cheapest",
+              "Wrong: that is brute force; DP never enumerates the solutions."
             ],
             [
-              "The subproblems for the solution overlap (are shared and would be recomputed repeatedly by top-down Divide-and-Conquer)",
-              "Correct! Final Summer Q21: Overlapping subproblems are the hallmark that distinguishes Dynamic Programming from Divide-and-Conquer (which solves disjoint subproblems)."
+              "Set up a recurrence, solve each smaller instance once, record the answers in a table, read the answer from the table",
+              "Right: that is the slides' summary — programming here means planning (Slides 14.1–14.2)."
             ],
             [
-              "The problem does not have a brute-force solution",
-              "Optimization problems solved by DP do have brute-force solutions, which are exponential."
+              "Split the problem into independent halves and combine them",
+              "Wrong: that is divide and conquer. DP is needed precisely because the subproblems overlap."
             ],
             [
-              "The input is already sorted",
-              "Irrelevant to choosing DP vs. D&C."
+              "Sort the input and apply a greedy choice",
+              "Wrong: greedy is a different technique, and the lecture warns that it fails on 0/1 knapsack."
             ]
           ],
           "a": 1,
-          "src": "Exam · Final Summer Q21 & Exam Examples Q21"
+          "src": "Lecture 14 · Slides 14.1–14.2"
         },
         {
-          "q": "Given items as {value, weight} pairs {{60, 20}, {50, 25}, {20, 5}} and knapsack capacity W = 40, what is the maximum value assuming items are divisible (Fractional Knapsack) and non-divisible (0/1 Knapsack) respectively?",
+          "q": "Why is the naive recursive Fibonacci computation exponential while the bottom-up one is Θ(n)?",
           "o": [
             [
-              "100 and 80",
-              "In fractional knapsack we can also take 15/25 of the {50,25} item after taking {20,5} and {60,20}."
+              "Because recursion is always slower than iteration",
+              "Wrong: the recursion here is slow for a specific reason — the same subproblems are re-solved."
             ],
             [
-              "110 and 70",
-              "In 0/1 knapsack, taking {60,20} + {20,5} gives weight 25 ≤ 40 and value 80 > 70."
+              "Because the same subproblems (f(n − 2), f(n − 3), …) are recomputed exponentially often; the table computes each once",
+              "Right: the recursion tree has about 1.618ⁿ nodes while there are only n distinct subproblems (Slides 14.3–14.4)."
             ],
             [
-              "130 and 110",
-              "Total weight of all three items is 50 > 40."
+              "Because the bottom-up version uses fewer additions per step",
+              "Wrong: both use one addition per subproblem; the difference is how many times a subproblem is solved."
             ],
             [
-              "110 and 80",
-              "Correct! Final 2022 Q18: Value/weight ratios are {20,5}=4, {60,20}=3, {50,25}=2. Fractional takes {20,5} (w=5,v=20) + {60,20} (w=20,v=60) + (15/25) of {50,25} (w=15,v=30) = 110. 0/1 Knapsack takes {20,5} + {60,20} (w=25, v=80) since {50,25} + {20,5} is only 70."
-            ]
-          ],
-          "a": 3,
-          "src": "Exam · Final 2022 Q18"
-        },
-        {
-          "q": "Bottom-up Dynamic Programming works by:",
-          "o": [
-            [
-              "Doubling the recursive calls at each level",
-              "That leads to O(2ⁿ) exponential blowup."
-            ],
-            [
-              "Transforming recursive calls into an iterative loop that solves smaller subproblems first and stores their values in a table",
-              "Correct! Final 2021 Q38 & Final Summer Q17: Bottom-up DP replaces recursion with a loop that fills a table from smallest subproblems to largest."
-            ],
-            [
-              "Solving the same subproblem multiple times",
-              "DP solves each subproblem exactly once."
-            ],
-            [
-              "Solving larger subproblems first, followed by smaller subproblems",
-              "Bottom-up solves smaller subproblems first."
+              "Because Fibonacci numbers overflow",
+              "Wrong: overflow is an implementation detail, not the complexity argument."
             ]
           ],
           "a": 1,
-          "src": "Exam · Final 2021 Q38 & Final Summer Q17"
+          "src": "Lecture 14 · Slides 14.3–14.4"
+        },
+        {
+          "q": "Give the recurrence for the coin-row problem.",
+          "o": [
+            [
+              "F(n) = cₙ + F(n − 1)",
+              "Wrong: that always takes the last coin and ignores the no-two-adjacent rule."
+            ],
+            [
+              "F(n) = max{cₙ + F(n − 2), F(n − 1)}, with F(0) = 0 and F(1) = c₁",
+              "Right: the split is \"last coin excluded\" → F(n − 1), \"last coin included\" → cₙ + F(n − 2) (Slide 14.8)."
+            ],
+            [
+              "F(n) = max{cₙ + F(n − 1), cₙ₋₁ + F(n − 2)}",
+              "Wrong: mixing the two coins in one option breaks the adjacency rule on both sides."
+            ],
+            [
+              "F(n) = min{cₙ + F(n − 2), F(n − 1)}",
+              "Wrong: the problem maximises the money, so the two candidates are compared with max, not min."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 14 · Slide 14.8"
+        },
+        {
+          "q": "For the row 5, 1, 2, 10, 6, 2, what is the maximum amount and which coins give it?",
+          "o": [
+            [
+              "17, with coins 5, 10, 2",
+              "Right: F = 0, 5, 5, 7, 15, 15, 17 and the backtrace gives 5 + 10 + 2 (Slide 14.9)."
+            ],
+            [
+              "17, with coins 5, 10, 6",
+              "Wrong: 6 is adjacent to 10 in the row, so 10 and 6 cannot both be taken."
+            ],
+            [
+              "18, with coins 5, 2, 10, 1",
+              "Wrong: 2 is adjacent to both 1 and 10, and the total exceeds what the table allows."
+            ],
+            [
+              "21, with coins 5, 10, 6",
+              "Wrong: an illegal selection, and 21 is not in the F table at all."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 14 · Slide 14.9"
+        },
+        {
+          "q": "What is the time and space efficiency of the coin-row DP?",
+          "o": [
+            [
+              "Θ(n) time, Θ(n) space for the table",
+              "Right: one pass over the coins, one entry per prefix (Slide 14.9)."
+            ],
+            [
+              "Θ(n²) time, Θ(n) space",
+              "Wrong: each entry is computed from two earlier entries, so the fill is linear."
+            ],
+            [
+              "Θ(2ⁿ) time, Θ(n) space",
+              "Wrong: that is the naive recursion over all selections; DP removes the exponential factor."
+            ],
+            [
+              "Θ(n log n) time, Θ(1) space",
+              "Wrong: no sorting is involved, and the table needs one entry per prefix."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 14 · Slide 14.9"
+        },
+        {
+          "q": "Which recurrence computes the binomial coefficient C(n, k)?",
+          "o": [
+            [
+              "C(n, k) = C(n − 1, k) + C(n − 1, k − 1)",
+              "Right: split the k-subsets into those excluding and those including the last element; base cases C(n, 0) = C(n, n) = 1 (Slide 14.12)."
+            ],
+            [
+              "C(n, k) = C(n, k − 1) + C(n − 1, k)",
+              "Wrong: this mixes different n and k in a way that does not correspond to any split of the subsets."
+            ],
+            [
+              "C(n, k) = n · C(n − 1, k) / k",
+              "Wrong: the division formula is a different identity; the DP recurrence is a sum."
+            ],
+            [
+              "C(n, k) = C(n − 1, k) · C(n − 1, k − 1)",
+              "Wrong: the two groups of subsets are added, not multiplied."
+            ]
+          ],
+          "a": 0,
+          "src": "Lecture 14 · Slide 14.12"
+        },
+        {
+          "q": "Filling Pascal's triangle by DP, what is C(6, 3)?",
+          "o": [
+            [
+              "15",
+              "Wrong: 15 sits at k = 2 and k = 4 on row 6."
+            ],
+            [
+              "20",
+              "Right: row 6 is 1, 6, 15, 20, 15, 6, 1, so C(6, 3) = 20."
+            ],
+            [
+              "18",
+              "Wrong: 18 is not on row 6 at all."
+            ],
+            [
+              "120",
+              "Wrong: that is 6! / 6, i.e. a permutation count, not the combination C(6, 3)."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 14 · Slides 14.13–14.14"
+        },
+        {
+          "q": "In the robot coin-collection problem, why is F(i, j) = max{F(i − 1, j), F(i, j − 1)} + c(i, j)?",
+          "o": [
+            [
+              "Because the robot may move right, down or diagonally",
+              "Wrong: only right and down are allowed, and that is exactly why there are two predecessors."
+            ],
+            [
+              "Because every path to (i, j) arrives either from above or from the left, and the cell's coin is collected on arrival",
+              "Right: the two moves into a cell give the two candidates, and the coin in the cell is added unconditionally (Slide 14.16)."
+            ],
+            [
+              "Because the robot must maximise the number of cells visited",
+              "Wrong: the objective is the money collected, not the number of steps."
+            ],
+            [
+              "Because the board is filled column by column",
+              "Wrong: fill order is a detail of implementation; the recurrence comes from the allowed moves."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 14 · Slides 14.16–14.18"
+        },
+        {
+          "q": "What does len(i, j) mean in the LCS recurrence?",
+          "o": [
+            [
+              "The number of letters that differ between the first i and first j letters",
+              "Wrong: the recurrence counts the common subsequence, not the differences."
+            ],
+            [
+              "The length of a longest common subsequence of the first i letters of A and the first j letters of B",
+              "Right: that is the state definition, with len(0, ·) = len(·, 0) = 0 (Slide 14.23)."
+            ],
+            [
+              "The length of the longest common <i>substring</i> (consecutive letters)",
+              "Wrong: a subsequence need not be consecutive — \"priden\" from \"president\"/\"providence\" is the counterexample."
+            ],
+            [
+              "The position of the first mismatch",
+              "Wrong: no mismatch position is stored; the table stores lengths."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 14 · Slide 14.23"
+        },
+        {
+          "q": "If aᵢ ≠ bⱼ, which recurrence does the LCS table use?",
+          "o": [
+            [
+              "len(i, j) = len(i − 1, j − 1)",
+              "Wrong: the diagonal is used on a match, not on a mismatch."
+            ],
+            [
+              "len(i, j) = max{len(i − 1, j), len(i, j − 1)}",
+              "Right: at least one of the two letters is unused, so take the better of dropping one from either side (Slide 14.23)."
+            ],
+            [
+              "len(i, j) = min{len(i − 1, j), len(i, j − 1)}",
+              "Wrong: taking the minimum would discard the better option and understate the length."
+            ],
+            [
+              "len(i, j) = len(i − 1, j) + len(i, j − 1)",
+              "Wrong: the two alternatives are exclusive choices, so they are compared, not added."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 14 · Slide 14.23"
+        },
+        {
+          "q": "For W = 5 and items (2,$12), (1,$10), (3,$20), (2,$15), what is V(4, 5)?",
+          "o": [
+            [
+              "32",
+              "Wrong: 32 is V(3, 5) — taking item 3 with the earlier items — and it ignores item 4."
+            ],
+            [
+              "37",
+              "Right: the last row of the slide table ends at 37, achieved by items 4, 2 and 1 (weights 2 + 1 + 2 = 5)."
+            ],
+            [
+              "30",
+              "Wrong: 30 is V(3, 3) and V(4, 4), not the full capacity of the last row."
+            ],
+            [
+              "45",
+              "Wrong: that would need all four items, whose total weight 8 exceeds the capacity 5."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 14 · Slides 14.29–14.30"
+        },
+        {
+          "q": "What is the running time of the 0/1 knapsack DP, and why is it called pseudo-polynomial?",
+          "o": [
+            [
+              "O(n log n), because the items are sorted by value",
+              "Wrong: no sorting happens in the DP; the two nested loops dominate."
+            ],
+            [
+              "O(nW), because the table has n rows and W columns — the cost depends on the numeric value of W, not only on the number of items",
+              "Right: that is what pseudo-polynomial means (Slide 14.31)."
+            ],
+            [
+              "O(2ⁿ), because each item is either taken or not",
+              "Wrong: that is the brute-force enumeration the DP replaces."
+            ],
+            [
+              "O(n + W), because each cell is visited once along a path",
+              "Wrong: every one of the n · W cells is computed, so the cost is the size of the table."
+            ]
+          ],
+          "a": 1,
+          "src": "Lecture 14 · Slide 14.31"
         }
       ],
       "extra": [
         {
           "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 14?",
-          "o": [
-            [
-              "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-              "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-            ],
-            [
-              "The algorithm requires O(2ⁿ) exponential space in the best case",
-              "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-            ],
-            [
-              "The algorithm only works when n ≤ 10",
-              "False — Asymptotic analysis applies as n → ∞."
-            ],
-            [
-              "Correctness does not depend on loop invariants or optimal substructure",
-              "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-            ]
-          ],
-          "a": 0
-        }
-      ]
-    },
-    {
-      "n": 15,
-      "code": "Lec 15",
-      "title": "Lecture 15: Greedy Algorithms Overview — Coin Changing, Multiprocessor Scheduling, Huffman, MST & Counterexamples",
-      "videos": [
-        {
-          "id": "ARvQcqJ_-NY",
-          "title": "3. Greedy Method — Introduction, Locally Optimal Choices & Counterexamples",
-          "channel": "Abdul Bari",
-          "duration": "12:02",
-          "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "How Greedy Algorithms make locally optimal choices hoping for a global optimum"
-            }
-          ]
-        }
-      ],
-      "notes": [
-        {
-          "h": "Greedy Strategy, Coin Changing & The Krons Counterexample (Slides 15.1–15.8)",
-          "pts": [
-            "<b>Greedy Algorithms Principle (Slides 15.3 & Final 2021 Q36)</b>: A greedy algorithm works in phases, making the <b>locally optimal choice</b> at each step without regard for future consequences, hoping it leads to a <b>globally optimal solution</b>.",
-            "<b>When Greedy Succeeds vs. Fails in Coin Changing (Slides 15.4–15.5 & Final 2 Q57–Q59)</b>:<ul><li><b>US Coins (`25¢, 10¢, 5¢, 1¢`)</b>: Greedy always produces the minimum number of coins (e.g., `$6.39 = $5 + $1 + 25¢ + 10¢ + 4×1¢`).</li><li><b>Slide 15.5 ”Krons” Counterexample (`1, 7, 10` krons for sum `15`)</b>: Greedy picks `10 + 1 + 1 + 1 + 1 + 1` (<b>6 coins</b>), whereas the optimal solution is `7 + 7 + 1` (<b>3 coins</b>)!</li><li><b>Final Exam Counterexample (`1, 3, 4` coins for sum `6`, Final 2 Q58)</b>: Greedy picks `4 + 1 + 1` (<b>3 coins</b>), whereas optimal is `3 + 3` (<b>2 coins</b>)! General Coin Change requires Dynamic Programming in $O(S \\cdot N)$ time (Final 2 Q59).</li></ul>",
-            "<b>Multiprocessor Job Scheduling Counterexample (Slides 15.6–15.8)</b>: Given 9 jobs `[3, 5, 6, 10, 11, 14, 15, 18, 20]` on 3 processors:<ul><li><b>Longest-Job-First (LPT) Greedy</b>: Completion time = $18 + 11 + 6 = \\mathbf{35}$ min.</li><li><b>Shortest-Job-First (SPT) Greedy</b>: Completion time = $6 + 14 + 20 = \\mathbf{40}$ min.</li><li><b>Global Optimum</b> (`P1: 20+14=34`, `P2: 18+11+5=34`, `P3: 15+10+6+3=34`): Completion time = $\\mathbf{34}$ min (finding the exact optimum is NP-complete!).</li></ul>"
-          ],
-          "fig": [
-            "ag-15-money",
-            "ag-15-sched"
-          ],
-          "figAt": {
-            "ag-15-money": 1,
-            "ag-15-sched": 2
-          },
-          "figH": {
-            "ag-15-money": "Counting money greedily: $6.39 in US money (optimal) and 15 krons with 1, 7, 10 coins (not optimal)",
-            "ag-15-sched": "Nine jobs on three processors: longest-first (35), shortest-first (40) and the optimum (34)"
-          }
-        },
-        {
-          "h": "Where Greedy is Provably Optimal vs. Suboptimal (Slides 15.9–15.18)",
-          "pts": [
-            "<b>Where Greedy Succeeds (Optimal)</b>:<ul><li><b>1. Huffman Encoding (Slide 15.9)</b>: Repeatedly merge the two lowest-frequency symbols (`A:22, B:12, C:24, D:6, E:27, F:9` $\\to$ merges `D(6)+F(9)=15`, `B(12)+15=27`, `A(22)+C(24)=46`, `E(27)+27=54`, `46+54=100`, giving average length $2.42$ bits/char).</li><li><b>2. Minimum Spanning Tree (Prim's & Kruskal's, Slide 15.10)</b>: Always yields a minimum-weight spanning tree.</li><li><b>3. Dijkstra's Shortest Path on Non-Negative Weights (Slides 15.13–15.16)</b>: Always yields exact shortest paths from source $s$.</li><li><b>4. Connecting $n$ White and $n$ Black Collinear Dots (Slide 15.17)</b>: Pairing the leftmost unmatched white dot with the leftmost unmatched black dot is provably optimal.</li></ul>",
-            "<b>Where Greedy Fails (Suboptimal)</b>:<ul><li><b>1. Traveling Salesman Problem (TSP, Slide 15.11)</b>: Nearest-neighbor greedy gets trapped into taking expensive return edges.</li><li><b>2. Robot Coin Collection on a Checkerboard (Slide 15.18)</b>: Looking only 1 step ahead misses richer paths further down/right (requires DP!).</li></ul>"
-          ],
-          "fig": [
-            "ag-15-huffman",
-            "ag-15-mst",
-            "ag-15-wires",
-            "ag-15-tsp",
-            "ag-15-robots"
-          ],
-          "figAt": {
-            "ag-15-huffman": 0,
-            "ag-15-mst": 0,
-            "ag-15-wires": 0,
-            "ag-15-tsp": 1,
-            "ag-15-robots": 1
-          },
-          "figH": {
-            "ag-15-huffman": "Huffman encoding: combine the two smallest numbers until one tree is left, average 2.42 bits/char",
-            "ag-15-mst": "Minimum spanning tree: grow the tree by the cheapest edge to a new node, total 3+3+2+2+2 = 12",
-            "ag-15-wires": "Connecting white and black dots with the least wire",
-            "ag-15-tsp": "Greedy traveling salesman: nearest city first gives ABDBCE (16), the best route is ADBCE (14)",
-            "ag-15-robots": "Collecting all the coins on the checkerboard with the fewest right/down robots"
-          }
-        }
-      ],
-      "cards": [
-        [
-          "Greedy Core Principle (Final Q36)",
-          "Greedy algorithms make LOCALLY optimal choices at each step leading (when the greedy-choice property holds) to GLOBALLY optimal solutions."
-        ],
-        [
-          "Krons Coin Counterexample (Slide 15.5)",
-          "Denominations {1, 7, 10} for target 15: Greedy picks 10+1+1+1+1+1 (6 coins), while optimal is 7+7+1 (3 coins)."
-        ],
-        [
-          "Exam Coin Change Counterexample (Final 2 Q58)",
-          "Denominations {1, 3, 4} for target S = 6: Greedy picks 4+1+1 (3 coins), while optimal is 3+3 (2 coins)."
-        ],
-        [
-          "Greedy Strategy, Coin Changing & The Krons Counterexample (Slides 15.1–15.8) — Core Principle & Complexity",
-          "<b>Greedy Algorithms Principle (Slides 15.3 & Final 2021 Q36)</b>: A greedy algorithm works in phases, making the <b>locally optimal choice</b> at each step without regard for future consequences, hoping it leads to a <b>globally optimal solution</b>. <b>When Greedy Succeeds vs. Fails in Coin Changing (Slides 15.4–15.5 & Final 2 Q57–Q59)</b>:<ul><li><b>US Coins (`25¢, 10¢, 5¢, 1¢`)</b>: Greedy always produces the minimum number of coins (e.g., `$6.39 = $5 + $1 + 25¢ + 10¢ + 4×1¢`).</li><li><b>Slide 15.5 ”Krons” Counterexample (`1, 7, 10` krons for sum `15`)</b>: Greedy picks `10 + 1 + 1 + 1 + 1 + 1` (<b>6 coins</b>), whereas the optimal solution is `7 + 7 + 1` (<b>3 coins</b>)!</li><li><b>Final Exam Counterexample (`1, 3, 4` coins for sum `6`, Final 2 Q58)</b>: Greedy picks `4 + 1 + 1` (<b>3 coins</b>), whereas optimal is `3 + 3` (<b>2 coins</b>)! General Coin Change requires Dynamic Programming in $O(S \\cdot N)$ time (Final 2 Q59).</li></ul>"
-        ],
-        [
-          "Where Greedy is Provably Optimal vs. Suboptimal (Slides 15.9–15.18) — Core Principle & Complexity",
-          "<b>Where Greedy Succeeds (Optimal)</b>:<ul><li><b>1. Huffman Encoding (Slide 15.9)</b>: Repeatedly merge the two lowest-frequency symbols (`A:22, B:12, C:24, D:6, E:27, F:9` $\\to$ merges `D(6)+F(9)=15`, `B(12)+15=27`, `A(22)+C(24)=46`, `E(27)+27=54`, `46+54=100`, giving average length $2.42$ bits/char).</li><li><b>2. Minimum Spanning Tree (Prim's & Kruskal's, Slide 15.10)</b>: Always yields a minimum-weight spanning tree.</li><li><b>3. Dijkstra's Shortest Path on Non-Negative Weights (Slides 15.13–15.16)</b>: Always yields exact shortest paths from source $s$.</li><li><b>4. Connecting $n$ White and $n$ Black Collinear Dots (Slide 15.17)</b>: Pairing the leftmost unmatched white dot with the leftmost unmatched black dot is provably optimal.</li></ul> <b>Where Greedy Fails (Suboptimal)</b>:<ul><li><b>1. Traveling Salesman Problem (TSP, Slide 15.11)</b>: Nearest-neighbor greedy gets trapped into taking expensive return edges.</li><li><b>2. Robot Coin Collection on a Checkerboard (Slide 15.18)</b>: Looking only 1 step ahead misses richer paths further down/right (requires DP!).</li></ul>"
-        ]
-      ],
-      "qa": [
-        [
-          "Give a counterexample showing that the greedy coin-changing algorithm does not always yield the minimum number of coins.",
-          "• <b>Slide 15.5 Counterexample</b>: With coin denominations $\\{1, 7, 10\\}$ and target sum $15$, greedy chooses one $10$ and five $1$s ($6$ coins), whereas two $7$s and one $1$ uses only $3$ coins.<br>• <b>Final Exam Counterexample</b>: With denominations $\\{1, 3, 4\\}$ and target sum $6$, greedy chooses $4 + 1 + 1$ ($3$ coins), whereas $3 + 3$ uses only $2$ coins.",
-          "Lecture 15 · Slide 15.5 & Final 2 Q58"
-        ]
-      ],
-      "quiz": [
-        {
-          "q": "Greedy algorithms make _______________ optimal choices in the hope of leading to _______________ optimal solutions.",
-          "o": [
-            [
-              "Globally, locally",
-              "Reversed."
-            ],
-            [
-              "Top-down, bottom-up",
-              "These describe traversal directions, not optimality scopes."
-            ],
-            [
-              "Locally, globally",
-              "Correct! Final 2021 Q36 & Final Summer Q15: Greedy algorithms make locally optimal choices leading to globally optimal solutions."
-            ],
-            [
-              "Bottom-up, top-down",
-              "Incorrect."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final 2021 Q36 & Final Summer Q15"
-        },
-        {
-          "q": "Suppose you have coins of denominations 1, 3, and 4, and you use a greedy algorithm that always picks the largest coin ≤ remaining sum. For which of the following sums will the greedy algorithm NOT produce an optimal answer?",
-          "o": [
-            [
-              "20",
-              "20 = 4×5 (5 coins, optimal)."
-            ],
-            [
-              "12",
-              "12 = 4×3 (3 coins, optimal)."
-            ],
-            [
-              "6",
-              "Correct! Final 2 Q58: For sum 6, greedy picks 4 + 1 + 1 (3 coins), whereas 3 + 3 uses only 2 coins!"
-            ],
-            [
-              "5",
-              "5 = 4 + 1 (2 coins, optimal)."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final 2 Q58"
-        }
-      ],
-      "extra": [
-        {
-          "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 15?",
-          "o": [
-            [
-              "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-              "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-            ],
-            [
-              "The algorithm requires O(2ⁿ) exponential space in the best case",
-              "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-            ],
-            [
-              "The algorithm only works when n ≤ 10",
-              "False — Asymptotic analysis applies as n → ∞."
-            ],
-            [
-              "Correctness does not depend on loop invariants or optimal substructure",
-              "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-            ]
-          ],
-          "a": 0
-        }
-      ]
-    },
-    {
-      "n": 16,
-      "code": "Lec 16",
-      "title": "Lecture 16: Greedy Algorithms & Graphs — Representations, Handshaking Lemma, MST Proofs & Prim's Algorithm",
-      "videos": [
-        {
-          "id": "FPEMBWg_WlY",
-          "title": "MIT 6.046J Lec 16: Greedy Algorithms, Minimum Spanning Trees & Prim's Algorithm (Prof. Charles Leiserson)",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:24:07",
-          "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Graph representations: Adjacency Matrix Θ(V²) vs. Adjacency List Θ(V + E)"
-            },
-            {
-              "t": 660,
-              "time": "11:00",
-              "label": "Minimum Spanning Tree definition and Optimal Substructure cut-and-paste proof"
-            },
-            {
-              "t": 1500,
-              "time": "25:00",
-              "label": "Greedy-Choice Cut Property theorem and proof"
-            },
-            {
-              "t": 2160,
-              "time": "36:00",
-              "label": "Prim's Algorithm trace and complexity: Array O(V²), Binary Heap O(E lg V), Fibonacci Heap O(E + V lg V)"
-            }
-          ]
-        }
-      ],
-      "notes": [
-        {
-          "h": "Graph Representations & The Handshaking Lemma (Slides 16.1–16.7)",
-          "pts": [
-            "<b>Graph Edge Bounds (Slide 16.2)</b>: In a directed or undirected graph $G = (V, E)$, $|E| = O(V^2)$. If $G$ is connected, $|E| \\ge |V| - 1$, which implies $\\lg |E| = \\Theta(\\lg V)$.",
-            "<b>Adjacency Matrix vs. Adjacency List (Slides 16.3–16.7, Final 2021 Q19 & Final Summer Q11–Q12)</b>:<ul><li><b>Adjacency Matrix $A[1..n, 1..n]$</b>: Requires $\\mathbf{\\Theta(V^2)}$ storage ($n^2$ boolean/weight entries, e.g., $20^2 = 400$ entries for $|V|=20$, Final 2021 Q19). Ideal for <b>dense graphs</b>.</li><li><b>Adjacency List `Adj[v]`</b>: By the <b>Handshaking Lemma</b> ($\\sum_{v \\in V} \\deg(v) = 2|E|$ for undirected graphs; $\\sum_{v \\in V} \\text{out-deg}(v) = |E|$ for digraphs), adjacency lists use $\\mathbf{\\Theta(V + E)}$ storage. Ideal for <b>sparse graphs</b>.</li></ul>"
-          ],
-          "fig": [
-            "ag-16-adj"
-          ],
-          "figAt": {
-            "ag-16-adj": 1
-          },
-          "figH": {
-            "ag-16-adj": "Adjacency matrix vs. adjacency lists for the slide's digraph, and the Handshaking Lemma"
-          }
-        },
-        {
-          "h": "Minimum Spanning Trees: Optimal Substructure & Greedy-Choice Cut Property (Slides 16.8–16.25)",
-          "pts": [
-            "<b>Minimum Spanning Tree (MST) Properties (Slides 16.8–16.9 & Final 2021 Q40)</b>: Given a connected undirected weighted graph $G = (V, E, w)$, an MST $T \\subseteq E$ is an <b>acyclic</b> subset connecting all $|V|$ vertices with minimum total weight $w(T) = \\sum_{(u,v) \\in T} w(u, v)$.<ul><li>Has <b>no cycles</b>.</li><li>Has <b>exactly $|V| - 1$ edges</b> (whereas creating a cyclic graph on $n$ vertices requires at least $n$ edges, Final 2021 Q3).</li><li>May <b>not be unique</b> if edge weights are not all distinct.</li></ul>",
-            "<b>Optimal Substructure Proof (Cut-and-Paste, Slides 16.12–16.18)</b>: Removing any edge $(u, v) \\in T$ partitions $T$ into two subtrees $T_1, T_2$ over induced subgraphs $G_1, G_2$. Then $T_1$ must be an MST of $G_1$ (and $T_2$ of $G_2$), because if a lighter spanning tree $T'_1$ existed for $G_1$, then $T' = \\{(u, v)\\} \\cup T'_1 \\cup T_2$ would be a lighter spanning tree of $G$ than $T$—contradiction!",
-            "<b>Greedy-Choice Property (Cut Theorem, Slides 16.20–16.25)</b>: Let $A \\subseteq V$ be any subset of vertices ($\\emptyset \\ne A \\ne V$), and let $(u, v)$ be a <b>minimum-weight (light) edge crossing the cut $(A, V - A)$</b>. Then $(u, v)$ belongs to some MST of $G$!<ul><li><b>Cut-and-Paste Proof</b>: Suppose MST $T$ does not contain $(u, v)$. Adding $(u, v)$ to $T$ creates a unique cycle that must cross the cut $(A, V - A)$ via at least one other edge $(x, y) \\in T$ with $w(u, v) \\le w(x, y)$. Removing $(x, y)$ yields a spanning tree $T' = T - \\{(x, y)\\} \\cup \\{(u, v)\\}$ with $w(T') = w(T) - w(x, y) + w(u, v) \\le w(T)$, so $T'$ is also an MST containing $(u, v)$!</li></ul>"
-          ],
-          "fig": [
-            "ag-16-mst-example",
-            "ag-16-opt-sub",
-            "ag-16-cut-proof"
-          ],
-          "figAt": {
-            "ag-16-mst-example": 0,
-            "ag-16-opt-sub": 1,
-            "ag-16-cut-proof": 2
-          },
-          "figH": {
-            "ag-16-mst-example": "Example of an MST: the slide's graph and its minimum spanning tree, w(T) = 53",
-            "ag-16-opt-sub": "Optimal substructure: remove (u, v) from T, and each subtree must be an MST of its part (cut and paste)",
-            "ag-16-cut-proof": "Proof of the cut theorem: swap the light edge (u, v) into T along the u-to-v path"
-          }
-        },
-        {
-          "h": "Prim's MST Algorithm & Priority Queue Complexity Analysis (Slides 16.26–16.52)",
-          "pts": [
-            "<b>Prim's Algorithm Mechanics (Slides 16.26–16.39)</b>: Grows a <b>single tree $A$</b> starting from an arbitrary root vertex $r$. Maintains remaining vertices $Q = V - A$ in a Min-Priority Queue keyed on `key[v]` = minimum weight of any edge connecting $v$ to a vertex already in $A$ (with parent pointer $\\pi[v]$).",
-            "<b>Exact Complexity Breakdown (Slides 16.40–16.50)</b>:<ul><li>`EXTRACT-MIN(Q)` is called <b>once per vertex</b> = $\\Theta(V)$ times.</li><li>By the Handshaking Lemma, the adjacency list loop inspects $2|E|$ edge endpoints, performing at most $\\Theta(E)$ implicit `DECREASE-KEY` operations.</li><li><b>Total Running Time $T = \\Theta(V) \\cdot T_{\\text{EXTRACT-MIN}} + \\Theta(E) \\cdot T_{\\text{DECREASE-KEY}}$</b>:<ul><li><b>1. Simple Array</b>: $T_{\\text{EXTRACT-MIN}} = O(V)$, $T_{\\text{DECREASE-KEY}} = O(1) \\implies \\mathbf{O(V^2)}$.</li><li><b>2. Binary Min-Heap</b>: $T_{\\text{EXTRACT-MIN}} = O(\\lg V)$, $T_{\\text{DECREASE-KEY}} = O(\\lg V) \\implies \\mathbf{O(E \\lg V)}$.</li><li><b>3. Fibonacci Heap</b>: $T_{\\text{EXTRACT-MIN}} = O(\\lg V)$ amortized, $T_{\\text{DECREASE-KEY}} = O(1)$ amortized $\\implies \\mathbf{O(E + V \\lg V)}$.</li></ul></li></ul>"
-          ],
-          "table": [
-            [
-              "Priority Queue Implementation",
-              "T_EXTRACT-MIN (× V)",
-              "T_DECREASE-KEY (× E)",
-              "Total Time (Prim / Dijkstra)"
-            ],
-            [
-              "1. Unsorted Array",
-              "O(V)",
-              "O(1)",
-              "O(V²) — best for dense graphs E = Θ(V²)"
-            ],
-            [
-              "2. Binary Min-Heap",
-              "O(lg V)",
-              "O(lg V)",
-              "O(E lg V) — standard for sparse graphs"
-            ],
-            [
-              "3. Fibonacci Heap",
-              "O(lg V) (amortized)",
-              "O(1) (amortized)",
-              "O(E + V lg V) — fastest asymptotically"
-            ]
-          ],
-          "code": "MST-PRIM(G, w, r)\n1  Q ← V[G]\n2  for each u ∈ Q\n3      do key[u] ← ∞\n4         π[u] ← NIL\n5  key[r] ← 0\n6  while Q ≠ ∅\n7      do u ← EXTRACT-MIN(Q)\n8         for each v ∈ Adj[u]\n9             do if v ∈ Q and w(u, v) < key[v]\n10                  then π[v] ← u\n11                       key[v] ← w(u, v)   // Implicit DECREASE-KEY",
-          "fig": [
-            "algo-graph-sim",
-            "ag-16-prim",
-            "ag-16-prim-cost"
-          ],
-          "figAt": {
-            "ag-16-prim": 0,
-            "ag-16-prim-cost": 1
-          },
-          "figH": {
-            "ag-16-prim": "Prim's algorithm on the slide's graph: EXTRACT-MIN and key updates step by step (or your own weights and root)",
-            "ag-16-prim-cost": "Analysis of Prim: counting each line, then the cost with an array, a binary heap and a Fibonacci heap"
-          }
-        }
-      ],
-      "cards": [
-        [
-          "Handshaking Lemma",
-          "In any undirected graph, Σ_{v∈V} degree(v) = 2|E|, which is why Adjacency Lists use Θ(V + E) space and Prim/Dijkstra relaxations run Θ(E) times."
-        ],
-        [
-          "Minimum Spanning Tree (MST) Properties",
-          "Connects all |V| vertices, has NO cycles, has exactly |V| − 1 edges, has minimal total edge weight, and is NOT necessarily unique."
-        ],
-        [
-          "Prim's Algorithm Complexity (3 PQ Types)",
-          "Array: O(V²); Binary Min-Heap: O(E lg V); Fibonacci Heap: O(E + V lg V)."
-        ],
-        [
-          "Graph Representations & The Handshaking Lemma (Slides 16.1–16.7) — Core Principle & Complexity",
-          "<b>Graph Edge Bounds (Slide 16.2)</b>: In a directed or undirected graph $G = (V, E)$, $|E| = O(V^2)$. If $G$ is connected, $|E| \\ge |V| - 1$, which implies $\\lg |E| = \\Theta(\\lg V)$. <b>Adjacency Matrix vs. Adjacency List (Slides 16.3–16.7, Final 2021 Q19 & Final Summer Q11–Q12)</b>:<ul><li><b>Adjacency Matrix $A[1..n, 1..n]$</b>: Requires $\\mathbf{\\Theta(V^2)}$ storage ($n^2$ boolean/weight entries, e.g., $20^2 = 400$ entries for $|V|=20$, Final 2021 Q19). Ideal for <b>dense graphs</b>.</li><li><b>Adjacency List `Adj[v]`</b>: By the <b>Handshaking Lemma</b> ($\\sum_{v \\in V} \\deg(v) = 2|E|$ for undirected graphs; $\\sum_{v \\in V} \\text{out-deg}(v) = |E|$ for digraphs), adjacency lists use $\\mathbf{\\Theta(V + E)}$ storage. Ideal for <b>sparse graphs</b>.</li></ul>"
-        ],
-        [
-          "Minimum Spanning Trees: Optimal Substructure & Greedy-Choice Cut Property (Slides 16.8–16.25) — Core Principle & Complexity",
-          "<b>Minimum Spanning Tree (MST) Properties (Slides 16.8–16.9 & Final 2021 Q40)</b>: Given a connected undirected weighted graph $G = (V, E, w)$, an MST $T \\subseteq E$ is an <b>acyclic</b> subset connecting all $|V|$ vertices with minimum total weight $w(T) = \\sum_{(u,v) \\in T} w(u, v)$.<ul><li>Has <b>no cycles</b>.</li><li>Has <b>exactly $|V| - 1$ edges</b> (whereas creating a cyclic graph on $n$ vertices requires at least $n$ edges, Final 2021 Q3).</li><li>May <b>not be unique</b> if edge weights are not all distinct.</li></ul> <b>Optimal Substructure Proof (Cut-and-Paste, Slides 16.12–16.18)</b>: Removing any edge $(u, v) \\in T$ partitions $T$ into two subtrees $T_1, T_2$ over induced subgraphs $G_1, G_2$. Then $T_1$ must be an MST of $G_1$ (and $T_2$ of $G_2$), because if a lighter spanning tree $T'_1$ existed for $G_1$, then $T' = \\{(u, v)\\} \\cup T'_1 \\cup T_2$ would be a lighter spanning tree of $G$ than $T$—contradiction!"
-        ],
-        [
-          "Prim's MST Algorithm & Priority Queue Complexity Analysis (Slides 16.26–16.52) — Core Principle & Complexity",
-          "<b>Prim's Algorithm Mechanics (Slides 16.26–16.39)</b>: Grows a <b>single tree $A$</b> starting from an arbitrary root vertex $r$. Maintains remaining vertices $Q = V - A$ in a Min-Priority Queue keyed on `key[v]` = minimum weight of any edge connecting $v$ to a vertex already in $A$ (with parent pointer $\\pi[v]$). <b>Exact Complexity Breakdown (Slides 16.40–16.50)</b>:<ul><li>`EXTRACT-MIN(Q)` is called <b>once per vertex</b> = $\\Theta(V)$ times.</li><li>By the Handshaking Lemma, the adjacency list loop inspects $2|E|$ edge endpoints, performing at most $\\Theta(E)$ implicit `DECREASE-KEY` operations.</li><li><b>Total Running Time $T = \\Theta(V) \\cdot T_{\\text{EXTRACT-MIN}} + \\Theta(E) \\cdot T_{\\text{DECREASE-KEY}}$</b>:<ul><li><b>1. Simple Array</b>: $T_{\\text{EXTRACT-MIN}} = O(V)$, $T_{\\text{DECREASE-KEY}} = O(1) \\implies \\mathbf{O(V^2)}$.</li><li><b>2. Binary Min-Heap</b>: $T_{\\text{EXTRACT-MIN}} = O(\\lg V)$, $T_{\\text{DECREASE-KEY}} = O(\\lg V) \\implies \\mathbf{O(E \\lg V)}$.</li><li><b>3. Fibonacci Heap</b>: $T_{\\text{EXTRACT-MIN}} = O(\\lg V)$ amortized, $T_{\\text{DECREASE-KEY}} = O(1)$ amortized $\\implies \\mathbf{O(E + V \\lg V)}$.</li></ul></li></ul>"
-        ]
-      ],
-      "qa": [
-        [
-          "Trace Prim's MST algorithm on the Midterm 2023 Q(a) undirected graph starting from node 2 (Step 1: S={2}, d[0]=7, d[1]=8, d[3]=5, d[4]=∞, d[5]=10) and state the sum of d[i] and sum of p[i] for i ∉ S with d[i] ≠ ∞ after steps 2, 3, 4, and 5.",
-          "Edges of the Midterm 2023 Q(a) graph: `(0,1)=3, (0,2)=7, (1,2)=8, (1,3)=2, (1,4)=12, (0,4)=9, (2,3)=5, (2,5)=10, (3,4)=4, (3,5)=1, (4,5)=6`.<br>• <b>Step 1 ($S = \\{2\\}$)</b>: $d[0]=7(p=2),\\; d[1]=8(p=2),\\; d[3]=5(p=2),\\; d[4]=\\infty,\\; d[5]=10(p=2)$.<br>• <b>Step 2 (Pick min $3$, $S = \\{2, 3\\}$)</b>: Update via $3$: $d[1]=\\min(8,2)=2(p=3),\\; d[4]=4(p=3),\\; d[5]=\\min(10,1)=1(p=3),\\; d[0]=7(p=2)$.<br>  $\\sum d[i] = 7 + 2 + 4 + 1 = \\mathbf{14}$ (Choice C); $\\sum p[i] = 2 + 3 + 3 + 3 = \\mathbf{11}$ (Choice D).<br>• <b>Step 3 (Pick min $5$, $S = \\{2, 3, 5\\}$)</b>: Edge $(5,4)=6 > d[4]=4$, so remaining $i \\notin S$: $d[0]=7(p=2),\\; d[1]=2(p=3),\\; d[4]=4(p=3)$.<br>  $\\sum d[i] = 7 + 2 + 4 = \\mathbf{13}$ (Choice B); $\\sum p[i] = 2 + 3 + 3 = \\mathbf{8}$ (Choice B).<br>• <b>Step 4 (Pick min $1$, $S = \\{2, 3, 5, 1\\}$)</b>: Edge $(1,0)=3 < 7 \\implies d[0]=3(p=1)$; $d[4]=4(p=3)$.<br>  $\\sum d[i] = 3 + 4 = \\mathbf{7}$ (Choice A); $\\sum p[i] = 1 + 3 = \\mathbf{4}$ (Choice B).<br>• <b>Step 5 (Pick min $0$, $S = \\{2, 3, 5, 1, 0\\}$)</b>: Remaining node $4$ has $d[4]=4(p=3)$.<br>  $\\sum d[i] = \\mathbf{4}$ (Choice B); $\\sum p[i] = \\mathbf{3}$ (Choice C).",
-          "Midterm 2023 Q(a) (Q1–Q8)"
-        ]
-      ],
-      "quiz": [
-        {
-          "q": "Which of the following is NOT a property of a Minimum Spanning Tree (MST) of a connected graph G = (V, E)?",
-          "o": [
-            [
-              "It may have one or more cycles",
-              "Correct! Final 2021 Q40 & Final Summer Q19: A spanning tree is acyclic by definition; it can NEVER contain a cycle."
-            ],
-            [
-              "It has |V| − 1 edges",
-              "True property of every spanning tree."
-            ],
-            [
-              "It is not necessarily unique",
-              "True when multiple edges share the same weight."
-            ],
-            [
-              "The sum of weights of the edges is minimal",
-              "True by definition of an MST."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final 2021 Q40 & Final Summer Q19"
-        },
-        {
-          "q": "If G is a directed graph with 20 vertices, how many boolean values are needed to represent G using an Adjacency Matrix?",
-          "o": [
-            [
-              "20",
-              "That is |V|, not |V|²."
-            ],
-            [
-              "40",
-              "That is 2|V|."
-            ],
-            [
-              "200",
-              "Incorrect."
-            ],
-            [
-              "400",
-              "Correct! Final 2021 Q19 & Final 2022 Q33: An adjacency matrix for |V| = 20 vertices is a 20 × 20 matrix containing 20² = 400 boolean values."
-            ]
-          ],
-          "a": 3,
-          "src": "Exam · Final 2021 Q19 & Final 2022 Q33"
-        },
-        {
-          "q": "Which of the following is true regarding Prim's algorithm for finding a Minimum Spanning Tree?",
-          "o": [
-            [
-              "The starting node must be connected to the global minimum-weight edge",
-              "Prim's algorithm works correctly starting from ANY arbitrary vertex r ∈ V."
-            ],
-            [
-              "The algorithm grows only a single connected tree from start to finish",
-              "Correct! Final Summer Q20 & Slide 17.22: Prim's algorithm always maintains a single tree A that grows vertex-by-vertex, whereas Kruskal's maintains a forest of trees."
-            ],
-            [
-              "Marked nodes indicate nodes that will not be in the final tree",
-              "Every vertex is included in the final spanning tree."
-            ],
-            [
-              "When selecting the next edge, we consider only edges connecting two unmarked nodes",
-              "Prim's selects the lightest edge crossing the cut between marked (tree) and unmarked (non-tree) nodes."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final Summer Q20 & Exam Examples Q20"
-        }
-      ],
-      "extra": [
-        {
-          "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 16?",
-          "o": [
-            [
-              "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-              "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-            ],
-            [
-              "The algorithm requires O(2ⁿ) exponential space in the best case",
-              "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-            ],
-            [
-              "The algorithm only works when n ≤ 10",
-              "False — Asymptotic analysis applies as n → ∞."
-            ],
-            [
-              "Correctness does not depend on loop invariants or optimal substructure",
-              "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-            ]
-          ],
-          "a": 0
-        }
-      ]
-    },
-    {
-      "n": 17,
-      "code": "Lec 17",
-      "title": "Lecture 17: Greedy Design Theory — Kruskal's MST, Huffman Prefix Codes (Optimality Proofs) & Activity Selection",
-      "videos": [
-        {
-          "id": "4ZlRH0eK-qQ",
-          "title": "3.5 Prim's and Kruskal's Algorithms — Greedy Minimum Spanning Tree",
-          "channel": "Abdul Bari",
-          "duration": "20:12",
-          "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Prim's vs. Kruskal's MST step-by-step trace and cycle detection via Disjoint Sets"
-            }
-          ]
-        },
-        {
-          "id": "co4_ahEDCho",
-          "title": "3.4 Huffman Coding — Optimal Prefix Code Tree Construction",
-          "channel": "Abdul Bari",
-          "duration": "17:33",
-          "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Variable-length prefix codes and greedy Huffman tree construction"
-            }
-          ]
-        }
-      ],
-      "notes": [
-        {
-          "h": "Greedy vs. Dynamic Programming & Kruskal's MST Algorithm (Slides 17.1–17.27)",
-          "pts": [
-            "<b>Greedy vs. Dynamic Programming (Slide 17.7)</b>:<ul><li>In <b>Dynamic Programming</b>, the choice at each step depends on the solutions to smaller subproblems, progressing <b>bottom-up</b>.</li><li>In a <b>Greedy Algorithm</b>, we make the locally best choice <i>first</i> (without solving subproblems first) and then solve the single remaining subproblem, progressing <b>top-down</b>.</li></ul>",
-            "<b>Kruskal's MST Algorithm (Slides 17.18–17.23)</b>:<ul><li><b>Concept</b>: Maintains a <b>forest of trees</b> (initially each vertex is its own tree via `MAKE-SET(v)`). Sorts all edges in non-decreasing order of weight, and adds edge $(u, v)$ to $A$ iff `FIND-SET(u) ≠ FIND-SET(v)` (i.e., it does not form a cycle), then merges their trees via `UNION(u, v)`.</li><li><b>Complexity Breakdown (Slide 17.21)</b>: Initializing sets takes $O(V)$, sorting edges takes $O(E \\log E)$, and $O(E)$ Disjoint-Set operations take $O(E \\log V)$ (or $O(E \\alpha(V))$). Since $|E| \\le |V|^2 \\implies \\log E \\le 2 \\log V$, total running time is $\\mathbf{O(E \\log E) = O(E \\log V)}$.</li></ul>",
-            "<b>Final 2021 Q17–Q18 & Final 2 Q33–Q34 Graph Trace (`A, B, C, D, E, F, G`)</b>:<ul><li>Edges: `(A,G)=1, (B,C)=1, (F,E)=1, (A,B)=2, (C,G)=4, (B,G)=3, (A,D)=3, (C,F)=3, (D,E)=5, (D,G)=5, (G,F)=6, (D,F)=4`.</li><li><b>Prim's Order starting at `A` (Q17)</b>: `(A,G)=1` $\\to$ `(A,B)=2` $\\to$ `(B,C)=1` $\\to$ `(A,D)=3` $\\to$ `(C,F)=3` $\\to$ `(F,E)=1` (<b>Choice b</b>!).</li><li><b>Kruskal's Global Sorted Edge Order (Q18)</b>: Picks all weight-1 edges first `(A,G)=1, (B,C)=1, (E,F)=1`, then weight-2 `(A,B)=2`, then weight-3 `(C,F)=3` and `(A,D)=3` (or `(D,F)=4`/`(D,E)`) (<b>Choice c</b>: `(A,G) then (B,C) then (E,F) then (A,B) then (C,F) then (D,E)`!).</li></ul>"
-          ],
-          "code": "MST-KRUSKAL(G, w)\n1  A ← ∅\n2  for each vertex v ∈ V[G]\n3      do MAKE-SET(v)\n4  sort the edges of E into nondecreasing order by weight w\n5  for each edge (u, v) ∈ E, taken in nondecreasing order by weight\n6      do if FIND-SET(u) ≠ FIND-SET(v)\n7            then A ← A ∪ {(u, v)}\n8                 UNION(u, v)\n9  return A",
-          "fig": [
-            "ag-17-cut",
-            "ag-17-kruskal",
-            "ag-17-costs",
-            "ag-17-prim"
-          ],
-          "figAt": {
-            "ag-17-cut": 1,
-            "ag-17-kruskal": 1,
-            "ag-17-costs": 1,
-            "ag-17-prim": 2
-          },
-          "figH": {
-            "ag-17-cut": "Cuts and light edges: why the light edge crossing a cut that respects A is safe",
-            "ag-17-kruskal": "Kruskal's algorithm on the slide's graph: sorted edges, FIND-SET test and the growing forest (or your own graph)",
-            "ag-17-costs": "Running times of MST-KRUSKAL and PRIM, line by line",
-            "ag-17-prim": "Prim's algorithm on the same graph: keys, π and EXTRACT-MIN step by step, ending in the keys of slide 26 (or the exam graph from A)"
-          }
-        },
-        {
-          "h": "Huffman Prefix Codes: Full Binary Tree Theorem & Optimality Proofs (Slides 17.28–17.46)",
-          "pts": [
-            "<b>Prefix Codes & Tree Cost $B(T)$ (Slides 17.29–17.37)</b>: In a <b>prefix code</b>, no codeword is a prefix of another codeword, so decoding is unambiguous without delimiters. An optimal prefix code is always represented by a <b>full binary tree</b> (every internal node has 2 children):<ul><li><b>Theorem (Slide 17.35)</b>: A full binary tree for an alphabet $C$ of $|C|$ characters has <b>exactly $|C|$ leaves</b> and <b>exactly $|C| - 1$ internal nodes</b>.</li><li><b>Tree Cost</b>: $B(T) = \\sum_{c \\in C} f(c) \\cdot d_T(c)$, where $f(c)$ is the frequency of $c$ and $d_T(c)$ is the depth of leaf $c$ (length of its codeword).</li><li><b>`HUFFMAN(C)` Algorithm</b>: Inserts all $|C|$ characters into a Min-Priority Queue $Q$, then runs $n - 1$ iterations of extracting the two minimum-frequency nodes $x, y$, creating parent $z$ with $f[z] = f[x] + f[y]$, and inserting $z$ into $Q$. Total time: $\\mathbf{O(n \\log n)}$.</li></ul>",
-            "<b>Proof of Greedy-Choice Property (Exchange Argument, Slides 17.38–17.42 & Midterm 2024 Retake Qc)</b>: Let $x, y$ be the two characters with lowest frequency, and let $a, b$ be sibling leaves of maximum depth in an arbitrary optimal tree $T$. Exchanging $a \\leftrightarrow x$ (forming $T'$) and $b \\leftrightarrow y$ (forming $T''$) gives $B(T) - B(T') = (f(a) - f(x))(d_T(a) - d_T(x)) \\ge 0$ since $f(a) \\ge f(x)$ and $d_T(a) \\ge d_T(x)$. Thus $B(T'') \\le B(T)$, so placing $x, y$ as sibling leaves at maximum depth is optimal!",
-            "<b>Proof of Optimal Substructure (Slides 17.43–17.46)</b>: Merging $x, y$ into leaf $z$ with $f(z) = f(x) + f(y)$ yields tree $T'$ with $B(T) = B(T') + f(x) + f(y)$. If $T'$ were not optimal for $C' = C - \\{x, y\\} \\cup \\{z\\}$, replacing $T'$ with a better $T''$ would yield a tree for $C$ with cost $< B(T)$—contradiction!",
-            "<b>Final Exam Workout (Final 2018 I Q5 & II Q8: `A=20, B=30, C=15, D=5, E=8, F=22`)</b>:<ul><li>1. Merge `D(5) + E(8) = DE(13)`.</li><li>2. Merge `DE(13) + C(15) = DEC(28)`.</li><li>3. Merge `A(20) + F(22) = AF(42)`.</li><li>4. Merge `DEC(28) + B(30) = DECB(58)`.</li><li>5. Merge `AF(42) + DECB(58) = Root(100)`.</li><li><b>Resulting Codewords</b> (`0` left, `1` right): `A = 00` (len 2), `F = 01` (len 2), `B = 11` (len 2), `C = 101` (len 3), `D = 1000` (len 4), `E = 1001` (len 4). Average bits = $(20\\cdot2 + 22\\cdot2 + 30\\cdot2 + 15\\cdot3 + 5\\cdot4 + 8\\cdot4)/100 = \\mathbf{2.41}$ bits/char!</li></ul>"
-          ],
-          "fig": [
-            "ag-17-huffman",
-            "ag-17-full-trees",
-            "ag-17-huff-exchange",
-            "ag-17-huff-sub",
-            "ag-17-huffman-sim"
-          ],
-          "figAt": {
-            "ag-17-huffman": 0,
-            "ag-17-full-trees": 0,
-            "ag-17-huff-exchange": 1,
-            "ag-17-huff-sub": 2,
-            "ag-17-huffman-sim": 3
-          },
-          "figH": {
-            "ag-17-huffman": "Prefix codes, and the slide's Huffman tree built merge by merge",
-            "ag-17-full-trees": "Full binary trees for 1 to 5 letters: each new letter adds one leaf and one internal node",
-            "ag-17-huff-exchange": "Exchange argument: swap x and y down to the deepest sibling leaves without raising B(T)",
-            "ag-17-huff-sub": "Optimal substructure: B(T) = B(T′) + f[x] + f[y], with the numbers of the slide example",
-            "ag-17-huffman-sim": "HUFFMAN(C) step by step: the slide's alphabet, the Final 2018 alphabet, or your own"
-          }
-        },
-        {
-          "h": "Activity Selection (Interval Scheduling, Slides 17.47–17.58)",
-          "pts": [
-            "<b>Activity Selection Problem (Slides 17.48–17.58)</b>: Given $n$ activities $S = \\{a_1, \\dots, a_n\\}$ with start and finish times $[s_i, f_i)$ sorted by finish time $f_1 \\le f_2 \\le \\dots \\le f_n$, find a maximum-size subset of mutually compatible activities ($f_i \\le s_j$ or $f_j \\le s_i$).",
-            "<b>Greedy Choice</b>: Always pick the compatible activity $a_m$ with the <b>earliest finish time</b>! After sorting in $O(n \\log n)$, `GREEDY-ACTIVITY-SELECTOR` scans once in $\\mathbf{\\Theta(n)}$ time."
-          ],
-          "fig": [
-            "ag-17-act-example",
-            "ag-17-act-dp",
-            "ag-17-act-proof",
-            "ag-17-act-greedy"
-          ],
-          "figAt": {
-            "ag-17-act-example": 0,
-            "ag-17-act-dp": 0,
-            "ag-17-act-proof": 1,
-            "ag-17-act-greedy": 1
-          },
-          "figH": {
-            "ag-17-act-example": "The slide's 12 activities and three different maximum compatible subsets",
-            "ag-17-act-dp": "Subproblems S<sub>ij</sub> and the recurrence c[i, j] = c[i, k] + c[k, j] + 1",
-            "ag-17-act-proof": "Why the earliest-finishing activity is safe: the exchange, and why S<sub>im</sub> is empty",
-            "ag-17-act-greedy": "GREEDY-ACTIVITY-SELECTOR on the slide's activities (or your own)"
-          }
-        }
-      ],
-      "cards": [
-        [
-          "Kruskal's vs. Prim's MST",
-          "Kruskal's grows a forest of trees by adding the lightest global edge that doesn't create a cycle (via Disjoint-Set Union-Find in O(E log V)); Prim's grows a single tree from a start vertex."
-        ],
-        [
-          "Huffman Full Binary Tree Theorem",
-          "An optimal prefix code for |C| letters is a full binary tree with exactly |C| leaves and |C| − 1 internal nodes, built in O(|C| log |C|) time."
-        ],
-        [
-          "Huffman Code for Geometric Probabilities (1/2, 1/4, 1/8, 1/16, 1/32)",
-          "a=0, b=10, c=110, d=1110, e=1111 (Final 2021 Q9 & Final 2022 Q27)."
-        ],
-        [
-          "Activity Selection Greedy Rule",
-          "Sort activities by finish time f₁ ≤ f₂ ≤ … ≤ fₙ and repeatedly select the first activity whose start time s_m ≥ finish time of the previously selected activity."
-        ],
-        [
-          "Greedy vs. Dynamic Programming & Kruskal's MST Algorithm (Slides 17.1–17.27) — Core Principle & Complexity",
-          "<b>Greedy vs. Dynamic Programming (Slide 17.7)</b>:<ul><li>In <b>Dynamic Programming</b>, the choice at each step depends on the solutions to smaller subproblems, progressing <b>bottom-up</b>.</li><li>In a <b>Greedy Algorithm</b>, we make the locally best choice <i>first</i> (without solving subproblems first) and then solve the single remaining subproblem, progressing <b>top-down</b>.</li></ul> <b>Kruskal's MST Algorithm (Slides 17.18–17.23)</b>:<ul><li><b>Concept</b>: Maintains a <b>forest of trees</b> (initially each vertex is its own tree via `MAKE-SET(v)`). Sorts all edges in non-decreasing order of weight, and adds edge $(u, v)$ to $A$ iff `FIND-SET(u) ≠ FIND-SET(v)` (i.e., it does not form a cycle), then merges their trees via `UNION(u, v)`.</li><li><b>Complexity Breakdown (Slide 17.21)</b>: Initializing sets takes $O(V)$, sorting edges takes $O(E \\log E)$, and $O(E)$ Disjoint-Set operations take $O(E \\log V)$ (or $O(E \\alpha(V))$). Since $|E| \\le |V|^2 \\implies \\log E \\le 2 \\log V$, total running time is $\\mathbf{O(E \\log E) = O(E \\log V)}$.</li></ul>"
-        ],
-        [
-          "Huffman Prefix Codes: Full Binary Tree Theorem & Optimality Proofs (Slides 17.28–17.46) — Core Principle & Complexity",
-          "<b>Prefix Codes & Tree Cost $B(T)$ (Slides 17.29–17.37)</b>: In a <b>prefix code</b>, no codeword is a prefix of another codeword, so decoding is unambiguous without delimiters. An optimal prefix code is always represented by a <b>full binary tree</b> (every internal node has 2 children):<ul><li><b>Theorem (Slide 17.35)</b>: A full binary tree for an alphabet $C$ of $|C|$ characters has <b>exactly $|C|$ leaves</b> and <b>exactly $|C| - 1$ internal nodes</b>.</li><li><b>Tree Cost</b>: $B(T) = \\sum_{c \\in C} f(c) \\cdot d_T(c)$, where $f(c)$ is the frequency of $c$ and $d_T(c)$ is the depth of leaf $c$ (length of its codeword).</li><li><b>`HUFFMAN(C)` Algorithm</b>: Inserts all $|C|$ characters into a Min-Priority Queue $Q$, then runs $n - 1$ iterations of extracting the two minimum-frequency nodes $x, y$, creating parent $z$ with $f[z] = f[x] + f[y]$, and inserting $z$ into $Q$. Total time: $\\mathbf{O(n \\log n)}$.</li></ul> <b>Proof of Greedy-Choice Property (Exchange Argument, Slides 17.38–17.42 & Midterm 2024 Retake Qc)</b>: Let $x, y$ be the two characters with lowest frequency, and let $a, b$ be sibling leaves of maximum depth in an arbitrary optimal tree $T$. Exchanging $a \\leftrightarrow x$ (forming $T'$) and $b \\leftrightarrow y$ (forming $T''$) gives $B(T) - B(T') = (f(a) - f(x))(d_T(a) - d_T(x)) \\ge 0$ since $f(a) \\ge f(x)$ and $d_T(a) \\ge d_T(x)$. Thus $B(T'') \\le B(T)$, so placing $x, y$ as sibling leaves at maximum depth is optimal!"
-        ],
-        [
-          "Activity Selection (Interval Scheduling, Slides 17.47–17.58) — Core Principle & Complexity",
-          "<b>Activity Selection Problem (Slides 17.48–17.58)</b>: Given $n$ activities $S = \\{a_1, \\dots, a_n\\}$ with start and finish times $[s_i, f_i)$ sorted by finish time $f_1 \\le f_2 \\le \\dots \\le f_n$, find a maximum-size subset of mutually compatible activities ($f_i \\le s_j$ or $f_j \\le s_i$). <b>Greedy Choice</b>: Always pick the compatible activity $a_m$ with the <b>earliest finish time</b>! After sorting in $O(n \\log n)$, `GREEDY-ACTIVITY-SELECTOR` scans once in $\\mathbf{\\Theta(n)}$ time."
-        ]
-      ],
-      "qa": [
-        [
-          "Construct the variable-length Huffman code for the character frequencies A = 20, B = 30, C = 15, D = 5, E = 8, F = 22 (Final 2018 I Q5, Final 2018 II Q8 & Exam Examples Q8).",
-          "1. Initial sorted queue: `D(5), E(8), C(15), A(20), F(22), B(30)`.<br>2. Combine `D(5) + E(8) → DE(13)`. Queue: `DE(13), C(15), A(20), F(22), B(30)`.<br>3. Combine `DE(13) + C(15) → DEC(28)`. Queue: `A(20), F(22), DEC(28), B(30)`.<br>4. Combine `A(20) + F(22) → AF(42)`. Queue: `DEC(28), B(30), AF(42)`.<br>5. Combine `DEC(28) + B(30) → DECB(58)`. Queue: `AF(42), DECB(58)`.<br>6. Combine `AF(42) + DECB(58) → Root(100)`.<br><b>Codes</b>: `A: 00`, `F: 01`, `B: 11`, `C: 101`, `D: 1000`, `E: 1001` (total cost = $241$ bits).",
-          "Final 2018 I Q5, Final 2018 II Q8 & Exam Examples Q8"
-        ]
-      ],
-      "quiz": [
-        {
-          "q": "What will be the Huffman code for the letters a, b, c, d, e if their probabilities are 1/2, 1/4, 1/8, 1/16, 1/32?",
-          "o": [
-            [
-              "0, 10, 110, 1110, 1111",
-              "Correct! Final 2021 Q9 & Final 2022 Q27: Merging from smallest to largest creates a right-skewed full binary tree where a has depth 1 ('0'), b has depth 2 ('10'), c has depth 3 ('110'), and d, e are siblings at depth 4 ('1110', '1111'), satisfying the prefix property!"
-            ],
-            [
-              "10, 011, 11, 001, 010",
-              "Does not assign shortest 1-bit code to probability 1/2."
-            ],
-            [
-              "10, 01, 0001, 100, 1010",
-              "'10' is a prefix of '100' and '1010', violating the prefix-code property!"
-            ],
-            [
-              "100, 110, 001, 000, 010",
-              "Fixed-length 3-bit code, not optimal Huffman coding."
-            ]
-          ],
-          "a": 0,
-          "src": "Exam · Final 2021 Q9 & Final 2022 Q27"
-        },
-        {
-          "q": "For the 7-vertex graph in Final 2021 Q17–18 (with edges (A,G)=1, (B,C)=1, (E,F)=1, (A,B)=2, (A,D)=3, (B,G)=3, (C,F)=3, (C,G)=4, (D,F)=4, (D,E)=5, (D,G)=5, (F,G)=6), starting at vertex A, what is the correct order for Prim's MST algorithm to add edges?",
-          "o": [
-            [
-              "(A,G) then (G,C) then (C,B) then (C,F) then (F,E) then (E,D)",
-              "(A,B)=2 is lighter than (G,C)=4, so Prim's adds (A,B) before (G,C)."
-            ],
-            [
-              "(A,G) then (A,B) then (B,C) then (A,D) then (C,F) then (F,E)",
-              "Correct! Final 2021 Q17: From {A}, lightest is (A,G)=1; from {A,G}, lightest is (A,B)=2; from {A,G,B}, lightest is (B,C)=1; from {A,G,B,C}, lightest are (A,D)=3 and (C,F)=3; finally from F, lightest is (F,E)=1!"
-            ],
-            [
-              "(A,G) then (B,C) then (E,F) then (A,B) then (C,F) then (D,E)",
-              "This is Kruskal's order (adding disconnected weight-1 edges (B,C) and (E,F) before connecting them to A), not Prim's."
-            ],
-            [
-              "(A,G) then (A,B) then (A,C) then (A,D) then (A,D) then (C,F)",
-              "Repeats (A,D) and omits E."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2021 Q17 & Final 2 Q33"
-        }
-      ],
-      "extra": [
-        {
-          "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 17?",
-          "o": [
-            [
-              "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-              "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-            ],
-            [
-              "The algorithm requires O(2ⁿ) exponential space in the best case",
-              "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-            ],
-            [
-              "The algorithm only works when n ≤ 10",
-              "False — Asymptotic analysis applies as n → ∞."
-            ],
-            [
-              "Correctness does not depend on loop invariants or optimal substructure",
-              "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-            ]
-          ],
-          "a": 0
-        }
-      ]
-    },
-    {
-      "n": 18,
-      "code": "Lec 18",
-      "title": "Lecture 18: Shortest Paths I — Optimal Substructure, Triangle Inequality, Dijkstra's Algorithm & Breadth-First Search",
-      "videos": [
-        {
-          "id": "xhG2DyCX3uA",
-          "title": "MIT 6.046J Lec 17: Shortest Paths I — Properties, Dijkstra's Algorithm & Breadth-First Search (Prof. Erik Demaine)",
-          "channel": "MIT OpenCourseWare",
-          "duration": "1:24:34",
-          "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Shortest path definitions, Optimal Substructure, Triangle Inequality & negative-weight cycles"
-            },
-            {
-              "t": 780,
-              "time": "13:00",
-              "label": "Dijkstra's Single-Source Shortest Path algorithm and edge relaxation"
-            },
-            {
-              "t": 1140,
-              "time": "19:00",
-              "label": "Full step-by-step trace of Dijkstra on 5-vertex directed graph {A, B, C, D, E}"
-            },
-            {
-              "t": 1680,
-              "time": "28:00",
-              "label": "3-Part Correctness Proof of Dijkstra's Algorithm"
-            },
-            {
-              "t": 2280,
-              "time": "38:00",
-              "label": "Complexity Analysis (Array, Binary Min-Heap, Fibonacci Heap) & BFS on unweighted graphs"
-            }
-          ]
-        },
-        {
-          "id": "XB4MIexjvY0",
-          "title": "3.6 Dijkstra's Algorithm — Single Source Shortest Path (Greedy Method)",
-          "channel": "Abdul Bari",
-          "duration": "18:35",
-          "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Relaxation mechanics and why Dijkstra fails on negative-weight edges"
-            }
-          ]
-        }
-      ],
-      "notes": [
-        {
-          "h": "Shortest-Path Properties, Optimal Substructure & Triangle Inequality (Slides 18.1–18.12)",
-          "pts": [
-            "<b>Path Weight & Shortest-Path Weight $\\delta(u, v)$ (Slides 18.2–18.4)</b>: In a weighted digraph $G = (V, E, w)$, the weight of path $p = v_1 \\to v_2 \\to \\dots \\to v_k$ is $w(p) = \\sum_{i=1}^{k-1} w(v_i, v_{i+1})$. The shortest-path weight is $\\delta(u, v) = \\min\\{w(p) : u \\stackrel{p}{\\leadsto} v\\}$ (or $\\infty$ if unreachable).",
-            "<b>Optimal Substructure Theorem (Slides 18.5–18.7)</b>: <b>Every subpath of a shortest path is itself a shortest path!</b> (Proved by cut-and-paste: if a shorter subpath existed, splicing it in would produce a shorter overall path.)",
-            "<b>Triangle Inequality Theorem (Slides 18.8–18.9)</b>: For all $u, v, x \\in V$, $\\delta(u, v) \\le \\delta(u, x) + \\delta(x, v)$.",
-            "<b>Well-Definedness & Negative-Weight Cycles (Slides 18.10–18.11)</b>: If $G$ contains a <b>negative-weight cycle</b> reachable from $s$, then shortest paths are not well-defined ($\\delta(s, v) = -\\infty$ by traversing the negative cycle arbitrarily many times). <b>Dijkstra's algorithm requires all edge weights $w(u, v) \\ge 0$</b> and cannot detect negative-weight cycles (unlike Bellman-Ford and Floyd-Warshall, Final 2021 Q16 & Final 2022 Q32)."
-          ],
-          "fig": [
-            "ag-18-path-weight",
-            "ag-18-cut-paste",
-            "ag-18-triangle",
-            "ag-18-neg-cycle"
-          ],
-          "figAt": {
-            "ag-18-path-weight": 0,
-            "ag-18-cut-paste": 1,
-            "ag-18-triangle": 2,
-            "ag-18-neg-cycle": 3
-          },
-          "figH": {
-            "ag-18-path-weight": "Weight of a path: w(p) = 4 + (−2) + (−5) + 1 = −2",
-            "ag-18-cut-paste": "Optimal substructure: the cut-and-paste proof",
-            "ag-18-triangle": "Triangle inequality: δ(u, v) ≤ δ(u, x) + δ(x, v)",
-            "ag-18-neg-cycle": "A negative-weight cycle makes δ(u, v) = −∞"
-          }
-        },
-        {
-          "h": "Dijkstra's Algorithm, Slide Trace & 3-Part Correctness Proof (Slides 18.13–18.42)",
-          "pts": [
-            "<b>Dijkstra's Algorithm Mechanics (Slides 18.13–18.15)</b>:<ul><li>Initialize $d[s] \\leftarrow 0$, $d[v] \\leftarrow \\infty$ for all $v \\in V - \\{s\\}$, settled set $S \\leftarrow \\emptyset$, and priority queue $Q \\leftarrow V$.</li><li>While $Q \\ne \\emptyset$: extract $u \\leftarrow \\text{EXTRACT-MIN}(Q)$, add $u$ to $S$, and <b>relax</b> every outgoing edge $(u, v)$ for $v \\in \\text{Adj}[u]$:<br><code>if d[v] > d[u] + w(u, v) then d[v] ← d[u] + w(u, v)</code> (an implicit `DECREASE-KEY` operation in $Q$).</li></ul>",
-            "<b>Slide 18.16–18.26 Trace on `{A, B, C, D, E}` (Edges: `A→B:10, A→C:3, B→C:1, B→D:2, C→B:4, C→D:8, C→E:2, D→E:7, E→D:9`)</b>:<ul><li><b>Init</b>: $d = [A:0, B:\\infty, C:\\infty, D:\\infty, E:\\infty]$, $S = \\emptyset$.</li><li><b>Step 1 (Extract `A`, $d[A]=0$)</b>: Relax `A→B` ($d[B]=10$), `A→C` ($d[C]=3$). $S = \\{A\\}$.</li><li><b>Step 2 (Extract `C`, $d[C]=3$)</b>: Relax `C→B` ($d[B] = \\min(10, 3+4) = 7$), `C→D` ($d[D] = 3+8 = 11$), `C→E` ($d[E] = 3+2 = 5$). $S = \\{A, C\\}$.</li><li><b>Step 3 (Extract `E`, $d[E]=5$)</b>: Relax `E→D` ($5+9 = 14 > 11$, no change). $S = \\{A, C, E\\}$.</li><li><b>Step 4 (Extract `B`, $d[B]=7$)</b>: Relax `B→C` ($7+1 > 3$), `B→D` ($d[D] = \\min(11, 7+2) = 9$). $S = \\{A, C, E, B\\}$.</li><li><b>Step 5 (Extract `D`, $d[D]=9$)</b>: $S = \\{A, C, E, B, D\\}$. Final shortest distances from `A`: $\\mathbf{[A:0, B:7, C:3, D:9, E:5]}$.</li></ul>",
-            "<b>3-Part Correctness Proof (Slides 18.27–18.33)</b>:<ul><li><b>Lemma 1</b>: $d[v] \\ge \\delta(s, v)$ holds at all times (relaxation only sets $d[v]$ to actual path lengths).</li><li><b>Lemma 2</b>: If $u$ is $v$'s predecessor on a shortest path from $s$ and $d[u] = \\delta(s, u)$ when $(u, v)$ is relaxed, then $d[v] = \\delta(s, v)$ thereafter.</li><li><b>Theorem</b>: Suppose for contradiction $u$ is the <i>first</i> vertex added to $S$ with $d[u] > \\delta(s, u)$. Along a true shortest path $s \\leadsto x \\to y \\leadsto u$, let $y \\in V - S$ be the first vertex outside $S$ (with predecessor $x \\in S$). Since $x$ was settled before $u$, $d[x] = \\delta(s, x)$ and $(x, y)$ was relaxed, so $d[y] = \\delta(s, y)$. Because all weights are non-negative, $d[y] = \\delta(s, y) \\le \\delta(s, u) < d[u]$, which contradicts that `EXTRACT-MIN` chose $u$ before $y$!</li></ul>",
-            "<b>Priority Queue Operation Counts (Final 2021 Q28–Q31 & Final 2022 Q40–Q44)</b>:<ul><li><b>3 Priority Queue operations</b> involved: `INSERT`, `EXTRACT-MIN`, and `DECREASE-KEY` (Q28).</li><li>`INSERT` and `EXTRACT-MIN` are invoked <b>1 time per vertex</b> ($|V|$ times total, Q29).</li><li>`DECREASE-KEY` is performed at most <b>Total number of edges $|E|$</b> times (Q30).</li><li>Running time: <b>Array = $O(V^2)$</b> (Q26/Q40), <b>Binary Min-Heap = $O(E \\log V)$</b> (Q31/Q44), <b>Fibonacci Heap = $O(E + V \\log V)$</b>.</li></ul>",
-            "<b>Breadth-First Search (BFS) on Unweighted Graphs ($w(u, v) = 1$, Slides 18.43–18.59)</b>: Replaces the priority queue $Q$ with a simple <b>FIFO queue</b>, running in $\\mathbf{O(V + E)}$ linear time!"
-          ],
-          "code": "DIJKSTRA(G, w, s)\n1  d[s] ← 0\n2  for each v ∈ V - {s} do d[v] ← ∞\n3  S ← ∅\n4  Q ← V    // Priority queue maintaining V - S keyed on d[v]\n5  while Q ≠ ∅\n6      do u ← EXTRACT-MIN(Q)\n7         S ← S ∪ {u}\n8         for each v ∈ Adj[u]\n9             do if d[v] > d[u] + w(u, v)\n10                  then d[v] ← d[u] + w(u, v)   // Implicit DECREASE-KEY",
-          "viz": {
-            "type": "dijkstra",
-            "title": "Lecture 18 Slide 18.16: Dijkstra's Algorithm on {A, B, C, D, E}",
-            "preset": "lec18"
-          },
-          "fig": [
-            "ag-18-dijkstra",
-            "ag-18-lemmas",
-            "ag-18-proof",
-            "ag-18-analysis",
-            "ag-18-bfs"
-          ],
-          "figAt": {
-            "ag-18-dijkstra": 1,
-            "ag-18-lemmas": 2,
-            "ag-18-proof": 2,
-            "ag-18-analysis": 3,
-            "ag-18-bfs": 4
-          },
-          "figH": {
-            "ag-18-dijkstra": "Dijkstra on the slide graph: EXTRACT-MIN and relaxation step by step",
-            "ag-18-lemmas": "Correctness parts I and II: the two lemmas",
-            "ag-18-proof": "Correctness part III: why u cannot be the first wrong vertex",
-            "ag-18-analysis": "Analysis: |V| EXTRACT-MINs, Θ(E) DECREASE-KEYs, and the three queues",
-            "ag-18-bfs": "Breadth-first search on the slide graph with a FIFO queue"
-          }
-        }
-      ],
-      "cards": [
-        [
-          "Triangle Inequality for Shortest Paths",
-          "For all u, v, x ∈ V: δ(u, v) ≤ δ(u, x) + δ(x, v)."
-        ],
-        [
-          "Why Dijkstra Fails on Negative Edges",
-          "Dijkstra assumes that once u = EXTRACT-MIN(Q) is added to S, no future path through V − S can have total weight < d[u], which breaks if a future edge has w < 0."
-        ],
-        [
-          "Dijkstra Priority Queue Operations (Final Q28–Q31)",
-          "3 operations: INSERT (1 per vertex), EXTRACT-MIN (1 per vertex), and DECREASE-KEY (at most |E| times total). Binary Min-Heap time: O(E log V); Array time: O(V²)."
-        ],
-        [
-          "BFS as Special Case of Dijkstra",
-          "When all edge weights w(u, v) = 1, a simple FIFO queue mimics the priority queue and computes shortest paths in O(V + E) time."
-        ],
-        [
-          "Shortest-Path Properties, Optimal Substructure & Triangle Inequality (Slides 18.1–18.12) — Core Principle & Complexity",
-          "<b>Path Weight & Shortest-Path Weight $\\delta(u, v)$ (Slides 18.2–18.4)</b>: In a weighted digraph $G = (V, E, w)$, the weight of path $p = v_1 \\to v_2 \\to \\dots \\to v_k$ is $w(p) = \\sum_{i=1}^{k-1} w(v_i, v_{i+1})$. The shortest-path weight is $\\delta(u, v) = \\min\\{w(p) : u \\stackrel{p}{\\leadsto} v\\}$ (or $\\infty$ if unreachable). <b>Optimal Substructure Theorem (Slides 18.5–18.7)</b>: <b>Every subpath of a shortest path is itself a shortest path!</b> (Proved by cut-and-paste: if a shorter subpath existed, splicing it in would produce a shorter overall path.)"
-        ],
-        [
-          "Dijkstra's Algorithm, Slide Trace & 3-Part Correctness Proof (Slides 18.13–18.42) — Core Principle & Complexity",
-          "<b>Dijkstra's Algorithm Mechanics (Slides 18.13–18.15)</b>:<ul><li>Initialize $d[s] \\leftarrow 0$, $d[v] \\leftarrow \\infty$ for all $v \\in V - \\{s\\}$, settled set $S \\leftarrow \\emptyset$, and priority queue $Q \\leftarrow V$.</li><li>While $Q \\ne \\emptyset$: extract $u \\leftarrow \\text{EXTRACT-MIN}(Q)$, add $u$ to $S$, and <b>relax</b> every outgoing edge $(u, v)$ for $v \\in \\text{Adj}[u]$:<br><code>if d[v] > d[u] + w(u, v) then d[v] ← d[u] + w(u, v)</code> (an implicit `DECREASE-KEY` operation in $Q$).</li></ul> <b>Slide 18.16–18.26 Trace on `{A, B, C, D, E}` (Edges: `A→B:10, A→C:3, B→C:1, B→D:2, C→B:4, C→D:8, C→E:2, D→E:7, E→D:9`)</b>:<ul><li><b>Init</b>: $d = [A:0, B:\\infty, C:\\infty, D:\\infty, E:\\infty]$, $S = \\emptyset$.</li><li><b>Step 1 (Extract `A`, $d[A]=0$)</b>: Relax `A→B` ($d[B]=10$), `A→C` ($d[C]=3$). $S = \\{A\\}$.</li><li><b>Step 2 (Extract `C`, $d[C]=3$)</b>: Relax `C→B` ($d[B] = \\min(10, 3+4) = 7$), `C→D` ($d[D] = 3+8 = 11$), `C→E` ($d[E] = 3+2 = 5$). $S = \\{A, C\\}$.</li><li><b>Step 3 (Extract `E`, $d[E]=5$)</b>: Relax `E→D` ($5+9 = 14 > 11$, no change). $S = \\{A, C, E\\}$.</li><li><b>Step 4 (Extract `B`, $d[B]=7$)</b>: Relax `B→C` ($7+1 > 3$), `B→D` ($d[D] = \\min(11, 7+2) = 9$). $S = \\{A, C, E, B\\}$.</li><li><b>Step 5 (Extract `D`, $d[D]=9$)</b>: $S = \\{A, C, E, B, D\\}$. Final shortest distances from `A`: $\\mathbf{[A:0, B:7, C:3, D:9, E:5]}$.</li></ul>"
-        ]
-      ],
-      "qa": [
-        [
-          "Trace Dijkstra's algorithm on the Midterm 2023 Q(b) directed graph starting from node 2 (Step 1: S={2}, d[0]=4, d[1]=8, d[3]=5, d[4]=∞, d[5]=2) and state the sum of d[i] and sum of p[i] for i ∉ S with d[i] ≠ ∞ after steps 2, 3, 4, and 5.",
-          "Directed edges of Midterm 2023 Q(b): `2→0:4, 2→1:8, 2→3:5, 2→5:2, 5→3:1, 5→4:5, 0→1:3, 3→1:2, 3→4:5, 1→4:1, 0→4:5`.<br>• <b>Step 1 ($S = \\{2\\}$)</b>: $d[0]=4(p=2),\\; d[1]=8(p=2),\\; d[3]=5(p=2),\\; d[4]=\\infty,\\; d[5]=2(p=2)$.<br>• <b>Step 2 (Pick min $5$, $d[5]=2, S=\\{2,5\\}$)</b>: Relax $5\\to 3$: $d[3]=\\min(5, 2+1)=3(p=5)$; relax $5\\to 4$: $d[4]=2+5=7(p=5)$. Remaining $i \\notin S$: $d[0]=4(p=2),\\; d[1]=8(p=2),\\; d[3]=3(p=5),\\; d[4]=7(p=5)$.<br>  $\\sum d[i] = 4 + 8 + 3 + 7 = \\mathbf{22}$ (Choice D); $\\sum p[i] = 2 + 2 + 5 + 5 = \\mathbf{14}$ (Choice D).<br>• <b>Step 3 (Pick min $3$, $d[3]=3, S=\\{2,5,3\\}$)</b>: Relax $3\\to 1$: $d[1]=\\min(8, 3+2)=5(p=3)$; $3\\to 4$: $3+5=8 > 7$. Remaining $i \\notin S$: $d[0]=4(p=2),\\; d[1]=5(p=3),\\; d[4]=7(p=5)$.<br>  $\\sum d[i] = 4 + 5 + 7 = \\mathbf{16}$ (Choice D); $\\sum p[i] = 2 + 3 + 5 = \\mathbf{10}$ (Choice E).<br>• <b>Step 4 (Pick min $0$, $d[0]=4, S=\\{2,5,3,0\\}$)</b>: Relax $0\\to 1$: $4+3=7 > 5$; $0\\to 4$: $4+5=9 > 7$. Remaining $i \\notin S$: $d[1]=5(p=3),\\; d[4]=7(p=5)$.<br>  $\\sum d[i] = 5 + 7 = \\mathbf{12}$ (Choice E); $\\sum p[i] = 3 + 5 = \\mathbf{8}$ (Choice E).<br>• <b>Step 5 (Pick min $1$, $d[1]=5, S=\\{2,5,3,0,1\\}$)</b>: Relax $1\\to 4$: $d[4]=\\min(7, 5+1)=6(p=1)$. Remaining $i \\notin S$: $d[4]=6(p=1)$.<br>  $\\sum d[i] = \\mathbf{6}$ (Choice D); $\\sum p[i] = \\mathbf{1}$ (Choice B).",
-          "Midterm 2023 Q(b) (Q9–Q16)"
-        ]
-      ],
-      "quiz": [
-        {
-          "q": "Which of the following shortest-path algorithms CANNOT detect the presence of a negative-weight cycle in a graph?",
-          "o": [
-            [
-              "Bellman-Ford Algorithm",
-              "Bellman-Ford detects negative-weight cycles on the |V|-th pass."
-            ],
-            [
-              "Floyd-Warshall Algorithm",
-              "Floyd-Warshall detects negative cycles via negative diagonal entries d[i][i] < 0."
-            ],
-            [
-              "Dijkstra's Algorithm",
-              "Correct! Final 2021 Q16 & Final 2022 Q32: Dijkstra's greedy strategy requires non-negative edge weights and cannot detect negative-weight cycles."
-            ],
-            [
-              "None of the above",
-              "Dijkstra's cannot."
-            ]
-          ],
-          "a": 2,
-          "src": "Exam · Final 2021 Q16 & Final 2022 Q32"
-        },
-        {
-          "q": "In Dijkstra's algorithm, the maximum number of times the DECREASE-KEY operation is performed is equal to:",
-          "o": [
-            [
-              "Total number of vertices |V|",
-              "|V| is the number of INSERT and EXTRACT-MIN operations."
-            ],
-            [
-              "Total number of edges |E|",
-              "Correct! Final 2021 Q30 & Final 2022 Q43: Each edge (u, v) is relaxed exactly once when u is extracted from Q, so DECREASE-KEY is performed at most |E| times."
-            ],
-            [
-              "Number of vertices − 1",
-              "Incorrect."
-            ],
-            [
-              "Number of edges − 1",
-              "Incorrect."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2021 Q30 & Final 2022 Q43"
-        },
-        {
-          "q": "What is the running time of Dijkstra's algorithm when the priority queue is implemented using a Binary Min-Heap?",
-          "o": [
-            [
-              "O(V)",
-              "Incorrect."
-            ],
-            [
-              "O(V log V)",
-              "Omits the O(E log V) edge relaxation term."
-            ],
-            [
-              "O(E)",
-              "Incorrect."
-            ],
-            [
-              "O(E log V)",
-              "Correct! Final 2021 Q31 & Final 2022 Q44: With a binary min-heap, V EXTRACT-MINs and E DECREASE-KEYs take O((V + E) log V) = O(E log V)."
-            ]
-          ],
-          "a": 3,
-          "src": "Exam · Final 2021 Q31 & Final 2022 Q44"
-        },
-        {
-          "q": "In the Final 2021 Q32 / Final 2022 Q45 directed graph (with edges b→a:4, b→g:1, b→c:2, g→a:2, g→f:8, c→g:3, c→d:10, g→e:4, e→f:1, a→f:5, d→e:6), if b is the source vertex, what is the minimum cost to reach vertex f?",
-          "o": [
-            [
-              "8",
-              "Path b→a→f costs 4+5=9, and b→g→f costs 1+8=9."
-            ],
-            [
-              "9",
-              "b→g→e→f is shorter than 9!"
-            ],
-            [
-              "4",
-              "No path from b to f has weight 4."
-            ],
-            [
-              "6",
-              "Correct! Final 2021 Q32 & Final 2022 Q45: From b, take b→g (cost 1), then g→e (cost 4, total 5), then e→f (cost 1, total 1 + 4 + 1 = 6)!"
-            ]
-          ],
-          "a": 3,
-          "src": "Exam · Final 2021 Q32 & Final 2022 Q45"
-        },
-        {
-          "q": "In the Final 2021 Q33 / Final 2 Q49 directed graph (with edges a→b:1, a→c:3, c→e:2, c→d:4, d→b:5, d→e:1, b→e:6), identify the shortest path having minimum cost to reach vertex e if a is the source vertex:",
-          "o": [
-            [
-              "a-b-e",
-              "a→b→e costs 1 + 6 = 7."
-            ],
-            [
-              "a-c-e",
-              "Correct! Final 2021 Q33: Path a→c→e has total cost 3 + 2 = 5, beating a→b→e (7) and a→c→d→e (3+4+1 = 8)."
-            ],
-            [
-              "a-c-d-e",
-              "Costs 3 + 4 + 1 = 8."
-            ],
-            [
-              "a-c-d-b-e",
-              "Costs 3 + 4 + 5 + 6 = 18."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2021 Q33 & Final 2 Q49"
-        }
-      ],
-      "extra": [
-        {
-          "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 18?",
-          "o": [
-            [
-              "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-              "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-            ],
-            [
-              "The algorithm requires O(2ⁿ) exponential space in the best case",
-              "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-            ],
-            [
-              "The algorithm only works when n ≤ 10",
-              "False — Asymptotic analysis applies as n → ∞."
-            ],
-            [
-              "Correctness does not depend on loop invariants or optimal substructure",
-              "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-            ]
-          ],
-          "a": 0
-        }
-      ]
-    },
-    {
-      "n": 19,
-      "code": "Lec 19",
-      "title": "Lecture 19: Dijkstra's Relaxation Table & Predecessor Path Reconstruction Workout (Dr. Basheer's Exam Format)",
-      "videos": [
-        {
-          "id": "2raV0H9KqY8",
-          "title": "Shortest Path Algorithms (Dijkstra & Predecessor Table Trace) — Simplified",
-          "channel": "Abdul Bari",
-          "duration": "26:13",
-          "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Constructing the vertex relaxation table and parent pointers"
-            }
-          ]
-        }
-      ],
-      "notes": [
-        {
-          "h": "Dr. Basheer's Signature Dijkstra Exam Table (Lec 19 Slides 1–2 & Final 2019 Credit Q7)",
-          "pts": [
-            "<b>Graph Specification (Lec 19 Slide 1 & Final 2019 Credit Q7)</b>: Directed weighted graph on 7 vertices `{A, B, C, D, E, F, G}` with source vertex `A` and directed edges:<ul><li>From `A`: `A → B (5)`, `A → C (3)`</li><li>From `B`: `B → G (1)`, `B → C (2)`, `B → E (3)`</li><li>From `C`: `C → D (7)`, `C → E (7)`</li><li>From `D`: `D → A (2)`, `D → F (6)`</li><li>From `E`: `E → D (2)`, `E → F (1)`</li><li>From `G`: `G → E (1)`</li></ul>",
-            "<b>How Dr. Basheer's Exam Table Works</b>:<ul><li>The top row `PARENT` records the final predecessor $\\pi[v]$ of each vertex $v \\in \\{B, C, D, E, F, G\\}$ whenever its distance $d[v]$ is improved.</li><li>Each subsequent row represents one iteration of `EXTRACT-MIN(Q)`. Once a vertex is extracted (settled in $S$), its column becomes blank in later rows! Unreached vertices ($\\infty$) are written as `-`.</li></ul>",
-            "<b>Step-by-Step Row-by-Row Derivation (Lec 19 Slide 1)</b>:<ul><li><b>Row 1 (Init at `A`)</b>: `A=0`, all others `-` ($\\infty$). Extract `A (0)`.</li><li><b>Row 2 (Relax from `A`)</b>: `A→B` sets `d[B]=5 (parent A)`; `A→C` sets `d[C]=3 (parent A)`. Minimum is `C (3)` $\\implies$ extract `C`.</li><li><b>Row 3 (Relax from `C`, `d[C]=3`)</b>: `C→D` sets `d[D]=3+7=10 (parent C)`; `C→E` sets `d[E]=3+7=10 (parent C)`; `d[B]` stays `5`. Minimum is `B (5)` $\\implies$ extract `B`.</li><li><b>Row 4 (Relax from `B`, `d[B]=5`)</b>: `B→G` sets `d[G]=5+1=6 (parent B)`; `B→E` improves `d[E]` from `10` to `5+3=8 (parent B)`; `d[D]` stays `10`. Minimum is `G (6)` $\\implies$ extract `G`.</li><li><b>Row 5 (Relax from `G`, `d[G]=6`)</b>: `G→E` improves `d[E]` from `8` to `6+1=7 (parent G)`; `d[D]` stays `10`. Minimum is `E (7)` $\\implies$ extract `E`.</li><li><b>Row 6 (Relax from `E`, `d[E]=7`)</b>: `E→D` improves `d[D]` from `10` to `7+2=9 (parent E)`; `E→F` sets `d[F]=7+1=8 (parent E)`. Minimum is `F (8)` $\\implies$ extract `F`.</li><li><b>Row 7 (Relax from `F`, `d[F]=8`)</b>: `F` has no outgoing edges; `d[D]=9` remains. Extract `D (9)` — Done!</li></ul>",
-            "<b>Reconstructed Shortest Paths & Total Weights (Lec 19 Slide 2)</b>:<ul><li>To `C`: `A → C = 3` (`PARENT[C] = A`)</li><li>To `B`: `A → B = 5` (`PARENT[B] = A`)</li><li>To `G`: `A → B → G = 6` (`PARENT[G] = B`)</li><li>To `E`: `A → B → G → E = 7` (`PARENT[E] = G`)</li><li>To `F`: `A → B → G → E → F = 8` (`PARENT[F] = E`)</li><li>To `D`: `A → B → G → E → D = 9` (`PARENT[D] = E`)</li></ul>"
-          ],
-          "table": [
-            [
-              "PARENT",
-              "(Source)",
-              "A",
-              "A",
-              "E",
-              "G",
-              "E",
-              "B"
-            ],
-            [
-              "Step #",
-              "A",
-              "B",
-              "C",
-              "D",
-              "E",
-              "F",
-              "G"
-            ],
-            [
-              "1 (Init A)",
-              "0",
-              "-",
-              "-",
-              "-",
-              "-",
-              "-",
-              "-"
-            ],
-            [
-              "2 (After A=0)",
-              "",
-              "5",
-              "3",
-              "-",
-              "-",
-              "-",
-              "-"
-            ],
-            [
-              "3 (After C=3)",
-              "",
-              "5",
-              "",
-              "10",
-              "10",
-              "-",
-              "-"
-            ],
-            [
-              "4 (After B=5)",
-              "",
-              "",
-              "",
-              "10",
-              "8",
-              "-",
-              "6"
-            ],
-            [
-              "5 (After G=6)",
-              "",
-              "",
-              "",
-              "10",
-              "7",
-              "-",
-              ""
-            ],
-            [
-              "6 (After E=7)",
-              "",
-              "",
-              "",
-              "9",
-              "",
-              "8",
-              ""
-            ],
-            [
-              "7 (After F=8)",
-              "",
-              "",
-              "",
-              "9",
-              "",
-              "",
-              ""
-            ]
-          ],
-          "fig": [
-            "algo-graph-sim",
-            "ag-19-table",
-            "ag-19-paths"
-          ],
-          "viz": {
-            "type": "dijkstra",
-            "title": "Lecture 19 & Final 2019 Q7: Dijkstra Table Trace on {A, B, C, D, E, F, G}",
-            "preset": "lec19"
-          },
-          "figAt": {
-            "ag-19-table": 2,
-            "ag-19-paths": 3
-          },
-          "figH": {
-            "ag-19-table": "The exam table filled row by row: one EXTRACT-MIN per row, PARENT on top",
-            "ag-19-paths": "Reading the shortest paths back through PARENT"
-          }
-        }
-      ],
-      "cards": [
-        [
-          "Lec 19 Dijkstra Final Parent Row (A..G)",
-          "PARENT: B←A, C←A, D←E, E←G, F←E, G←B."
-        ],
-        [
-          "Lec 19 Dijkstra Shortest Paths from A",
-          "AC = 3, AB = 5, ABG = 6, ABGE = 7, ABGEF = 8, ABGED = 9."
-        ],
-        [
-          "Dr. Basheer's Signature Dijkstra Exam Table (Lec 19 Slides 1–2 & Final 2019 Credit Q7) — Core Principle & Complexity",
-          "<b>Graph Specification (Lec 19 Slide 1 & Final 2019 Credit Q7)</b>: Directed weighted graph on 7 vertices `{A, B, C, D, E, F, G}` with source vertex `A` and directed edges:<ul><li>From `A`: `A → B (5)`, `A → C (3)`</li><li>From `B`: `B → G (1)`, `B → C (2)`, `B → E (3)`</li><li>From `C`: `C → D (7)`, `C → E (7)`</li><li>From `D`: `D → A (2)`, `D → F (6)`</li><li>From `E`: `E → D (2)`, `E → F (1)`</li><li>From `G`: `G → E (1)`</li></ul> <b>How Dr. Basheer's Exam Table Works</b>:<ul><li>The top row `PARENT` records the final predecessor $\\pi[v]$ of each vertex $v \\in \\{B, C, D, E, F, G\\}$ whenever its distance $d[v]$ is improved.</li><li>Each subsequent row represents one iteration of `EXTRACT-MIN(Q)`. Once a vertex is extracted (settled in $S$), its column becomes blank in later rows! Unreached vertices ($\\infty$) are written as `-`.</li></ul>"
-        ]
-      ],
-      "qa": [
-        [
-          "Find the shortest paths from node A to every other node in the Lecture 19 / Final 2019 Credit Q7 graph using Dijkstra's algorithm, showing the PARENT row, distance table, and full paths.",
-          "• <b>PARENT row</b>: `B: A`, `C: A`, `D: E`, `E: G`, `F: E`, `G: B`.<br>• <b>Settlement order</b>: `A(0) → C(3) → B(5) → G(6) → E(7) → F(8) → D(9)`.<br>• <b>Shortest Paths</b>:<br>  - `AC = 3`<br>  - `AB = 5`<br>  - `ABG = 6`<br>  - `ABGE = 7`<br>  - `ABGEF = 8`<br>  - `ABGED = 9`.",
-          "Lecture 19 · Slides 1–2 & Final 2019 (Credit) Q7"
-        ]
-      ],
-      "quiz": [
-        {
-          "q": "In the Lecture 19 / Final 2019 Credit Q7 Dijkstra trace starting from A, how many times is the distance estimate d[E] updated (improved from ∞) before E is extracted from the priority queue?",
-          "o": [
-            [
-              "1 time (directly to 7)",
-              "E is first reached via C, then improved via B, and improved again via G."
-            ],
-            [
-              "2 times (10 → 7)",
-              "Skips the intermediate improvement via B (d[E] = 5 + 3 = 8)."
-            ],
-            [
-              "3 times: ∞ → 10 (via C) → 8 (via B) → 7 (via G)",
-              "Correct! First C sets d[E]=3+7=10; then B relaxes B→E(3) to set d[E]=5+3=8; then G relaxes G→E(1) to set d[E]=6+1=7!"
-            ],
-            [
-              "4 times",
-              "Only C, B, and G have edges into E."
-            ]
-          ],
-          "a": 2,
-          "src": "Lecture 19 · Slide 1 & Final 2019 Credit Q7"
-        }
-      ],
-      "extra": [
-        {
-          "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 19?",
-          "o": [
-            [
-              "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
-              "Correct — Verified directly against the corresponding chapter in Introduction to Algorithms (CLRS, 3rd Ed.)."
-            ],
-            [
-              "The algorithm requires O(2ⁿ) exponential space in the best case",
-              "False — None of the polynomial/logarithmic data structures or algorithms require exponential space in the best case."
-            ],
-            [
-              "The algorithm only works when n ≤ 10",
-              "False — Asymptotic analysis applies as n → ∞."
-            ],
-            [
-              "Correctness does not depend on loop invariants or optimal substructure",
-              "False — CLRS proofs rely directly on loop invariants, induction, or cut-and-paste optimal substructure."
-            ]
-          ],
-          "a": 0
-        }
-      ]
-    },
-    {
-      "n": 20,
-      "code": "Lec 20",
-      "title": "Lecture 20: P, NP, NP-Hard & NP-Complete — Reductions, SAT, TSP, Clique & 3-CNF SAT → CLIQUE",
-      "videos": [
-        {
-          "id": "e2cF8a5aAhE",
-          "title": "8. NP-Hard and NP-Complete Problems — Polynomial-Time Reductions & Satisfiability (SAT)",
-          "channel": "Abdul Bari",
-          "duration": "31:53",
-          "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Tractable (P) vs. Non-Deterministic Polynomial (NP) problems"
-            },
-            {
-              "t": 900,
-              "time": "15:00",
-              "label": "Polynomial-time reductions, NP-Hard, and NP-Complete definitions"
-            }
-          ]
-        },
-        {
-          "id": "qZs767KQcvE",
-          "title": "8.1 NP-Hard Graph Problem — 3-CNF SAT to Clique Decision Problem Reduction",
-          "channel": "Abdul Bari",
-          "duration": "17:14",
-          "lang": "en",
-          "timestamps": [
-            {
-              "t": 0,
-              "time": "00:00",
-              "label": "Constructing the k-Clique graph from a k-clause 3-CNF Boolean formula"
-            }
-          ]
-        }
-      ],
-      "notes": [
-        {
-          "h": "Search Space, Tractability, Class P & Class NP (Slides 20.1–20.20)",
-          "pts": [
-            "<b>Core Definitions (Slide 20.2)</b>:<ul><li><b>Problem</b>: Formulated as Input $\\to$ Processing $\\to$ Output.</li><li><b>Search Space (SS)</b>: All candidate output alternatives for a valid input.</li><li><b>Brute Force</b>: Visiting the entire search space sequentially.</li></ul>",
-            "<b>Class P — Polynomial-Time Solvable (Tractable, Slides 20.8–20.9 & Final 2 Q60–Q61)</b>:<ul><li>Problems solvable by a deterministic algorithm in $O(n^k)$ time for some constant $k$ (known as <b>tractable</b> problems, Final 2 Q60). The sum and composition of two polynomials are always polynomials (Final 2 Q61: True).</li><li><b>Examples in P</b>: Searching, Sorting, String Replacing, Shortest Path between two vertices in a graph, and Primality Testing (`IsPrime`).</li></ul>",
-            "<b>Class NP — Non-Deterministic Polynomial (Slides 20.11–20.20 & Final 2 Q62–Q63)</b>:<ul><li><b>NP</b> stands for <b>Non-deterministic Polynomial</b>: decision problems solvable by a non-deterministic polynomial algorithm, meaning a candidate solution (certificate) can be <b>verified in polynomial time</b>!</li><li><b>Examples in NP (and NP-Complete)</b>: Boolean Satisfiability (<b>SAT / 3-CNF SAT</b>), Traveling Salesman Problem (<b>TSP</b>), <b>Hamiltonian Path/Cycle</b> (Final 2022 Q11), and <b>CLIQUE</b>.</li><li><b>TSP Search Space Explosion (Slides 20.13–20.15 & Final 2022 Q47–Q49)</b>: Given an undirected graph with non-negative edge costs, find a min-cost tour visiting every vertex exactly once and returning to start. For $N$ cities, brute-force search space size is $N!$:<ul><li>$N = 3 \\implies 3! = 6$</li><li>$N = 6 \\implies 6! = \\mathbf{720}$ (Final 2022 Q49!)</li><li>$N = 12 \\implies 479{,}001{,}600$; $N = 25 \\implies 1.55 \\times 10^{25}$; $N = 100 \\implies 9.33 \\times 10^{157}$.</li></ul></li><li><b>CLIQUE Verification vs. Search (Slides 20.16–20.18)</b>: A <b>clique</b> is a subset of vertices where every pair is connected by an edge (a complete subgraph).<ul><li>Verifying whether a given set of $k$ vertices forms a clique takes <b>Polynomial time</b> $O(k^2)$.</li><li>Verifying whether a graph has a clique of a fixed constant size $k$ takes $O(V^k k^2)$ (polynomial for constant $k$, exponential when $k$ is part of the input).</li><li>Finding the maximum clique size is <b>NP-hard / NP-complete</b>!</li></ul></li></ul>"
-          ],
-          "table": [
-            [
-              "Number of Cities N in TSP",
-              "Search Space Size (N!)",
-              "Feasibility by Brute Force"
-            ],
-            [
-              "N = 3",
-              "6",
-              "Instant"
-            ],
-            [
-              "N = 6 (Final 2022 Q49)",
-              "720",
-              "Instant (< 1 ms)"
-            ],
-            [
-              "N = 12",
-              "479,001,600",
-              "Seconds"
-            ],
-            [
-              "N = 18",
-              "6,402,373,705,728,000",
-              "Years"
-            ],
-            [
-              "N = 25",
-              "1.55 × 10²⁵",
-              "Infeasible (Billions of years)"
-            ],
-            [
-              "N = 50 / 100",
-              "3.04 × 10⁶⁴ / 9.33 × 10¹⁵⁷",
-              "Physically impossible"
-            ]
-          ],
-          "fig": [
-            "ag-20-bounds",
-            "ag-20-growth",
-            "ag-20-isprime",
-            "ag-20-tsp",
-            "ag-20-clique"
-          ],
-          "figAt": {
-            "ag-20-bounds": 0,
-            "ag-20-growth": 1,
-            "ag-20-isprime": 1,
-            "ag-20-tsp": 2,
-            "ag-20-clique": 2
-          },
-          "figH": {
-            "ag-20-bounds": "Big-O, Big-Omega and Theta: where c·g(n) bounds f(n) from n<sub>0</sub> on",
-            "ag-20-growth": "Complexity vs input length: polynomial against exponential growth",
-            "ag-20-isprime": "IsPrime(12) ⇒ No and IsPrime(1009) ⇒ Yes by trial division",
-            "ag-20-tsp": "TSP: the three tours of the slide's 4-city graph (OPT = 13) and the N! search space",
-            "ag-20-clique": "CLIQUE on the slide's graph: cliques of size 4 and 5, verifying a set, brute force over k-subsets"
-          }
-        },
-        {
-          "h": "NP-Hard, NP-Complete, Reductions & 3-CNF SAT → CLIQUE (Slides 20.21–20.36)",
-          "pts": [
-            "<b>NP-Hard vs. NP-Complete (Slides 20.21–20.24 & Final 2 Q64–Q65)</b>:<ul><li><b>NP-Hard</b>: A problem $H$ is NP-hard if <i>every</i> problem in NP can be reduced to $H$ in polynomial time ($L \\le_P H\\; \\forall L \\in \\text{NP}$).</li><li><b>NP-Complete</b>: A problem $C$ is NP-complete if (1) $C \\in \\text{NP}$ <b>AND</b> (2) $C$ is NP-hard! If any single NP-complete problem can be solved in polynomial time, then $\\text{P} = \\text{NP}$. Conversely, <b>assuming $\\text{P} \\ne \\text{NP}$, $\\text{NP-Complete} \\cap \\text{P} = \\emptyset$</b> (Final 2 Q65: Choice B!).</li></ul>",
-            "<b>Polynomial-Time Reduction $R \\le_P Q$ (Slides 20.25–20.26)</b>: Problem $R$ reduces to $Q$ if any instance of $R$ can be transformed in polynomial time into an instance of $Q$ whose solution gives the solution to $R$ (meaning $R$ is ”no harder than” $Q$). Elementary example: $\\text{LCM}(m, n) = \\frac{m \\cdot n}{\\text{GCD}(m, n)}$ reduces LCM to GCD.",
-            "<b>SAT & Reducing `3-CNF SAT` to `CLIQUE` (Slides 20.27–20.36)</b>:<ul><li><b>SAT (Cook-Levin Theorem)</b>: First known NP-complete problem! Determines whether the variables of a Boolean formula can be assigned `TRUE`/`FALSE` to make the formula evaluate to `TRUE`.<ul><li>Slide 20.28 Example: $(a \\lor b) \\land (a \\lor \\neg b)$ is satisfiable by setting $a = \\text{TRUE}$.</li></ul></li><li><b>Polynomial-Time Reduction Construction (`3-CNF SAT` with $k$ clauses $\\le_P$ `k-CLIQUE`, Slides 20.30–20.36)</b>:<ul><li><b>1. Vertices</b>: For each of the $k$ clauses, create one vertex for each literal in that clause ($3k$ vertices total, partitioned into $k$ groups/triples).</li><li><b>2. Edges</b>: Connect two vertices $(u, v)$ by an edge <b>if and only if</b> (a) they belong to <b>different clauses</b>, AND (b) their literals are <b>consistent (not negations of each other)</b>, i.e., $u \\ne \\neg v$ (since $x_i$ and $\\neg x_i$ cannot both be true!).</li><li><b>3. Correctness</b>: The formula is satisfiable $\\iff$ each clause has at least one `TRUE` literal $\\iff$ the $k$ chosen `TRUE` literals (one per clause) have no contradictions and are all mutually connected, forming a <b>Clique of size $k$</b>!</li></ul></li></ul>"
-          ],
-          "fig": [
-            "algo-np-sim",
-            "ag-20-classes",
-            "ag-20-reduce",
-            "ag-20-sat",
-            "ag-20-cnf-clique"
-          ],
-          "figAt": {
-            "ag-20-classes": 0,
-            "ag-20-reduce": 1,
-            "ag-20-sat": 2,
-            "ag-20-cnf-clique": 2
-          },
-          "figH": {
-            "ag-20-classes": "P vs NP, NP-hard and NP-complete as region diagrams, and the summary table",
-            "ag-20-reduce": "Reduction: LCM(m, n) solved through GCD(m, n), and linear to quadratic",
-            "ag-20-sat": "SAT: the slides' formulas with their truth tables, set the variables yourself",
-            "ag-20-cnf-clique": "3-CNF SAT to CLIQUE: build the graph for the slide's formula, a 3-clique gives a satisfying assignment"
-          }
-        }
-      ],
-      "cards": [
-        [
-          "Class P vs. Class NP",
-          "P: problems solvable in polynomial time O(n^k) (tractable). NP: decision problems whose solutions can be verified in polynomial time (non-deterministic polynomial)."
-        ],
-        [
-          "NP-Complete Definition",
-          "A problem is NP-Complete if it is BOTH in NP AND NP-Hard (every problem in NP reduces to it in polynomial time)."
-        ],
-        [
-          "TSP Search Space for N = 6 Cities (Final 2022 Q49)",
-          "6! = 720 tours (for N = 3 it is 3! = 6; for N = 12 it is 12! = 479,001,600)."
-        ],
-        [
-          "Assuming P ≠ NP, What is True? (Final 2 Q65)",
-          "NP-Complete ∩ P = ∅ (no NP-complete problem lies in P)."
-        ],
-        [
-          "3-CNF SAT to k-CLIQUE Reduction Rules",
-          "1. One vertex per literal in each of the k clauses; 2. Add edge between literals in DIFFERENT clauses iff they are not negations (u ≠ ¬v); 3. Formula is satisfiable ⟺ G has a clique of size k."
-        ],
-        [
-          "Search Space, Tractability, Class P & Class NP (Slides 20.1–20.20) — Core Principle & Complexity",
-          "<b>Core Definitions (Slide 20.2)</b>:<ul><li><b>Problem</b>: Formulated as Input $\\to$ Processing $\\to$ Output.</li><li><b>Search Space (SS)</b>: All candidate output alternatives for a valid input.</li><li><b>Brute Force</b>: Visiting the entire search space sequentially.</li></ul> <b>Class P — Polynomial-Time Solvable (Tractable, Slides 20.8–20.9 & Final 2 Q60–Q61)</b>:<ul><li>Problems solvable by a deterministic algorithm in $O(n^k)$ time for some constant $k$ (known as <b>tractable</b> problems, Final 2 Q60). The sum and composition of two polynomials are always polynomials (Final 2 Q61: True).</li><li><b>Examples in P</b>: Searching, Sorting, String Replacing, Shortest Path between two vertices in a graph, and Primality Testing (`IsPrime`).</li></ul>"
-        ],
-        [
-          "NP-Hard, NP-Complete, Reductions & 3-CNF SAT → CLIQUE (Slides 20.21–20.36) — Core Principle & Complexity",
-          "<b>NP-Hard vs. NP-Complete (Slides 20.21–20.24 & Final 2 Q64–Q65)</b>:<ul><li><b>NP-Hard</b>: A problem $H$ is NP-hard if <i>every</i> problem in NP can be reduced to $H$ in polynomial time ($L \\le_P H\\; \\forall L \\in \\text{NP}$).</li><li><b>NP-Complete</b>: A problem $C$ is NP-complete if (1) $C \\in \\text{NP}$ <b>AND</b> (2) $C$ is NP-hard! If any single NP-complete problem can be solved in polynomial time, then $\\text{P} = \\text{NP}$. Conversely, <b>assuming $\\text{P} \\ne \\text{NP}$, $\\text{NP-Complete} \\cap \\text{P} = \\emptyset$</b> (Final 2 Q65: Choice B!).</li></ul> <b>Polynomial-Time Reduction $R \\le_P Q$ (Slides 20.25–20.26)</b>: Problem $R$ reduces to $Q$ if any instance of $R$ can be transformed in polynomial time into an instance of $Q$ whose solution gives the solution to $R$ (meaning $R$ is ”no harder than” $Q$). Elementary example: $\\text{LCM}(m, n) = \\frac{m \\cdot n}{\\text{GCD}(m, n)}$ reduces LCM to GCD."
-        ]
-      ],
-      "qa": [
-        [
-          "Explain how to reduce 3-CNF SAT with k clauses to the CLIQUE problem in polynomial time (Lecture 20 Slides 30–36).",
-          "Given a 3-CNF formula $\\phi = C_1 \\land C_2 \\land \\dots \\land C_k$ with $k$ clauses:<br>1. <b>Vertices</b>: For each clause $C_r$, create a vertex for each literal in $C_r$ (up to $3k$ vertices).<br>2. <b>Edges</b>: Add an undirected edge between two vertices $u \\in C_r$ and $v \\in C_s$ iff $r \\ne s$ (they belong to different clauses) AND $u$ is not the negation of $v$ ($u \\ne \\neg v$).<br>3. <b>Equivalence</b>: Since no edges exist within the same clause, any clique can contain at most 1 vertex per clause. A clique of size $k$ exists iff we can pick 1 literal from each of the $k$ clauses such that no two picked literals contradict each other, which is equivalent to a satisfying truth assignment for $\\phi$. Construction takes $O(k^2)$ polynomial time.",
-          "Lecture 20 · Slides 20.30–20.36"
-        ]
-      ],
-      "quiz": [
-        {
-          "q": "The Hamiltonian path problem and the CNF-Satisfiability (SAT) problem belong to which complexity class?",
-          "o": [
-            [
-              "P class problem",
-              "No polynomial-time algorithm is known for either."
-            ],
-            [
-              "NP-Complete problem",
-              "Correct! Final 2022 Q11 & Final 2 Q64: Both Hamiltonian Path and CNF-SAT are classic NP-Complete problems."
-            ],
-            [
-              "Logarithmic class problem",
-              "Incorrect."
-            ],
-            [
-              "Constant-time problem",
-              "Incorrect."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2022 Q11 & Final 2 Q64"
-        },
-        {
-          "q": "According to Lecture 20 Slide 15 (and Final 2022 Q49), if the number of cities in the Traveling Salesman Problem (TSP) is N = 6, what is the search space size?",
-          "o": [
-            [
-              "120",
-              "120 is 5!."
-            ],
-            [
-              "720",
-              "Correct! Final 2022 Q49 & Slide 20.15: The table in Slide 20.15 gives Search Space Size = 6! = 720 for 6 cities."
-            ],
-            [
-              "24",
-              "24 is 4!."
-            ],
-            [
-              "6",
-              "6 is 3! (for 3 cities)."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2022 Q49 & Lecture 20 · Slide 20.15"
-        },
-        {
-          "q": "Assuming P ≠ NP, which of the following statements is true?",
-          "o": [
-            [
-              "NP-Complete = NP",
-              "NP also includes all problems in P, which are not NP-complete if P ≠ NP."
-            ],
-            [
-              "NP-Complete ∩ P = ∅",
-              "Correct! Final 2 Q65: If any NP-complete problem were in P, then P would equal NP. Therefore, under P ≠ NP, NP-Complete and P are strictly disjoint!"
-            ],
-            [
-              "NP-Hard = NP",
-              "NP-Hard contains undecidable problems (like the Halting Problem) that are not in NP."
-            ],
-            [
-              "P = NP-Complete",
-              "Contradicts P ≠ NP."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2 Q65"
-        },
-        {
-          "q": "Problems that can be solved by a deterministic algorithm in polynomial time O(n^k) are known as:",
-          "o": [
-            [
-              "Intractable",
-              "Intractable problems require super-polynomial / exponential time."
-            ],
-            [
-              "Tractable",
-              "Correct! Final 2 Q60: Polynomial-time solvable problems (Class P) are called tractable."
-            ],
-            [
-              "Undecidable",
-              "Undecidable problems cannot be solved by any algorithm in finite time."
-            ],
-            [
-              "NP-Hard",
-              "NP-Hard problems are believed to be intractable."
-            ]
-          ],
-          "a": 1,
-          "src": "Exam · Final 2 Q60"
-        }
-      ],
-      "extra": [
-        {
-          "q": "According to CLRS (3rd Ed.), which statement accurately characterizes the core algorithmic guarantee taught in Lecture 20?",
           "o": [
             [
               "The asymptotic time and structural invariants proven in the lecture hold across all valid inputs of size n",
@@ -48638,239 +45323,6 @@ window.COURSES.algo = {
               "q": "<b>Qb (6 Marks)</b>: Write a top-down divide-and-conquer recursive C++ function that finds all inversions of an array in $O(n \\log n)$ time. Trace your code on <code>[5, 7, 2, 1, 4, 3, 6, 8]</code> by writing the inversions in the order found.",
               "ans": "<b>Inversions Found in Merge Order (11 Total)</b>:<br>1. Merging <code>[2]</code> and <code>[1]</code>: <b>(2, 1)</b><br>2. Merging <code>[5, 7]</code> and <code>[1, 2]</code>: <b>(5, 1), (7, 1), (5, 2), (7, 2)</b><br>3. Merging <code>[4]</code> and <code>[3]</code>: <b>(4, 3)</b><br>4. Merging <code>[1, 2, 5, 7]</code> and <code>[3, 4, 6, 8]</code>: <b>(5, 3), (7, 3), (5, 4), (7, 4), (7, 6)</b>.<br>Total = <b>11 inversions</b> found in $T(n) = 2T(n/2) + O(n) = O(n \\log n)$ time.",
               "why": "Whenever R[j] < L[i] during Merge, R[j] forms an inversion with every element from L[i] to L[mid]."
-            },
-            {
-              "type": "written",
-              "q": "<b>Qc (8 Marks)</b>: Write a greedy C++ function that computes the Huffman codes of all characters of a string in $O(n \\log n)$ time. Trace your code on <code>\"aabcaaadbcddaa\"</code> and prove the correctness of the algorithm.",
-              "ans": "<b>Trace on <code>\"aabcaaadbcddaa\"</code> (Length 14)</b>:<br>• Frequencies: <code>a: 7, d: 3, b: 2, c: 2</code>.<br>• Step 1: Merge <code>b(2) + c(2) = bc(4)</code>.<br>• Step 2: Merge <code>d(3) + bc(4) = dbc(7)</code>.<br>• Step 3: Merge <code>a(7) + dbc(7) = Root(14)</code>.<br>• <b>Codes</b>: <code>a = 0</code>, <code>d = 10</code>, <code>b = 110</code>, <code>c = 111</code> (25 bits total).<br><b>Correctness Proof</b>: (1) <i>Greedy-Choice Lemma</i>: By exchange argument, moving the two lowest-frequency symbols $x, y$ to the deepest sibling leaves of any optimal tree $T$ does not increase $B(T) = \\sum f(c)d_T(c)$ since $(f(a)-f(x))(d_T(a)-d_T(x)) \\ge 0$. (2) <i>Optimal Substructure Lemma</i>: Replacing $x, y$ by parent $z$ with $f(z)=f(x)+f(y)$ satisfies $B(T) = B(T') + f(x) + f(y)$, so an optimal tree for the reduced alphabet yields an optimal tree for the original alphabet.",
-              "why": "Directly combines the Huffman trace and exchange-argument proof from Lecture 17 Slides 38–46."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Midterm Exam 2023 (General Bubble-Sheet & Credit Programs)",
-      "meta": "Cairo University · FCAI · Algorithms Analysis & Design · Nov 2023 (Dr. Basheer Youssef, Dr. Amin Allam & Dr. Zeinab)",
-      "note": "Includes all 16 Prim's MST & Dijkstra's Shortest-Path trace MCQs from the General Midterm 2023 plus the 5 workout questions from the Credit Midterm 2023.",
-      "sections": [
-        {
-          "title": "Part I · Prim's MST Step-by-Step Trace on Undirected Graph (Q1–Q8, Start Node = 2)",
-          "marks": "8 marks · 1 each",
-          "items": [
-            {
-              "type": "mcq",
-              "q": "<b>Q1 (Prim's MST)</b>: Apply Prim's algorithm starting from node 2 (After 1st step: $S=\\{2\\}, d[0]=7, d[1]=8, d[3]=5, d[5]=10$). After executing the <b>2nd step</b> ($S=\\{2,3\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "10",
-                "11",
-                "14",
-                "16",
-                "21"
-              ],
-              "a": 2,
-              "why": "Node 3 (d[3]=5) is added to S. Updating neighbors of 3: d[0]=7(p=2), d[1]=min(8,2)=2(p=3), d[4]=4(p=3), d[5]=min(10,1)=1(p=3). Sum of d[i] = 7 + 2 + 4 + 1 = 14."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q2 (Prim's MST)</b>: After executing the <b>2nd step</b> ($S=\\{2,3\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "8",
-                "9",
-                "10",
-                "11",
-                "12"
-              ],
-              "a": 3,
-              "why": "For i ∉ S = {0, 1, 4, 5}, parents are p[0]=2, p[1]=3, p[4]=3, p[5]=3. Sum of p[i] = 2 + 3 + 3 + 3 = 11."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q3 (Prim's MST)</b>: After executing the <b>3rd step</b> ($S=\\{2,3,5\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "11",
-                "13",
-                "14",
-                "15",
-                "19"
-              ],
-              "a": 1,
-              "why": "Node 5 (d[5]=1) is added to S. Edge (5,4)=6 > d[4]=4, so d[0]=7, d[1]=2, d[4]=4 remain unchanged. Sum = 7 + 2 + 4 = 13."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q4 (Prim's MST)</b>: After executing the <b>3rd step</b> ($S=\\{2,3,5\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "7",
-                "8",
-                "9",
-                "10",
-                "11"
-              ],
-              "a": 1,
-              "why": "For i ∉ S = {0, 1, 4}, parents are p[0]=2, p[1]=3, p[4]=3. Sum = 2 + 3 + 3 = 8."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q5 (Prim's MST)</b>: After executing the <b>4th step</b> ($S=\\{2,3,5,1\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "7",
-                "9",
-                "11",
-                "13",
-                "15"
-              ],
-              "a": 0,
-              "why": "Node 1 (d[1]=2) is added to S. Edge (1,0)=3 improves d[0] from 7 to 3 (p[0]=1), while (1,4)=12 > d[4]=4. Remaining i ∉ S = {0, 4} have d[0]=3, d[4]=4. Sum = 3 + 4 = 7."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q6 (Prim's MST)</b>: After executing the <b>4th step</b> ($S=\\{2,3,5,1\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "3",
-                "4",
-                "5",
-                "6",
-                "7"
-              ],
-              "a": 1,
-              "why": "For i ∉ S = {0, 4}, p[0]=1 and p[4]=3. Sum = 1 + 3 = 4."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q7 (Prim's MST)</b>: After executing the <b>5th step</b> ($S=\\{2,3,5,1,0\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "3",
-                "4",
-                "5",
-                "7",
-                "12"
-              ],
-              "a": 1,
-              "why": "Node 0 (d[0]=3) is added to S. Edge (0,4)=9 > d[4]=4, so the sole remaining node i=4 has d[4] = 4."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q8 (Prim's MST)</b>: After executing the <b>5th step</b> ($S=\\{2,3,5,1,0\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "0",
-                "2",
-                "3",
-                "4",
-                "5"
-              ],
-              "a": 2,
-              "why": "The sole remaining node i=4 has p[4] = 3."
-            }
-          ]
-        },
-        {
-          "title": "Part II · Dijkstra's Shortest-Path Trace on Directed Graph (Q9–Q16, Start Node = 2)",
-          "marks": "8 marks · 1 each",
-          "items": [
-            {
-              "type": "mcq",
-              "q": "<b>Q9 (Dijkstra)</b>: Apply Dijkstra's algorithm starting from node 2 (After 1st step: $S=\\{2\\}, d[0]=4, d[1]=8, d[3]=5, d[5]=2$). After executing the <b>2nd step</b> ($S=\\{2,5\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "15",
-                "17",
-                "19",
-                "22",
-                "24"
-              ],
-              "a": 3,
-              "why": "Node 5 (d[5]=2) is added to S. Relaxing 5→3 (w=1) sets d[3]=2+1=3 (p=5); relaxing 5→4 (w=5) sets d[4]=2+5=7 (p=5). For i ∉ S = {0,1,3,4}: d[0]=4, d[1]=8, d[3]=3, d[4]=7. Sum = 4 + 8 + 3 + 7 = 22."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q10 (Dijkstra)</b>: After executing the <b>2nd step</b> ($S=\\{2,5\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "6",
-                "9",
-                "11",
-                "14",
-                "15"
-              ],
-              "a": 3,
-              "why": "For i ∉ S = {0,1,3,4}: p[0]=2, p[1]=2, p[3]=5, p[4]=5. Sum = 2 + 2 + 5 + 5 = 14."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q11 (Dijkstra)</b>: After executing the <b>3rd step</b> ($S=\\{2,5,3\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "9",
-                "12",
-                "15",
-                "16",
-                "19"
-              ],
-              "a": 3,
-              "why": "Node 3 (d[3]=3) is added to S. Relaxing 3→1 (w=2) improves d[1] from 8 to 3+2=5 (p=3); 3→4 (w=5) gives 3+5=8 > 7. Remaining i ∉ S = {0,1,4}: d[0]=4, d[1]=5, d[4]=7. Sum = 4 + 5 + 7 = 16."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q12 (Dijkstra)</b>: After executing the <b>3rd step</b> ($S=\\{2,5,3\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "4",
-                "5",
-                "6",
-                "9",
-                "10"
-              ],
-              "a": 4,
-              "why": "For i ∉ S = {0,1,4}: p[0]=2, p[1]=3, p[4]=5. Sum = 2 + 3 + 5 = 10."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q13 (Dijkstra)</b>: After executing the <b>4th step</b> ($S=\\{2,5,3,0\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "7",
-                "8",
-                "9",
-                "11",
-                "12"
-              ],
-              "a": 4,
-              "why": "Node 0 (d[0]=4) is added to S. Edges 0→1 (4+3=7 > 5) and 0→4 (4+5=9 > 7) do not improve d[1] or d[4]. Remaining i ∉ S = {1,4}: d[1]=5, d[4]=7. Sum = 5 + 7 = 12."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q14 (Dijkstra)</b>: After executing the <b>4th step</b> ($S=\\{2,5,3,0\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "4",
-                "5",
-                "6",
-                "7",
-                "8"
-              ],
-              "a": 4,
-              "why": "For i ∉ S = {1,4}: p[1]=3 and p[4]=5. Sum = 3 + 5 = 8."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q15 (Dijkstra)</b>: After executing the <b>5th step</b> ($S=\\{2,5,3,0,1\\}$), the sum of $d[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "3",
-                "4",
-                "5",
-                "6",
-                "7"
-              ],
-              "a": 3,
-              "why": "Node 1 (d[1]=5) is added to S. Relaxing 1→4 (w=1) improves d[4] from 7 to 5+1=6 (p[4]=1). Sole remaining node i=4 has d[4] = 6."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q16 (Dijkstra)</b>: After executing the <b>5th step</b> ($S=\\{2,5,3,0,1\\}$), the sum of $p[i]$ for all nodes $i \\notin S$ having $d[i] \\ne \\infty$ is:",
-              "o": [
-                "0",
-                "1",
-                "2",
-                "3",
-                "5"
-              ],
-              "a": 1,
-              "why": "The sole remaining node i=4 was updated via edge 1→4, so p[4] = 1."
             }
           ]
         }
@@ -49003,435 +45455,6 @@ window.COURSES.algo = {
                   7
                 ]
               }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Final Exam 2022 (CS316 — Complete Objective Paper with Official Answers)",
-      "meta": "Cairo University · FCAI · CS Department · CS316 Algorithms · Jan 29, 2022 · Prof. Basheer Youssef (2 Hours · 60 Marks)",
-      "note": "Official 2022 Final Exam covering Recursion, Knapsack (Fractional vs. 0/1), Sorting, Huffman Coding, Red-Black Trees, Dijkstra's Algorithm, TSP, and Clique.",
-      "sections": [
-        {
-          "title": "Part I · Core Algorithms, Sorting, DP & Greedy (Q1–Q25)",
-          "marks": "30 marks",
-          "items": [
-            {
-              "type": "mcq",
-              "q": "<b>Q1</b>: Which data structure is used by the system to perform recursion?",
-              "o": [
-                "Array",
-                "Queue",
-                "Stack",
-                "Linked list"
-              ],
-              "a": 2,
-              "why": "Recursive calls push activation records (call frames) onto the runtime call stack (LIFO)."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q2</b>: What is the objective of the Knapsack problem?",
-              "o": [
-                "To get maximum total value in the knapsack subject to weight capacity",
-                "To get minimum total value in the knapsack",
-                "To get maximum weight in the knapsack regardless of value",
-                "To get minimum weight in the knapsack"
-              ],
-              "a": 0,
-              "why": "The knapsack problem maximizes ∑ v_i x_i subject to ∑ w_i x_i ≤ W."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q3 & Q8</b>: What are the worst-case and average-case time complexities of Merge Sort?",
-              "o": [
-                "O(N log N)",
-                "O(N²)",
-                "O(log N)",
-                "O(log log N)"
-              ],
-              "a": 0,
-              "why": "Merge Sort always divides the array in half and merges in linear time: T(N) = 2T(N/2) + Θ(N) = Θ(N log N) in worst, average, and best cases."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q4</b>: Time required to merge two sorted lists of sizes $m$ and $n$ is:",
-              "o": [
-                "O(m | n)",
-                "O(m + n)",
-                "O(m log n)",
-                "O(n log m)"
-              ],
-              "a": 1,
-              "why": "Two-finger merging takes at most m + n − 1 comparisons = O(m + n)."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q5</b>: What is the best-case time complexity of Selection Sort?",
-              "o": [
-                "O(n)",
-                "O(n²)",
-                "O(n log n)",
-                "O(log n)"
-              ],
-              "a": 1,
-              "why": "Selection Sort always scans the remaining unsorted suffix of length n−i to find the minimum, taking n(n−1)/2 = Θ(n²) comparisons even in the best case."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q11</b>: The Hamiltonian Path problem is a(n): _________",
-              "o": [
-                "NP problem only",
-                "N class problem",
-                "P class problem",
-                "NP-Complete problem"
-              ],
-              "a": 3,
-              "why": "Lecture 20 Slide 12: Hamiltonian Path, SAT, TSP, and Clique are classic NP-Complete problems."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q12</b>: Which algorithm strategy builds up a solution by choosing the option that looks the best at every step?",
-              "o": [
-                "Greedy method",
-                "Branch and bound",
-                "Dynamic programming",
-                "Divide and conquer"
-              ],
-              "a": 0,
-              "why": "Greedy algorithms make the locally optimal choice at each stage."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q13</b>: 0/1 Knapsack is based on which method to guarantee an optimal solution?",
-              "o": [
-                "Greedy method",
-                "Branch and bound",
-                "Dynamic programming",
-                "Divide and conquer"
-              ],
-              "a": 2,
-              "why": "Unlike Fractional Knapsack (solved by Greedy), 0/1 Knapsack exhibits overlapping subproblems and requires Dynamic Programming."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q15</b>: What is the purpose of using Randomized Quick Sort over standard Quick Sort?",
-              "o": [
-                "To reduce worst-case space complexity",
-                "To reduce/avoid worst-case time complexity on ordered inputs",
-                "To improve average-case time complexity",
-                "To improve accuracy"
-              ],
-              "a": 1,
-              "why": "Randomizing the pivot prevents sorted or reverse-sorted inputs from consistently triggering Θ(n²) worst-case time."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q16</b>: Time taken in decreasing a node's key value (<code>DECREASE-KEY</code>) in a Binary Min-Heap of $n$ elements is:",
-              "o": [
-                "O(n)",
-                "O(1)",
-                "O(log n)",
-                "O(n log n)"
-              ],
-              "a": 2,
-              "why": "Decreasing a key in a binary min-heap bubbles the node up toward the root along at most the height of the heap, O(log n)."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q18</b>: Given items as <code>{value, weight}</code> pairs <code>{{60, 20}, {50, 25}, {20, 5}}</code> and knapsack capacity $W = 40$, find the maximum value assuming items are divisible (Fractional) and non-divisible (0/1) respectively:",
-              "o": [
-                "100 - 80",
-                "110 - 70",
-                "130 - 110",
-                "110 - 80"
-              ],
-              "a": 3,
-              "why": "Ratios: {20,5}=4, {60,20}=3, {50,25}=2. Fractional: 20 + 60 + (15/25)*50 = 110. Non-divisible (0/1): {20,5} + {60,20} = 80 (weight 25 ≤ 40)."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q19</b>: The time complexity of computing the Longest Common Subsequence (LCS) of strings of lengths $M$ and $N$ using DP is:",
-              "o": [
-                "O(M!)",
-                "O(M · N)",
-                "O(N!)",
-                "O(N)"
-              ],
-              "a": 1,
-              "why": "The DP table has M × N cells, each computed in O(1) time ⇒ O(MN)."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q20</b>: What is the time complexity of <code>fun(int n)</code>?<br><code>for (int i = n; i &gt; 0; i /= 2) for (int j = 0; j &lt; i; j++) count += 1;</code>",
-              "o": [
-                "O(n log n)",
-                "O(n²)",
-                "O(n)",
-                "O(log n)"
-              ],
-              "a": 2,
-              "why": "The inner loop runs n + n/2 + n/4 + … + 1 = 2n − 1 times (a geometric series), which is Θ(n)!"
-            }
-          ]
-        },
-        {
-          "title": "Part II · Trees, Graphs, Dijkstra & NP-Completeness (Q21–Q50)",
-          "marks": "30 marks",
-          "items": [
-            {
-              "type": "mcq",
-              "q": "<b>Q22</b>: The minimum number of edges required to create a cyclic graph of $n$ vertices is:",
-              "o": [
-                "n",
-                "n − 1",
-                "n + 1",
-                "2n"
-              ],
-              "a": 0,
-              "why": "A connected acyclic tree on n vertices has n − 1 edges; adding 1 more edge (total n edges, or a simple cycle C_n) creates a cycle."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q24</b>: Which of the following algorithm design approaches uses memoization?",
-              "o": [
-                "Greedy approach",
-                "Divide and conquer approach",
-                "Dynamic programming approach",
-                "None"
-              ],
-              "a": 2,
-              "why": "Top-down Dynamic Programming caches (memoizes) solved subproblem results."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q25 & Q26</b>: A Heap is an example of a _____________, while the access time of an unbalanced Binary Search Tree may degrade in the worst case up to _____________.",
-              "o": [
-                "Complete binary tree; O(n)",
-                "Spanning tree; O(n log n)",
-                "Sparse tree; O(n²)",
-                "Binary search tree; O(1)"
-              ],
-              "a": 0,
-              "why": "A binary heap is a complete binary tree (Q25 = A); an unbalanced BST degrades to a linear chain of height n with O(n) access time (Q26 = C)."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q30</b>: The time complexity of merging three sorted lists of sizes $m, n,$ and $p$ is:",
-              "o": [
-                "Θ(m + n + p)",
-                "Θ(min(m, n, p))",
-                "Θ(max(m, n, p))",
-                "Θ(m · n · p)"
-              ],
-              "a": 0,
-              "why": "Every element of the three lists is inspected and copied a constant number of times, taking Θ(m + n + p) time."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q41</b>: Dijkstra's Algorithm cannot be applied on:",
-              "o": [
-                "Directed and weighted graphs",
-                "Graphs having a negative weight function",
-                "Unweighted graphs",
-                "Undirected and unweighted graphs"
-              ],
-              "a": 1,
-              "why": "Dijkstra's greedy assumption breaks when edges have negative weights."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q48 & Q49</b>: In the TSP problem on an undirected graph with non-negative edge costs, if the number of cities is $6$, what is the search space size (Slide 20.15)?",
-              "o": [
-                "120",
-                "720",
-                "60",
-                "24"
-              ],
-              "a": 1,
-              "why": "Slide 20.15 explicitly lists: Number of Cities = 6 → Search Space Size = 6! = 720."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Final Exam (65-Question Comprehensive Objective Paper — With Official Answers)",
-      "meta": "Cairo University · FCAI · Algorithms Analysis & Design · Prof. Basheer Youssef (65 Marks)",
-      "note": "Complete 65-MCQ Final Paper covering Hashing (Q1–Q16), Sorting & Trees (Q17–Q40), Dijkstra & Greedy (Q41–Q59), and P/NP/NP-Complete (Q60–Q65).",
-      "sections": [
-        {
-          "title": "Part I · Hashing & Collision Resolution (Q1–Q16)",
-          "marks": "16 marks",
-          "items": [
-            {
-              "type": "mcq",
-              "q": "<b>Q1 & Q2</b>: What is a hash table, and what is it called when several elements compete for the same bucket?",
-              "o": [
-                "A structure that maps keys to values; Collision",
-                "A structure that maps values to keys; Diffusion",
-                "A structure used to implement stack; Replication",
-                "A tree structure; Duplication"
-              ],
-              "a": 0,
-              "why": "A hash table maps keys to values (Q1 = b), and competing for the same bucket is a Collision (Q2 = c)."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q3, Q4 & Q5</b>: In the division method, what is the hash function, what is the best choice for $m$, and where is key $172$ placed when $m = 157$?",
-              "o": [
-                "h(k) = k mod m; Any prime number not close to a power of 2; Position 15",
-                "h(k) = k / m; Any even number; Position 19",
-                "h(k) = m mod k; 2^p; Position 72",
-                "h(k) = m / k; 2^p − 1; Position 17"
-              ],
-              "a": 0,
-              "why": "h(k) = k mod m (Q3 = b); m should be prime (Q4 = a); 172 mod 157 = 15 (Q5 = c)."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q7, Q9 & Q10</b>: What is the average retrieval time when all $n$ keys hash to the same slot, and what is the search complexity in direct addressing?",
-              "o": [
-                "Θ(n) when all n keys hash to one slot; O(1) in direct addressing (with a distinct array position for every possible key)",
-                "Θ(n²) when all n keys hash to one slot; O(log n) in direct addressing",
-                "Θ(n log n); O(n)",
-                "O(1); O(n log n)"
-              ],
-              "a": 0,
-              "why": "Searching a single chain of n keys takes Θ(n) (Q7 = a); direct addressing gives every key its own index (Q9 = a) with O(1) search (Q10 = d)."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q13, Q14 & Q15</b>: In separate chaining, what is the load factor $\\alpha$, what is Simple Uniform Hashing, and what data structure is used for chains?",
-              "o": [
-                "Average chain length (n/m); Every element has equal probability of hashing into any slot; Doubly/Singly linked list",
-                "Average array size; Weighted probability; Stack",
-                "Average key size; Priority hashing; Binary heap",
-                "Average table length; Sequential hashing; Array"
-              ],
-              "a": 0,
-              "why": "Load factor α = n/m is average chain length (Q13 = c); Simple Uniform Hashing gives equal probability 1/m per slot (Q14 = a)."
-            }
-          ]
-        },
-        {
-          "title": "Part II · Binary Trees, Coin Change DP & P/NP Theory (Q17, Q57–Q65)",
-          "marks": "15 marks",
-          "items": [
-            {
-              "type": "mcq",
-              "q": "<b>Q17 (and Final 2021 Q1)</b>: The maximum number of nodes in a binary tree of height $k$, where the root is at height $0$, is:",
-              "o": [
-                "2^k − 1",
-                "2^(k+1) − 1",
-                "2^(k−1) + 1",
-                "2^k + 1"
-              ],
-              "a": 1,
-              "why": "With root at height 0, levels 0, 1, …, k have 1 + 2 + 4 + … + 2^k = 2^(k+1) − 1 nodes!"
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q57 & Q59</b>: Given infinite coins of $N$ denominations $v_1, \\dots, v_N$ and target sum $S$, which general technique solves the minimum-coin change problem optimally for arbitrary denominations, and what is its DP time complexity?",
-              "o": [
-                "Dynamic Programming; O(S · N)",
-                "Greedy algorithm; O(N)",
-                "Divide and conquer; O(N²)",
-                "Backtracking; O(S)"
-              ],
-              "a": 0,
-              "why": "General Coin Change requires Dynamic Programming (Q57 = b) filling an S × N table in O(S · N) time (Q59 = d)."
-            },
-            {
-              "type": "mcq",
-              "q": "<b>Q62 & Q63</b>: _________ is the class of decision problems solvable by non-deterministic polynomial algorithms, and a non-deterministic algorithm is non-deterministic polynomial iff its verification stage runs in polynomial time.",
-              "o": [
-                "NP; True",
-                "P; False",
-                "NP-Hard; False",
-                "NP-Complete; True"
-              ],
-              "a": 0,
-              "why": "Q62 = a (NP); Q63 = a (True)."
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": "Final Summer Exam & Workout Finals (2016, 2018 I/II, 2019 Credit & Exam Examples)",
-      "meta": "Cairo University · FCAI · CS316 Algorithms · Prof. Basheer Youssef",
-      "note": "Includes the 13 True/False questions, the 8-Sorting-Algorithms intermediate trace matching problem, the Dijkstra 9-node verification workout, and the 0/1 vs. Greedy Knapsack workout.",
-      "sections": [
-        {
-          "title": "Part I · True / False Conceptual Checks (Final Summer Q1–Q13)",
-          "marks": "13 marks",
-          "items": [
-            {
-              "type": "tf",
-              "q": "<b>1.</b> For two algorithms A and B, if $O(A) = n^{100}$ and $O(B) = 10^n$, then algorithm A is the better asymptotic choice.",
-              "a": 0,
-              "why": "True! Polynomial n¹⁰⁰ grows much slower than exponential 10ⁿ for large n."
-            },
-            {
-              "type": "tf",
-              "q": "<b>2.</b> To perform a binary search, the data set must be sorted.",
-              "a": 0,
-              "why": "True! Binary search relies on sorted order to discard half the search space at each comparison."
-            },
-            {
-              "type": "tf",
-              "q": "<b>5.</b> Printing every node in a balanced binary search tree takes $\\Theta(\\lg n)$ time.",
-              "a": 1,
-              "why": "False! Visiting and printing all n nodes requires Ω(n) time (specifically Θ(n) via inorder traversal)."
-            },
-            {
-              "type": "tf",
-              "q": "<b>6.</b> In a Red-Black Tree, a black node must have only red children.",
-              "a": 1,
-              "why": "False! A RED node must have black children, whereas a BLACK node can have red or black children."
-            },
-            {
-              "type": "tf",
-              "q": "<b>7.</b> Dynamic Programming has the potential to transform exponential-time recursive algorithms into polynomial-time algorithms.",
-              "a": 0,
-              "why": "True! By storing and reusing solutions to overlapping subproblems (e.g., Fibonacci O(2ⁿ) → Θ(n), LCS O(2ⁿ) → Θ(mn))."
-            },
-            {
-              "type": "tf",
-              "q": "<b>8.</b> In Kruskal's algorithm for building a Minimum Spanning Tree, we proceed node by node, growing a single connected tree.",
-              "a": 1,
-              "why": "False! That describes Prim's algorithm; Kruskal's proceeds edge by edge in sorted weight order, growing a forest of trees."
-            },
-            {
-              "type": "tf",
-              "q": "<b>9.</b> Huffman encoding uses a Dynamic Programming strategy to compress data.",
-              "a": 1,
-              "why": "False! Huffman encoding is a Greedy algorithm."
-            },
-            {
-              "type": "tf",
-              "q": "<b>13.</b> We do not have to make any key comparisons to find the minimum or maximum node of a Binary Search Tree.",
-              "a": 0,
-              "why": "True! We simply follow left pointers (for min) or right pointers (for max) until reaching NIL without comparing keys."
-            }
-          ]
-        },
-        {
-          "title": "Part II · Signature Workout Problems (Sorting Trace Matching, Knapsack & Dijkstra)",
-          "marks": "30 marks",
-          "items": [
-            {
-              "type": "written",
-              "q": "<b>Final 5 Q3 & Final 2016 Q3 (Eight Sorting Algorithms Column Matching)</b>: Match each intermediate column of the 24-word animal list (<code>deer, clam, bear, myna, tuna, slug, …</code>) to its sorting algorithm: <code>(0) Original input, (1) Sorted, (2) Selection sort, (3) Insertion sort, (4) Shellsort, (5) Mergesort, (6) Quicksort, (7) Heapsort</code>.",
-              "ans": "<b>Official Column Order (Left to Right): <code>0, 4, 2, 3, 5, 6, 7, 1</code></b>:<br>• <b>Col 1 = (0) Original input</b>: <code>deer, clam, bear, myna, …</code><br>• <b>Col 2 = (4) Shellsort</b>: $h$-sorted subsequences (every 4th element is sorted).<br>• <b>Col 3 = (2) Selection sort</b>: First 13 elements are the global 13 smallest words in final sorted position (<code>bass, bull, bear…</code>) while the bottom suffix holds the remaining larger elements.<br>• <b>Col 4 = (3) Insertion sort</b>: First half of the array (`0..15`) is sorted relative to itself (`bass, bear, bull, calf, clam, crab, crow, deer, dove, duck, gnat, hoki, lion, lynx, myna, swan`), while `16..23` (`mule, hoki, duck, crab, crow, bass, lion, puma`) are untouched in their exact original positions!<br>• <b>Col 5 = (5) Mergesort</b>: Consists of sorted blocks of size 4/8 (`bear, bull, calf, clam, deer, dove, lynx, myna` | `slug, sole, tuna, …`).<br>• <b>Col 6 = (6) Quicksort</b>: Partitioned around pivot `deer` at index 7 (all elements `0..6` are $\\le$ `deer`, and all elements `8..23` are $\\ge$ `deer`).<br>• <b>Col 7 = (7) Heapsort</b>: Max-heap at top (`tuna, swan, sole, myna, lion…`) with largest sorted elements placed at the bottom.",
-              "why": "Each sorting algorithm leaves a unique structural fingerprint on the array midway through execution."
-            },
-            {
-              "type": "written",
-              "q": "<b>Final 1 Q1 & Final 2016 Q6 / Final 5 Q7</b>: Find the shortest paths from node <code>s</code> to every node (<code>2, 3, 4, 5, 6, 7, t</code>) in the 8-node directed graph (with edges <code>s→2:9, s→6:14, s→7:15, 2→3:24, 6→3:18, 6→5:30, 6→7:5, 7→5:20, 7→t:44, 5→3:2, 5→4:11, 5→t:16, 4→3:6, 4→t:6, 3→t:19</code>) using Dijkstra's Algorithm.",
-              "ans": "<b>Step-by-Step Dijkstra Settlement from <code>s</code></b>:<br>1. <b>Init at <code>s</code></b>: $d[s]=0$. Relax out of $s$: $d[2]=9(p=s),\\; d[6]=14(p=s),\\; d[7]=15(p=s)$.<br>2. <b>Extract <code>2</code> ($d[2]=9$)</b>: Relax $2\\to 3$: $d[3]=9+24=33(p=2)$.<br>3. <b>Extract <code>6</code> ($d[6]=14$)</b>: Relax $6\\to 3$: $d[3]=\\min(33, 14+18)=32(p=6)$; $6\\to 5$: $d[5]=14+30=44(p=6)$; $6\\to 7$: $14+5=19 > 15$.<br>4. <b>Extract <code>7</code> ($d[7]=15$)</b>: Relax $7\\to 5$: $d[5]=\\min(44, 15+20)=35(p=7)$; $7\\to t$: $d[t]=15+44=59(p=7)$.<br>5. <b>Extract <code>3</code> ($d[3]=32$)</b>: Relax $3\\to t$: $d[t]=\\min(59, 32+19)=51(p=3)$.<br>6. <b>Extract <code>5</code> ($d[5]=35$)</b>: Relax $5\\to 3$: $35+2=37 > 32$; $5\\to 4$: $d[4]=35+11=46(p=5)$; $5\\to t$: $d[t]=\\min(51, 35+16)=51(p=3/5)$.<br>7. <b>Extract <code>4</code> ($d[4]=46$)</b>: Relax $4\\to t$: $46+6=52 > 51$.<br>8. <b>Extract <code>t</code> ($d[t]=51$)</b>.<br><b>Final Distances & Predecessors</b>: <code>2: 9(s), 6: 14(s), 7: 15(s), 3: 32(6), 5: 35(7), 4: 46(5), t: 51(3 or 5)</code>.<br><b>Shortest Path $s \\leadsto t$</b>: <code>s → 6 → 3 → t</code> ($14 + 18 + 19 = \\mathbf{51}$) or <code>s → 7 → 5 → t</code> ($15 + 20 + 16 = \\mathbf{51}$).",
-              "why": "Classic Kleinberg-Tardos / FCAI Final Exam 8-node Dijkstra benchmark graph."
             }
           ]
         }

@@ -1412,7 +1412,512 @@ while Q ≠ ∅
     draw(C(`Dijkstra complete! Final shortest distances from ${source}: ${nodes.map(n => `${n.id}=${d[n.id]}`).join(', ')}.`, `خلصنا Dijkstra! أقصر المسافات من A: ${nodes.map(n => `${n.id}=${d[n.id]}`).join(', ')}.`), null, null, fmtVars());
   }
 
-  const SIMS = { stack: stackSim, queue: queueSim, cqueue: cqueueSim, array: arraySim, list: listSim, dlist: listSim, lstack: listSim, lqueue: listSim, bst: bstSim, hash: hashSim, isort: isortSim, qsort: qsortSim, csort: csortSim, bsearch: bsearchSim, dijkstra: dijkstraSim };
+  /* ════════ lectures 7, 12, 13, 14: selection, trace tables, skip lists, DP tables ════════ */
+
+  // a static grid of labelled cells with a highlighted cell and its dependencies (LCS / knapsack / coin row)
+  function gridFrame(R, o) {
+    const CW = o.cw || 46, CH = o.ch || 34, GX = 4, GY = 4, x0 = o.x0 || 96, y0 = o.y0 || 66;
+    const items = [], edges = [];
+    if (o.title) items.push(lbl('gt', x0, 16, o.title, 'muted'));
+    for (let c = 0; c < o.ncol; c++)
+      items.push(lbl('gch' + c, x0 + c * (CW + GX) + CW / 2, y0 - 18, o.cheads[c] == null ? '' : String(o.cheads[c]), 'muted'));
+    for (let r = 0; r < o.nrow; r++) {
+      items.push(lbl('grh' + r, x0 - 14, y0 + r * (CH + GY) + CH / 2, o.rheads[r] == null ? '' : String(o.rheads[r]), 'muted'));
+      for (let c = 0; c < o.ncol; c++) {
+        const id = 'g' + r + '-' + c, v = o.cells[r] && o.cells[r][c];
+        const hot = o.hot && o.hot[0] === r && o.hot[1] === c;
+        const dep = o.deps && o.deps.some(p => p[0] === r && p[1] === c);
+        const ok = o.ok && o.ok.some(p => p[0] === r && p[1] === c);
+        const x = x0 + c * (CW + GX), y = y0 + r * (CH + GY);
+        items.push(mk('cell', id, x, y, { w: CW, h: CH, c: hot ? 'new' : dep ? 'warn' : ok ? 'ok' : '' }));
+        if (v != null && v !== '') items.push(mk('val', 'v' + id, x, y, { w: CW, h: CH, t: String(v) }));
+      }
+    }
+    for (const p of (o.links || [])) edges.push({ id: 'ge' + p.join('-'), a: 'g' + p[0] + '-' + p[1], b: 'g' + p[2] + '-' + p[3], c: 'ptrl' });
+    return R.push({ items, edges, cap: o.cap }, o.vars || []);
+  }
+
+  function selectSim(spec, R) {
+    const raw = (spec.arr || [7, 4, 9, 2, 8, 5, 1]).slice(0, 10);
+    const n = raw.length, a = raw.slice();
+    let rank = Number(spec.rank || 4);
+    if (!Number.isSafeInteger(rank) || rank < 1 || rank > n) rank = Math.min(n, 4);
+    const k = rank - 1, X = 40, Y = 84, W = 54;
+    let lo = 0, hi = n - 1, cmps = 0;
+    const draw = (cap, st, vars) => {
+      const items = [], edges = [];
+      items.push(lbl('sh', X + (n * W) / 2 - 70, 22, `SELECT(A, 1..${n}, k = ${rank}) — find the ${rank}${['th', 'st', 'nd', 'rd'][rank % 10 > 3 || [11, 12, 13].includes(rank) ? 0 : rank % 10]} smallest`, 'muted'));
+      for (let i = 0; i < n; i++) {
+        const inWin = i >= lo && i <= hi;
+        const c = (st.hl && st.hl[i]) || '';
+        items.push(mk('cell', 'sc' + i, X + i * W, Y, { w: W - 6, c }));
+        items.push(mk('val', 'sv' + i, X + i * W, Y, { w: W - 6, t: String(a[i]), c: inWin ? '' : 'stale' }));
+        items.push(lbl('sx' + i, X + i * W + (W - 6) / 2, Y + 52, String(i + 1), 'muted'));
+      }
+      if (k >= lo && k <= hi) items.push(ptr('pk', X + k * W, Y - 34, 'rank ' + rank, 'on2'));
+      (st.ptrs || []).forEach((p, pi) => items.push(ptr('sp-' + p.name, X + p.idx * W, Y + 66 + pi * 26, p.label, p.c || 'on')));
+      return R.push({ items, edges, cap }, vars || []);
+    };
+    R.at(null);
+    draw(C(`Quickselect on [${raw.join(', ')}] for rank ${rank}: only the side that contains rank ${rank} is kept.`, `اختيار العنصر رقم ${rank} من [${raw.join(', ')}]: كل مرة نبقي النص اللي فيه الرتبة ${rank} بس.`), { ptrs: [{ name: 'lo', idx: lo, label: 'lo=1' }, { name: 'hi', idx: hi, label: 'hi=' + n }] }, [['n', n], ['k', rank], ['comparisons', 0]]);
+    while (lo <= hi) {
+      const pivot = a[hi];
+      draw(C(`Pivot p = A[hi] = ${pivot}. Partition the window A[${lo + 1}..${hi + 1}] around it.`, `الـ pivot = A[hi] = ${pivot}. نقسم النافذة A[${lo + 1}..${hi + 1}] حواليه.`), { hl: { [hi]: 'hl' }, ptrs: [{ name: 'lo', idx: lo, label: 'lo=' + (lo + 1), c: 'on2' }, { name: 'hi', idx: hi, label: 'hi=' + (hi + 1), c: 'on2' }] }, [['lo', lo + 1], ['hi', hi + 1], ['pivot', pivot], ['comparisons', cmps]]);
+      let i = lo;
+      for (let j = lo; j < hi; j++) {
+        cmps++;
+        const le = a[j] <= pivot;
+        if (le) { const t = a[i]; a[i] = a[j]; a[j] = t; i++; }
+        draw(C(le ? `A[${j + 1}] = ${a[i - 1]} ≤ ${pivot}: swap it into the small side (i becomes ${i}).` : `A[${j + 1}] = ${a[j]} > ${pivot}: leave it on the large side.`, le ? `A[${j + 1}] أصغر من الـ pivot: ننقله للنص الصغير.` : `A[${j + 1}] أكبر من الـ pivot: يفضل في النص الكبير.`), { hl: { [j]: 'hl', [i - 1]: le ? 'ok' : '' } }, [['j', j + 1], ['pivot', pivot], ['comparisons', cmps]]);
+      }
+      const t = a[i]; a[i] = a[hi]; a[hi] = t;
+      cmps++;
+      const p = i;
+      const found = p === k;
+      draw(C(`Swap the pivot into place: it settles at position ${p + 1}, so it is the ${p + 1}-th smallest key. k = ${rank}${found ? ' → done.' : p < k ? ' > ' + (p + 1) + ', so the answer is to the RIGHT.' : ' < ' + (p + 1) + ', so the answer is to the LEFT.'}`, `الـ pivot استقر في المكان ${p + 1}، يعني هو العنصر رقم ${p + 1}. k = ${rank}${found ? ' → خلاص.' : p < k ? ' أكبر، يعني الإجابة على اليمين.' : ' أصغر، يعني الإجابة على الشمال.'}`), { hl: { [p]: 'ok' }, ptrs: [{ name: 'p', idx: p, label: 'pivot @ ' + (p + 1), c: 'on2' }] }, [['lo', lo + 1], ['hi', hi + 1], ['pivot position', p + 1], ['comparisons', cmps]]);
+      if (found) {
+        draw(C(`SELECT returns ${a[p]} (rank ${rank}) after ${cmps} comparisons. Expected cost Θ(n): each partition discards a constant fraction of the window on average.`, `النتيجة ${a[p]} (الرتبة ${rank}) بعد ${cmps} مقارنة. متوسط التكلفة Θ(n).`), { hl: { [p]: 'ok' }, ptrs: [{ name: 'r', idx: p, label: 'rank ' + rank + ' = ' + a[p] }] }, [['answer', a[p]], ['rank', rank], ['comparisons', cmps]]);
+        return;
+      }
+      if (cmps < 22) R.quiz(C(`The pivot settled at position ${p + 1} but k = ${rank}. Which part of the window do we keep?`, `الـ pivot استقر في ${p + 1} والـ k = ${rank}. نبقي أنهي جزء؟`), p < k ? `Right part A[${p + 2}..${hi + 1}]` : `Left part A[${lo + 1}..${p}]`, [p < k ? `Left part A[${lo + 1}..${p}]` : `Right part A[${p + 2}..${hi + 1}]`, 'Both parts'], true);
+      if (p < k) lo = p + 1; else hi = p - 1;
+      draw(C(`Keep only A[${lo + 1}..${hi + 1}] — the other side can never hold rank ${rank}.`, `نبقي A[${lo + 1}..${hi + 1}] بس — النص التاني مستحيل يحتوي الرتبة ${rank}.`), { ptrs: [{ name: 'lo', idx: lo, label: 'lo=' + (lo + 1) }, { name: 'hi', idx: hi, label: 'hi=' + (hi + 1) }] }, [['lo', lo + 1], ['hi', hi + 1], ['comparisons', cmps]]);
+    }
+    R.at(null);
+  }
+
+  function skiplistSim(spec, R) {
+    const keys = (spec.keys || [2, 10, 15, 16, 31, 71, 96]).slice(0, 9).sort((x, y) => x - y);
+    const n = keys.length;
+    const hts = (spec.heights && spec.heights.length === n) ? spec.heights.slice()
+      : keys.map((k, i) => ((i * 5 + 3) % 4 === 0) ? 2 : ((i % 2 === 0) ? 1 : 0));
+    const maxLv = Math.max(1, ...hts);
+    const target = spec.search != null ? Number(spec.search) : keys[Math.max(0, n - 2)];
+    const CW = 64, CX = 150, RH = 56;
+    const colX = i => CX + i * CW;
+    const draw = (cap, st, vars) => {
+      const items = [], edges = [];
+      items.push(lbl('slh', 20, 18, 'level', 'muted'));
+      for (let lv = maxLv; lv >= 0; lv--) {
+        const y = 34 + (maxLv - lv) * RH;
+        items.push(lbl('sll' + lv, 36, y + 19, 'L' + lv, 'muted'));
+        items.push(mk('node', 'slH' + lv, 62, y, { w: 58, h: 38, t: 'H', c: st.lv === lv && st.cur < 0 ? 'hl' : '' }));
+        for (let i = 0; i < n; i++) {
+          if (hts[i] < lv) continue;
+          const here = st.lv === lv && st.cur === i;
+          const c = st.found === i ? 'ok' : here ? 'hl' : (st.seen || []).includes(i) ? 'done' : '';
+          items.push(mk('node', 'sl' + lv + '-' + i, colX(i), y, { w: 58, h: 38, t: String(keys[i]), c }));
+        }
+        items.push(mk('node', 'slI' + lv, colX(n), y, { w: 52, h: 38, t: '∞', c: st.lv === lv && st.cur >= n - 1 ? 'warn' : '' }));
+      }
+      return R.push({ items, edges, cap }, vars || []);
+    };
+    R.at(null);
+    const heights = keys.map((k, i) => `${k}:${hts[i]} level${hts[i] === 1 ? '' : 's'}`).join(', ');
+    draw(C(`Randomized skip list on ${keys.length} keys. Promotions by coin flips gave ${heights} — each level keeps about half of the level below. Search for ${target} starts at the header of the top level.`, `Skip list على ${keys.length} مفاتيح. ترقية العُقد بالعملة أعطت ${heights}. البحث عن ${target} يبدأ من الهيدر في أعلى مستوى.`), { lv: maxLv, cur: -1, seen: [] }, [['target', target], ['levels', maxLv + 1]]);
+    let lv = maxLv, cur = -1, found = -1, steps = 0;
+    const seen = [];
+    while (lv >= 0 && steps < 40) {
+      steps++;
+      let next = -1;
+      for (let i = cur + 1; i < n; i++) if (hts[i] >= lv) { next = i; break; }
+      if (next === -1) {
+        draw(C(`Nothing to the right on level ${lv}: drop to level ${lv - 1} and continue with the fuller list.`, `مفيش حاجة على يمين مستوى ${lv}: ننزل لمستوى ${lv - 1} ونكمل في القائمة الأكمل.`), { lv, cur, seen: seen.slice() }, [['level', lv], ['next key', '∞']]);
+        lv--; continue;
+      }
+      if (keys[next] === target) {
+        found = next;
+        draw(C(`Level ${lv}: the next key is ${keys[next]} == ${target} → found in ${steps} node visits. Expected cost O(log n): O(log n) levels, at most 2 nodes per level.`, `المستوى ${lv}: المفتاح اللي بعده ${keys[next]} = ${target} → لقيناه في ${steps} خطوة. التكلفة المتوقعة O(log n).`), { lv, cur, found, seen: seen.slice() }, [['level', lv], ['visits', steps], ['found', keys[found]]]);
+        return;
+      }
+      if (keys[next] < target) {
+        cur = next; if (!seen.includes(cur)) seen.push(cur);
+        draw(C(`Level ${lv}: next key ${keys[next]} < ${target} → move right.`, `المستوى ${lv}: المفتاح ${keys[next]} أصغر من ${target} → نتحرك يمين.`), { lv, cur, seen: seen.slice() }, [['level', lv], ['at key', keys[cur]]]);
+        if (steps === 2) R.quiz(C(`At key ${keys[cur]} on level ${lv}, the next key is larger than ${target}. What happens next?`, `عند المفتاح ${keys[cur]} في المستوى ${lv}، المفتاح اللي بعده أكبر من ${target}. نعمل إيه؟`), `Drop down to level ${lv - 1}`, ['Move right along the level', 'Restart from the header'], true);
+      } else {
+        draw(C(`Level ${lv}: next key ${keys[next]} > ${target} → we would overshoot, so drop down to level ${lv - 1}.`, `المستوى ${lv}: المفتاح ${keys[next]} أكبر من ${target} → هنعدّي، فننزل لمستوى ${lv - 1}.`), { lv, cur, seen: seen.slice() }, [['level', lv], ['next key', keys[next]]]);
+        lv--;
+      }
+    }
+    R.at(null);
+    draw(C(`${target} is not in the skip list: the search fell past level 0. Insertion and deletion are a search plus O(1) pointer splicing per level reached.`, `المفتاح ${target} مش موجود. الإدخال والحذف = بحث + تعديل مؤشرات O(1) لكل مستوى.`), { lv: 0, cur, seen: seen.slice(), found: -1 }, [['target', target], ['result', 'not found']]);
+  }
+
+  function dpSim(spec, R) {
+    const which = spec.method === 'knapsack' ? 'knapsack' : spec.method === 'coinrow' ? 'coinrow' : 'lcs';
+    R.at(null);
+    if (which === 'coinrow') {
+      const coins = (spec.coins || [5, 1, 2, 10, 6, 2]).slice(0, 8), n = coins.length;
+      const F = Array(n + 1).fill(null); F[0] = 0;
+      const cells = () => [coins.map(c => String(c)).concat(['']), F.map(v => v == null ? '' : String(v))];
+      const frame = (cap, hot, deps, vars) => gridFrame(R, {
+        title: 'Coin row: F(n) = max{cₙ + F(n − 2), F(n − 1)}', nrow: 2, ncol: n + 1,
+        cheads: ['0'].concat(coins.map((_, i) => String(i + 1))), rheads: ['cₙ', 'F(n)'],
+        cells: cells(), hot, deps, cap, cw: 44, x0: 92, vars
+      });
+      frame(C(`Row of coins [${coins.join(', ')}]. F(j) = best total from the first j coins with no two adjacent. Base case F(0) = 0.`, `صف العملات [${coins.join(', ')}]. F(j) أفضل مجموع من أول j عملة بدون عملتين متجاورتين. F(0) = 0.`), [1, 0], []);
+      for (let i = 1; i <= n; i++) {
+        const take = coins[i - 1] + (i >= 2 ? F[i - 2] : 0), skip = F[i - 1];
+        F[i] = Math.max(take, skip);
+        const deps = [[1, i - 1]]; if (i >= 2) deps.push([1, i - 2]);
+        frame(C(`F(${i}) = max{c${i} + F(${i - 2 < 0 ? 0 : i - 2}), F(${i - 1})} = max{${take}, ${skip}} = ${F[i]}${take > skip ? ' → take coin ' + coins[i - 1] + '.' : ' → skip coin ' + coins[i - 1] + '.'}`, `F(${i}) = max{${take}, ${skip}} = ${F[i]}${take > skip ? ' → نأخذ العملة ' + coins[i - 1] + '.' : ' → نترك العملة ' + coins[i - 1] + '.'}`), [1, i], deps, [['n', i], ['F(n)', F[i]]]);
+      }
+      frame(C(`Best amount F(${n}) = ${F[n]}. Backtrace from F(${n}) to recover the coins. Time Θ(n), space Θ(n).`, `أفضل مجموع F(${n}) = ${F[n]}. نرجع بالجدول لمعرفة العملات. الزمن Θ(n).`), [1, n], [[1, n - 1]], [['answer', F[n]]]);
+      return;
+    }
+    if (which === 'knapsack') {
+      const items = (spec.items || [[2, 12], [1, 10], [3, 20], [2, 15]]).slice(0, 5), W = Number(spec.capacity || 5);
+      const n = items.length, V = [];
+      for (let i = 0; i <= n; i++) V.push(Array(W + 1).fill(null));
+      for (let j = 0; j <= W; j++) V[0][j] = 0;
+      for (let i = 0; i <= n; i++) V[i][0] = 0;
+      const cells = () => V.map(r => r.map(v => v == null ? '' : String(v)));
+      const frame = (cap, hot, deps, vars) => gridFrame(R, {
+        title: `0/1 knapsack: W = ${W}, items ${items.map(([w, v], i) => `(${i + 1}: w=${w}, ${v})`).join(' ')}`, nrow: n + 1, ncol: W + 1,
+        cheads: ['j=0'].concat(Array.from({ length: W }, (_, j) => 'j=' + (j + 1))), rheads: Array.from({ length: n + 1 }, (_, i) => 'i=' + i),
+        cells: cells(), hot, deps, cap, cw: 44, x0: 104, vars
+      });
+      frame(C(`Table V(i, j): best value using items 1..i with capacity j. Row 0 and column 0 are 0.`, `جدول V(i, j): أفضل قيمة بأول i عنصر وسعة j. الصف 0 والعمود 0 أصفار.`), [0, 0], []);
+      for (let i = 1; i <= n; i++) {
+        const [w, v] = items[i - 1];
+        for (let j = 1; j <= W; j++) {
+          if (w <= j) {
+            const take = v + V[i - 1][j - w], skip = V[i - 1][j];
+            V[i][j] = Math.max(take, skip);
+            frame(C(`V(${i}, ${j}) = max{V(${i - 1}, ${j}) = ${skip}, ${v} + V(${i - 1}, ${j - w}) = ${take}} = ${V[i][j]}${take > skip ? ' → item ' + i + ' is taken.' : ' → item ' + i + ' is left out.'}`, `V(${i}, ${j}) = max{${skip}, ${take}} = ${V[i][j]}${take > skip ? ' → نأخذ العنصر ' + i + '.' : ' → نترك العنصر ' + i + '.'}`), [i, j], [[i - 1, j], [i - 1, j - w]], [['i', i], ['j', j], ['V', V[i][j]]]);
+          } else {
+            V[i][j] = V[i - 1][j];
+            frame(C(`Item ${i} weighs ${w} > capacity ${j}, so it cannot be taken: V(${i}, ${j}) = V(${i - 1}, ${j}) = ${V[i][j]}.`, `وزن العنصر ${i} = ${w} أكبر من السعة ${j}، فمش ممكن ناخده: V(${i}, ${j}) = ${V[i][j]}.`), [i, j], [[i - 1, j]], [['i', i], ['j', j]]);
+          }
+        }
+      }
+      frame(C(`Best value V(${n}, ${W}) = ${V[n][W]}. Backtrace: move up when the value came from above, otherwise take the item and move up-left by wᵢ. Time O(nW).`, `أفضل قيمة V(${n}, ${W}) = ${V[n][W]}. نرجع بالجدول لمعرفة العناصر. الزمن O(nW).`), [n, W], [[n - 1, W]], [['answer', V[n][W]]]);
+      return;
+    }
+    const A = String(spec.first || 'BANANA').toUpperCase().slice(0, 6);
+    const B = String(spec.second || 'ATANA').toUpperCase().slice(0, 6);
+    const m = B.length, nn = A.length, L = [];
+    for (let i = 0; i <= m; i++) L.push(Array(nn + 1).fill(null));
+    for (let j = 0; j <= nn; j++) L[0][j] = 0;
+    for (let i = 0; i <= m; i++) L[i][0] = 0;
+    const cells = () => L.map(r => r.map(v => v == null ? '' : String(v)));
+    const frame = (cap, hot, deps, vars) => gridFrame(R, {
+      title: `LCS of "${A}" and "${B}": len(i, j)`, nrow: m + 1, ncol: nn + 1,
+      cheads: ['ø', ...A.split('')], rheads: ['ø', ...B.split('')],
+      cells: cells(), hot, deps, cap, cw: 40, x0: 88, vars
+    });
+    frame(C(`len(i, j) = length of the LCS of "${A}".slice(0, i) and "${B}".slice(0, j). Row 0 and column 0 are 0 — an empty prefix shares nothing.`, `len(i, j) طول أطول تتابع مشترك بين أول i حرف من "${A}" وأول j حرف من "${B}". الصف 0 والعمود 0 أصفار.`), [0, 0], []);
+    for (let i = 1; i <= m; i++) {
+      for (let j = 1; j <= nn; j++) {
+        if (B[i - 1] === A[j - 1]) {
+          L[i][j] = L[i - 1][j - 1] + 1;
+          frame(C(`B[${i}] = A[${j}] = ${A[j - 1]}: match, so len(${i}, ${j}) = len(${i - 1}, ${j - 1}) + 1 = ${L[i][j]}.`, `تطابق عند ${A[j - 1]}: len = ${L[i][j]}.`), [i, j], [[i - 1, j - 1]], [['i', i], ['j', j], ['len', L[i][j]]]);
+        } else {
+          L[i][j] = Math.max(L[i - 1][j], L[i][j - 1]);
+          frame(C(`B[${i}] = ${B[i - 1]} ≠ A[${j}] = ${A[j - 1]}: len(${i}, ${j}) = max{len(${i - 1}, ${j}) = ${L[i - 1][j]}, len(${i}, ${j - 1}) = ${L[i][j - 1]}} = ${L[i][j]}.`, `مش متطابقين: len(${i}, ${j}) = ${L[i][j]}.`), [i, j], [[i - 1, j], [i, j - 1]], [['i', i], ['j', j], ['len', L[i][j]]]);
+        }
+      }
+    }
+    frame(C(`The LCS length is len(${m}, ${nn}) = ${L[m][nn]}. Backtrace from this cell: on a match take the letter and move diagonally; otherwise move to the larger of up and left. Time O(mn).`, `طول أطول تتابع مشترك = ${L[m][nn]}. نرجع من الخلية الأخيرة: عند التطابق ناخد الحرف ونمشي بالقطر، وإلا نروح للأكبر من فوق أو يسار. الزمن O(mn).`), [m, nn], [[m - 1, nn], [m, nn - 1]], [['answer', L[m][nn]]]);
+  }
+
+  function tableSim(spec, R) {
+    const cols = (spec.cols || ['n', 'f(n)']).slice(0, 6);
+    const rows = (spec.rows || []).slice(0, 9);
+    const steps = (spec.steps && spec.steps.length) ? spec.steps : [{ r: 0, cap: C('Read the table row by row.', 'نقرأ الجدول صفًا صفًا.') }];
+    const H = 38, GAP = 6, X = 40, Y = 78;
+    const ws = cols.map((c, ci) => Math.max(58, Math.min(150, Math.max(String(c).length, ...rows.map(r => String(r[ci] == null ? '' : r[ci]).length)) * 8.6 + 26)));
+    const xs = []; let acc = X; ws.forEach(w => { xs.push(acc); acc += w + GAP; });
+    const draw = (step, vars) => {
+      const items = [], edges = [];
+      if (spec.title) items.push(lbl('tt', X, 20, spec.title, 'muted'));
+      cols.forEach((c, ci) => items.push(lbl('th' + ci, xs[ci] + ws[ci] / 2, Y - 22, c, 'muted')));
+      rows.forEach((row, ri) => {
+        const done = step.r != null && ri < step.r, hot = step.r != null && ri === step.r;
+        row.forEach((cell, ci) => {
+          const x = xs[ci], y = Y + ri * (H + GAP);
+          items.push(mk('cell', 't' + ri + '-' + ci, x, y, { w: ws[ci], h: H, c: hot ? 'hl' : done ? 'done' : '' }));
+          if (cell != null && cell !== '') items.push(mk('val', 'tv' + ri + '-' + ci, x, y, { w: ws[ci], h: H, t: String(cell), c: done ? 'stale' : '' }));
+        });
+      });
+      return R.push({ items, edges, cap: step.cap || steps[0].cap }, vars || step.vars || []);
+    };
+    R.at(null);
+    for (const [si, step] of steps.entries()) {
+      if (step.code) R.at(step.code);
+      draw(step);
+      if (step.quiz) R.quiz(step.quiz[0], step.quiz[1], step.quiz[2], true);
+      if (si === steps.length - 1) R.at(null);
+    }
+  }
+
+  /* ════════ red-black trees, traced by the case lists of Lab 5 (insert) and Lab 6 (delete) ════════ */
+  // Insert, as in the lab sheet: Case 0 the root · Case 1 uncle red · Case 2 left-left · Case 3 left-right ·
+  //   Case 4 right-right · Case 5 right-left.
+  // Delete, as in the lab sheet: Step 1 the plain BST splice (two children → in-order successor), Step 2 the colour
+  //   of the spliced-out node: Case 1 it was red · Case 2 its child was red · otherwise the fix-up loop with
+  //   Case 0 x is the root · Case 1 the sibling is red · Case 2 both nephews black · Case 3 near red/far black ·
+  //   Case 4 far nephew red (the terminal case).
+  // Before every decision the frame asks which case it is, exactly the way the lab sheet walks through it.
+  function rbtSim(spec, R) {
+    let root = null, uid = 0;
+    const N = Object.create(null);
+    const K = id => (id == null || N[id].k == null ? 'NIL' : N[id].k);
+    const col = id => (id == null ? 'B' : N[id].c);
+    const tag = id => (id == null || N[id].k == null ? 'NIL' : N[id].k + (N[id].c === 'R' ? ' (red)' : ' (black)'));
+    const mkNode = (k, c) => { const id = 'q' + (++uid); N[id] = { k, c, l: null, r: null, p: null }; return id; };
+    const linkL = (par, ch) => { if (par == null) root = ch; else N[par].l = ch; if (ch != null) N[ch].p = par; };
+    const linkR = (par, ch) => { if (par == null) root = ch; else N[par].r = ch; if (ch != null) N[ch].p = par; };
+    function rotL(x) {
+      const y = N[x].r, p = N[x].p;
+      linkR(x, N[y].l); N[y].p = p;
+      if (p == null) root = y; else if (N[p].l === x) N[p].l = y; else N[p].r = y;
+      N[y].l = x; N[x].p = y;
+    }
+    function rotR(y) {
+      const x = N[y].l, p = N[y].p;
+      linkL(y, N[x].r); N[x].p = p;
+      if (p == null) root = x; else if (N[p].l === y) N[p].l = x; else N[p].r = x;
+      N[x].r = y; N[y].p = x;
+    }
+    const blackHeight = () => { let k = 0, id = root; while (id != null) { if (N[id].c === 'B') k++; id = N[id].l; } return k + 1; };
+
+    const draw = (cap, o, vars) => {
+      o = o || {};
+      const items = [], edges = [], pos = Object.create(null);
+      let idx = 0;
+      const place = (id, d) => { if (id == null) return; place(N[id].l, d + 1); pos[id] = { i: idx++, d }; place(N[id].r, d + 1); };
+      place(root, 0);
+      const X = i => 30 + i * 60, Y = d => 34 + d * 76;
+      for (const id of Object.keys(N)) {
+        if (!pos[id]) continue;
+        const n = N[id], nil = n.k == null;
+        const cls = (nil ? 'rb-nil' : n.c === 'R' ? 'rb-red' : 'rb-black') + (o.cur === id ? ' rb-cur' : '');
+        items.push(mk('circ', 'k' + id, X(pos[id].i), Y(pos[id].d), { t: nil ? 'NIL' : String(n.k), c: cls }));
+      }
+      for (const id of Object.keys(N)) {
+        const n = N[id]; if (!pos[id]) continue;
+        [n.l, n.r].forEach((ch, s) => { if (ch != null && pos[ch]) edges.push({ id: 'e' + id + s, a: 'k' + id, as: 'auto', b: 'k' + ch, bs: 'auto', c: '', side: s }); });
+      }
+      if (root == null) items.push(lbl('empty', 70, 40, 'root = NIL', 'muted'));
+      (o.chips || []).forEach(([id, label, kind]) => {
+        if (id == null || !pos[id]) return;
+        const w = Math.max(44, label.length * 7.4 + 18);
+        items.push(ptr('cp' + id + label, X(pos[id].i) + 20 - w / 2, Y(pos[id].d) + 26, label, kind || 'on2'));
+      });
+      if (o.tag) items.push(ptr('casetag', 16, 2, o.tag, 'on3'));
+      return R.push({ items, edges, cap, out: o.out || null }, (vars || []).concat([['bh', blackHeight()]]));
+    };
+
+    /* ── the silent builder for spec.start: ordinary red-black insertion, no frames ── */
+    function silentInsert(key) {
+      let y = null, x = root;
+      while (x != null) { y = x; x = key < N[x].k ? N[x].l : N[x].r; }
+      const z = mkNode(key, 'R'); N[z].p = y;
+      if (y == null) root = z; else if (key < N[y].k) N[y].l = z; else N[y].r = z;
+      let cur = z, guard = 0;
+      while (N[cur].p != null && N[cur].c === 'R' && N[N[cur].p].c === 'R' && guard++ < 40) {
+        const p = N[cur].p, g = N[p].p;
+        if (g == null) break;
+        const left = N[g].l === p, u = left ? N[g].r : N[g].l;
+        if (col(u) === 'R') { N[p].c = 'B'; N[u].c = 'B'; N[g].c = 'R'; cur = g; continue; }
+        if (left ? N[p].r === cur : N[p].l === cur) { cur = p; if (left) rotL(cur); else rotR(cur); }
+        const p2 = N[cur].p; if (p2 == null) break;
+        const g2 = N[p2].p; if (g2 == null) break;
+        N[p2].c = 'B'; N[g2].c = 'R';
+        if (N[g2].l === p2) rotR(g2); else rotL(g2);
+        cur = p2;
+      }
+      if (root != null && N[root].c === 'R') N[root].c = 'B';
+    }
+
+    const ops = [].concat(spec.keys || []).map(x => String(x).trim()).filter(Boolean);
+    const deleting = spec.op === 'delete';
+    [].concat(spec.start || []).map(x => String(x).trim()).filter(Boolean).forEach(k => silentInsert(Number(k)));
+
+    R.at(null);
+    draw(C(`A red-black tree: the root and the NIL leaves are black, no red node has a red child, and every path from a node to a NIL holds the same number of black nodes. ${ops.length ? (deleting ? 'Delete ' : 'Insert ') + ops.join(', ') + ', following the case list of the lab sheet.' : ''}`, `شجرة red-black: الـ root والـ NIL سود، مفيش أحمر تحت أحمر، وكل مسار لـ NIL فيه نفس عدد العقد السوداء.`), { chips: root != null ? [[root, 'root']] : [], tag: spec.tag || '' }, [['keys', ops.join(' ')]]);
+    if (deleting) ops.forEach(k => delStep(Number(k)));
+    else ops.forEach(k => insStep(Number(k)));
+
+    /* ═════ insert: cases 0-5 of Lab 5 ═════ */
+    function insStep(k) {
+      let y = null, x = root; const path = [];
+      while (x != null) { y = x; path.push(N[x].k); x = k < N[x].k ? N[x].l : N[x].r; }
+      const z = mkNode(k, 'R'); N[z].p = y;
+      if (y == null) root = z; else if (k < N[y].k) N[y].l = z; else N[y].r = z;
+      draw(C(`Insert ${k}: the BST search walks ${path.length ? path.join(' → ') : 'nowhere (the tree is empty)'}, so ${k} becomes a leaf and is coloured <b>red</b> — a red node adds no black height, so properties 1, 3 and 5 still hold.`, `Insert ${k}: البحث نزل ${path.length ? path.join(' → ') : '(الشجرة فاضية)'}، فـ ${k} بقت leaf ولونها <b>أحمر</b>.`), { cur: z, chips: [[z, 'z']] }, [['z', k]]);
+      if (z === root) {
+        N[z].c = 'B';
+        draw(C(`<b>Case 0</b> (Lab 5): z = ${k} is the root of an empty tree, so colour it <b>black</b>. Property 2 holds and there is nothing else to do.`, `<b>Case 0</b> (Lab 5): z = ${k} هو الـ root، فنلوّنه <b>أسود</b>. خلصنا.`), { cur: z, tag: 'Case 0', chips: [[z, 'root']] }, [['z', k], ['done', 'yes']]);
+        return;
+      }
+      let cur = z, guard = 0;
+      while (N[cur].p != null && N[cur].c === 'R' && N[N[cur].p].c === 'R' && guard++ < 24) {
+        const p = N[cur].p, g = N[p].p;
+        if (g == null) break;
+        const left = N[g].l === p, u = left ? N[g].r : N[g].l;
+        const zSide = N[p].l === cur ? 'left' : 'right';
+        const red = col(u) === 'R';
+        R.quiz(C(`p[z] is red, so a red node has a red child (property 4 is broken). Look at the uncle y first: which case is it?`, `p[z] أحمر، يعني فيه أحمر تحت أحمر. بص على الـ uncle y الأول: دي أنهي case؟`), red ? 'Case 1: the uncle y is red' : `Uncle y is black and p[z] is a ${left ? 'left' : 'right'} child`, red ? [`Uncle y is black and p[z] is a ${left ? 'left' : 'right'} child`, 'Case 0: z is the root'] : ['Case 1: the uncle y is red', 'Case 0: z is the root'], true);
+        draw(C(`z = ${K(cur)} and p[z] = ${K(p)} are both red. Grandparent = ${K(g)}, uncle y = ${tag(u)}, and z is a ${zSide} child of p[z].`, `z = ${K(cur)} و p[z] = ${K(p)} الاتنين حمراء. الـ grandparent = ${K(g)}، الـ uncle y = ${tag(u)}، و z ${zSide === 'left' ? 'شمال' : 'يمين'} p[z].`), { cur, tag: red ? 'Case 1?' : 'Case 2-5?', chips: [[cur, 'z'], [p, 'p[z]'], [u, 'y (uncle)']] }, [['z', K(cur)], ['uncle', tag(u)]]);
+
+        if (red) {
+          draw(C(`<b>Case 1</b> (Lab 5): the uncle y = ${tag(u)} — this case never rotates. Recolour p[z] = ${K(p)} and y <b>black</b> and the grandparent ${K(g)} <b>red</b>, then move z up to the grandparent and look again.`, `<b>Case 1</b> (Lab 5): الـ uncle y = ${tag(u)} <b>أحمر</b> — الحالة دي مفيش فيها rotation. نلوّن p[z] و y <b>أسود</b> والـ grandparent <b>أحمر</b>، وبعدين z تطلع للـ grandparent ونبص تاني.`), { cur: cur, tag: 'Case 1', chips: [[p, 'p'], [u, 'y'], [g, 'g']] });
+          N[p].c = 'B'; N[u].c = 'B'; N[g].c = 'R';
+          draw(C(`<b>Case 1</b> (Lab 5) applied: recolour p[z] = ${K(p)} and y = ${K(u)} <b>black</b> and the grandparent ${K(g)} <b>red</b>, then set z ← grandparent ${K(g)}. This applies whether z is a left or a right child and on the mirror side too. No rotation; black heights are unchanged, and the red-red pair may simply move two levels up.`, `<b>Case 1</b> (Lab 5): الـ uncle أحمر — نلوّن p[z] والـ uncle <b>أسود</b> والـ grandparent <b>أحمر</b>، و z تبقى الـ grandparent. مفيش rotation.`), { cur: g, tag: 'Case 1', chips: [[g, 'new z']] }, [['z', K(g)]]);
+          cur = g;
+          continue;
+        }
+        const zig = left ? N[p].r === cur : N[p].l === cur;
+        const straightCase = left ? 2 : 4, zigCase = left ? 3 : 5;
+        R.quiz(C(`The uncle is black. Now look at the shape z → p[z] → grandparent: a straight line or a zig-zag?`, `الـ uncle أسود. بص على الشكل z → p[z] → grandparent: خط مستقيم ولا zig-zag؟`), zig ? `Case ${zigCase}: zig-zag (z is the ${left ? 'right' : 'left'} child, p[z] the ${left ? 'left' : 'right'} child)` : `Case ${straightCase}: straight line (z and p[z] are both ${left ? 'left' : 'right'} children)`, zig ? [`Case ${straightCase}: straight line`, 'Case 1: the uncle is red'] : [`Case ${zigCase}: zig-zag`, 'Case 1: the uncle is red'], true);
+        draw(C(`The uncle y = ${tag(u)}. A black uncle means recolouring alone cannot fix it — this case ends with a rotation, so compare the direction of z with the direction of p[z].`, `الـ uncle y = ${tag(u)} <b>أسود</b>، فالتلوين لوحده مش كفاية: الحالة دي بتنتهي بـ rotation. الوضع: z = ${K(cur)}، p[z] = ${K(p)}، والـ grandparent ${K(g)}.`), { cur: cur, tag: 'look' });
+        draw(C(`<b>Case ${zig ? zigCase : straightCase}</b> (Lab 5): ${
+          zig
+            ? `the shape z → p[z] → grandparent is a <b>zig-zag</b>: z = ${K(cur)} is a ${zSide} child of p[z] = ${K(p)}, so one rotation at p[z] turns it into the straight line of Case ${straightCase}.`
+            : `the shape z → p[z] → grandparent is a <b>straight line</b>: z = ${K(cur)} is a ${zSide} child of p[z] = ${K(p)}, and p[z] is the ${left ? 'left' : 'right'} child of the grandparent ${K(g)}. Two recolours and one rotation at the grandparent finish it.`
+        }`, `<b>Case ${zig ? zigCase : straightCase}</b> (Lab 5): الشكل ${zig ? 'زجزاج' : 'خط مستقيم'} — z = ${K(cur)} ${zSide === 'left' ? 'شمال' : 'يمين'} p[z] = ${K(p)}. ${zig ? 'نلف على p[z] الأول عشان نخليه خط مستقيم، وبعدين Case ' + straightCase + '.' : 'نلوّن ونلف على الـ grandparent.'}`), { cur: cur, tag: 'Case ' + (zig ? zigCase : straightCase), chips: [[cur, 'z'], [p, 'p'], [g, 'g']] });
+        if (zig) {
+          const zz = cur;
+          cur = p;
+          if (left) rotL(cur); else rotR(cur);
+          draw(C(`<b>Case ${zigCase}</b> (Lab 5) applied: ${left ? 'LEFT-ROTATE' : 'RIGHT-ROTATE'}(p[z] = ${K(cur)}) has run. z is now ${K(zz)} and z, p[z], grandparent lie on a straight line, so the violation is reduced to <b>Case ${straightCase}</b>. Nothing is recoloured yet.`, `<b>Case ${zigCase}</b> (Lab 5): ${left ? 'left' : 'right'}-rotate على p[z] = ${K(cur)}، فيبقى الشكل خط مستقيم = <b>Case ${straightCase}</b>.`), { cur, tag: `Case ${zigCase}`, chips: [[cur, 'z'], [N[cur].p, 'p[z]']] }, [['z', K(cur)]]);
+        }
+        const p2 = N[cur].p; if (p2 == null) break;
+        const g2 = N[p2].p; if (g2 == null) break;
+        N[p2].c = 'B'; N[g2].c = 'R';
+        const l2 = N[g2].l === p2;
+        if (l2) rotR(g2); else rotL(g2);
+        draw(C(`<b>Case ${l2 ? 2 : 4}</b> (Lab 5) applied: p[z] = ${K(p2)} turns <b>black</b> and the grandparent ${K(g2)} <b>red</b>, then ${l2 ? 'RIGHT-ROTATE' : 'LEFT-ROTATE'}(${K(g2)}). Now ${K(p2)} is a black subtree root with two red children, so no red node has a red parent and the loop stops.`, `<b>Case ${l2 ? 2 : 4}</b> (Lab 5): p[z] = ${K(p2)} يبقى أسود، والـ grandparent يبقى أحمر، وبعدين ${l2 ? 'right' : 'left'}-rotate عليه. خلصنا التصليح.`), { cur: p2, tag: `Case ${l2 ? 2 : 4}`, chips: [[p2, 'subtree root']] }, [['z', K(p2)]]);
+        cur = p2;
+      }
+      if (root != null && N[root].c === 'R') {
+        N[root].c = 'B';
+        draw(C(`Finally colour the root ${K(root)} <b>black</b> (property 2). Insert ${k} is complete.`, `في الآخر نلوّن الـ root ${K(root)} <b>أسود</b> (property 2). إدخال ${k} خلص.`), { cur: root, tag: 'root', chips: [[root, 'root']] }, [['root', K(root)]]);
+      }
+    }
+
+    /* ═════ delete: Step 1 + cases 1-2 + fix-up cases 0-4 of Lab 6 ═════ */
+    function delStep(k) {
+      let z = root;
+      while (z != null && N[z].k !== k) z = k < N[z].k ? N[z].l : N[z].r;
+      if (z == null) {
+        draw(C(`${k} is not in the tree: nothing to delete.`, `${k} مش في الشجرة: مفيش حاجة نمسحها.`), { tag: 'Step 1' }, [['key', k]]);
+        return;
+      }
+      let y = z;
+      if (N[z].l != null && N[z].r != null) {
+        y = N[z].r; while (N[y].l != null) y = N[y].l;
+        draw(C(`<b>Step 1</b> (Lab 6): ${k} has two children. Its in-order successor is the minimum of the right subtree: ${K(y)}.`, `<b>Step 1</b> (Lab 6): ${k} عندها طفلين. الـ in-order successor = أصغر قيمة في الـ right subtree = ${K(y)}.`), { cur: z, tag: 'Step 1', chips: [[z, 'z'], [y, 'successor']] }, [['z', k], ['successor', K(y)]]);
+        N[z].k = N[y].k;
+        draw(C(`Copy ${K(z)} into the node that held ${k}; that node keeps its own colour (${N[z].c === 'R' ? 'red' : 'black'}), so no property moves. The old successor node ${K(y)} is the <b>spliced-out node</b> — it has at most one child.`, `بننسخ ${K(z)} في العقدة اللي كان فيها ${k} واللون ثابت. العقدة القديمة ${K(y)} هي الـ <b>spliced-out</b>، وعندها طفل واحد بالكتير.`), { cur: y, tag: 'Step 1', chips: [[y, 'spliced out']] }, [['spliced', K(y)]]);
+      } else {
+        draw(C(`<b>Step 1</b> (Lab 6): ${k} has ${N[z].l != null || N[z].r != null ? 'one child' : 'no children'}, so this very node is the spliced-out node.`, `<b>Step 1</b> (Lab 6): ${k} عندها ${N[z].l != null || N[z].r != null ? 'طفل واحد' : 'مفيش أطفال'}، فهي نفسها الـ spliced-out node.`), { cur: z, tag: 'Step 1', chips: [[z, 'spliced out']] }, [['spliced', K(y)]]);
+      }
+      const yk = K(y), yc = N[y].c, pY = N[y].p;
+      let x = N[y].r != null ? N[y].r : N[y].l, pid = null;
+      if (x == null) { pid = mkNode(null, 'B'); x = pid; }
+      N[x].p = pY;
+      if (pY == null) root = x; else if (N[pY].l === y) N[pY].l = x; else N[pY].r = x;
+      if (N[y].l === x) N[y].l = null; else N[y].r = null;
+      delete N[y];
+      const nilAt = () => (x != null && N[x] && N[x].k == null);
+      draw(C(`Splice ${yk} out: ${pid != null ? 'a black NIL sentinel x' : `its only child x = ${tag(x)}`} takes its place. <b>Step 2</b> (Lab 6): check the colour of the spliced-out node — it was <b>${yc === 'R' ? 'red' : 'black'}</b>.`, `شلنا ${yk}: ${pid != null ? 'NIL أسود x' : `طفلها الوحيد x = ${tag(x)}`} خد مكانها. <b>Step 2</b>: العقدة اللي اتشالت كانت <b>${yc === 'R' ? 'حمراء' : 'سوداء'}</b>.`), { cur: x, tag: 'Step 2', chips: [[x, pid != null ? 'x (NIL)' : 'x']] }, [['spliced', yk], ['colour', yc === 'R' ? 'red' : 'black']]);
+
+      const cleanup = () => {
+        if (pid == null) return;
+        const p = N[pid] && N[pid].p;
+        delete N[pid];
+        if (p == null) root = null;
+        else if (N[p].l === pid) N[p].l = null;
+        else if (N[p].r === pid) N[p].r = null;
+        pid = null;
+      };
+
+      if (yc === 'R') {
+        draw(C(`<b>Step 2</b> · Case 1 (Lab 6): the spliced-out node was <b>red</b>, so the black height of every path is unchanged and the tree is already valid. <b>No fix-up needed.</b>`, `<b>Step 2</b> · Case 1 (Lab 6): العقدة اللي اتشالت <b>حمراء</b>، فالـ black height ما اتغيرش. <b>مفيش fix-up</b>.`), { cur: x, tag: 'Step 2 · Case 1' }, [['done', 'yes']]);
+        cleanup();
+        done(k);
+        return;
+      }
+      if (col(x) === 'R') {
+        N[x].c = 'B';
+        draw(C(`<b>Step 2</b> · Case 2 (Lab 6): the spliced-out node was black but its child x = ${tag(x)} was <b>red</b>. Recolour x <b>black</b>: it inherits the missing unit of blackness and the balance is restored immediately.`, `<b>Step 2</b> · Case 2 (Lab 6): العقدة السوداء اتشالت لكن طفلها x كان <b>أحمر</b>. نلوّنه <b>أسود</b> فيعوّض الوحدة السوداء.`), { cur: x, tag: 'Step 2 · Case 2', chips: [[x, 'x']] }, [['x', K(x)]]);
+        done(k);
+        return;
+      }
+      draw(C(`The spliced-out node was black and x = ${pid != null ? 'a black NIL' : tag(x)} is black as well, so x carries <b>two units of blackness (double black ■)</b>. Enter the fix-up loop: while the double-black node is not the root, decide between <b>Cases 0–4</b> of Lab 6 using its sibling w.`, `العقدة اللي اتشالت سوداء و x كمان أسود، فـ x بقى <b>double black ■</b>. ندخل الـ fix-up loop: طول ما الـ double black مش الـ root، نقرر بين <b>Cases 0–4</b> باستخدام الـ sibling w.`), { cur: x, tag: 'Cases 0–4', chips: [[x, 'x = double black']] }, [['DB at', pid != null ? 'NIL' : K(x)]]);
+
+      let guard = 0;
+      while (guard++ < 24) {
+        if (x === root) {
+          if (col(x) === 'R') N[x].c = 'B';
+          draw(C(`<b>Case 0</b> (Lab 6): the double-black node is the root, so simply remove the extra unit of blackness — the root goes back to ordinary black (and is coloured black if it was red). Done.`, `<b>Case 0</b> (Lab 6): الـ double black هو الـ root، فبنشيل الوحدة الزيادة والـ root يرجع أسود عادي. خلصنا.`), { cur: x, tag: 'Case 0', chips: [[x, 'root']] }, [['done', 'yes']]);
+          break;
+        }
+        if (col(x) !== 'B') break;
+        const p = N[x].p;
+        if (p == null) break;
+        const left = N[p].l === x;
+        let w = left ? N[p].r : N[p].l;
+        const wRed = col(w) === 'R';
+        R.quiz(C(`x is double black. Look at its sibling w first: is w red or black?`, `x عليه double black. بص على الـ sibling w الأول: أحمر ولا أسود؟`), wRed ? 'w is red → Case 1' : 'w is black → Cases 2, 3 or 4', [wRed ? 'w is black' : 'w is red → Case 1', 'x is the root → Case 0'], true);
+        draw(C(`The double-black node is x = ${nilAt() ? 'the NIL sentinel' : K(x)}, its parent P = ${K(p)} (${left ? 'x is a left child' : 'x is a right child'}), its sibling w = ${tag(w)}.`, `الـ double black هو x = ${nilAt() ? 'NIL' : K(x)}، الأب P = ${K(p)}، والـ sibling w = ${tag(w)}.`), { cur: x, tag: wRed ? 'Case 1' : 'Cases 2-4', chips: [[x, 'x (DB)'], [w, 'w (sibling)']] }, [['P', K(p)], ['w', tag(w)]]);
+        if (wRed) {
+          draw(C(`<b>Case 1</b> (Lab 6): the sibling w = ${tag(w)}. Swap the colours of P = ${K(p)} and w, then ${left ? 'LEFT-ROTATE' : 'RIGHT-ROTATE'}(P): the double black does not move, but x gets a black sibling, so the question becomes Case 2, 3 or 4.`, `<b>Case 1</b> (Lab 6): الـ sibling w = ${tag(w)} <b>أحمر</b>. نبدّل ألوان P و w وبعدين ${left ? 'LEFT-ROTATE' : 'RIGHT-ROTATE'}(P): الـ double black ما بيتحركش، بس x هيبقى له sibling أسود والسؤال يبقى 2 ولا 3 ولا 4.`), { cur: x, tag: 'Case 1', chips: [[p, 'P'], [w, 'w red']] });
+          N[w].c = 'B'; N[p].c = 'R';
+          if (left) rotL(p); else rotR(p);
+          w = left ? N[p].r : N[p].l;
+          draw(C(`<b>Case 1</b> (Lab 6) applied: the colours of P = ${K(p)} and w are swapped, then ${left ? 'LEFT-ROTATE' : 'RIGHT-ROTATE'}(P). The double black is not resolved yet, but x's new sibling is ${tag(w)} — black — so Case 2, 3 or 4 follows.`, `<b>Case 1</b> (Lab 6): الـ sibling <b>أحمر</b>: نبدّل ألوان P و w، وبعدين ${left ? 'left' : 'right'}-rotate على P. الـ sibling الجديد ${tag(w)} أسود، فهنكمل بـ Case 2 أو 3 أو 4.`), { cur: x, tag: 'Case 1', chips: [[x, 'x (DB)'], [w, 'new w']] }, [['new w', tag(w)]]);
+          continue;
+        }
+        const near = left ? N[w].l : N[w].r;
+        const far = left ? N[w].r : N[w].l;
+        if (col(near) === 'B' && col(far) === 'B') {
+          R.quiz(C(`w = ${tag(w)} is black and both of its children are black. Which case?`, `w = ${tag(w)} أسود والطفلين بتوعه سود. دي أنهي case؟`), 'Case 2: both nephews are black', ['Case 3: the near nephew is red', 'Case 4: the far nephew is red'], true);
+          draw(C(`Situation: x = ${nilAt() ? 'the NIL sentinel' : K(x)} carries the double black, its parent P = ${K(p)}, its sibling w = ${tag(w)}, the near nephew is ${tag(near)} and the far nephew is ${tag(far)}.`, `الوضع: x = ${nilAt() ? 'NIL' : K(x)} عليه double black، الأب P = ${K(p)}، الـ sibling w = ${tag(w)} أسود، الـ near nephew ${tag(near)}، والـ far nephew ${tag(far)}.`), { cur: x, tag: 'look' });
+          draw(C(`<b>Case 2</b> (Lab 6): both nephews of w = ${tag(w)} are black — no rotation here. The sibling turns <b>red</b>, the double black of x drops to a single black, and one unit of blackness moves up to P = ${K(p)}: if P was red it now turns black and the loop ends, and if P was black then P becomes the new double-black node.`, `<b>Case 2</b> (Lab 6): الطفلين بتوع w سود — مفيش rotation. الـ sibling يبقى <b>أحمر</b>، والـ double black بتاع x يبقى single، ووحدة سوداء تطلع للـ P: لو P أحمر يبقى أسود ونخلص، ولو أسود يبقى هو الـ double black الجديد.`), { cur: x, tag: 'Case 2', chips: [[x, 'x'], [w, 'w']] });
+          N[w].c = 'R';
+          draw(C(`<b>Case 2</b> (Lab 6) applied: the sibling w = ${tag(w)} is now red; the double black of x drops to a single black and one unit of blackness moves up to the parent P = ${K(p)}.`, `<b>Case 2</b> (Lab 6): الطفلين سود — نلوّن w <b>أحمر</b>، الـ double black بتاع x يبقى single، ووحدة سوداء تطلع للـ parent P.`), { cur: x, tag: 'Case 2', chips: [[x, 'x'], [w, 'w red']] }, [['w', 'red']]);
+          if (N[p].c === 'R') {
+            N[p].c = 'B';
+            draw(C(`P = ${K(p)} was <b>red</b>, so it becomes black, absorbs the extra black unit and the loop ends.`, `P = ${K(p)} كان <b>أحمر</b> فبقى أسود وخد الوحدة الزيادة — خلصنا.`), { cur: p, tag: 'Case 2', chips: [[p, 'P black']] }, [['done', 'yes']]);
+            break;
+          }
+          draw(C(`P = ${K(p)} was already <b>black</b>, so it becomes the new double-black node: the loop climbs one level.`, `P = ${K(p)} كان أسود، فهو الـ double black الجديد: الـ loop تطلع مستوى.`), { cur: p, tag: 'Case 2', chips: [[p, 'new DB']] }, [['DB at', K(p)]]);
+          x = p;
+          continue;
+        }
+        if (col(far) === 'B') {
+          R.quiz(C(`w is black, its far nephew is black and its near nephew ${tag(near)} is red. Which case?`, `w أسود، الـ far nephew أسود والـ near nephew ${tag(near)} أحمر. دي أنهي case؟`), 'Case 3: near nephew red, far nephew black', ['Case 2: both nephews are black', 'Case 4: the far nephew is red'], true);
+          draw(C(`Situation: x = ${nilAt() ? 'the NIL sentinel' : K(x)} carries the double black, P = ${K(p)}, the sibling w = ${tag(w)}, the near nephew is ${tag(near)} and the far nephew is ${tag(far)}.`, `الوضع: x = ${nilAt() ? 'NIL' : K(x)} عليه double black، P = ${K(p)}، الـ sibling w = ${tag(w)} أسود، الـ near nephew ${tag(near)}، والـ far nephew ${tag(far)}.`), { cur: x, tag: 'look' });
+          draw(C(`<b>Case 3</b> (Lab 6): the nephew ${tag(near)} sits on the <b>near</b> side and ${tag(far)} is the far one — the red node is on the wrong side. Recolour the near nephew <b>black</b> and the sibling <b>red</b>, then rotate the sibling away from x: that red node becomes the far nephew and <b>Case 4</b> finishes the job.`, `<b>Case 3</b> (Lab 6): الـ near nephew ${tag(near)} <b>أحمر</b> والـ far أسود — الأحمر في الناحية الغلط. نلوّن الـ near <b>أسود</b> والـ sibling <b>أحمر</b>، وبعدين نلف الـ sibling بعيد عن x: العقدة الحمراء تبقى far nephew وييجي <b>Case 4</b> يخلص.`), { cur: x, tag: 'Case 3', chips: [[x, 'x'], [w, 'w'], [near, 'near red']] });
+          N[near].c = 'B'; N[w].c = 'R';
+          if (left) rotR(w); else rotL(w);
+          w = left ? N[p].r : N[p].l;
+          draw(C(`<b>Case 3</b> (Lab 6) applied: the near nephew turns <b>black</b> and the sibling <b>red</b>, then ${left ? 'RIGHT-ROTATE' : 'LEFT-ROTATE'}(w). x has not moved; its new sibling ${tag(w)} is black with a red far nephew, which is <b>Case 4</b>.`, `<b>Case 3</b> (Lab 6): الـ near nephew يبقى أسود والـ sibling أحمر، وبعدين ${left ? 'right' : 'left'}-rotate على w. بقينا في <b>Case 4</b>.`), { cur: x, tag: 'Case 3', chips: [[x, 'x (DB)'], [w, 'new w']] }, [['new w', tag(w)]]);
+        }
+        const far2 = left ? N[w].r : N[w].l;
+        R.quiz(C(`w = ${tag(w)} is black and its far nephew ${tag(far2)} is red. Which case is this — and does it finish the job?`, `w = ${tag(w)} أسود والـ far nephew ${tag(far2)} أحمر. دي أنهي case، وهل تخلص؟`), 'Case 4: recolour, rotate P toward x, done', ['Case 3: rotate the sibling first', 'Case 2: colour the sibling red'], true);
+        draw(C(`Situation: x = ${nilAt() ? 'the NIL sentinel' : K(x)} carries the double black, P = ${K(p)}, the sibling w = ${tag(w)}, the near nephew is ${tag(near)} and the far nephew is ${tag(far2)}.`, `الوضع: x = ${nilAt() ? 'NIL' : K(x)} عليه double black، P = ${K(p)}، الـ sibling w = ${tag(w)} أسود، الـ near nephew ${tag(near)}، والـ far nephew ${tag(far2)}.`), { cur: x, tag: 'look' });
+        draw(C(`<b>Case 4</b> (Lab 6): the far nephew ${tag(far2)} is the red one — this is the terminal case, nothing is asked after it. Give w the parent's colour, colour P = ${K(p)} <b>black</b> and the far nephew <b>black</b>, then ${left ? 'LEFT-ROTATE' : 'RIGHT-ROTATE'}(P): the extra black is absorbed and the job is done.`, `<b>Case 4</b> (Lab 6): الـ far nephew ${tag(far2)} <b>أحمر</b> — الحالة الأخيرة، مفيش loop بعدها. w ياخد لون الأب، P يبقى <b>أسود</b> والـ far nephew <b>أسود</b>، وبعدين ${left ? 'LEFT-ROTATE' : 'RIGHT-ROTATE'}(P): الوحدة الزيادة تتوزّع ونخلص.`), { cur: x, tag: 'Case 4', chips: [[x, 'x'], [w, 'w'], [far2, 'far red']] });
+        N[w].c = N[p].c; N[p].c = 'B'; if (far2 != null) N[far2].c = 'B';
+        if (left) rotL(p); else rotR(p);
+        draw(C(`<b>Case 4</b> (Lab 6) applied: w takes the parent's colour, colour P = ${K(p)} <b>black</b> and the far nephew <b>black</b>, then ${left ? 'LEFT-ROTATE' : 'RIGHT-ROTATE'}(P). This is the terminal case — x loses its extra black and the loop is over.`, `<b>Case 4</b> (Lab 6): w ياخد لون الأب، والأب يبقى أسود، والـ far nephew يبقى أسود، وبعدين ${left ? 'left' : 'right'}-rotate على P. الحالة دي بتنهي المشكلة.`), { cur: w, tag: 'Case 4', chips: [[w, 'subtree root']] }, [['done', 'yes']]);
+        break;
+      }
+      if (x != null && N[x] && N[x].k != null && N[x].c === 'R') N[x].c = 'B';
+      cleanup();
+      done(k);
+    }
+
+    function done(k) {
+      draw(C(`Delete ${k} complete: the root is black, no red node has a red child, and every path from a node to a NIL has the same number of black nodes.`, `مسح ${k} خلص: الـ root أسود، مفيش أحمر تحت أحمر، وكل المسارات لـ NIL بنفس عدد العقد السوداء.`), { chips: root != null ? [[root, 'root']] : [], tag: 'done' }, [['deleted', k]]);
+    }
+  }
+
+  const SIMS = { stack: stackSim, queue: queueSim, cqueue: cqueueSim, array: arraySim, list: listSim, dlist: listSim, lstack: listSim, lqueue: listSim, bst: bstSim, hash: hashSim, isort: isortSim, qsort: qsortSim, csort: csortSim, bsearch: bsearchSim, dijkstra: dijkstraSim, rbt: rbtSim, select: selectSim, skiplist: skiplistSim, dp: dpSim, table: tableSim };
   function run(spec) {
     vid = 0;
     const R = Rec();
@@ -1443,9 +1948,10 @@ while Q ≠ ∅
     isort: ['start 8 2 4 9 3 6', 'Type space-separated numbers after "start" (2 to 10 numbers).'],
     qsort: ['start 6 10 13 5 8 3 2 11', 'Type space-separated numbers after "start" (2 to 10 numbers).'],
     csort: ['start 8 5 7 3 6 1 2', 'Type integers in 0..9 after "start" (2 to 9 numbers).'],
-    bsearch: ['start 3 5 7 8 9 12 15, search 9', 'Commands: start A B C … (sorted), search X.']
+    bsearch: ['start 3 5 7 8 9 12 15, search 9', 'Commands: start A B C … (sorted), search X.'],
+    rbt: ['start 47 32 71 93, insert 65 82 87', 'Commands: start A B C … (the tree, built without animation), insert A B C (one or more keys, each a new key), delete X. Keys are 1 to 99 and must be different. Each insert or delete is traced with the case list of Lab 5 / Lab 6, asking the case before doing it.']
   };
-  const LIMIT = { stack: 8, queue: 8, cqueue: 8, array: 10, list: 7, dlist: 6, lstack: 7, lqueue: 7, bst: 15, hash: 13 };
+  const LIMIT = { stack: 8, queue: 8, cqueue: 8, array: 10, list: 7, dlist: 6, lstack: 7, lqueue: 7, bst: 15, hash: 13, rbt: 14 };
   function parse(type, text, method) {
     if (['isort', 'qsort', 'csort', 'bsearch'].includes(type)) {
       const source = text.trim().replace(/^start\s+/i, '');
@@ -1465,6 +1971,35 @@ while Q ≠ ∅
       if (nums.length < 2 || nums.length > (type === 'csort' ? 9 : 10)) throw new Error(type === 'csort' ? 'Provide 2 to 9 numbers.' : 'Provide 2 to 10 numbers.');
       if (type === 'csort' && nums.some(x => x < 0 || x > 9)) throw new Error('For Counting Sort, use integers between 0 and 9.');
       return { type, arr: nums };
+    }
+    if (type === 'rbt') {
+      const spec = { type: 'rbt', start: [], keys: [], op: null };
+      const isNum = s => /^-?\d+$/.test(s || '');
+      const num = (s, raw) => {
+        if (!isNum(s)) throw new Error('"' + raw.trim() + '": a whole number is expected');
+        const n = +s;
+        if (!Number.isSafeInteger(n) || n < 1 || n > 99) throw new Error('"' + raw.trim() + '": use keys from 1 to 99, so the tree stays readable');
+        return n;
+      };
+      for (const raw of text.split(/[,;\n]+/)) {
+        const w = raw.trim().split(/\s+/).filter(Boolean); if (!w.length) continue;
+        const c = w[0].toLowerCase(), args = w.slice(1);
+        if (c === 'start') { if (!args.length) throw new Error('"start" needs the keys of the tree, for example "start 47 32 71 93"'); args.forEach(a => spec.start.push(num(a, raw))); }
+        else if (c === 'insert' || c === 'delete') {
+          if (!args.length) throw new Error('"' + c + '" needs at least one key');
+          if (spec.op && spec.op !== c) throw new Error('Do all the inserts first or all the deletes first: one run is either an insertion trace or a deletion trace.');
+          spec.op = c; args.forEach(a => spec.keys.push(num(a, raw)));
+        }
+        else throw new Error('"' + raw.trim() + '": not a command here. ' + HELP.rbt[1]);
+      }
+      if (!spec.keys.length) throw new Error('Add at least one key, for example "start 47 32 71 93, insert 65 82 87".');
+      spec.op = spec.op || 'insert';
+      const all = spec.start.concat(spec.op === 'insert' ? spec.keys : []);
+      if (new Set(all).size !== all.length) throw new Error('Each key can appear only once.');
+      if (spec.op === 'delete') { const miss = spec.keys.filter(k => spec.start.indexOf(k) < 0); if (miss.length) throw new Error('Delete only keys that are already in the tree: ' + miss.join(', ') + ' is not there.'); }
+      if (all.length > LIMIT.rbt) throw new Error('Keep it to ' + LIMIT.rbt + ' keys or fewer, so the diagram stays readable.');
+      if (!spec.start.length) delete spec.start;
+      return spec;
     }
     const spec = { type, ops: [] }, isNum = s => /^-?\d+$/.test(s);
     const listy = ['list', 'dlist', 'lstack', 'lqueue'].includes(type);
@@ -1499,6 +2034,12 @@ while Q ≠ ∅
   function toText(spec) {
     if (['isort', 'qsort', 'csort'].includes(spec.type)) return 'start ' + (spec.arr || spec.init || []).join(' ');
     if (spec.type === 'bsearch') return 'start ' + (spec.arr || []).join(' ') + ', search ' + (spec.target != null ? spec.target : 9);
+    if (spec.type === 'rbt') {
+      const p = [];
+      if (spec.start && spec.start.length) p.push('start ' + spec.start.join(' '));
+      p.push((spec.op === 'delete' ? 'delete ' : 'insert ') + (spec.keys || []).join(' '));
+      return p.join(', ');
+    }
     if (spec.type === 'hash' && !spec.keys && spec.ops) return 'size ' + (spec.size || 10) + ', keys ' + spec.ops.map(o => Array.isArray(o) ? o[1] : o).join(' ');
     const p = [];
     if (spec.type === 'hash') { p.push('size ' + spec.size); if (spec.method === 'double' && spec.h2) p.push('h2 ' + spec.h2); p.push('keys ' + spec.keys.join(' ')); return p.join(', '); }
@@ -1606,6 +2147,31 @@ while Q ≠ ∅
       ['Precondition', 'Binary search requires ascending sorted input. This workbench sorts the supplied values first and displays that sorted array. Indices refer to that array, not the original order.'],
       ['Search invariant', 'If the target exists, a matching position remains inside the inclusive interval [lo..hi]. Compute mid = floor((lo+hi)/2); retain mid−1 on the left or mid+1 on the right.'],
       ['Cost & exam trap', 'Worst Θ(log n), best Θ(1), iterative auxiliary space Θ(1). Stop when lo > hi. With duplicates, this version finds a match, not necessarily the first match.']
+    ],
+    rbt: [
+      ['Two sheets, one tree', 'Lab 5 walks insert with Cases 0-5; Lab 6 walks delete in two steps and then Cases 0-4 for the double-black node. The badge at the top left of the diagram is the case you are in.'],
+      ['Ask before you act', 'Every decision is a question first: is the uncle red? is z a left or a right child? is the sibling red? are both nephews black? Answer before you advance.'],
+      ['Cost & exam trap', 'Both operations are O(lg n): Insert does at most 2 rotations and stops at Cases 2-5 (Case 1 only recolours and climbs); Delete does at most 3 rotations, all in the terminal Case 4. Nothing changes the sorted order — the in-order walk is always the key set.']
+    ],
+    select: [
+      ['Read the diagram', 'The window A[lo..hi] is the only part of the array that can still contain rank k. Dimmed cells are outside it; the amber pill marks the requested rank.'],
+      ['Partition invariant', 'Lomuto partition with A[hi] as pivot: after the scan A[lo..i−1] ≤ pivot and A[i..hi−1] > pivot. The final swap puts the pivot at p, its final position.'],
+      ['Cost & exam trap', 'Expected Θ(n) with random pivots, worst Θ(n²) if the pivot is always extreme. Only ONE side is recursed into — that is why it beats sorting. The array is NOT sorted at the end.']
+    ],
+    skiplist: [
+      ['Read the diagram', 'L0 is the full sorted list; each higher level keeps about half of the keys below it. The header node is on every level, and ∞ marks the end of each level.'],
+      ['Search rule', 'If the next key on this level is ≤ the target, move right; otherwise drop down one level. Report the key only when it matches exactly.'],
+      ['Cost & exam trap', 'Expected O(log n) search, insert and delete; worst case O(n) with vanishing probability. Levels come from coin flips, so no key sequence can force the degenerate list.']
+    ],
+    dp: [
+      ['Read the diagram', 'Every cell is a well-defined subproblem (a prefix, or a prefix plus a capacity). Blue is the cell being written; amber cells are the dependencies it reads.'],
+      ['The two questions', 'What does the cell mean, and which smaller cells does it read? The recurrence answers both; the base row and column must be filled before anything else.'],
+      ['Cost & exam trap', 'Coin row Θ(n). LCS O(mn) time and memory. 0/1 knapsack O(nW), which is pseudo-polynomial because it depends on the numeric capacity. Recover the choices by backtracing, never by re-solving.']
+    ],
+    table: [
+      ['Read the diagram', 'Each row is one case of the argument and each column one quantity. The highlighted row is being worked out; already-derived rows are dimmed.'],
+      ['Fill order', 'A row may only cite rows above it — small instances first. That ordering is what makes the table a proof rather than a coincidence.'],
+      ['Exam tip', 'Copy the header row before you start, then fill cells left to right. The last row is the answer, and each earlier row is a step of the correctness argument.']
     ],
     dijkstra: [
       ['Read the graph', 'Arrows show directed edges and their weights. Labels above vertices show distance (predecessor). ∞ means not reached yet; the settled set S contains vertices whose distances are final.'],

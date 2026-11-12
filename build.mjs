@@ -6,7 +6,8 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 
 import vm from 'node:vm';
 import { texCourse, texUnknown } from './tex.mjs';
 
-const BASE_SOURCES = ['os', 'algo', 'swe', 'files', 'sad', 'dbms'];
+// the site is Algorithms only; courses/ is scanned too, so dropping a file here is enough to drop it from the build
+const BASE_SOURCES = ['algo'];
 const extraInCourses = existsSync('courses')
   ? readdirSync('courses').filter(f => f.endsWith('.js')).map(f => f.replace(/\.js$/, ''))
   : [];

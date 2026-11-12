@@ -20,8 +20,8 @@ const assert = require('node:assert/strict');
   const last = async () => { const b = page.getByRole('button', { name: 'Last step', exact: true }); if (await b.count() && await b.isEnabled()) await b.click(); };
   await open('algo');
   // the Algorithms lab follows the course: every topic loads each worked example from the slides and plays it to the end
-  const topics=['Sorting','Searching','Selection','Recurrences','Hashing','Amortized analysis','Skip lists','Red-black trees','Dynamic programming','Shortest paths','Spanning trees','Huffman codes','P, NP and reductions'];
-  assert.equal(await page.locator('.tl-nav button').count(), 13);
+  const topics=['Sorting','Searching','Selection','Recurrences','Hashing','Amortized analysis','Skip lists','Red-black trees','Dynamic programming'];
+  assert.equal(await page.locator('.tl-nav button').count(), 9);
   for (const title of topics) {
     await choose(title);
     const presets = page.locator('.tl-presets button');
@@ -48,29 +48,17 @@ const assert = require('node:assert/strict');
   for(const title of topics){await choose(title);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)<=1,'overflow: '+title);}
   // on phones a long list of examples is a dropdown
   await choose('Hashing'); assert.ok(await page.getByLabel('Load a worked example').isVisible());
-  await page.getByLabel('Find a concept').fill('huffman');
+  await page.getByLabel('Find a concept').fill('skip');
   assert.equal(await page.locator('.tl-nav button').count(),1);
   await page.getByLabel('Find a concept').fill('');
   // notes embed the same topic workspaces
   await page.evaluate(()=>localStorage.setItem('sd:nav2',JSON.stringify({view:'course',course:'algo',mode:'read',lec:1})));
   await page.reload(); await page.locator('.tl-embedded').first().waitFor();
-  await open('os');
-  for(const title of ['CPU scheduling','Page replacement','Deadlock','Memory placement','Disk scheduling']) {
-    await choose(title, true); assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth-innerWidth)<=1,'overflow: '+title);
-  }
-  await choose('CPU scheduling');
-  for(const method of ['FCFS','SJF','SRTF','RR']) {
-    await page.getByLabel('Strategy',{exact:true}).selectOption(method);
-    await page.getByRole('button',{name:'Last step',exact:true}).click();
-    assert.equal(await page.locator('.tl-error').count(),0);
-  }
-  await choose('Page replacement');
-  for(const method of ['FIFO','LRU','OPT','CLOCK']) {
-    await page.getByLabel('Strategy',{exact:true}).selectOption(method);
-    await page.getByRole('button',{name:'Last step',exact:true}).click();
-    assert.equal(await page.locator('.tl-error').count(),0);
-  }
   assert.deepEqual(errors,[]);
-  console.log('Browser smoke passed: 13 course-matched Algorithms topics with every worked example, 5 neutral OS topics, playback, search and mobile layout.');
+  // the midterm revision placeholder opens and links back into the course
+  await page.evaluate(()=>localStorage.setItem('sd:nav2',JSON.stringify({view:'course',course:'algo',mode:'midterm'})));
+  await page.reload(); await page.locator('.mrev').waitFor();
+  assert.ok(await page.locator('.mrev-chip').count() === 14);
+  console.log('Browser smoke passed: 9 Algorithms topics with every worked example, playback, search, the midterm revision placeholder and the mobile layout.');
   await browser.close();
 })().catch(e=>{console.error(e);process.exit(1);});

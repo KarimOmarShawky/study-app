@@ -53,9 +53,9 @@ function start() {
   hydrateManifest();
   Object.keys(C).forEach(hydrateCourseData);
   // each level lists its courses as [id, elective]; ORDER is the level on screen, set by App on every render
+  // the site is Algorithms only: one course, lectures 1–14
   const LEVELS = [
-    { id: 'l3', name: 'Level 3', sem: 'Semester 1', order: [['algo', 0], ['os', 0], ['swe', 0], ['files', 0], ['sad', 0], ['dbms', 0]] },
-    { id: 'l2', name: 'Level 2', sem: 'Semester 1', order: [['dm', 0], ['or', 0], ['ds', 0], ['web', 0], ['micro', 0], ['sa', 0]] }
+    { id: 'l3', name: 'Level 3', sem: 'Semester 1', order: [['algo', 0]] }
   ].map(v => Object.assign(v, { order: v.order.filter(([k]) => M[k]) })).filter(v => v.order.length);
   const levelOf = k => LEVELS.find(v => v.order.some(o => o[0] === k));
   let LEVEL = LEVELS.find(v => v.id === 'l3') || LEVELS[0];
@@ -74,52 +74,6 @@ function start() {
     set(k, v) { cache.set(k, v); try { localStorage.setItem('sd:' + k, JSON.stringify(v)); } catch (e) {} }
   };
   window.addEventListener('storage', e => { if (e.key == null) cache.clear(); else if (e.key.startsWith('sd:')) cache.delete(e.key.slice(3)); window.dispatchEvent(new Event('sd-store')); });
-  // HCI was renumbered (this term's lectures 1–4 came first, last year's 1–9 became 5–13): move saved HCI progress with it, once
-  (function moveHciProgress() {
-    try {
-      if (localStorage.getItem('sd:hcirenum') === '1') return;
-      const sh = n => n + 4, id = s => typeof s === 'string' ? s.replace(/^(x?)(\d+)-/, (m, x, n) => x + sh(+n) + '-') : s;
-      const get = k => { const v = localStorage.getItem('sd:' + k); return v == null ? null : JSON.parse(v); }, put = (k, v) => localStorage.setItem('sd:' + k, JSON.stringify(v));
-      ['known', 'miss', 'fixed'].forEach(k => { const v = get(k + ':hci'); if (Array.isArray(v)) put(k + ':hci', v.map(id)); });
-      ['srs', 'stats'].forEach(k => { const v = get(k + ':hci'); if (v && typeof v === 'object') put(k + ':hci', Object.fromEntries(Object.entries(v).map(([a, b]) => [id(a), b]))); });
-      const read = get('read:hci'); if (Array.isArray(read)) put('read:hci', read.map(n => typeof n === 'number' ? sh(n) : n));
-      const ll = get('lastlec:hci'); if (typeof ll === 'number') put('lastlec:hci', sh(ll));
-      ['nav2', 'last'].forEach(k => { const v = get(k); if (v && v.course === 'hci' && typeof v.lec === 'number') put(k, Object.assign({}, v, { lec: sh(v.lec) })); });
-      // per-lecture keys (reading position, book position): highest lecture first so nothing is overwritten
-      const keys = []; for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
-      keys.map(k => /^(sd:(?:pos|posf):hci:|sd:bookpos:hci:L)(\d+)$/.exec(k)).filter(Boolean).sort((a, b) => b[2] - a[2])
-        .forEach(m => { const v = localStorage.getItem(m[0]); localStorage.removeItem(m[0]); localStorage.setItem(m[1] + sh(+m[2]), v); });
-      localStorage.setItem('sd:hcirenum', '1');
-    } catch (e) {}
-  })();
-  // then last year's lectures were merged into this term's (old 5+6 → 1, 7 → 2, 8–13 → 5–10): move saved HCI progress again, once
-  (function mergeHciProgress() {
-    try {
-      if (localStorage.getItem('sd:hcimerge') === '1') return;
-      const M = {"quiz":{"1":{"n":1,"items":[16,17,18,19,20,21,-1,22,23,24,25,26,-1,27,28,29,30,31,32,33]},"2":{"n":2,"items":[9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27]},"5":[[0,10,1,0],[10,35,1,34]],"6":[[0,6,1,10],[6,6,1,59]],"7":[[0,9,2,0],[9,21,2,28]],"8":[[0,33,5,0]],"9":[[0,18,6,0]],"10":[[0,7,7,0]],"11":[[0,22,8,0]],"12":[[0,19,9,0]],"13":[[0,7,10,0]]},"card":{"1":{"n":1,"items":[-1,17,18,19,20,21,22,23,24,25,-1,26,27,28,29,30,-1,31,32,33,34,35,36,37,38]},"2":{"n":2,"items":[9,10,11,12,13,14,15,16,17,18,-1,19,20,21,22,23,24,25,26,27,28,29]},"5":[[0,10,1,0]],"6":[[0,7,1,10]],"7":[[0,9,2,0]],"8":[[0,8,5,0]],"9":[[0,9,6,0]],"10":[[0,8,7,0]],"11":[[0,7,8,0]],"12":[[0,11,9,0]],"13":[[0,9,10,0]]},"extra":{"5":[[0,10,1,0]],"6":[[0,10,1,10]],"7":[[0,10,2,0]],"8":[[0,10,5,0]],"9":[[0,10,6,0]],"10":[[0,10,7,0]],"11":[[0,10,8,0]],"12":[[0,10,9,0]],"13":[[0,10,10,0]]},"lec":{"1":1,"2":2,"5":1,"6":1,"7":2,"8":5,"9":6,"10":7,"11":8,"12":9,"13":10}};
-      const to = (kind, id) => {
-        const m = /^(x?)(\d+)-(\d+)$/.exec(id); if (!m) return id;
-        const e = M[m[1] ? 'extra' : kind][m[2]], i = +m[3]; if (!e) return id;
-        if (e.items) { const j = e.items[i]; return j == null || j < 0 ? null : m[1] + e.n + '-' + j; }
-        const r = e.find(r => i >= r[0] && i < r[1]); return r ? m[1] + r[2] + '-' + (r[3] + i - r[0]) : null;
-      };
-      const get = k => { const v = localStorage.getItem('sd:' + k); return v == null ? null : JSON.parse(v); }, put = (k, v) => localStorage.setItem('sd:' + k, JSON.stringify(v));
-      const lec = n => typeof n === 'number' && M.lec[n] != null ? M.lec[n] : n;
-      [['known', 'card'], ['miss', 'quiz'], ['fixed', 'quiz']].forEach(([k, kind]) => { const v = get(k + ':hci'); if (Array.isArray(v)) put(k + ':hci', [...new Set(v.map(id => to(kind, id)).filter(Boolean))]); });
-      [['srs', 'card'], ['stats', 'quiz']].forEach(([k, kind]) => { const v = get(k + ':hci'); if (v && typeof v === 'object') { const o = {}; Object.entries(v).forEach(([id, x]) => { const n = to(kind, id); if (n && !(n in o)) o[n] = x; }); put(k + ':hci', o); } });
-      const read = get('read:hci'); if (Array.isArray(read)) put('read:hci', [...new Set(read.map(lec))]);
-      const ll = get('lastlec:hci'); if (typeof ll === 'number') put('lastlec:hci', lec(ll));
-      ['nav2', 'last'].forEach(k => { const v = get(k); if (v && v.course === 'hci' && typeof v.lec === 'number') put(k, Object.assign({}, v, { lec: lec(v.lec) })); });
-      // reading positions: merged lectures start from the top; the rest move with their lecture
-      const keys = []; for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
-      keys.map(k => /^(sd:(?:pos|posf):hci:|sd:bookpos:hci:L)(\d+)$/.exec(k)).filter(Boolean).sort((a, b) => a[2] - b[2]).forEach(m => {
-        const n = +m[2], v = localStorage.getItem(m[0]);
-        if ([1, 2, 5, 6, 7].includes(n)) localStorage.removeItem(m[0]);
-        else if (M.lec[n] != null && M.lec[n] !== n) { localStorage.removeItem(m[0]); localStorage.setItem(m[1] + M.lec[n], v); }
-      });
-      localStorage.setItem('sd:hcimerge', '1');
-    } catch (e) {}
-  })();
   // state saved under a key: written only when it changes (not on mount), and re-read if the key changes
   function usePersist(key, init) {
     const [s, setS] = useState(() => ({ key, v: store.get(key, init) }));
@@ -144,7 +98,7 @@ function start() {
   const originOf = q => isBook(q) ? 'book' : q.xtra || !q.src ? 'extra' : /^(exam|midterm)\b/i.test(q.src) ? 'exam' : /sheet|revision/i.test(q.src) ? 'sheet' : /^lecture\b/i.test(q.src) ? 'lecture' : /summary/i.test(q.src) ? 'summary' : 'extra';
   const isProf = q => ['exam', 'sheet', 'lecture'].includes(originOf(q));
   const ORIGIN = { exam: ['Past exam', 'prof'], sheet: ["Professor's sheet", 'prof'], lecture: ['Lecture example', 'prof'], summary: ['Student summary', 'summary'], extra: ['Extra question', 'extra'], book: ['Textbook', 'book'] };
-  const Source = ({ q }) => { const o = originOf(q), [label, cls] = ORIGIN[o]; return html`<span className=${'srcbadge ' + cls} title=${o === 'extra' ? 'Written for Study Deck from this lecture, not from the professor' : o === 'book' ? (q.src.includes('CLRS') || q.src.includes('Neapolitan') ? q.src : 'Operating System Concepts, 9th ed. — ' + q.src.replace(/^Book · /, '')) : q.src}>${o === 'extra' ? label : (o === 'exam' || o === 'sheet' || o === 'book' ? q.src : label)}</span>`; };
+  const Source = ({ q }) => { const o = originOf(q), [label, cls] = ORIGIN[o]; return html`<span className=${'srcbadge ' + cls} title=${o === 'extra' ? 'Written for Study Deck from this lecture, not from the professor' : q.src}>${o === 'extra' ? label : (o === 'exam' || o === 'sheet' || o === 'book' ? q.src : label)}</span>`; };
   const quizOf = k => memo['q' + k] || (memo['q' + k] = C[k].lectures.flatMap(l => l.quiz.map((x, i) => Object.assign({ id: l.n + '-' + i, lec: l.n }, x))
     .concat((l.extra || []).map((x, i) => Object.assign({ id: 'x' + l.n + '-' + i, lec: l.n, xtra: true }, x)))));
   const quizById = k => memo['m' + k] || (memo['m' + k] = new Map(quizOf(k).map(q => [q.id, q])));
@@ -387,7 +341,7 @@ function start() {
     papers: 'M6 3h12v18H6zM9 7h6M9 11h6M9 15h3',
     progress: 'M4 20h16M7 20v-6M12 20V7M17 20v-9'
   };
-  const SHORT_TAB = { studio: 'Visualizer', read: 'Notes', cards: 'Cards', ask: 'Q&A', quiz: 'Quiz', papers: 'Papers', progress: 'Progress' };
+  const SHORT_TAB = { studio: 'Visualizer', read: 'Notes', cards: 'Cards', ask: 'Q&A', quiz: 'Quiz', papers: 'Papers', midterm: 'Midterm Revision', progress: 'Progress' };
 
   /* ════════════ APP ════════════ */
   function App() {
@@ -527,7 +481,7 @@ function start() {
           <div className="hello-l">
             <p className="hello-k">${LEVEL.name} · ${LEVEL.sem}</p>
             <h1>${greet}</h1>
-            <p>${ORDER.length} courses · ${sum.lec} lectures · ${papers} solved past papers</p>
+            <p>${sum.lec} lectures · ${papers} solved past papers · Algorithms only</p>
             ${LEVELS.length > 1 && html`<div className="lvls" role="group" aria-label="Level and semester">${LEVELS.map(v => html`<button key=${v.id} aria-pressed=${String(v.id === LEVEL.id)} onClick=${() => setLevel(v.id)}>
               <b>${v.name}</b><span>${v.sem} · ${v.order.length} courses</span></button>`)}</div>`}
           </div>
@@ -558,7 +512,7 @@ function start() {
             <span className="bars" aria-label="Answers per day, last 7 days">${week.map(x => html`<span key=${x.d} title=${x.n + ' answers, ' + x.r + ' right'}><b><i style=${{ height: (x.n ? Math.max(12, x.n / maxN * 100) : 5) + '%', opacity: x.n ? 1 : .35 }}></i></b><em>${dayLetter(x.d)}</em></span>`)}</span>
           </div>
           <div className="t-courses">
-            <div className="t-head"><h2>${LEVEL.name}, ${LEVEL.sem} courses</h2><span>${sum.read} of ${sum.lec} lectures read</span></div>
+            <div className="t-head"><h2>${LEVEL.name}, ${LEVEL.sem}</h2><span>${sum.read} of ${sum.lec} lectures read</span></div>
             ${rows.map(r => html`<button key=${r.k} className=${'tile t-course sp-' + r.k} title=${M[r.k].name} onMouseEnter=${() => prefetch(r.k)} onPointerDown=${() => prefetch(r.k)} onClick=${() => openCourse(r.k)}>
             <span className="tcs">${M[r.k].code}${r.el ? ' · Elective' : ''}</span>
             <b className="tcn">${M[r.k].name}</b>
@@ -617,12 +571,13 @@ function start() {
     // no separate Videos tab: the player and its timestamps sit inside the Path tab, under the lecture
     const modes = [
       ['path', 'Path', null],
-      ...(baseK === 'algo' ? [['studio', 'Visualizer', 13]] : baseK === 'os' ? [['studio', 'Visualizer', 5]] : []),
+      ...(baseK === 'algo' ? [['studio', 'Visualizer', 9]] : []),
       ['read', 'Notes', c.lectures.length],
       ['cards', 'Cards', c.cards],
       ['ask', 'Q&A', c.qa],
       ['quiz', 'Quiz', c.quiz],
       ['papers', 'Past papers', baseM.exams],
+      ['midterm', 'Midterm Revision', null],
       ['progress', 'Progress', miss.length || null]
     ];
     return html`<div className="page">
@@ -868,7 +823,7 @@ function start() {
           <div>
             <p className="kicker" style=${{ color: 'var(--c)' }}>Check your understanding right after the video · ${uCap(k)} ${lec.n}</p>
             <h4 style=${{ margin: '2px 0 0', fontSize: '1.05rem' }}>Quick quiz on ${uCap(k)} ${lec.n} (${qRight}/${qAnswered || quickPool.length} correct)</h4>
-            ${quickPool.length && isBook(quickPool[0]) && html`<p className="muted" style=${{ margin: '4px 0 0', fontSize: '.82rem' }}>Five questions from ${baseOf(k) === 'algo' ? 'CLRS (3rd ed.) & Neapolitan (Foundations of Algorithms)' : 'Operating System Concepts (9th ed.)'}; each one names the section and page it comes from.</p>`}
+            ${quickPool.length && isBook(quickPool[0]) && html`<p className="muted" style=${{ margin: '4px 0 0', fontSize: '.82rem' }}>Five questions from CLRS (3rd ed.) & Neapolitan (Foundations of Algorithms); each one names the section and page it comes from.</p>`}
           </div>
           <div className="row">
             <button className="btn small" onClick=${() => setQPicks({})}>Try again</button>
@@ -925,7 +880,7 @@ function start() {
         ['Read the notes', l.notes.length + ' sections · ' + minutesFor(l) + ' min', isRead ? '✓ Read' : 'Start →', () => go({ mode: 'read', lec: l.n, anchor: null })],
         ['Flip the cards', kn + ' of ' + cardIds.length + ' known', cardsDone ? '✓ All known' : 'Open →', () => go({ mode: 'cards', cardLec: l.n, cardFocus: null })],
         ['Take the quiz', qs.length + ' questions' + (acc != null ? ' · ' + acc + '% so far' : ''), quizDone ? '✓ Passed' : '70% to pass →', () => go({ mode: 'quiz', quizPreset: { lecs: [l.n], t: Date.now(), from: 'path' } })],
-        ...(baseOf(k) === 'algo' || baseOf(k) === 'os' ? [['Interactive Visualizer Studio', hasInteractive ? 'Step-by-step execution trace & invariant workbench' : 'Full course visual laboratory', 'Launch Studio →', () => go({ mode: 'studio' })]] : [])
+        ...(baseOf(k) === 'algo' ? [['Interactive Visualizer Studio', hasInteractive ? 'Step-by-step execution trace & invariant workbench' : 'Full course visual laboratory', 'Launch Studio →', () => go({ mode: 'studio' })]] : [])
       ];
       detail = html`<div className="stop">
         <div className="st-info"><p className="eyebrow">${uCap(k)} ${l.n} of ${c.lectures.length}${isRead ? ' · read' : ''}</p><h2>${cleanTitle(l.title)}</h2>
@@ -964,7 +919,7 @@ function start() {
     }, []);
     if (failed) return html`<p className="vz-errmsg" role="alert">The topic laboratory could not load. Refresh to try again.</p>`;
     if (!ready) return html`<div className="vz vz-wait" role="status" aria-label="Loading topic laboratory"></div>`;
-    return html`<${window.TOPICS.Studio} subject=${baseOf(k) === 'os' ? 'os' : 'algo'} />`;
+    return html`<${window.TOPICS.Studio} />`;
   }
 
   function CourseBody({ k, mode, nav, go, lecN, known, setKnown, miss, setMiss, fixed, setFixed, best, setBest, read, setRead, barRef, onSection }) {
@@ -977,6 +932,7 @@ function start() {
         ${mode === 'ask' && html`<${Ask} key="ask" k=${k} startLec=${nav.askLec} />`}
         ${mode === 'quiz' && html`<${Quiz} key="quiz" k=${k} preset=${nav.quizPreset} go=${go} miss=${miss} setMiss=${setMiss} setFixed=${setFixed} best=${best} setBest=${setBest} />`}
         ${mode === 'papers' && html`<${Papers} key="papers" k=${k} />`}
+        ${mode === 'midterm' && html`<${MidtermRevision} key="midterm" k=${k} go=${go} read=${read} />`}
         ${mode === 'progress' && html`<${Progress} key="progress" k=${k} miss=${miss} setMiss=${setMiss} fixed=${fixed} setFixed=${setFixed} read=${read} known=${known} best=${best} go=${go} />`}
     `;
   }
@@ -2235,6 +2191,73 @@ function start() {
   }
 
   /* ════════════ REVISION SHEET ════════════ */
+  /* ════════════ MIDTERM REVISION — placeholder shell (stage 1) ════════════
+     Same page furniture as the notes and the revision sheet: one paper column, a tools row, section headings.
+     The three blocks below are the shape of the next stages; only the links in "Working today" are live. */
+  function MidtermRevision({ k, go, read }) {
+    const c = C[baseOf(k)] || C[k], lecs = c.lectures, readSet = new Set(read);
+    const questions = lecs.reduce((a, l) => a + l.quiz.length, 0);
+    const cards = lecs.reduce((a, l) => a + l.cards.length, 0);
+    const papers = (c.exams || []).length;
+    const blocks = [
+      { tag: 'Next stage', title: 'Quick revision, lecture by lecture',
+        body: 'Per lecture: what the midterm asks most, the formulas worth memorising, the proof skeleton, and the slides’ worked example cut down to its steps.',
+        meta: lecs.length + ' lectures · ' + cards + ' key terms to condense' },
+      { tag: 'Next stage', title: 'Timed mock midterm',
+        body: 'A whole paper in exam mode — objective questions marked as you answer, written answers revealed after you check, a score at the end with the weak lectures linked.',
+        meta: questions + ' questions in the bank · ' + papers + ' past papers to draw from' },
+      { tag: 'Next stage', title: 'Most-repeated ideas',
+        body: 'The ideas that keep returning across the past midterms, ranked by how many papers asked them, each one linked to the lecture that answers it.',
+        meta: 'Counted from the papers in Past papers' }
+    ];
+    const live = [
+      ['Notes', lecs.length + ' lectures', { mode: 'read', lec: lecs[0].n, anchor: null }],
+      ['Cards', cards + ' cards', { mode: 'cards' }],
+      ['Quiz', questions + ' questions', { mode: 'quiz' }],
+      ['Past papers', papers + ' papers', { mode: 'papers' }],
+      ['Visualizer', 'concept lab', { mode: 'studio' }]
+    ];
+    return html`<div className="read">
+      <div className="readcol">
+        <div className="readtools">
+          <span className="rt-meta">Midterm revision · Lectures 1–${lecs.length} · placeholder</span>
+          <span className="grow"></span>
+          <button className="tbtn" onClick=${() => go({ mode: 'quiz' })}>Open the quiz instead</button>
+        </div>
+        <article className="paper mrev">
+          <header className="page-head">
+            <p className="kicker" style=${{ color: 'var(--c)' }}>Midterm revision · ${c.short}</p>
+            <h2>Revision for the midterm</h2>
+            <p className="meta">The page is in place, the content is not written yet — the three blocks below are the shell for the next stages.</p>
+          </header>
+
+          <section className="mrev-sec">
+            <h3 className="mrev-h">Jump to a lecture</h3>
+            <div className="mrev-chips">${lecs.map(l => html`<button key=${l.n} className=${'mrev-chip' + (readSet.has(l.n) ? ' done' : '')}
+              onClick=${() => go({ mode: 'read', lec: l.n, anchor: null })} title=${l.title}>
+              <b>L${l.n}</b><span>${readSet.has(l.n) ? 'read' : 'notes'}</span></button>`)}</div>
+          </section>
+
+          <section className="mrev-sec">
+            <h3 className="mrev-h">What this page will hold</h3>
+            <div className="mrev-grid">${blocks.map(b => html`<div key=${b.title} className="mrev-card">
+              <span className="mrev-tag">${b.tag}</span>
+              <h4>${b.title}</h4>
+              <p>${b.body}</p>
+              <p className="mrev-meta">${b.meta}</p>
+            </div>`)}</div>
+          </section>
+
+          <section className="mrev-sec">
+            <h3 className="mrev-h">Working today</h3>
+            <div className="mrev-live">${live.map(([label, sub, to]) => html`<button key=${label} className="mrev-live-btn" onClick=${() => go(to)}>
+              <b>${label}</b><span>${sub}</span><em>Open →</em></button>`)}</div>
+          </section>
+        </article>
+      </div>
+    </div>`;
+  }
+
   function RevisionSheet({ k, go, read, onSection }) {
     const c = C[k];
     const [cover, setCover] = usePersist('revcover', false);
