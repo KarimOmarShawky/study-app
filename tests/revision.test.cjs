@@ -33,6 +33,59 @@ test('revision: tables are rectangular and every row has a header width', () => 
   }
 });
 
+test('revision: every lecture can be taught from zero — why, recipe, worked example, drill', () => {
+  const weights = ['core', 'often', 'rare'];
+  let mins = 0;
+  for (const l of R.lectures) {
+    assert.ok(html(l.why) && l.why.length > 120, `L${l.n} explains why the thing exists`);
+    assert.ok(Array.isArray(l.recipe) && l.recipe.length >= 3, `L${l.n} has a step-by-step recipe`);
+    l.recipe.forEach(r => assert.ok(html(r), `L${l.n} recipe step`));
+    assert.ok(l.example && html(l.example.t), `L${l.n} worked example has a title`);
+    assert.ok(l.example.steps.length >= 3, `L${l.n} worked example has steps`);
+    l.example.steps.forEach(r => assert.ok(html(r), `L${l.n} example step`));
+    assert.ok(l.drill && html(l.drill.q) && html(l.drill.ans), `L${l.n} 60-second drill with answer`);
+    assert.ok(Number.isInteger(l.mins) && l.mins > 0, `L${l.n} minutes`);
+    assert.ok(weights.includes(l.weight), `L${l.n} weight`);
+    assert.ok(html(l.trap), `L${l.n} common trap`);
+    mins += l.mins;
+  }
+  assert.ok(mins >= 60 && mins <= 120, 'reading all fourteen takes a sane number of minutes, got ' + mins);
+});
+
+test('revision: the night plan runs the clock and has something to give up', () => {
+  const p = R.plan;
+  assert.ok(html(p.intro));
+  assert.equal(p.blocks.length, 7);
+  const last = p.blocks[p.blocks.length - 1];
+  let clock = 0, withLecs = 0;
+  for (const b of p.blocks) {
+    assert.ok(html(b.when) && html(b.t) && html(b.body), 'plan block is complete');
+    assert.ok(Array.isArray(b.lecs), 'block lists its lectures (possibly none)');
+    if (b.lecs.length) withLecs++;
+    for (const n of b.lecs) assert.ok(R.lectures.some(l => l.n === n), `block lecture ${n} exists`);
+    if (/^\d/.test(b.when)) {
+      clock++;
+      const [h, m] = b.when.split('–')[0].split(':').map(Number);
+      assert.ok(Number.isInteger(h) && Number.isInteger(m), 'block has a clock time: ' + b.when);
+    }
+  }
+  assert.ok(withLecs >= 5, 'most blocks send you to lectures');
+  assert.equal(clock, 6, 'six timed blocks then the morning');
+  assert.ok(last.when.startsWith('morning') || /am/i.test(last.when), 'last block is the morning');
+  assert.equal(p.giveUp.length, 3);
+  p.giveUp.forEach(g => assert.ok(html(g) && g.length > 30, 'give-up line'));
+});
+
+test('revision: twenty essentials, each pointing back at a real lecture', () => {
+  assert.equal(R.essentials.length, 20);
+  for (const e of R.essentials) {
+    assert.ok(html(e.t) && e.t.length > 25, 'essential is a full sentence');
+    assert.ok(R.lectures.some(l => l.n === e.lec), 'essential points at a lecture: ' + e.lec);
+  }
+  assert.equal(R.howto.length, 3);
+  R.howto.forEach(h => assert.ok(html(h)));
+});
+
 test('revision: the mock is 25 questions worth 100 marks, every one answered', () => {
   const qs = R.mock.questions;
   assert.equal(qs.length, 25);

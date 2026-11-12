@@ -38,7 +38,11 @@ Every file the build reads must be present in the repository:
 
 - **Midterm revision** — `rev.js` is the last-night page: three tabs (the 14 lectures explained from
   zero, the patterns of Dr. Basheer's papers, and a 25-question mock worth 100 marks with model
-  answers and self-marking). It is loaded on demand, so the notes never pay for it.
+  answers and self-marking). It assumes no prior study: an hour-by-hour night plan with slots that
+  jump to their lectures, 20 lines to write from memory in the last 20 minutes, and for each lecture
+  a "why this exists", a step-by-step recipe, one fully worked example, a common trap and a
+  60-second drill with its answer. Marking a lecture read saves progress (`sd:revdone`) and the
+  header counts down the minutes still needed. It is loaded on demand, so the notes never pay for it.
 - **Videos** — the links supplied for lectures 1–14, one entry per video (`id`, `title`, `channel`).
   Lecture 5's playlist sits in `resources`. Titles are neutral placeholders (`Lecture 8 · video 2`)
   until real titles are added; edit them in place.
